@@ -33,7 +33,7 @@ uv run pytest && uv run ruff check . && uv run mypy app
 # iOS
 cd ios && xcodegen generate
 xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
-  -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+  -destination 'platform=iOS Simulator,name=iPhone 17'   # or any installed iPhone sim
 ```
 
 Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator — gate or mock those paths in tests and verify on a real device.

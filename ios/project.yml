@@ -1,0 +1,42 @@
+name: Wardrobe
+options:
+  bundleIdPrefix: com.tth
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Wardrobe:
+    type: application
+    platform: iOS
+    sources:
+      - Wardrobe
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tth.Wardrobe
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        TARGETED_DEVICE_FAMILY: "1"
+  WardrobeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - WardrobeTests
+    dependencies:
+      - target: Wardrobe
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tth.WardrobeTests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Wardrobe:
+    build:
+      targets:
+        Wardrobe: all
+    test:
+      targets:
+        - WardrobeTests

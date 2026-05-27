@@ -32,7 +32,7 @@ cd backend && uv sync && uv run pytest && uv run ruff check . && uv run mypy app
 # iOS (generates Wardrobe.xcodeproj from project.yml, then runs tests)
 cd ios && xcodegen generate
 xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
-  -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+  -destination 'platform=iOS Simulator,name=iPhone 17'   # or any installed iPhone sim
 ```
 
 ## Documentation
