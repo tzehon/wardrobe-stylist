@@ -1,0 +1,42 @@
+# ── macOS ───────────────────────────────────────────────
+.DS_Store
+
+# ── Secrets / credentials (NEVER commit) ────────────────
+.env
+*.env
+!*.env.example
+**/client_secret*.json
+**/credentials*.json
+**/GoogleService-Info.plist
+*.p8
+*.p12
+*.mobileprovision
+
+# ── Xcode / Swift ───────────────────────────────────────
+# The .xcodeproj is generated from ios/project.yml by XcodeGen — do not commit it.
+ios/*.xcodeproj
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.swiftpm/
+.build/
+
+# ── Python / backend ────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+.coverage
+htmlcov/
+
+# ── Node (Mermaid CLI / tooling, if used) ───────────────
+node_modules/
+
+# ── Fly.io ──────────────────────────────────────────────
+.fly/
