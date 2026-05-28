@@ -1,0 +1,13 @@
+// Project-wide build settings.
+//
+// Defaults for OAuth values are empty — the build still succeeds (and tests run) without
+// them, but live Gmail sign-in is a no-op until you create `Secrets.xcconfig` (gitignored)
+// with your real values. See `Secrets.xcconfig.example` and `docs/setup.md`.
+
+GOOGLE_CLIENT_ID =
+GOOGLE_REVERSED_CLIENT_ID =
+
+// Optional include — picks up your local secrets if present. The trailing `?` means
+// "don't error if the file is missing", and because xcconfig assignments use last-wins
+// precedence, any values defined inside Secrets.xcconfig override the empty defaults above.
+#include? "Secrets.xcconfig"

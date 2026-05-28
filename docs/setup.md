@@ -57,6 +57,24 @@ so tests and the `/health` route work without them.
 The Xcode project is **generated** from `ios/project.yml` by XcodeGen (the `.xcodeproj` is
 gitignored — never edit it by hand; edit `project.yml` and regenerate).
 
+### One-time: paste your Google OAuth IDs locally
+
+`ios/Secrets.xcconfig` is **gitignored**. The build (and all tests) succeeds without it,
+but live Gmail sign-in needs your two values from the iOS OAuth client you created in
+[`google-setup.md`](google-setup.md):
+
+```bash
+cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
+# then edit ios/Secrets.xcconfig and replace the placeholders with:
+#   GOOGLE_CLIENT_ID           = 123…-…apps.googleusercontent.com
+#   GOOGLE_REVERSED_CLIENT_ID  = com.googleusercontent.apps.123…-…
+```
+
+`ios/Config.xcconfig` (committed) `#include?`s your local file and feeds the values into
+`Info.plist` (`GIDClientID` and the OAuth URL-scheme `CFBundleURLTypes` entry).
+
+### Build / run / test
+
 ```bash
 cd ios
 xcodegen generate            # creates Wardrobe.xcodeproj

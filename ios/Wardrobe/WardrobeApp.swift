@@ -1,3 +1,4 @@
+import GoogleSignIn
 import SwiftData
 import SwiftUI
 
@@ -16,6 +17,11 @@ struct WardrobeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    // OAuth callback: route URL-scheme redirects to the GoogleSignIn SDK
+                    // so it can complete the sign-in flow.
+                    _ = GIDSignIn.sharedInstance.handle(url)
+                }
         }
         .modelContainer(container)
     }

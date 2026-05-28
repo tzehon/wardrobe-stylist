@@ -6,10 +6,12 @@ enum GmailError: Error, Equatable {
     case invalidResponse
     case http(status: Int, body: Data)
     case decoding(String)
+    case notAuthenticated
 
     static func == (lhs: GmailError, rhs: GmailError) -> Bool {
         switch (lhs, rhs) {
         case (.invalidResponse, .invalidResponse): return true
+        case (.notAuthenticated, .notAuthenticated): return true
         case let (.http(a, b), .http(c, d)): return a == c && b == d
         case let (.decoding(a), .decoding(b)): return a == b
         default: return false

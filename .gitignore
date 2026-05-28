@@ -8,6 +8,7 @@
 **/client_secret*.json
 **/credentials*.json
 **/GoogleService-Info.plist
+ios/Secrets.xcconfig
 *.p8
 *.p12
 *.mobileprovision
