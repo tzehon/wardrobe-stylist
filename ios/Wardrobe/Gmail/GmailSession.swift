@@ -43,7 +43,14 @@ final class GmailSession {
             )
             let granted = result.user.grantedScopes ?? []
             guard granted.contains(GmailScope.readonly) else {
-                state = .failed(message: "Read-only Gmail access was not granted.")
+                let got = granted.isEmpty ? "(nothing)" : granted.joined(separator: ", ")
+                state = .failed(message: """
+                    Gmail read-only access was not granted.
+                    Expected: \(GmailScope.readonly)
+                    Got:      \(got)
+                    Fix: add the gmail.readonly scope to your GCP Data access page, then \
+                    revoke the app at myaccount.google.com/permissions and sign in again.
+                    """)
                 return
             }
             try await activateAndFetchProfile()
