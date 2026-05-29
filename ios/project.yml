@@ -12,9 +12,11 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    # Simulator builds don't need to be signed — skip it so Xcode's UI doesn't ask for a
-    # development team. For real-device builds, set DEVELOPMENT_TEAM in Secrets.xcconfig.
-    "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+    # Simulator builds use ad-hoc signing — gives the app a real identity (Keychain APIs
+    # need one) without requiring an Apple Developer Team. Device builds keep automatic
+    # signing with DEVELOPMENT_TEAM from Secrets.xcconfig.
+    "CODE_SIGN_STYLE[sdk=iphonesimulator*]": "Manual"
+    "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
     CODE_SIGN_STYLE: Automatic
 packages:
   GoogleSignIn:
