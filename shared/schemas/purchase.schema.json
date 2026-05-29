@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wardrobe-stylist/schemas/purchase.schema.json",
+  "title": "FashionPurchaseExtraction",
+  "description": "Result of POST /extract — structured fashion purchases extracted from one receipt email snippet. The iOS app and the backend both validate against this; their language-native models must stay in sync.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["is_fashion", "items", "source_msg_id"],
+  "properties": {
+    "is_fashion": {
+      "type": "boolean",
+      "description": "True iff the email represents a purchase of clothing, footwear, bags, or jewelry/accessories. If false, items must be empty."
+    },
+    "source_msg_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Gmail message id supplied by the caller, echoed verbatim."
+    },
+    "items": {
+      "type": "array",
+      "description": "Fashion items in the order. Empty iff is_fashion is false.",
+      "items": { "$ref": "#/$defs/PurchaseItem" }
+    }
+  },
+  "$defs": {
+    "PurchaseItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "category", "confidence"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "category": {
+          "type": "string",
+          "enum": ["top", "bottom", "dress", "outerwear", "shoe", "bag", "jewelry", "accessory"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Overall confidence in the extracted record."
+        },
+        "brand": { "type": ["string", "null"] },
+        "color": { "type": ["string", "null"], "description": "Primary color, plain English." },
+        "material": { "type": ["string", "null"] },
+        "style_notes": { "type": ["string", "null"] },
+        "price": { "type": ["number", "null"], "minimum": 0 },
+        "currency": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 code (USD, GBP, EUR, ...)."
+        },
+        "image_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Product image URL if extractable from the receipt."
+        }
+      }
+    }
+  }
+}

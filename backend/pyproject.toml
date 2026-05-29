@@ -26,6 +26,15 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+# FastAPI's idiomatic dependency injection uses `Depends(...)` in argument defaults — that's
+# not the bug B008 was written to catch.
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header", "fastapi.Path"]
+
+# The Claude system prompt reads as prose; one rule per line beats wrapping.
+[tool.ruff.lint.per-file-ignores]
+"app/agents/extractor.py" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
