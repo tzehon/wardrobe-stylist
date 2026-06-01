@@ -10,14 +10,21 @@ final class URLProtocolStub: URLProtocol, @unchecked Sendable {
     /// Captured requests, in the order they were issued — used by tests to assert headers.
     nonisolated(unsafe) static var captured: [URLRequest] = []
 
+    /// Captured request bodies, parallel to `captured`. URLSession often promotes
+    /// `httpBody` to `httpBodyStream` before the request reaches URLProtocol, so we
+    /// read the stream here once and stash the bytes for tests to assert on.
+    nonisolated(unsafe) static var capturedBodies: [Data] = []
+
     static func install(_ h: @escaping (URLRequest) throws -> (HTTPURLResponse, Data?)) {
         handler = h
         captured = []
+        capturedBodies = []
     }
 
     static func reset() {
         handler = nil
         captured = []
+        capturedBodies = []
     }
 
     /// Returns a URLSession whose only protocol is this stub.
@@ -34,6 +41,7 @@ final class URLProtocolStub: URLProtocol, @unchecked Sendable {
 
     override func startLoading() {
         Self.captured.append(request)
+        Self.capturedBodies.append(Self.readBody(of: request))
         guard let handler = Self.handler else {
             client?.urlProtocol(self, didFailWithError: URLError(.resourceUnavailable))
             return
@@ -49,4 +57,22 @@ final class URLProtocolStub: URLProtocol, @unchecked Sendable {
     }
 
     override func stopLoading() {}
+
+    /// Reads the request body from `httpBody` if set, otherwise drains `httpBodyStream`.
+    private static func readBody(of request: URLRequest) -> Data {
+        if let body = request.httpBody { return body }
+        guard let stream = request.httpBodyStream else { return Data() }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        let bufferSize = 4096
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+        defer { buffer.deallocate() }
+        while stream.hasBytesAvailable {
+            let read = stream.read(buffer, maxLength: bufferSize)
+            if read <= 0 { break }
+            data.append(buffer, count: read)
+        }
+        return data
+    }
 }

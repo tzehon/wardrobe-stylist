@@ -41,5 +41,17 @@
             </array>
         </dict>
     </array>
+    <key>BackendBaseURL</key>
+    <string>$(BACKEND_BASE_URL)</string>
+    <key>BackendDeviceToken</key>
+    <string>$(BACKEND_DEVICE_TOKEN)</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <!-- Allow HTTP to .local hosts and private-IP ranges (10/8, 172.16/12, 192.168/16)
+             so the iPhone can reach the dev backend on your Mac over Wi-Fi. Doesn't relax
+             ATS for public hosts — production HTTPS still goes through normally. -->
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

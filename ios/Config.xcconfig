@@ -6,6 +6,8 @@
 
 GOOGLE_CLIENT_ID =
 GOOGLE_REVERSED_CLIENT_ID =
+BACKEND_BASE_URL =
+BACKEND_DEVICE_TOKEN =
 
 // Optional include — picks up your local secrets if present. The trailing `?` means
 // "don't error if the file is missing", and because xcconfig assignments use last-wins

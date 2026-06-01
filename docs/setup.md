@@ -44,34 +44,47 @@ Layout: `ios/` (app), `backend/` (proxy), `shared/schemas/` (data contract), `do
 ```bash
 cd backend
 uv sync                       # creates .venv and installs deps from uv.lock
-cp .env.example .env          # fill in later (only needed to call Claude)
-uv run uvicorn app.main:app --reload
+cp .env.example .env          # then fill in:
+                              #   ANTHROPIC_API_KEY=sk-ant-...
+                              #   DEVICE_TOKEN=$(python3 -c "import secrets;print(secrets.token_urlsafe(32))")
+uv run uvicorn app.main:app --reload --host 0.0.0.0   # 0.0.0.0 = listen on all interfaces
 curl localhost:8000/health    # {"status":"ok","environment":"dev"}
 ```
 
-`.env` (gitignored) holds `ANTHROPIC_API_KEY` and `DEVICE_TOKEN`. The config is import-safe,
-so tests and the `/health` route work without them.
+`--host 0.0.0.0` lets the iPhone on the same Wi-Fi reach the dev server (at your Mac's LAN
+IP). For sim-only dev you can drop it. The same `DEVICE_TOKEN` value must be pasted into
+`ios/Secrets.xcconfig` (see iOS section below). `.env` (gitignored) holds `ANTHROPIC_API_KEY`
+and `DEVICE_TOKEN`. The config is import-safe, so tests and `/health` work without them.
+
+> macOS firewall blocking port 8000? System Settings → Network → Firewall → allow incoming
+> for the Python process the first time it asks, or temporarily turn the firewall off for dev.
 
 ## iOS app
 
 The Xcode project is **generated** from `ios/project.yml` by XcodeGen (the `.xcodeproj` is
 gitignored — never edit it by hand; edit `project.yml` and regenerate).
 
-### One-time: paste your Google OAuth IDs locally
+### One-time: fill in your local secrets
 
 `ios/Secrets.xcconfig` is **gitignored**. The build (and all tests) succeeds without it,
-but live Gmail sign-in needs your two values from the iOS OAuth client you created in
-[`google-setup.md`](google-setup.md):
+but live Gmail sign-in and live backend calls need values pasted in:
 
 ```bash
 cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
 # then edit ios/Secrets.xcconfig and replace the placeholders with:
 #   GOOGLE_CLIENT_ID           = 123…-…apps.googleusercontent.com
 #   GOOGLE_REVERSED_CLIENT_ID  = com.googleusercontent.apps.123…-…
+#   BACKEND_BASE_URL           = http:$()//<Mac-LAN-IP>:8000   (iPhone on same Wi-Fi)
+#                                http:$()//localhost:8000      (simulator only)
+#                                https:$()//your-app.fly.dev   (Fly.io deploy)
+#   BACKEND_DEVICE_TOKEN       = (the same string as DEVICE_TOKEN in backend/.env)
 ```
 
-`ios/Config.xcconfig` (committed) `#include?`s your local file and feeds the values into
-`Info.plist` (`GIDClientID` and the OAuth URL-scheme `CFBundleURLTypes` entry).
+The `$()` is an empty xcconfig variable interpolation — it stops `//` from starting a
+comment. `ios/Config.xcconfig` (committed) `#include?`s your local file and feeds the
+values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
+`BackendDeviceToken`). `Info.plist` also sets `NSAllowsLocalNetworking = YES` so iOS lets
+the iPhone reach the dev backend over HTTP on the private-IP range.
 
 ### Build / run / test
 
