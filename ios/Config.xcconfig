@@ -6,7 +6,9 @@
 
 GOOGLE_CLIENT_ID =
 GOOGLE_REVERSED_CLIENT_ID =
-BACKEND_BASE_URL =
+// Backend URL is split because xcconfig strips `//…` as a comment. Info.plist composes it.
+BACKEND_SCHEME =
+BACKEND_HOST =
 BACKEND_DEVICE_TOKEN =
 
 // Optional include — picks up your local secrets if present. The trailing `?` means

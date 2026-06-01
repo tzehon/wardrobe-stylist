@@ -42,7 +42,7 @@
         </dict>
     </array>
     <key>BackendBaseURL</key>
-    <string>$(BACKEND_BASE_URL)</string>
+    <string>$(BACKEND_SCHEME)://$(BACKEND_HOST)</string>
     <key>BackendDeviceToken</key>
     <string>$(BACKEND_DEVICE_TOKEN)</string>
     <key>NSAppTransportSecurity</key>

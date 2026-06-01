@@ -74,15 +74,17 @@ cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
 # then edit ios/Secrets.xcconfig and replace the placeholders with:
 #   GOOGLE_CLIENT_ID           = 123…-…apps.googleusercontent.com
 #   GOOGLE_REVERSED_CLIENT_ID  = com.googleusercontent.apps.123…-…
-#   BACKEND_BASE_URL           = http:$()//<Mac-LAN-IP>:8000   (iPhone on same Wi-Fi)
-#                                http:$()//localhost:8000      (simulator only)
-#                                https:$()//your-app.fly.dev   (Fly.io deploy)
+#   BACKEND_SCHEME             = http     (or `https` for Fly.io)
+#   BACKEND_HOST               = <Mac-LAN-IP>:8000   (iPhone on same Wi-Fi)
+#                                localhost:8000      (simulator only)
+#                                your-app.fly.dev    (Fly.io deploy)
 #   BACKEND_DEVICE_TOKEN       = (the same string as DEVICE_TOKEN in backend/.env)
 ```
 
-The `$()` is an empty xcconfig variable interpolation — it stops `//` from starting a
-comment. `ios/Config.xcconfig` (committed) `#include?`s your local file and feeds the
-values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
+xcconfig values can't contain `//` (the rest of the line gets treated as a comment), so
+the backend URL is split into `BACKEND_SCHEME` and `BACKEND_HOST` and composed in
+`Info.plist` at build time. `ios/Config.xcconfig` (committed) `#include?`s your local file
+and feeds the values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
 `BackendDeviceToken`). `Info.plist` also sets `NSAllowsLocalNetworking = YES` so iOS lets
 the iPhone reach the dev backend over HTTP on the private-IP range.
 
