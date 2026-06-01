@@ -47,11 +47,18 @@
     <string>$(BACKEND_DEVICE_TOKEN)</string>
     <key>NSAppTransportSecurity</key>
     <dict>
-        <!-- Allow HTTP to .local hosts and private-IP ranges (10/8, 172.16/12, 192.168/16)
-             so the iPhone can reach the dev backend on your Mac over Wi-Fi. Doesn't relax
-             ATS for public hosts — production HTTPS still goes through normally. -->
-        <key>NSAllowsLocalNetworking</key>
+        <!-- DEV-ONLY: allow plain HTTP so the iPhone can reach the Mac dev backend
+             at its private LAN IP. NSAllowsLocalNetworking on its own covers .local
+             Bonjour names and link-local (169.254.x.x) but NOT private network ranges
+             (192.168/16 etc.), which is what we actually need here. Turn this off once
+             the backend is on Fly.io behind HTTPS. -->
+        <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+    <!-- iOS 14+ requires apps to declare why they reach private-network IPs and
+         prompts the user on first attempt. Without this key the request fails
+         silently with "the internet connection appears to be offline". -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>Wardrobe talks to its development backend running on your Mac to extract purchase receipts. Production builds use a remote server.</string>
 </dict>
 </plist>
