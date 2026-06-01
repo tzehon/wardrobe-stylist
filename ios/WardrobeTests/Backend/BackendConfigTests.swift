@@ -6,11 +6,12 @@ import Testing
 struct BackendConfigTests {
 
     @Test func loadsBaseURLAndDeviceTokenFromInfoPlist() throws {
+        // 192.0.2.x is RFC 5737 TEST-NET-1 — reserved for documentation/examples.
         let (url, token) = try BackendConfig.load(infoPlist: [
-            "BackendBaseURL": "http://192.168.88.10:8000",
+            "BackendBaseURL": "http://192.0.2.1:8000",
             "BackendDeviceToken": "secret-token",
         ])
-        #expect(url.absoluteString == "http://192.168.88.10:8000")
+        #expect(url.absoluteString == "http://192.0.2.1:8000")
         #expect(token == "secret-token")
     }
 
