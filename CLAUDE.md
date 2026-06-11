@@ -11,7 +11,7 @@ A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail p
 1. **Gmail is READ-ONLY, always.** Never add, call, or reference any Gmail write/mutate operation (send, insert, import, modify, batchModify, trash, untrash, delete, batchDelete, drafts.*, labels create/update/delete, settings.update*, threads modify/trash/delete). All Gmail access goes through `ios/Wardrobe/Gmail/GmailReadEndpoint.swift` (an allowlist enum; every case is a `GET`). The only OAuth scope is `https://www.googleapis.com/auth/gmail.readonly`. `WardrobeTests/GmailReadOnlyGuardTests` enforces this — keep it green. The guard scans `ios/Wardrobe/Gmail/` only; that's intentional, because the structural read-only guarantee comes from confining all Gmail HTTP to the endpoint enum in that directory.
 2. **Never embed the Anthropic API key (or any secret) in the iOS app.** Secrets live only in the backend (env/Fly.io secrets). `.env`/credentials are gitignored.
 3. **Hybrid privacy.** Do Gmail fetching + candidate filtering on-device; send only minimal text/images to the backend. The backend must not persist email content.
-4. **Tests at every stage.** Add/extend tests with each change and run them before considering work done. Don't mark a task complete with failing tests.
+4. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: `uv run pytest` (+ `ruff`/`mypy`); iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
 
 ## Layout
 
@@ -20,6 +20,8 @@ A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail p
   - `Wardrobe/Gmail/` — read-only Gmail layer (scope + endpoint allowlist + URLSession client + Codable models + MIME walker + base64url + Keychain `TokenStorage` + GoogleSignIn-backed auth + `GmailSession` state).
   - `Wardrobe/Receipts/` — on-device receipt extraction (Tier 0/1): `HTMLStripper`, `RetailerDirectory`, `CandidateClassifier` + `SignalsExtractor`, `JSONLDExtractor` (schema.org), `OCREngine` + `AttachmentOCR` (Vision + PDFKit). Pure functions / actors, no Gmail HTTP.
   - `Wardrobe/Backend/` — `/extract` Tier 2 HTTP client: `ExtractAPI` (Codable wire types), `ExtractClient` (POST + Bearer + snake_case round-trip), `BackendConfig` (reads Info.plist).
+  - `Wardrobe/Pipeline/` — `ReceiptPipeline`: orchestrates Gmail fetch → Tier 0 → `/extract` → SwiftData `Item`, with catalog-wide identity dedup (brand+name+category) + a heal sweep.
+  - `Wardrobe/Views/` — Phase 3 catalog UI: `CatalogView` (grid grouped by dynamic categories; search/filter/sort/delete), `ItemDetailView`, and pure `CatalogOrganizer`/`CatalogFilter` grouping logic.
   - `Wardrobe/Info.plist` — hand-managed; reads `$(GOOGLE_CLIENT_ID)`, `$(GOOGLE_REVERSED_CLIENT_ID)`, `$(BACKEND_SCHEME)`, `$(BACKEND_HOST)`, `$(BACKEND_DEVICE_TOKEN)` from `Config.xcconfig`, which `#include?`s the gitignored `Secrets.xcconfig` (template: `Secrets.xcconfig.example`). xcconfig values can't contain `//` (it starts a comment), which is why the backend URL is split into scheme + host and composed in the plist.
   - `WardrobeTests/` — Swift Testing unit tests + the read-only guard + URLProtocolStub (with body capture) + JSON-LD / Gmail / Backend fixtures.
 - `backend/` — FastAPI app (`app/`), tests (`tests/`), managed with **uv**.

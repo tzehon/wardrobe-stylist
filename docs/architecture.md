@@ -114,6 +114,35 @@ flowchart TD
     H --> K[("Catalog (SwiftData)")]
 ```
 
+### Dedup
+
+Ingestion dedups **catalog-wide** on a normalized `brand + name + category`
+identity (scoped to email-sourced items), not per-email. One order often arrives
+across several emails — an order confirmation *and* a dispatch email, sometimes
+via a fulfiller like Global-e — each listing the same product; identity dedup
+collapses them into a single catalog entry and keeps re-syncs idempotent. A sweep
+at the start of each sync also heals any duplicates already in the store.
+
+## Catalog browse (Phase 3)
+
+The catalog UI reads the SwiftData store the pipeline populates — no backend
+involved. Grouping, filtering, and sorting live in pure, unit-tested helpers
+(`CatalogOrganizer`, `CatalogFilter`) so the SwiftUI views stay thin.
+
+- **Dynamic categories** — sections are derived from the data; known fashion
+  categories sort in a canonical order, unknown/blank ones (`uncategorized`)
+  after, alphabetically.
+- **Browse** — `CatalogView` shows an adaptive grid grouped by category with
+  pinned headers; `.searchable` (name/brand), category filter chips, and a sort
+  menu (recent / name / brand). Items are deletable via context menu and from the
+  detail view (with confirmation).
+- **Images** — `ItemThumbnail` renders a local image (Phase 4 photo capture) →
+  the receipt's `imageURL` via `AsyncImage` → a category-symbol placeholder.
+- **Detail** — `ItemDetailView`: brand, color swatches, material, purchase date,
+  and source.
+
+See [`ios/Wardrobe/Views/`](../ios/Wardrobe/Views).
+
 ## Daily recommendation flow
 
 The stylist agent "Aria" runs on the backend as a tool-use loop (orchestrator + subagents),
@@ -174,7 +203,9 @@ classDiagram
 ```
 
 - `Item.source` is `email | photo | manual`. `brand`, `subcategory`, `material`,
-  `styleNotes`, `purchaseDate`, `sourceMsgId`, image data, and `featurePrint` are optional.
+  `styleNotes`, `purchaseDate`, `sourceMsgId`, `imageURL`, image data, and
+  `featurePrint` are optional. `imageURL` is the product image from the receipt,
+  loaded on demand in the catalog (local image data, when present, takes priority).
 - `colors` is `[String]`; images use `@Attribute(.externalStorage)`.
 - `featurePrint` is an archived `VNFeaturePrintObservation` used for visual
   similarity/dedup (compare via `computeDistance(_:to:)`, not as a plain vector).
