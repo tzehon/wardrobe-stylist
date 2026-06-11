@@ -51,22 +51,23 @@ enum PipelineFixtures {
         itemName: String,
         brand: String,
         price: Double,
-        currency: String = "USD"
+        currency: String = "USD",
+        imageURL: String? = nil
     ) throws -> Data {
-        try JSONSerialization.data(withJSONObject: [
+        var item: [String: Any] = [
+            "name": itemName,
+            "category": "top",
+            "confidence": "high",
+            "brand": brand,
+            "color": "white",
+            "price": price,
+            "currency": currency,
+        ]
+        if let imageURL { item["image_url"] = imageURL }
+        return try JSONSerialization.data(withJSONObject: [
             "is_fashion": true,
             "source_msg_id": sourceMsgId,
-            "items": [
-                [
-                    "name": itemName,
-                    "category": "top",
-                    "confidence": "high",
-                    "brand": brand,
-                    "color": "white",
-                    "price": price,
-                    "currency": currency,
-                ],
-            ],
+            "items": [item],
             "usage": ["input_tokens": 100, "output_tokens": 50],
         ])
     }

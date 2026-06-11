@@ -211,7 +211,8 @@ final class ReceiptPipeline {
                 styleNotes: extracted.styleNotes,
                 source: .email,
                 purchaseDate: purchaseDate,
-                sourceMsgId: sourceMsgId
+                sourceMsgId: sourceMsgId,
+                imageURL: extracted.imageUrl
             )
             modelContext.insert(item)
             added += 1

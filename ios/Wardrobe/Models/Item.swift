@@ -22,6 +22,7 @@ final class Item {
     var source: ItemSource
     var purchaseDate: Date?
     var sourceMsgId: String?      // Gmail message id (audit trail; email-sourced items)
+    var imageURL: String?         // product image from the receipt (email-sourced); loaded on demand
 
     @Attribute(.externalStorage) var imageData: Data?
     @Attribute(.externalStorage) var thumbnailData: Data?
@@ -41,6 +42,7 @@ final class Item {
         source: ItemSource = .manual,
         purchaseDate: Date? = nil,
         sourceMsgId: String? = nil,
+        imageURL: String? = nil,
         imageData: Data? = nil,
         thumbnailData: Data? = nil,
         featurePrint: Data? = nil
@@ -56,6 +58,7 @@ final class Item {
         self.source = source
         self.purchaseDate = purchaseDate
         self.sourceMsgId = sourceMsgId
+        self.imageURL = imageURL
         self.imageData = imageData
         self.thumbnailData = thumbnailData
         self.featurePrint = featurePrint

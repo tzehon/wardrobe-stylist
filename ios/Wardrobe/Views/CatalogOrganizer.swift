@@ -1,11 +1,13 @@
 import Foundation
 
-/// Anything the catalog can group into category sections. Keeping the organizer
-/// generic over this protocol (rather than hard-wiring `Item`) lets the grouping
-/// logic be unit-tested with lightweight stubs — no SwiftData container needed.
+/// Anything the catalog can group, filter, and sort. Keeping the logic generic
+/// over this protocol (rather than hard-wiring `Item`) lets it be unit-tested
+/// with lightweight stubs — no SwiftData container needed.
 protocol CatalogCategorizable {
     var category: String { get }
     var name: String { get }
+    var brand: String? { get }
+    var purchaseDate: Date? { get }
 }
 
 extension Item: CatalogCategorizable {}
@@ -15,6 +17,31 @@ struct CatalogSection<Element>: Identifiable {
     let category: String
     let items: [Element]
     var id: String { category }
+}
+
+/// How items are ordered within a category section.
+enum CatalogSortOrder: String, CaseIterable, Identifiable, Sendable {
+    case recent
+    case name
+    case brand
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .recent: return "Recently purchased"
+        case .name:   return "Name (A–Z)"
+        case .brand:  return "Brand"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .recent: return "calendar"
+        case .name:   return "textformat"
+        case .brand:  return "tag"
+        }
+    }
 }
 
 /// Pure, deterministic grouping of catalog items into ordered category sections.
@@ -31,18 +58,51 @@ enum CatalogOrganizer {
     ]
 
     static func sections<Element: CatalogCategorizable>(
-        from items: [Element]
+        from items: [Element],
+        sortedBy sort: CatalogSortOrder = .name
     ) -> [CatalogSection<Element>] {
-        Dictionary(grouping: items) { normalize($0.category) }
-            .map { category, members in
-                CatalogSection(
-                    category: category,
-                    items: members.sorted {
-                        $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-                    }
-                )
+        let grouped = Dictionary(grouping: items) { normalize($0.category) }
+        var result: [CatalogSection<Element>] = []
+        result.reserveCapacity(grouped.count)
+        for (category, members) in grouped {
+            result.append(CatalogSection(category: category, items: sorted(members, by: sort)))
+        }
+        return result.sorted { categoryPrecedes($0.category, $1.category) }
+    }
+
+    /// Orders items within a section. Ties fall back to name so the order is
+    /// always fully determined (stable across runs). Comparisons are inlined
+    /// (rather than calling a generic helper from inside the `sorted` closure) to
+    /// avoid a non-Sendable `Element.Type` capture under Swift 6 strict concurrency.
+    private static func sorted<E: CatalogCategorizable>(
+        _ items: [E], by sort: CatalogSortOrder
+    ) -> [E] {
+        switch sort {
+        case .name:
+            return items.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
             }
-            .sorted(by: precedes)
+        case .brand:
+            return items.sorted { lhs, rhs in
+                let l = lhs.brand?.lowercased() ?? ""
+                let r = rhs.brand?.lowercased() ?? ""
+                if l != r {
+                    if l.isEmpty != r.isEmpty { return !l.isEmpty }  // branded before brandless
+                    return l < r
+                }
+                return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+            }
+        case .recent:
+            return items.sorted { lhs, rhs in
+                switch (lhs.purchaseDate, rhs.purchaseDate) {
+                case let (a?, b?) where a != b: return a > b     // most recent first
+                case (_?, nil): return true                       // dated before undated
+                case (nil, _?): return false
+                default:
+                    return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+                }
+            }
+        }
     }
 
     /// Lower-cased, trimmed; empty categories collapse to a single `uncategorized` bucket.
@@ -52,15 +112,49 @@ enum CatalogOrganizer {
     }
 
     /// Canonical categories first (in vocabulary order), then everything else A–Z.
-    private static func precedes<E>(_ a: CatalogSection<E>, _ b: CatalogSection<E>) -> Bool {
-        switch (canonicalOrder.firstIndex(of: a.category),
-                canonicalOrder.firstIndex(of: b.category)) {
+    /// Non-generic (compares the category strings) so the section-sort closure
+    /// captures no `Element` metatype under Swift 6 strict concurrency.
+    private static func categoryPrecedes(_ a: String, _ b: String) -> Bool {
+        switch (canonicalOrder.firstIndex(of: a), canonicalOrder.firstIndex(of: b)) {
         case let (x?, y?): return x < y
         case (_?, nil):    return true
         case (nil, _?):    return false
-        case (nil, nil):
-            return a.category.localizedCaseInsensitiveCompare(b.category) == .orderedAscending
+        case (nil, nil):   return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
         }
+    }
+}
+
+/// Search + category filtering applied to catalog items before grouping.
+enum CatalogFilter {
+
+    static func apply<Element: CatalogCategorizable>(
+        to items: [Element],
+        search: String,
+        category: String?
+    ) -> [Element] {
+        var result = items
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !query.isEmpty {
+            result = result.filter { item in
+                item.name.lowercased().contains(query)
+                    || (item.brand?.lowercased().contains(query) ?? false)
+            }
+        }
+        if let category {
+            let target = category.lowercased()
+            result = result.filter {
+                $0.category.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == target
+            }
+        }
+        return result
+    }
+
+    /// Distinct categories present, in canonical display order — used to build
+    /// the filter chips so they always reflect the actual catalog.
+    static func availableCategories<Element: CatalogCategorizable>(
+        in items: [Element]
+    ) -> [String] {
+        CatalogOrganizer.sections(from: items).map(\.category)
     }
 }
 

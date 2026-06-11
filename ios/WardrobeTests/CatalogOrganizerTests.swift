@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Wardrobe
 
@@ -8,6 +9,15 @@ struct CatalogOrganizerTests {
     private struct StubItem: CatalogCategorizable {
         let category: String
         let name: String
+        var brand: String?
+        var purchaseDate: Date?
+
+        init(category: String, name: String, brand: String? = nil, purchaseDate: Date? = nil) {
+            self.category = category
+            self.name = name
+            self.brand = brand
+            self.purchaseDate = purchaseDate
+        }
     }
 
     @Test func knownCategoriesSortInCanonicalOrder() {
@@ -69,5 +79,68 @@ struct CatalogOrganizerTests {
         #expect(CatalogCategoryStyle.title("top") == "Tops")
         #expect(CatalogCategoryStyle.title("accessory") == "Accessories")
         #expect(CatalogCategoryStyle.title("swimwear") == "Swimwear") // capitalized fallback
+    }
+
+    // MARK: - Filtering
+
+    @Test func searchMatchesNameOrBrandCaseInsensitively() {
+        let items = [
+            StubItem(category: "top", name: "Linen Shirt", brand: "Everlane"),
+            StubItem(category: "bag", name: "Tote", brand: "Telfar"),
+            StubItem(category: "shoe", name: "Runner", brand: "Nike"),
+        ]
+        #expect(CatalogFilter.apply(to: items, search: "SHIRT", category: nil).map(\.name) == ["Linen Shirt"])
+        #expect(CatalogFilter.apply(to: items, search: "telfar", category: nil).map(\.name) == ["Tote"])
+        #expect(CatalogFilter.apply(to: items, search: "  ", category: nil).count == 3) // blank = no-op
+    }
+
+    @Test func categoryFilterKeepsOnlyThatCategory() {
+        let items = [
+            StubItem(category: "top", name: "Tee"),
+            StubItem(category: "bag", name: "Tote"),
+        ]
+        #expect(CatalogFilter.apply(to: items, search: "", category: "bag").map(\.name) == ["Tote"])
+    }
+
+    @Test func searchAndCategoryCombine() {
+        let items = [
+            StubItem(category: "top", name: "Wool Tee", brand: "Acme"),
+            StubItem(category: "top", name: "Cotton Tee", brand: "Acme"),
+            StubItem(category: "bag", name: "Wool Bag", brand: "Acme"),
+        ]
+        let result = CatalogFilter.apply(to: items, search: "wool", category: "top")
+        #expect(result.map(\.name) == ["Wool Tee"])
+    }
+
+    @Test func availableCategoriesAreInCanonicalOrder() {
+        let items = [
+            StubItem(category: "bag", name: "Tote"),
+            StubItem(category: "top", name: "Tee"),
+            StubItem(category: "swimwear", name: "Trunks"),
+        ]
+        #expect(CatalogFilter.availableCategories(in: items) == ["top", "bag", "swimwear"])
+    }
+
+    // MARK: - Sorting
+
+    @Test func sortByRecentPutsNewestFirstThenUndated() {
+        let items = [
+            StubItem(category: "top", name: "Old", purchaseDate: Date(timeIntervalSince1970: 1_000)),
+            StubItem(category: "top", name: "New", purchaseDate: Date(timeIntervalSince1970: 9_000)),
+            StubItem(category: "top", name: "Undated", purchaseDate: nil),
+        ]
+        let section = CatalogOrganizer.sections(from: items, sortedBy: .recent).first
+        #expect(section?.items.map(\.name) == ["New", "Old", "Undated"])
+    }
+
+    @Test func sortByBrandPutsBrandedFirstAlphabeticallyThenBrandless() {
+        let items = [
+            StubItem(category: "top", name: "Z-item", brand: nil),
+            StubItem(category: "top", name: "A-item", brand: "Zara"),
+            StubItem(category: "top", name: "B-item", brand: "Acme"),
+        ]
+        let section = CatalogOrganizer.sections(from: items, sortedBy: .brand).first
+        // Acme then Zara (branded, by brand A–Z), brandless last.
+        #expect(section?.items.map(\.name) == ["B-item", "A-item", "Z-item"])
     }
 }

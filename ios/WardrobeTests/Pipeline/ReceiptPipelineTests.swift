@@ -152,6 +152,59 @@ struct ReceiptPipelineTests {
         #expect(items.first?.sourceMsgId == "m1")
     }
 
+    @Test func persistsImageURLFromExtraction() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context
+        )
+
+        let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
+        let messageJSON = try PipelineFixtures.messageJSON(
+            id: "m1",
+            sender: Self.receiptSender,
+            subject: Self.receiptSubject,
+            body: Self.receiptBody,
+            labels: ["INBOX", "CATEGORY_PURCHASES"]
+        )
+        let imageURL = "https://cdn.example.com/oxford-shirt.jpg"
+        let extractJSON = try PipelineFixtures.extractFashionResponseJSON(
+            sourceMsgId: "m1",
+            itemName: "Classic Oxford Shirt",
+            brand: "Everlane",
+            price: 78.0,
+            imageURL: imageURL
+        )
+
+        URLProtocolStub.install { @Sendable request in
+            switch request.url?.host {
+            case Self.gmailHost:
+                let path = request.url?.path ?? ""
+                if path.hasSuffix("/messages") {
+                    return (Self.ok(for: request), listJSON)
+                }
+                if path.contains("/messages/m1") {
+                    return (Self.ok(for: request), messageJSON)
+                }
+                throw URLError(.unsupportedURL)
+            case Self.backendHost:
+                return (Self.ok(for: request), extractJSON)
+            default:
+                throw URLError(.unsupportedURL)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        let items = try context.fetch(FetchDescriptor<Item>())
+        #expect(items.count == 1)
+        #expect(items.first?.imageURL == imageURL)
+    }
+
     @Test func skipsMarketingEmailAtTier0() async throws {
         let container = try Self.makeContainer()
         let context = container.mainContext

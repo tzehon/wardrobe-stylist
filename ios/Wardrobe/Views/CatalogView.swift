@@ -1,50 +1,135 @@
 import SwiftData
 import SwiftUI
 
-/// Phase 3 (MVP): browse the wardrobe catalog, grouped into dynamic category
-/// sections. Pulls items straight from SwiftData via `@Query`; grouping/order is
-/// delegated to the pure `CatalogOrganizer` (unit-tested separately).
+/// Phase 3: browse the wardrobe catalog — grouped into dynamic category
+/// sections, with search, category filtering, sorting, and delete. Grouping /
+/// filtering / ordering is delegated to the pure `CatalogOrganizer` /
+/// `CatalogFilter` (unit-tested separately); this view is just presentation.
 struct CatalogView: View {
     @Query(sort: \Item.name) private var items: [Item]
+    @Environment(\.modelContext) private var modelContext
+
+    @State private var searchText = ""
+    @State private var selectedCategory: String?      // nil = all categories
+    @State private var sortOrder: CatalogSortOrder = .recent
 
     private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
+
+    private var sections: [CatalogSection<Item>] {
+        let filtered = CatalogFilter.apply(
+            to: items, search: searchText, category: selectedCategory
+        )
+        return CatalogOrganizer.sections(from: filtered, sortedBy: sortOrder)
+    }
 
     var body: some View {
         Group {
             if items.isEmpty {
-                ContentUnavailableView {
-                    Label("No items yet", systemImage: "square.grid.2x2")
-                } description: {
-                    Text("Sync your Gmail receipts or add items to start building your catalog.")
-                }
+                emptyCatalog
             } else {
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 16, pinnedViews: [.sectionHeaders]) {
-                        ForEach(CatalogOrganizer.sections(from: items)) { section in
-                            Section {
-                                ForEach(section.items) { item in
-                                    NavigationLink {
-                                        ItemDetailView(item: item)
-                                    } label: {
-                                        CatalogCell(item: item)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            } header: {
-                                CatalogSectionHeader(
-                                    category: section.category,
-                                    count: section.items.count
-                                )
-                            }
-                        }
+                    categoryChips
+                    if sections.isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                            .padding(.top, 48)
+                    } else {
+                        grid
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom)
                 }
             }
         }
         .navigationTitle("Catalog")
         .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, prompt: "Search name or brand")
+        .toolbar { sortMenu }
+    }
+
+    // MARK: - Pieces
+
+    private var emptyCatalog: some View {
+        ContentUnavailableView {
+            Label("No items yet", systemImage: "square.grid.2x2")
+        } description: {
+            Text("Sync your Gmail receipts or add items to start building your catalog.")
+        }
+    }
+
+    private var categoryChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                chip(title: "All", isSelected: selectedCategory == nil) {
+                    selectedCategory = nil
+                }
+                ForEach(CatalogFilter.availableCategories(in: items), id: \.self) { category in
+                    chip(title: CatalogCategoryStyle.title(category),
+                         isSelected: selectedCategory == category) {
+                        selectedCategory = (selectedCategory == category) ? nil : category
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+    }
+
+    private func chip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(isSelected ? Color.accentColor : Color(uiColor: .secondarySystemBackground))
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .clipShape(.capsule)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var grid: some View {
+        LazyVGrid(columns: columns, spacing: 16, pinnedViews: [.sectionHeaders]) {
+            ForEach(sections) { section in
+                Section {
+                    ForEach(section.items) { item in
+                        NavigationLink {
+                            ItemDetailView(item: item)
+                        } label: {
+                            CatalogCell(item: item)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                delete(item)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    }
+                } header: {
+                    CatalogSectionHeader(category: section.category, count: section.items.count)
+                }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom)
+    }
+
+    private var sortMenu: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker("Sort", selection: $sortOrder) {
+                    ForEach(CatalogSortOrder.allCases) { order in
+                        Label(order.label, systemImage: order.symbol).tag(order)
+                    }
+                }
+            } label: {
+                Label("Sort", systemImage: "arrow.up.arrow.down")
+            }
+        }
+    }
+
+    private func delete(_ item: Item) {
+        modelContext.delete(item)
+        try? modelContext.save()
     }
 }
 
@@ -98,22 +183,32 @@ private struct CatalogCell: View {
     }
 }
 
-/// Renders the item's stored thumbnail/image if present, else a category-symbol
-/// placeholder. Email-sourced items have no image until Phase 4 (photo capture),
-/// so the placeholder is the common case today.
+/// Renders, in priority order: a stored local image (Phase 4 photo capture), a
+/// remote product image from the receipt (`imageURL`, loaded via `AsyncImage`),
+/// or a category-symbol placeholder.
 struct ItemThumbnail: View {
     let item: Item
 
     var body: some View {
-        if let data = item.thumbnailData ?? item.imageData,
-           let image = UIImage(data: data) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
+        if let data = item.thumbnailData ?? item.imageData, let image = UIImage(data: data) {
+            Image(uiImage: image).resizable().scaledToFill()
+        } else if let urlString = item.imageURL, let url = URL(string: urlString) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case let .success(image): image.resizable().scaledToFill()
+                case .failure:            placeholder
+                case .empty:              ProgressView()
+                @unknown default:         placeholder
+                }
+            }
         } else {
-            Image(systemName: CatalogCategoryStyle.symbol(item.category))
-                .font(.system(size: 30))
-                .foregroundStyle(.secondary)
+            placeholder
         }
+    }
+
+    private var placeholder: some View {
+        Image(systemName: CatalogCategoryStyle.symbol(item.category))
+            .font(.system(size: 30))
+            .foregroundStyle(.secondary)
     }
 }
