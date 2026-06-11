@@ -50,23 +50,38 @@ final class ReceiptPipeline {
         self.modelContext = modelContext
     }
 
-    /// Runs one full sync. Safe to call repeatedly — dedup keeps the same
-    /// receipt from producing duplicate items.
+    /// Runs one full sync. Safe to call repeatedly — catalog-wide dedup keeps the
+    /// same product from producing duplicate items, even when one order arrives
+    /// across several emails (e.g. an order confirmation *and* a dispatch email).
     func sync(
         query: String = ReceiptPipeline.defaultQuery,
         maxMessages: Int = 200
     ) async {
-        // 1. Snapshot the catalog up front so we can dedup against it later.
-        //    Doing this *before* any `await` keeps the SwiftData call in the
-        //    same actor-execution slice as the @MainActor pipeline, which is
-        //    needed because mainContext.fetch interleaved with async awaits
-        //    later in the loop crashes inside SwiftData on iOS 26.
-        var seenForMessage: [String: Set<String>] = [:]
+        // 1. Snapshot + de-duplicate the existing catalog up front. Doing all the
+        //    SwiftData work here, *before* any `await`, keeps it in the same
+        //    actor-execution slice as the @MainActor pipeline — mainContext
+        //    fetch/save interleaved with awaits later in the loop crashes inside
+        //    SwiftData on iOS 26.
+        //
+        //    Dedup identity is brand+name+category (case/space-normalised),
+        //    scoped to email-sourced items (manual/photo items are user-curated
+        //    and never auto-removed). The sweep also heals any duplicates already
+        //    in the store from before dedup went catalog-wide.
+        var seenIdentities: Set<String> = []
         do {
             let existing = try modelContext.fetch(FetchDescriptor<Item>())
-            for item in existing {
-                guard let msgId = item.sourceMsgId else { continue }
-                seenForMessage[msgId, default: []].insert(item.name.lowercased())
+            var duplicates: [Item] = []
+            for item in existing.sorted(by: Self.earliestFirst) where item.source == .email {
+                let key = Self.identityKey(
+                    brand: item.brand, name: item.name, category: item.category
+                )
+                if seenIdentities.insert(key).inserted == false {
+                    duplicates.append(item)
+                }
+            }
+            if !duplicates.isEmpty {
+                for duplicate in duplicates { modelContext.delete(duplicate) }
+                try modelContext.save()
             }
         } catch {
             state = .failed(
@@ -95,13 +110,10 @@ final class ReceiptPipeline {
             for (index, ref) in refs.enumerated() {
                 state = .running(processed: index, total: total)
                 do {
-                    let alreadySeen = seenForMessage[ref.id] ?? []
-                    let outcome = try await processMessage(ref, alreadySeenNames: alreadySeen)
+                    let outcome = try await processMessage(ref, seenIdentities: seenIdentities)
                     itemsAdded += outcome.itemsAdded
                     if outcome.wasCandidate { candidates += 1 }
-                    if !outcome.persistedNames.isEmpty {
-                        seenForMessage[ref.id, default: []].formUnion(outcome.persistedNames)
-                    }
+                    seenIdentities.formUnion(outcome.persistedIdentities)
                 } catch {
                     errors += 1
                 }
@@ -118,23 +130,23 @@ final class ReceiptPipeline {
     private struct MessageOutcome {
         var itemsAdded: Int
         var wasCandidate: Bool
-        var persistedNames: Set<String>
+        var persistedIdentities: Set<String>
     }
 
     private func processMessage(
         _ ref: GmailMessageList.MessageRef,
-        alreadySeenNames: Set<String>
+        seenIdentities: Set<String>
     ) async throws -> MessageOutcome {
         let message = try await gmailClient.getMessage(id: ref.id)
         let signals = SignalsExtractor.makeSignals(from: message)
         let score = CandidateClassifier.classify(signals)
         guard score.likelyPurchase else {
-            return MessageOutcome(itemsAdded: 0, wasCandidate: false, persistedNames: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: false, persistedIdentities: [])
         }
 
         let snippet = String(signals.bodyText.prefix(Self.snippetCharLimit))
         guard !snippet.isEmpty else {
-            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedNames: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
         }
 
         let response = try await extractClient.extract(ExtractRequest(
@@ -144,19 +156,19 @@ final class ReceiptPipeline {
             snippet: snippet
         ))
         guard response.isFashion else {
-            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedNames: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
         }
 
         let result = try ingest(
             response.items,
             sourceMsgId: ref.id,
             internalDate: message.internalDate,
-            alreadySeenNames: alreadySeenNames
+            seenIdentities: seenIdentities
         )
         return MessageOutcome(
             itemsAdded: result.added,
             wasCandidate: true,
-            persistedNames: result.persistedNames
+            persistedIdentities: result.persistedIdentities
         )
     }
 
@@ -164,24 +176,29 @@ final class ReceiptPipeline {
 
     /// Maps `ExtractedItem`s onto SwiftData `Item`s and persists.
     ///
-    /// Dedup rule: an item is a duplicate if there's already an Item with the
-    /// same `sourceMsgId` AND a case-insensitive matching `name`. That keeps
-    /// repeated sync runs of the same email idempotent without preventing the
-    /// catalog from seeing the same product across different orders.
+    /// Dedup rule: an item is a duplicate if the catalog already holds an
+    /// email-sourced Item with the same brand+name+category identity (see
+    /// `identityKey`). Keying on identity rather than `sourceMsgId` collapses the
+    /// same product arriving across multiple emails of one order (confirmation +
+    /// dispatch) into a single catalog entry, and keeps re-syncs idempotent.
     private func ingest(
         _ items: [ExtractedItem],
         sourceMsgId: String,
         internalDate: String?,
-        alreadySeenNames: Set<String>
-    ) throws -> (added: Int, persistedNames: Set<String>) {
+        seenIdentities: Set<String>
+    ) throws -> (added: Int, persistedIdentities: Set<String>) {
         // Dedup is driven by the snapshot `sync()` built up front — no fetch
         // calls in here, only insert + save. See the comment in `sync()`.
         let purchaseDate = internalDate.flatMap(Self.parseGmailInternalDate)
-        var seen = alreadySeenNames
+        var seen = seenIdentities
         var persisted = Set<String>()
         var added = 0
         for extracted in items {
-            let key = extracted.name.lowercased()
+            let key = Self.identityKey(
+                brand: extracted.brand,
+                name: extracted.name,
+                category: extracted.category.rawValue
+            )
             if seen.contains(key) { continue }
             seen.insert(key)
             persisted.insert(key)
@@ -203,6 +220,22 @@ final class ReceiptPipeline {
             try modelContext.save()
         }
         return (added, persisted)
+    }
+
+    /// Stable de-dup identity for a catalog item: brand + name + category,
+    /// lower-cased and trimmed, joined with a unit separator that won't occur in
+    /// the fields themselves.
+    private static func identityKey(brand: String?, name: String, category: String) -> String {
+        func norm(_ value: String) -> String {
+            value.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return [norm(brand ?? ""), norm(name), norm(category)].joined(separator: "\u{1F}")
+    }
+
+    /// Sort comparator putting earlier purchase dates first (nil dates last), so
+    /// the dedup sweep keeps the earliest-known copy of a product.
+    private static func earliestFirst(_ a: Item, _ b: Item) -> Bool {
+        (a.purchaseDate ?? .distantFuture) < (b.purchaseDate ?? .distantFuture)
     }
 
     /// Gmail's `internalDate` is milliseconds-since-epoch as a string.

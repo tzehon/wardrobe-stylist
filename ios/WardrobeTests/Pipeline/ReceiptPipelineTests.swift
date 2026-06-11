@@ -372,7 +372,7 @@ struct ReceiptPipelineTests {
         defer { URLProtocolStub.reset() }
         await pipeline.sync(query: "test", maxMessages: 10)
 
-        // Second sync should add zero (dedup on sourceMsgId + name).
+        // Second sync should add zero (catalog-wide identity dedup).
         guard case let .complete(added, candidates, errors) = pipeline.state else {
             Issue.record("Expected .complete, got \(pipeline.state)")
             return
@@ -439,5 +439,130 @@ struct ReceiptPipelineTests {
         #expect(added == 1)
         #expect(candidates == 1)
         #expect(errors == 1)
+    }
+
+    /// One order spread across two emails (confirmation + dispatch) listing the
+    /// same product must collapse to a single catalog item — the real bug behind
+    /// the duplicate Maison Kitsuné entries. Dedup is catalog-wide on identity,
+    /// not per-`sourceMsgId`, so the second email's identical item is skipped.
+    @Test func sameProductAcrossTwoEmailsDedupesToOneItem() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context
+        )
+
+        let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_confirm", "m_ship"])
+        let confirmJSON = try PipelineFixtures.messageJSON(
+            id: "m_confirm",
+            sender: Self.receiptSender,
+            subject: "Order #ABC1234 confirmed",
+            body: Self.receiptBody,
+            labels: ["INBOX", "CATEGORY_PURCHASES"]
+        )
+        let shipJSON = try PipelineFixtures.messageJSON(
+            id: "m_ship",
+            sender: Self.receiptSender,
+            subject: "Your order #ABC1234 has shipped",
+            body: Self.receiptBody,
+            labels: ["INBOX", "CATEGORY_PURCHASES"]
+        )
+        // Both emails extract the same product (identical brand+name+category).
+        let extractJSON = try PipelineFixtures.extractFashionResponseJSON(
+            sourceMsgId: "m_confirm",
+            itemName: "Classic Oxford Shirt",
+            brand: "Everlane",
+            price: 78.0
+        )
+
+        URLProtocolStub.install { @Sendable request in
+            switch request.url?.host {
+            case Self.gmailHost:
+                let path = request.url?.path ?? ""
+                if path.hasSuffix("/messages") {
+                    return (Self.ok(for: request), listJSON)
+                }
+                if path.contains("/messages/m_confirm") {
+                    return (Self.ok(for: request), confirmJSON)
+                }
+                if path.contains("/messages/m_ship") {
+                    return (Self.ok(for: request), shipJSON)
+                }
+                throw URLError(.unsupportedURL)
+            case Self.backendHost:
+                return (Self.ok(for: request), extractJSON)
+            default:
+                throw URLError(.unsupportedURL)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        guard case let .complete(added, candidates, errors) = pipeline.state else {
+            Issue.record("Expected .complete, got \(pipeline.state)")
+            return
+        }
+        #expect(added == 1)        // one product, despite two candidate emails
+        #expect(candidates == 2)
+        #expect(errors == 0)
+        let items = try context.fetch(FetchDescriptor<Item>())
+        #expect(items.count == 1)
+    }
+
+    /// Duplicates already in the store (from before dedup went catalog-wide) are
+    /// healed by the up-front sweep, while a same-identity *manual* item — which
+    /// is user-curated — is left untouched.
+    @Test func sweepHealsPreExistingEmailDuplicatesButKeepsManual() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .email, sourceMsgId: "confirm"
+        ))
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .email, sourceMsgId: "ship"
+        ))
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .manual
+        ))
+        context.insert(Item(
+            name: "Wool Scarf", category: "accessory", brand: "Acme", source: .email,
+            sourceMsgId: "scarf"
+        ))
+        try context.save()
+
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context
+        )
+
+        let listJSON = try PipelineFixtures.messageListJSON(ids: [])
+        URLProtocolStub.install { @Sendable request in
+            switch request.url?.host {
+            case Self.gmailHost:
+                return (Self.ok(for: request), listJSON)
+            default:
+                throw URLError(.unsupportedURL)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        let items = try context.fetch(FetchDescriptor<Item>())
+        // 2 email Fox dupes → 1; manual Fox kept; scarf kept ⇒ 3 total.
+        #expect(items.count == 3)
+        let emailFox = items.filter { $0.name == "Gallery Fox Tee" && $0.source == .email }
+        #expect(emailFox.count == 1)
+        let manualFox = items.filter { $0.name == "Gallery Fox Tee" && $0.source == .manual }
+        #expect(manualFox.count == 1)
     }
 }
