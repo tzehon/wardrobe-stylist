@@ -64,9 +64,23 @@ struct ContentView: View {
                     .foregroundStyle(.green)
                 Text("Signed in (read-only)").font(.headline)
                 Text(email).foregroundStyle(.secondary)
-                Text("\(items.count) item\(items.count == 1 ? "" : "s") in catalog")
-                    .font(.footnote)
-                    .foregroundStyle(.tertiary)
+                NavigationLink {
+                    CatalogView()
+                } label: {
+                    HStack {
+                        Label(
+                            "\(items.count) item\(items.count == 1 ? "" : "s") in catalog",
+                            systemImage: "square.grid.2x2"
+                        )
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    .font(.subheadline)
+                    .padding()
+                    .background(Color(uiColor: .secondarySystemBackground))
+                    .clipShape(.rect(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
 
                 Divider().padding(.vertical, 6)
                 syncSection
