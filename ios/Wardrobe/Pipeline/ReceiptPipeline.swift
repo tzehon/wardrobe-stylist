@@ -54,7 +54,7 @@ final class ReceiptPipeline {
     /// receipt from producing duplicate items.
     func sync(
         query: String = ReceiptPipeline.defaultQuery,
-        maxMessages: Int = 30
+        maxMessages: Int = 200
     ) async {
         // 1. Snapshot the catalog up front so we can dedup against it later.
         //    Doing this *before* any `await` keeps the SwiftData call in the
