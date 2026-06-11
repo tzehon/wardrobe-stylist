@@ -60,4 +60,4 @@ Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator �
 
 0. Scaffolding + CI · 1. Gmail read-only auth/fetch · **2.** Tiered receipt extraction: 2a backend `/extract` · 2b iOS Tier 0 filter · 2c.1 JSON-LD · 2c.2 Vision OCR · 2d iOS `/extract` client + smoke test · 2e ingestion pipeline + SwiftData persistence · 3. Catalog browse + dynamic categories (**MVP**) · 4. Manual photo capture · 5. Stylist agent "Aria" (daily, anti-repeat) · 6. Background sync, notifications, TestFlight.
 
-Phases 0, 1, 2a–2d are done. Phase 2e is next.
+Phases 0, 1, 2a–2e are done. Phase 3 (catalog browse + dynamic categories) is in progress.
