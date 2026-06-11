@@ -42,5 +42,8 @@ jobs:
           xcodebuild test \
             -project Wardrobe.xcodeproj \
             -scheme Wardrobe \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            CODE_SIGNING_ALLOWED=NO
+            -destination "id=${{ steps.sim.outputs.udid }}"
+          # NOTE: do NOT pass CODE_SIGNING_ALLOWED=NO — the app must be ad-hoc
+          # signed on the simulator (CODE_SIGN_IDENTITY=- in project.yml) so the
+          # Keychain has an application-identifier entitlement. Without signing,
+          # TokenStorage's Keychain calls fail with -34018 (errSecMissingEntitlement).
