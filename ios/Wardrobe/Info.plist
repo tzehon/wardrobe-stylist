@@ -60,5 +60,9 @@
          silently with "the internet connection appears to be offline". -->
     <key>NSLocalNetworkUsageDescription</key>
     <string>Wardrobe talks to its development backend running on your Mac to extract purchase receipts. Production builds use a remote server.</string>
+    <!-- Phase 4: in-app camera capture for manually adding wardrobe items.
+         Library picking uses PhotosPicker (out-of-process, no key required). -->
+    <key>NSCameraUsageDescription</key>
+    <string>Wardrobe uses the camera so you can photograph clothing to add it to your wardrobe catalog.</string>
 </dict>
 </plist>

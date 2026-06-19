@@ -12,6 +12,7 @@ struct CatalogView: View {
     @State private var searchText = ""
     @State private var selectedCategory: String?      // nil = all categories
     @State private var sortOrder: CatalogSortOrder = .recent
+    @State private var showingAddItem = false
 
     private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
 
@@ -41,7 +42,23 @@ struct CatalogView: View {
         .navigationTitle("Catalog")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search name or brand")
-        .toolbar { sortMenu }
+        .toolbar {
+            sortMenu
+            addButton
+        }
+        .sheet(isPresented: $showingAddItem) {
+            AddItemView()
+        }
+    }
+
+    private var addButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                showingAddItem = true
+            } label: {
+                Label("Add Item", systemImage: "plus")
+            }
+        }
     }
 
     // MARK: - Pieces
