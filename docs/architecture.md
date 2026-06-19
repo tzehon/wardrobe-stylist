@@ -143,6 +143,18 @@ involved. Grouping, filtering, and sorting live in pure, unit-tested helpers
 
 See [`ios/Wardrobe/Views/`](../ios/Wardrobe/Views).
 
+## Manual photo capture (Phase 4)
+
+Add items that never came from a receipt — photograph a garment (camera) or pick
+one from the library (`PhotosPicker`), fill in a short form, and save it as a
+`source = .photo` `Item`. `ImageProcessor` (pure UIKit) downscales to a bounded
+full image + thumbnail stored on the item, so the same `ItemThumbnail` that
+renders email items shows the real photo. Camera capture is device-only and
+declares `NSCameraUsageDescription`; library picking needs no permission key.
+Vision subject-lift / feature-print are intentionally out of scope here.
+
+See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture).
+
 ## Daily recommendation flow
 
 The stylist agent "Aria" runs on the backend as a tool-use loop (orchestrator + subagents),
