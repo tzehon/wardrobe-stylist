@@ -65,6 +65,21 @@ struct ContentView: View {
                 Text("Signed in (read-only)").font(.headline)
                 Text(email).foregroundStyle(.secondary)
                 NavigationLink {
+                    TodayView()
+                } label: {
+                    HStack {
+                        Label("Today's outfit", systemImage: "sparkles")
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding()
+                    .background(Color.accentColor.opacity(0.12))
+                    .clipShape(.rect(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
                     CatalogView()
                 } label: {
                     HStack {
