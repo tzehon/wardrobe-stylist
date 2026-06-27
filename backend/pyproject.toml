@@ -34,6 +34,7 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header", 
 # The Claude system prompt reads as prose; one rule per line beats wrapping.
 [tool.ruff.lint.per-file-ignores]
 "app/agents/extractor.py" = ["E501"]
+"app/agents/stylist.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

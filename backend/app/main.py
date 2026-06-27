@@ -8,10 +8,11 @@ never persists email content. Routes are added per phase.
 from fastapi import FastAPI
 
 from app.config import settings
-from app.routes import extract
+from app.routes import extract, recommend
 
 app = FastAPI(title="Wardrobe Stylist API", version="0.1.0")
 app.include_router(extract.router)
+app.include_router(recommend.router)
 
 
 @app.get("/health")

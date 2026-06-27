@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wardrobe-stylist/schemas/outfit.schema.json",
+  "title": "OutfitRecommendation",
+  "description": "Result of POST /recommend — a daily outfit Aria proposes from the user's catalog (the `propose_outfit` tool). Item references are catalog UUIDs the caller supplied; the backend rejects any id it didn't send. The iOS app and the backend both validate against this; their language-native models must stay in sync.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["occasion", "color_story", "rationale", "item_ids", "alternates"],
+  "properties": {
+    "occasion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short label for the kind of day this look suits, e.g. 'relaxed weekend' or 'smart office'."
+    },
+    "color_story": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line description of the palette and how the colors play together."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Why this outfit works — fit, occasion, and styling reasoning, in Aria's voice."
+    },
+    "item_ids": {
+      "type": "array",
+      "description": "Catalog item UUIDs that make up the primary look, in the order Aria would describe them (e.g. top, bottom, shoe).",
+      "minItems": 2,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/ItemId" }
+    },
+    "alternates": {
+      "type": "array",
+      "description": "Alternative looks powering 'show me another'. May be empty when the catalog is too small to vary.",
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/AlternateOutfit" }
+    }
+  },
+  "$defs": {
+    "ItemId": {
+      "type": "string",
+      "format": "uuid",
+      "minLength": 1,
+      "description": "A catalog item id, echoed verbatim from the catalog the caller supplied."
+    },
+    "AlternateOutfit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_ids", "rationale"],
+      "properties": {
+        "item_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/ItemId" }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One line on what makes this alternative distinct from the primary look."
+        }
+      }
+    }
+  }
+}
