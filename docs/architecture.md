@@ -155,31 +155,44 @@ Vision subject-lift / feature-print are intentionally out of scope here.
 
 See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture).
 
-## Daily recommendation flow
+## Daily recommendation flow (Phase 5)
 
-The stylist agent "Aria" runs on the backend as a tool-use loop (orchestrator + subagents),
-returns a **structured** outfit, and never repeats recent looks.
+The stylist agent **"Aria"** proposes one wearable, non-repeating outfit from the
+user's own catalog. v1 is a **single Claude Opus 4.8 call** with a forced
+`propose_outfit` tool (the cached styling rubric is the stable prefix; the
+per-request catalog rides in the user message) — no subagents and no weather
+yet. The app sends only a **compact, text-only** snapshot (item ids + attributes,
+no images) plus the ids worn in the last ~14 days; the backend persists nothing.
 
 ```mermaid
 sequenceDiagram
     actor User
     participant App as iOS app
-    participant WK as WeatherKit
     participant API as FastAPI /recommend
-    participant Aria as Claude — Aria + subagents
+    participant Aria as Claude Opus 4.8 — Aria
 
     User->>App: Open "Today"
-    App->>WK: Today's weather
-    App->>App: Build compact catalog + recent WearLog
+    App->>App: Compact catalog + recent-worn ids (WearLog)
     App->>API: POST /recommend (Bearer device token)
-    API->>Aria: Orchestrate (cached catalog · style · history)
-    Aria->>Aria: CatalogAnalyst → OutfitComposer → NoveltyChecker
-    Aria-->>API: propose_outfit (structured, streamed)
-    API-->>App: Outfit + alternatives + rationale
-    App-->>User: Render look
+    API->>Aria: propose_outfit (forced tool · cached rubric)
+    Aria-->>API: outfit + alternates + rationale (structured)
+    API->>API: Guard — drop any id not in the submitted catalog
+    API-->>App: Outfit + alternates + rationale
+    App->>App: Resolve ids → Items; render look
     User->>App: "Wear this"
-    App->>App: Append WearLog (feeds anti-repeat)
+    App->>App: Persist Outfit + per-item WearLog (feeds anti-repeat)
 ```
+
+On-device, `CatalogCompactor` builds the payload, `WearHistory` derives the
+recent-worn ids, and `OutfitRecommender` resolves Aria's returned ids back to
+`Item`s. "Show me another" cycles the returned alternates without a new call.
+The server-side guard (`/recommend`) rejects any id Aria didn't receive, so a
+hallucinated or stale id can never reach the app. **Weather (WeatherKit) and a
+multi-subagent composer are deferred** — the request struct leaves room for a
+weather field without a breaking change.
+
+See [`ios/Wardrobe/Stylist/`](../ios/Wardrobe/Stylist) and
+[`backend/app/agents/stylist.py`](../backend/app/agents/stylist.py).
 
 ## Data model
 
@@ -249,7 +262,7 @@ Two independent layers (see [`docs/privacy.md`](privacy.md) and the guard test):
 | On-device ML | Vision (subject lift, color, feature-print), Vision OCR |
 | Context | WeatherKit, EventKit |
 | Backend | FastAPI + Anthropic SDK (uv, ruff, mypy, pytest) |
-| AI | Claude Haiku 4.5 / Sonnet 4.6 / Opus 4.7; tool use + prompt caching |
+| AI | Claude Haiku 4.5 (extraction) / Opus 4.8 (stylist "Aria"); tool use + prompt caching |
 | Tests | Swift Testing, swift-snapshot-testing, pytest |
 | CI | GitHub Actions (+ Xcode Cloud for TestFlight) |
 

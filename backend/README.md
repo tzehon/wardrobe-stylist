@@ -32,6 +32,8 @@ uv run mypy app
 | Route | Phase | Purpose |
 |---|---|---|
 | `GET /health` | 0 | liveness |
-| `POST /extract` | 2 | receipt text/image → structured purchase (Claude Haiku, tool use) |
-| `POST /categorize` | 3 | catalog attributes → browsable taxonomy |
-| `POST /recommend` | 5 | "Aria" stylist → daily outfit (streamed) |
+| `POST /extract` | 2 | receipt snippet → structured fashion purchase(s) (Claude Haiku, forced tool use) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Claude Opus 4.8, forced tool use) |
+
+Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
+endpoint. `/recommend` is a single non-streaming call.
