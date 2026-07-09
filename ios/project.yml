@@ -36,6 +36,10 @@ targets:
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: Wardrobe/Info.plist
         TARGETED_DEVICE_FAMILY: "1"
+        # App icon lives in Wardrobe/Resources/Assets.xcassets. actool injects
+        # CFBundleIconName + the icon files into the built Info.plist (required by
+        # App Store / TestFlight upload validation).
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - package: GoogleSignIn
         product: GoogleSignIn
