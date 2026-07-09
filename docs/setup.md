@@ -129,16 +129,41 @@ https://console.anthropic.com and set a monthly budget alert (personal use is ~$
 
 ## Deploy the backend (Fly.io)
 
-(First needed when the `/extract` route lands in Phase 2.)
+The repo ships a `backend/Dockerfile` (uv-based) and `backend/fly.toml` (HTTPS,
+scale-to-zero, `/health` check), so you don't run `fly launch` from scratch —
+just claim an app name, set secrets, and deploy:
 
 ```bash
 cd backend
-fly launch --no-deploy                 # creates fly.toml (first time)
-fly secrets set ANTHROPIC_API_KEY=sk-ant-... DEVICE_TOKEN=$(python -c "import secrets;print(secrets.token_urlsafe(32))")
+fly launch --no-deploy --copy-config   # reuses the committed fly.toml; pick a unique app name + region
+fly secrets set \
+  ANTHROPIC_API_KEY=sk-ant-... \
+  DEVICE_TOKEN=$(python -c "import secrets;print(secrets.token_urlsafe(32))")
 fly deploy
+fly open /health                        # should return {"status":"ok","environment":"production"}
 ```
 
+The image build is verifiable locally first: `docker build -t wb backend && docker run --rm -p 8080:8080 wb`, then `curl localhost:8080/health`.
+
+Then point the app at the deployed backend and drop the dev-only HTTP exception:
+
+1. In `ios/Secrets.xcconfig`, set `BACKEND_SCHEME = https` and
+   `BACKEND_HOST = <your-app>.fly.dev` (no port).
+2. In `ios/Wardrobe/Info.plist`, **remove the `NSAppTransportSecurity` /
+   `NSAllowsArbitraryLoads` block** — it exists only so the iPhone can reach the
+   Mac dev backend over plain HTTP. Once the backend is HTTPS on Fly.io it's no
+   longer needed (and App Store review flags it).
+3. `cd ios && xcodegen generate` and rebuild.
+
 The app then talks to `https://<your-app>.fly.dev` using the same `DEVICE_TOKEN` as a Bearer.
+
+## TestFlight (Phase 6 distribution)
+
+Requires an **Apple Developer Program** membership ($99/yr) and the production
+backend above (a real device can't reach your Mac's LAN IP). In Xcode: set a real
+`DEVELOPMENT_TEAM` in `Secrets.xcconfig`, bump `CURRENT_PROJECT_VERSION`, then
+**Product ▸ Archive** → **Distribute App** → **App Store Connect** → **Upload**.
+Add the build to a TestFlight internal-tester group in App Store Connect.
 
 ## Run all tests
 
