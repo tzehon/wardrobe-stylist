@@ -1,37 +1,29 @@
-# Fly.io config for the Wardrobe backend.
+# fly.toml app configuration file generated for wardrobe-backend-faithful-silence-9494 on 2026-07-09T15:50:31+08:00
 #
-# `fly launch --no-deploy` generates a starter; this is the hand-tuned version.
-# Secrets are NEVER committed — set them once with:
-#   fly secrets set ANTHROPIC_API_KEY=sk-ant-... DEVICE_TOKEN=<long-random>
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
-# `app` must be globally unique on Fly; `fly launch` will prompt to rename if the
-# name below is taken. `primary_region` defaults to Singapore — change to the Fly
-# region closest to you (`fly platform regions`).
-app = "wardrobe-backend"
-primary_region = "sin"
+
+app = 'wardrobe-backend-faithful-silence-9494'
+primary_region = 'sin'
 
 [build]
-
 [env]
-  ENVIRONMENT = "production"
+  ENVIRONMENT = 'production'
 
 [http_service]
   internal_port = 8080
-  # Redirect any plain-HTTP request to HTTPS — the app only ever talks HTTPS.
   force_https = true
-  # Single-user app: let the machine sleep when idle and wake on request to keep
-  # cost near zero. First request after idle pays a ~1s cold start.
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
 
   [[http_service.checks]]
-    interval = "30s"
-    timeout = "5s"
-    grace_period = "10s"
-    method = "GET"
-    path = "/health"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/health'
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  size = 'shared-cpu-1x'
+  memory = '512mb'

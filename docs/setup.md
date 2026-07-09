@@ -85,8 +85,10 @@ xcconfig values can't contain `//` (the rest of the line gets treated as a comme
 the backend URL is split into `BACKEND_SCHEME` and `BACKEND_HOST` and composed in
 `Info.plist` at build time. `ios/Config.xcconfig` (committed) `#include?`s your local file
 and feeds the values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
-`BackendDeviceToken`). `Info.plist` also sets `NSAllowsLocalNetworking = YES` so iOS lets
-the iPhone reach the dev backend over HTTP on the private-IP range.
+`BackendDeviceToken`). Now that the backend is HTTPS on Fly.io, `Info.plist` carries no App
+Transport Security exception. To point the app back at a **plain-HTTP LAN dev backend**, set
+`BACKEND_SCHEME = http` + `BACKEND_HOST = <Mac-LAN-IP>:8000` and temporarily add an
+`NSAppTransportSecurity` → `NSAllowsArbitraryLoads = YES` block to `Info.plist` (don't commit it).
 
 ### Build / run / test
 
