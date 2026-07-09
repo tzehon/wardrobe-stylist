@@ -64,5 +64,17 @@
          Library picking uses PhotosPicker (out-of-process, no key required). -->
     <key>NSCameraUsageDescription</key>
     <string>Wardrobe uses the camera so you can photograph clothing to add it to your wardrobe catalog.</string>
+    <!-- Phase 6: opportunistic background receipt sync. `processing` covers the
+         BGProcessingTask that reruns ReceiptPipeline.sync roughly daily. The
+         permitted-identifiers list must include every task id we register/submit,
+         or BGTaskScheduler throws at runtime. -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>processing</string>
+    </array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.tth.Wardrobe.receiptSync</string>
+    </array>
 </dict>
 </plist>

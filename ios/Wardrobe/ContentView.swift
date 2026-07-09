@@ -107,6 +107,10 @@ struct ContentView: View {
             }
             .padding()
         }
+        // Ask for notification permission in context — once the user has connected
+        // Gmail there's a wardrobe to style, so the daily nudge is meaningful.
+        // Idempotent: iOS only prompts once, and re-scheduling replaces the reminder.
+        .task { try? await DailyOutfitNotifier().enableDailyReminder() }
     }
 
     // MARK: - Sync section
