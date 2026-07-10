@@ -37,8 +37,13 @@ final class ReceiptPipeline {
     /// broad it pulls in every newsletter. `category:purchases` is Gmail's
     /// auto-applied label for transactional mail; the OR keywords backstop
     /// users whose Gmail isn't auto-categorising.
+    ///
+    /// No date window: the user wants *all* orders regardless of age, so recency
+    /// is bounded only by `maxMessages` (Gmail returns newest-first). A proper
+    /// incremental/paged backfill is the long-term answer for very large
+    /// mailboxes — see the large-mailbox-scaling note.
     static let defaultQuery =
-        #"(category:purchases OR receipt OR invoice OR "your order") newer_than:90d"#
+        #"category:purchases OR receipt OR invoice OR "your order""#
 
     init(
         gmailClient: GmailReadOnlyClient,
@@ -55,7 +60,7 @@ final class ReceiptPipeline {
     /// across several emails (e.g. an order confirmation *and* a dispatch email).
     func sync(
         query: String = ReceiptPipeline.defaultQuery,
-        maxMessages: Int = 200
+        maxMessages: Int = 1000
     ) async {
         // 1. Snapshot + de-duplicate the existing catalog up front. Doing all the
         //    SwiftData work here, *before* any `await`, keeps it in the same

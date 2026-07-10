@@ -13,6 +13,9 @@ enum RetailerDirectory {
         // generalist marketplaces / platforms
         "amazon.com", "amazon.co.uk", "amazon.de", "amazon.fr", "amazon.ca",
         "etsy.com", "shopify.com", "shopifyemail.com",
+        // cross-border checkout platforms that send order confirmations on behalf
+        // of many fashion brands (e.g. Global-e powers Maison Kitsuné, Ganni, …).
+        "global-e.com", "bglobale.com",
         // fashion DTC + chains
         "everlane.com", "uniqlo.com", "zara.com", "hm.com",
         "gap.com", "bananarepublic.com", "jcrew.com", "madewell.com",

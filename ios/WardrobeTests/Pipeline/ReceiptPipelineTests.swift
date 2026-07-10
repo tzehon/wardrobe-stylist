@@ -16,6 +16,13 @@ import Testing
 @MainActor
 struct ReceiptPipelineTests {
 
+    // The user wants *all* orders, so the default query must not clamp recency —
+    // guard against a date window creeping back into it.
+    @Test func defaultQueryHasNoDateWindow() {
+        #expect(!ReceiptPipeline.defaultQuery.contains("newer_than"))
+        #expect(!ReceiptPipeline.defaultQuery.contains("older_than"))
+    }
+
     // `nonisolated` lets the URLProtocol callbacks (off-main) read these without
     // crossing actor boundaries. All values are immutable / Sendable.
     nonisolated private static let backendURL = URL(string: "http://test.local")!

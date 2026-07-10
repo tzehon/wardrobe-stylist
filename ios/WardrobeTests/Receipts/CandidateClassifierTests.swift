@@ -129,6 +129,24 @@ struct CandidateClassifierTests {
         #expect(result.reasons.contains("order-number"))
     }
 
+    @Test func globalECheckoutConfirmationIsCandidate() {
+        // Real-world miss: a Maison Kitsuné order shipped via the Global-e
+        // cross-border checkout platform. The brand isn't in the domain, the tone
+        // is marketing-y ("Great news!", promo footer), and Gmail didn't file it
+        // under Purchases — so before global-e.com was a known retailer the promo
+        // penalty pushed it under the bar. The domain bump keeps it a candidate.
+        let s = signals(
+            sender: "do-not-reply@global-e.com",
+            domain: "global-e.com",
+            subject: "Great news ! Your order GE12436432857FR is confirmed.",
+            body: "Thank you for your order. Total: €290.00. Free shipping. Shop now for more.",
+            labels: ["INBOX", "CATEGORY_UPDATES"]
+        )
+        let result = CandidateClassifier.classify(s)
+        #expect(result.likelyPurchase, "score=\(result.score) reasons=\(result.reasons)")
+        #expect(result.reasons.contains("retailer:global-e.com"))
+    }
+
     @Test func promoPenaltyIsCapped() {
         // Many promo markers — penalty should still cap at -0.3.
         let s = signals(
