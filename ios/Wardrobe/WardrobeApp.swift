@@ -39,17 +39,32 @@ struct WardrobeApp: App {
     /// Registers the background receipt-sync handler. Must run before the app
     /// finishes launching, so it lives in `init`. The launch handler hands the
     /// task to `BackgroundSyncRunner`, which restores the session and syncs.
+    ///
+    /// The handler closure MUST be `@Sendable`. BGTaskScheduler invokes it on its
+    /// own private queue; a plain closure formed here would inherit this type's
+    /// @MainActor isolation (App types are MainActor-isolated), and Swift 6's
+    /// runtime enforcement traps the moment the system enters it off-main
+    /// (EXC_BREAKPOINT in dispatch_assert_queue_fail). That crashed every
+    /// overnight sync in build 0.1.0 (2) — and never reproduced in the simulator
+    /// or foreground, because the launch handler only runs when the OS actually
+    /// launches the background task on device. The hop onto the main actor now
+    /// happens explicitly inside, via `Task { @MainActor in … }`.
     private func registerBackgroundSync() {
+        let container = container   // captured so the @Sendable closure never touches MainActor self
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ReceiptSyncScheduler.taskIdentifier,
             using: nil
-        ) { task in
+        ) { @Sendable task in
             guard let processingTask = task as? BGProcessingTask else {
                 task.setTaskCompleted(success: false)
                 return
             }
-            let container = self.container
-            Task { await BackgroundSyncRunner.run(task: processingTask, container: container) }
+            // BGTask isn't Sendable, but its methods are documented thread-safe
+            // and exactly one consumer touches it from here on.
+            nonisolated(unsafe) let transferredTask = processingTask
+            Task { @MainActor in
+                await BackgroundSyncRunner.run(task: transferredTask, container: container)
+            }
         }
     }
 }

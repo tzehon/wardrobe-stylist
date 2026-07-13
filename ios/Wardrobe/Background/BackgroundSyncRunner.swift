@@ -24,7 +24,11 @@ enum BackgroundSyncRunner {
         try? ReceiptSyncScheduler.schedule()
 
         let work = Task { @MainActor in await performSync(container: container) }
-        task.expirationHandler = { work.cancel() }
+        // Must be @Sendable: iOS invokes the expiration handler on BGTaskScheduler's
+        // private queue, and a plain closure formed in this @MainActor context would
+        // inherit main-actor isolation and trap on entry (same crash class as the
+        // registration handler — see WardrobeApp.registerBackgroundSync).
+        task.expirationHandler = { @Sendable in work.cancel() }
         let success = await work.value
         task.setTaskCompleted(success: success)
     }
