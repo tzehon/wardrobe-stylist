@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "2"
+    CURRENT_PROJECT_VERSION: "3"
     # Simulator builds use ad-hoc signing — gives the app a real identity (Keychain APIs
     # need one) without requiring an Apple Developer Team. Device builds keep automatic
     # signing with DEVELOPMENT_TEAM from Secrets.xcconfig.
