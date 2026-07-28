@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance for Claude Code when working in this repository.
+Durable guidance for Codex and other coding agents working in this repository.
 
 ## What this is
 
@@ -55,14 +55,32 @@ Run the backend with `--host 0.0.0.0` (not the default `127.0.0.1`) when testing
 
 Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator — gate or mock those paths in tests and verify on a real device. Vision *text recognition* (used by `AttachmentOCR`) does work in the sim.
 
+## Release impact, versioning & TestFlight
+
+- After every completed change, explicitly decide and report whether it requires a new TestFlight build. Do not silently omit the release assessment.
+- A TestFlight build is required when the change alters the shipped iOS app or its user-visible behavior, including Swift sources, bundled resources, `Info.plist`, entitlements, `ios/project.yml` build settings, or an API-contract change that requires a new iOS client. It is also required whenever the user explicitly asks to distribute a build.
+- A TestFlight build is not required for documentation, `AGENTS.md`, GitHub Actions, agent configuration, tests-only changes, or backward-compatible backend-only changes that do not alter the iOS bundle.
+- When a build is required, first confirm the latest build already uploaded to App Store Connect, then increment `CURRENT_PROJECT_VERSION` in `ios/project.yml` to the next unused integer. Do not change `MARKETING_VERSION` unless the user requests a new public version or the change belongs to a planned version milestone.
+- Before uploading, run the full backend and iOS regression suites, regenerate the Xcode project, create a signed Release archive, validate it, upload it to App Store Connect, add it to the internal TestFlight group, and confirm processing succeeds. Never reuse a build number.
+- If release impact, the next unused build number, signing state, or distribution intent is uncertain, ask the user before changing version metadata or uploading a build.
+
 ## Conventions
 
-- **Models in use:** Claude `claude-haiku-4-5` (extraction/categorize), `claude-opus-4-8` (stylist "Aria"; the latest, most capable model — cost is a non-issue for a single user), `claude-opus-4-7` (other hard cases). Use the **`claude-api` skill** when adding/modifying any Anthropic SDK call — it pins exact current SDK syntax and ensures prompt caching is wired. Use **tool use** for structured JSON and validate outputs against `shared/schemas/`.
+- **Models in use:** Claude `claude-haiku-4-5` (extraction/categorize), `claude-opus-4-8` (stylist "Aria"; the latest, most capable model — cost is a non-issue for a single user), `claude-opus-4-7` (other hard cases). When adding or modifying an Anthropic SDK call, verify the syntax against the current official Anthropic documentation and preserve prompt caching. Use **tool use** for structured JSON and validate outputs against `shared/schemas/`.
 - **Read-only guard scope:** `GmailReadOnlyGuardTests` scans only `ios/Wardrobe/Gmail/`. New code that needs network must either (a) live elsewhere and not call Gmail, or (b) live in `Gmail/` and go through the `GmailReadEndpoint` enum (every case is `GET`).
 - **Code signing:** simulator builds use ad-hoc signing (`CODE_SIGN_IDENTITY = "-"`) so Keychain works without a team. Device builds use `CODE_SIGN_STYLE = Automatic` with `DEVELOPMENT_TEAM` from `Secrets.xcconfig`.
 - **App Transport Security:** the backend is on HTTPS (Fly.io), so `Info.plist` carries **no** ATS exception — the dev-only `NSAllowsArbitraryLoads` + `NSLocalNetworkUsageDescription` keys were removed once production went HTTPS. If you need to point the app back at a plain-HTTP LAN dev backend, re-add an `NSAppTransportSecurity` exception locally (don't commit it).
-- **Commits:** Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`), logically independent, end with the `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>` trailer.
+- **Commits:** Use logically independent Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Do not add AI co-author or attribution trailers unless the user explicitly requests one.
 - **iOS target:** iOS 18 deployment, Swift 6 language mode, Swift Testing for new tests, XCTest only where needed (UI flows / `URLProtocol` stubbing).
+
+## Code review rules
+
+- Treat any new Gmail write or mutation capability as a release blocker. Gmail HTTP must remain confined to `ios/Wardrobe/Gmail/`, routed through `GmailReadEndpoint`, and limited to `GET` with the `gmail.readonly` OAuth scope.
+- Flag secrets, API keys, device tokens, OAuth credentials, or production configuration embedded in the iOS target or committed files. Anthropic credentials belong only in backend environment/Fly.io secrets.
+- Flag backend/iOS payload changes that are not reflected in the JSON Schemas, their Pydantic and Swift mirrors, golden fixtures, and contract tests.
+- Flag recommendation paths that accept item ids not present in the submitted catalog or otherwise weaken the server-side hallucination guard.
+- Review Swift 6 concurrency boundaries carefully, especially `@MainActor`, `@Sendable`, background-task callbacks, and non-Sendable system framework types.
+- Flag behavior changes without focused tests and any completed change that has not been followed by the full backend and iOS regression suites described above.
 
 ## Roadmap (phases)
 
