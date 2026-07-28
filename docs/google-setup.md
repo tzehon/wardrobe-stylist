@@ -40,7 +40,7 @@ below in one wizard. Otherwise edit each section directly:
   that one row. It will appear under **Restricted scopes** — that's expected.
 - **Do not add** any other Gmail scope. Anything with `modify`, `send`, `compose`,
   `insert`, `labels`, `settings.basic`, etc. is a write scope and violates this repo's
-  read-only invariant (see [`CLAUDE.md`](../CLAUDE.md) and
+  read-only invariant (see [`AGENTS.md`](../AGENTS.md) and
   [`GmailScope.swift`](../ios/Wardrobe/Gmail/GmailScope.swift)).
 - Save. The scope list on **Data access** should show exactly one entry: `gmail.readonly`.
 
