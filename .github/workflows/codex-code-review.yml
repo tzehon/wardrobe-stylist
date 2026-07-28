@@ -1,8 +1,12 @@
 name: Codex Code Review
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: codex-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   codex-review:
@@ -13,19 +17,31 @@ jobs:
     outputs:
       final_message: ${{ steps.run_codex.outputs.final-message }}
     steps:
-      - name: Checkout pull request merge commit
+      - name: Checkout trusted base commit
         uses: actions/checkout@v5
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
           persist-credentials: false
+          path: trusted-base
+
+      - name: Checkout untrusted pull request snapshot
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: pr-head
 
       - name: Run Codex review
         id: run_codex
         uses: openai/codex-action@v1
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          prompt-file: .github/codex/prompts/review.md
+          prompt-file: trusted-base/.github/codex/prompts/review.md
+          working-directory: trusted-base
           effort: high
           permission-profile: ":read-only"
           safety-strategy: drop-sudo
