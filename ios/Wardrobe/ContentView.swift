@@ -3,13 +3,19 @@ import SwiftUI
 struct ContentView: View {
     @State private var session = GmailSession()
     @State private var onboardingState = OnboardingState()
+    @State private var devicePrivacy = DevicePrivacySettings()
     @SceneStorage("com.tth.Wardrobe.selectedTab")
     private var selectedTabRawValue = AppTab.wardrobe.rawValue
 
     var body: some View {
         TabView(selection: selectedTab) {
             NavigationStack {
-                TodayView()
+                TodayView(
+                    privacySettings: devicePrivacy,
+                    openStylingPrivacy: {
+                        selectedTab.wrappedValue = .settings
+                    }
+                )
             }
             .tabItem {
                 Label(AppTab.today.title, systemImage: AppTab.today.systemImage)
@@ -29,6 +35,7 @@ struct ContentView: View {
             NavigationStack {
                 SettingsView(
                     session: session,
+                    devicePrivacy: devicePrivacy,
                     onReplayOnboarding: onboardingState.replay
                 )
             }
@@ -46,7 +53,10 @@ struct ContentView: View {
             )
             .interactiveDismissDisabled(!onboardingState.hasCompleted)
         }
-        .task { await session.restorePreviousSignIn() }
+        .task {
+            await devicePrivacy.load()
+            await session.restorePreviousSignIn()
+        }
     }
 
     private var selectedTab: Binding<AppTab> {

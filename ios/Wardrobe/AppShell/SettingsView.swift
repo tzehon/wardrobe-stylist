@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     let session: GmailSession
+    let devicePrivacy: DevicePrivacySettings
     let onReplayOnboarding: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -40,19 +41,18 @@ struct SettingsView: View {
             }
 
             Section {
-                GmailConnectorView(session: session)
+                GmailConnectorView(
+                    session: session,
+                    devicePrivacy: devicePrivacy
+                )
             } header: {
                 Text("Gmail Import")
             } footer: {
                 Text("Optional. Your wardrobe and manual item capture work without a Google account.")
             }
 
-            Section("AI & Automation") {
-                LabeledContent("Controls", value: "Coming soon")
-                    .foregroundStyle(.secondary)
-                Text("Data-use choices, background import, and reminder controls will live here.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            Section("AI Styling & Reminder") {
+                StylingPrivacySettingsView(settings: devicePrivacy)
             }
 
             Section("Help & Privacy") {
@@ -64,11 +64,25 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings.help")
 
                 NavigationLink {
-                    PrivacyOverviewView()
+                    PrivacyOverviewView(links: .current)
                 } label: {
                     Label("Privacy & Data", systemImage: "hand.raised")
                 }
                 .accessibilityIdentifier("settings.privacy")
+
+                ConfiguredExternalLink(
+                    title: "Privacy Policy",
+                    systemImage: "doc.text",
+                    url: AppExternalLinks.current.privacyPolicyURL,
+                    accessibilityIdentifier: "settings.privacyPolicy"
+                )
+
+                ConfiguredExternalLink(
+                    title: "Support",
+                    systemImage: "lifepreserver",
+                    url: AppExternalLinks.current.supportURL,
+                    accessibilityIdentifier: "settings.support"
+                )
             }
 
             Section("About") {
@@ -168,6 +182,8 @@ private struct HelpView: View {
 }
 
 private struct PrivacyOverviewView: View {
+    let links: AppExternalLinks
+
     var body: some View {
         List {
             privacySection(
@@ -178,18 +194,33 @@ private struct PrivacyOverviewView: View {
             privacySection(
                 "Gmail receipts",
                 symbol: "envelope.badge.shield.half.filled",
-                text: "If you connect Google, Wardrobe requests read-only Gmail access. Receipt candidates are filtered on-device before minimal receipt details are sent for extraction."
+                text: "If you connect Google, Wardrobe requests read-only Gmail access. Likely purchase messages are filtered on-device before limited receipt details are sent to the developer-operated backend and Anthropic Claude for extraction."
             )
             privacySection(
                 "AI styling",
                 symbol: "sparkles",
-                text: "If you allow styling, a compact text catalog is sent for recommendations. Wardrobe photos are not included in the styling request."
+                text: "If you allow styling and ask for a look, a compact text catalog and recent item identifiers are sent to the developer-operated backend and Anthropic Claude. Wardrobe photos and Gmail messages are not included in styling requests."
             )
             privacySection(
                 "You stay in control",
                 symbol: "hand.raised",
                 text: "Connected features require a separate choice. Signing out of Google does not delete your local wardrobe."
             )
+
+            Section("External information") {
+                ConfiguredExternalLink(
+                    title: "Privacy Policy",
+                    systemImage: "doc.text",
+                    url: links.privacyPolicyURL,
+                    accessibilityIdentifier: "privacyOverview.privacyPolicy"
+                )
+                ConfiguredExternalLink(
+                    title: "Support",
+                    systemImage: "lifepreserver",
+                    url: links.supportURL,
+                    accessibilityIdentifier: "privacyOverview.support"
+                )
+            }
         }
         .navigationTitle("Privacy & Data")
         .navigationBarTitleDisplayMode(.inline)
@@ -201,6 +232,32 @@ private struct PrivacyOverviewView: View {
                 .fixedSize(horizontal: false, vertical: true)
         } header: {
             Label(title, systemImage: symbol)
+        }
+    }
+}
+
+private struct ConfiguredExternalLink: View {
+    let title: String
+    let systemImage: String
+    let url: URL?
+    let accessibilityIdentifier: String
+
+    var body: some View {
+        if let url {
+            Link(destination: url) {
+                Label(title, systemImage: systemImage)
+            }
+            .accessibilityIdentifier(accessibilityIdentifier)
+        } else {
+            LabeledContent {
+                Text("Unavailable")
+                    .foregroundStyle(.tertiary)
+            } label: {
+                Label(title, systemImage: systemImage)
+            }
+            .foregroundStyle(.secondary)
+            .accessibilityHint("This link has not been configured for this build.")
+            .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 }

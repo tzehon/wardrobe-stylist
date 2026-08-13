@@ -1,18 +1,22 @@
 import SwiftData
 import SwiftUI
 
-/// Phase 5: the "Today" screen. Asks Aria for one wearable, non-repeating look
-/// from the catalog, renders it with a rationale, lets the user shuffle to an
-/// alternate, and records "Wear this" (→ Outfit + WearLog, feeding anti-repeat).
-///
-/// The recommender is built lazily on first appear — it needs a configured
-/// backend, mirroring how `ContentView` builds the receipt pipeline.
+/// Today remains local and idle until the user explicitly asks for styling.
+/// Constructing this view and switching tabs never sends wardrobe data.
 struct TodayView: View {
+    let privacySettings: DevicePrivacySettings
+    let openStylingPrivacy: () -> Void
+
     @Environment(\.modelContext) private var modelContext
+    @Query private var items: [Item]
     @State private var recommender: OutfitRecommender?
     @State private var configError: String?
     @State private var wornLookID: UUID?
     @State private var writes = WardrobeWriteCoordinator()
+
+    private var stylingAllowed: Bool {
+        privacySettings.controls.decision(for: .aiStyling).isAllowed
+    }
 
     var body: some View {
         Group {
@@ -21,7 +25,7 @@ struct TodayView: View {
             } else if let recommender {
                 content(recommender)
             } else {
-                ProgressView()
+                invitation
             }
         }
         .navigationTitle("Today")
@@ -34,11 +38,40 @@ struct TodayView: View {
                     } label: {
                         Label("Restyle", systemImage: "arrow.clockwise")
                     }
+                    .accessibilityHint("Sends a new compact styling request.")
                 }
             }
         }
-        .task { await setUpAndRecommend() }
         .wardrobePersistenceAlert(writes)
+    }
+
+    private var invitation: some View {
+        ContentUnavailableView {
+            Label("Style your day", systemImage: "sparkles")
+        } description: {
+            if items.isEmpty {
+                Text("Add a few wardrobe items first, then come back when you want a look.")
+            } else if stylingAllowed {
+                Text("When you’re ready, ask for a look. Nothing is sent just by opening Today.")
+            } else {
+                Text("Review AI styling data use before wardrobe details can be sent for a recommendation.")
+            }
+        } actions: {
+            if items.isEmpty {
+                EmptyView()
+            } else if stylingAllowed {
+                Button("Style a look") {
+                    Task { await setUpAndRecommend() }
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityHint("Sends a compact text catalog and recent item identifiers for AI styling.")
+                .accessibilityIdentifier("today.generate")
+            } else {
+                Button("Review AI styling data use", action: openStylingPrivacy)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("today.reviewPrivacy")
+            }
+        }
     }
 
     // MARK: - Content by state
@@ -46,7 +79,9 @@ struct TodayView: View {
     @ViewBuilder
     private func content(_ recommender: OutfitRecommender) -> some View {
         switch recommender.state {
-        case .idle, .loading:
+        case .idle:
+            invitation
+        case .loading:
             VStack(spacing: 12) {
                 ProgressView()
                 Text("Aria is styling your day…").foregroundStyle(.secondary)
@@ -61,12 +96,11 @@ struct TodayView: View {
             ContentUnavailableView {
                 Label("Review data use", systemImage: "hand.raised")
             } description: {
-                Text("Styling consent is required before wardrobe details are sent for a recommendation.")
+                Text("Styling permission is required before wardrobe details are sent for a recommendation.")
             } actions: {
-                Button("Try Again") {
-                    Task { await restyle(recommender) }
-                }
-                .buttonStyle(.borderedProminent)
+                Button("Review AI styling data use", action: openStylingPrivacy)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("today.reviewPrivacy")
             }
         case .failed(let message):
             errorState(message) { Task { await restyle(recommender) } }
@@ -166,6 +200,7 @@ struct TodayView: View {
             if let retry {
                 Button("Try again", action: retry)
                     .buttonStyle(.borderedProminent)
+                    .accessibilityHint("Sends a new compact styling request.")
             }
         }
     }
@@ -174,6 +209,10 @@ struct TodayView: View {
 
     private func setUpAndRecommend() async {
         guard recommender == nil, configError == nil else { return }
+        guard stylingAllowed else {
+            openStylingPrivacy()
+            return
+        }
         do {
             let (baseURL, deviceToken) = try BackendConfig.load()
             let made = OutfitRecommender(
@@ -188,6 +227,10 @@ struct TodayView: View {
     }
 
     private func restyle(_ recommender: OutfitRecommender) async {
+        guard stylingAllowed else {
+            openStylingPrivacy()
+            return
+        }
         wornLookID = nil
         await recommender.recommend()
     }
