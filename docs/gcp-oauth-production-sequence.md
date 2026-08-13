@@ -159,4 +159,3 @@ These are observations from the development console, not instructions to mutate 
 - [Restricted-scope verification FAQ](https://support.google.com/cloud/answer/13463817)
 - [Security assessment requirements](https://support.google.com/cloud/answer/13465431)
 - [Verification submission guide](https://support.google.com/cloud/answer/13461325)
-
