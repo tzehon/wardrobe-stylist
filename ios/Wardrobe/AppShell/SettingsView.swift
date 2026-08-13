@@ -7,7 +7,7 @@ struct SettingsView: View {
     let syncActivity: ReceiptSyncActivityController
     let onReplayOnboarding: () -> Void
     let onEnterDemo: () -> Void
-    let onVerifiedLocalDataDeletion: () -> Void
+    let onVerifiedLocalDataDeletion: @MainActor @Sendable () -> Void
     private let makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)?
 
     init(
@@ -16,7 +16,7 @@ struct SettingsView: View {
         syncActivity: ReceiptSyncActivityController,
         onReplayOnboarding: @escaping () -> Void,
         onEnterDemo: @escaping () -> Void,
-        onVerifiedLocalDataDeletion: @escaping () -> Void,
+        onVerifiedLocalDataDeletion: @escaping @MainActor @Sendable () -> Void,
         makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)? = nil
     ) {
         self.session = session

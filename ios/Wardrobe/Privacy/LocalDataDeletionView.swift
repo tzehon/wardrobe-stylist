@@ -6,7 +6,7 @@ import SwiftUI
 struct LocalDataDeletionView: View {
     let activeExternalSubject: PrivacySubjectID?
     let syncActivity: ReceiptSyncActivityController
-    let onVerifiedDeletion: @MainActor () -> Void
+    let onVerifiedDeletion: @MainActor @Sendable () -> Void
 
     @Environment(\.modelContext) private var modelContext
     @State private var showingConfirmation = false

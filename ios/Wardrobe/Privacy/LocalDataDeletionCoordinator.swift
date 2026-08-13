@@ -119,10 +119,10 @@ final class LocalDataDeletionCoordinator {
             DailyOutfitNotifier().disableDailyReminder()
         },
         clearPreference: @escaping ClearPreference = { subjectID in
-            await UserDefaultsPrivacyPreferencesStore().removeAndVerify(for: subjectID)
+            UserDefaultsPrivacyPreferencesStore().removeAndVerify(for: subjectID)
         },
         clearAllPreferences: @escaping ClearAllPreferences = {
-            await UserDefaultsPrivacyPreferencesStore().removeAllAppOwnedPreferencesAndVerify()
+            UserDefaultsPrivacyPreferencesStore().removeAllAppOwnedPreferencesAndVerify()
         },
         clearCache: @escaping ClearCache = { scope in
             UserDefaultsDailyLookCache().removeAndVerify(for: scope)
@@ -131,7 +131,7 @@ final class LocalDataDeletionCoordinator {
             UserDefaultsDailyLookCache().removeAllAppOwnedEntriesAndVerify()
         },
         clearRemoteImages: @escaping ClearRemoteImages = {
-            await RemoteImageLoader.shared.clearCachedImages()
+            RemoteImageLoader.shared.clearCachedImages()
             return true
         },
         clearReminderTime: @escaping @MainActor () -> Bool = {
