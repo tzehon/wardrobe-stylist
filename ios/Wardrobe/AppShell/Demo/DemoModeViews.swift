@@ -36,6 +36,15 @@ struct DemoModeRootView: View {
                 .tag(AppTab.wardrobe)
 
                 NavigationStack {
+                    OutfitHistoryView(accountScope: .deviceLocal)
+                }
+                .tabItem {
+                    Label(AppTab.history.title, systemImage: AppTab.history.systemImage)
+                        .accessibilityIdentifier(AppTab.history.accessibilityIdentifier)
+                }
+                .tag(AppTab.history)
+
+                NavigationStack {
                     DemoSettingsView(
                         resetDemo: onReset,
                         requestExit: { confirmingExit = true }
@@ -65,21 +74,23 @@ struct DemoModeRootView: View {
 
 private struct DemoModeBanner: View {
     let requestExit: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "sparkles.rectangle.stack.fill")
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Demo Mode · Fictional Data")
-                    .font(.subheadline.weight(.semibold))
-                Text("Offline · Changes are discarded")
-                    .font(.caption2)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    bannerMessage
+                    exitButton
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            } else {
+                HStack(spacing: 10) {
+                    bannerMessage
+                    Spacer(minLength: 8)
+                    exitButton
+                }
             }
-            Spacer(minLength: 8)
-            Button("Exit", action: requestExit)
-                .font(.subheadline.weight(.semibold))
-                .accessibilityIdentifier("demo.banner.exit")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 9)
@@ -87,6 +98,30 @@ private struct DemoModeBanner: View {
         .background(Color.indigo)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("demo.banner")
+    }
+
+    private var bannerMessage: some View {
+        Label {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(dynamicTypeSize.isAccessibilitySize ? "Demo Mode" : "Demo Mode · Fictional Data")
+                    .font(.subheadline.weight(.semibold))
+                Text(dynamicTypeSize.isAccessibilitySize ? "Fictional · Offline" : "Offline · Changes are discarded")
+                    .font(.caption)
+            }
+        } icon: {
+            Image(systemName: "sparkles.rectangle.stack.fill")
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Demo mode. Fictional data. Offline. Changes are discarded.")
+    }
+
+    private var exitButton: some View {
+        Button("Exit", action: requestExit)
+            .font(.subheadline.weight(.semibold))
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityHint("Asks for confirmation before discarding this fictional demo session.")
+            .accessibilityIdentifier("demo.banner.exit")
     }
 }
 
@@ -114,6 +149,7 @@ private struct DemoSettingsView: View {
                 Button(role: .destructive, action: requestExit) {
                     Label("Exit Demo Mode", systemImage: "rectangle.portrait.and.arrow.right")
                 }
+                .accessibilityHint("Asks for confirmation before discarding this fictional demo session.")
                 .accessibilityIdentifier("demo.settings.exit")
             }
 
@@ -141,6 +177,7 @@ private struct DemoSettingsView: View {
 
 struct DemoTodayView: View {
     @Query(sort: \Item.name) private var items: [Item]
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var lookItems: [Item] {
         let byID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
@@ -157,22 +194,25 @@ struct DemoTodayView: View {
                 Text(DemoWardrobe.todayLook.occasion)
                     .font(.title2.weight(.semibold))
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(lookItems) { item in
-                            VStack(alignment: .leading, spacing: 6) {
-                                ItemThumbnail(item: item)
-                                    .frame(width: 132, height: 132)
-                                    .background(Color(uiColor: .secondarySystemBackground))
-                                    .clipShape(.rect(cornerRadius: 14))
-                                Text(item.name)
-                                    .font(.caption)
-                                    .lineLimit(2)
-                                    .frame(width: 132, alignment: .leading)
+                Group {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        LazyVStack(alignment: .leading, spacing: 12) {
+                            ForEach(lookItems) { item in
+                                accessibleLookItem(item)
+                            }
+                        }
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack(spacing: 12) {
+                                ForEach(lookItems) { item in
+                                    standardLookItem(item)
+                                }
                             }
                         }
                     }
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Items in this fictional look")
 
                 Text(DemoWardrobe.todayLook.colorStory)
                     .font(.subheadline)
@@ -191,5 +231,56 @@ struct DemoTodayView: View {
         .navigationTitle("Today")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("demo.today")
+    }
+
+    private func standardLookItem(_ item: Item) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ItemThumbnail(item: item)
+                .frame(width: 132, height: 132)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(.rect(cornerRadius: 14))
+                .accessibilityHidden(true)
+            Text(item.name)
+                .font(.caption)
+                .lineLimit(2)
+                .frame(width: 132, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(itemDescription(item))
+    }
+
+    private func accessibleLookItem(_ item: Item) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            ItemThumbnail(item: item)
+                .frame(width: 88, height: 88)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(.rect(cornerRadius: 12))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.name)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(item.category.capitalized)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                if let brand = item.brand, !brand.isEmpty {
+                    Text(brand)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(itemDescription(item))
+    }
+
+    private func itemDescription(_ item: Item) -> String {
+        [item.name, item.brand, item.category.capitalized]
+            .compactMap { value in
+                guard let value, !value.isEmpty else { return nil }
+                return value
+            }
+            .joined(separator: ", ")
     }
 }

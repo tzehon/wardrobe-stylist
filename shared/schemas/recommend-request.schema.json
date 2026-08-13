@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wardrobe-stylist/schemas/recommend-request.schema.json",
+  "title": "RecommendRequest",
+  "description": "Compact, text-only wardrobe context sent by iOS to POST /recommend. Rating preferences contain only catalog IDs and bounded numeric aggregates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/CatalogItem" }
+    },
+    "recently_worn_ids": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+    },
+    "item_preferences": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/ItemPreference" }
+    },
+    "occasion": {
+      "type": ["string", "null"],
+      "maxLength": 128
+    }
+  },
+  "$defs": {
+    "CatalogItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "category"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "name": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "brand": { "type": ["string", "null"], "maxLength": 128 },
+        "colors": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "type": "string" }
+        },
+        "material": { "type": ["string", "null"], "maxLength": 128 }
+      }
+    },
+    "ItemPreference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "average_rating", "rating_count"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "average_rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "rating_count": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

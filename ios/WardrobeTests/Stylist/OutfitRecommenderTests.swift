@@ -127,6 +127,9 @@ struct OutfitRecommenderTests {
         }
         func updateItem(_ item: Item, with input: ItemUpdateInput) throws {}
         func deleteItem(_ item: Item) throws {}
+        func setFavorite(_ isFavorite: Bool, for item: Item) throws {}
+        func setArchived(_ isArchived: Bool, for item: Item) throws {}
+        func acceptPendingItems(_ items: [Item], reviewedAt: Date) throws {}
 
         func recordWear(
             items: [Item],
@@ -138,6 +141,8 @@ struct OutfitRecommenderTests {
             recordWearCalls += 1
             throw WardrobePersistenceError(operation: .recordWear, underlying: FixtureError.saveFailed)
         }
+
+        func rateOutfit(_ outfit: Outfit, feedback: Int) throws {}
     }
 
     nonisolated private static func ok(for request: URLRequest) -> HTTPURLResponse {
@@ -680,11 +685,13 @@ struct OutfitRecommenderTests {
         context.insert(WearLog(
             date: Date(timeIntervalSince1970: 1_699_999_000),
             item: importedA,
+            feedback: 5,
             accountSubjectKey: scopeA.rawValue
         ))
         context.insert(WearLog(
             date: Date(timeIntervalSince1970: 1_699_999_500),
             item: importedB,
+            feedback: 1,
             accountSubjectKey: scopeB.rawValue
         ))
         try context.save()
@@ -713,6 +720,122 @@ struct OutfitRecommenderTests {
         #expect(Set(recommendation.current.items.map(\.id)) == [manualID, importedAID])
         #expect(!recommendation.current.items.map(\.id).contains(importedBID))
         #expect(URLProtocolStub.captured.count == 1)
+        let body = try #require(URLProtocolStub.capturedBodies.first)
+        let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let preferences = try #require(json["item_preferences"] as? [[String: Any]])
+        #expect(preferences.count == 1)
+        #expect(preferences.first?["id"] as? String == importedAID.uuidString)
+        #expect(preferences.first?["average_rating"] as? Double == 5)
+        #expect(preferences.first?["rating_count"] as? Int == 1)
+    }
+
+    @Test func recommendationExcludesPendingAndArchivedItemsFromStylingBoundary() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        let acceptedA = Item(id: Self.idA, name: "Accepted tee", category: "top", source: .manual)
+        let acceptedB = Item(id: Self.idB, name: "Accepted trouser", category: "bottom", source: .manual)
+        let pending = Item(
+            id: Self.idC,
+            name: "Pending import",
+            category: "shoe",
+            source: .email,
+            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
+            reviewState: .pendingReview
+        )
+        let archivedID = UUID(uuidString: "44444444-4444-4444-8444-444444444444")!
+        let archived = Item(
+            id: archivedID,
+            name: "Archived jacket",
+            category: "outerwear",
+            source: .manual,
+            isArchived: true
+        )
+        for item in [acceptedA, acceptedB, pending, archived] {
+            context.insert(item)
+        }
+        context.insert(WearLog(
+            date: Date(timeIntervalSince1970: 1_699_999_000),
+            item: pending,
+            feedback: 1,
+            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
+        ))
+        context.insert(WearLog(
+            date: Date(timeIntervalSince1970: 1_699_999_000),
+            item: archived,
+            feedback: 1,
+            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
+        ))
+        try context.save()
+
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+
+        await Self.makeRecommender(context).recommend()
+
+        let body = try #require(URLProtocolStub.capturedBodies.first)
+        let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let payloadItems = try #require(json["items"] as? [[String: Any]])
+        #expect(Set(payloadItems.compactMap { $0["id"] as? String }) == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect((json["recently_worn_ids"] as? [String]) == [])
+        #expect((json["item_preferences"] as? [[String: Any]])?.isEmpty == true)
+    }
+
+    @Test func pendingAndArchivedItemsCannotSatisfyMinimumStylingCatalog() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        context.insert(Item(id: Self.idA, name: "Accepted tee", category: "top", source: .manual))
+        context.insert(Item(
+            id: Self.idB,
+            name: "Pending import",
+            category: "bottom",
+            source: .email,
+            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
+            reviewState: .pendingReview
+        ))
+        context.insert(Item(
+            id: Self.idC,
+            name: "Archived shoes",
+            category: "shoe",
+            source: .manual,
+            isArchived: true
+        ))
+        try context.save()
+        URLProtocolStub.install { _ in
+            Issue.record("Non-styleable items must not trigger a styling request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context)
+        await recommender.recommend()
+
+        guard case .emptyCatalog = recommender.state else {
+            Issue.record("Expected an empty styleable catalog, got \(recommender.state)")
+            return
+        }
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func networkFailureUsesFriendlyOfflineCopyWithoutSystemDiagnostics() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        URLProtocolStub.install { _ in throw URLError(.notConnectedToInternet) }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context)
+        await recommender.recommend()
+
+        guard case .failed(let message) = recommender.state else {
+            Issue.record("Expected a friendly failed state, got \(recommender.state)")
+            return
+        }
+        #expect(message == "You appear to be offline. Reconnect to style a new look. Any look saved earlier today remains stored on this device.")
+        #expect(!message.contains("NSURLError"))
     }
 
     @Test func showAnotherCyclesThroughAlternates() async throws {
@@ -870,9 +993,12 @@ struct OutfitRecommenderTests {
         let recommender = Self.makeRecommender(context)
         await recommender.recommend()
 
-        guard case .failed = recommender.state else {
+        guard case .failed(let message) = recommender.state else {
             Issue.record("Expected failed, got \(recommender.state)")
             return
         }
+        #expect(message == "Aria is temporarily unavailable. Your wardrobe is safe on this device. Please try again.")
+        #expect(!message.contains("502"))
+        #expect(!message.contains("bad"))
     }
 }

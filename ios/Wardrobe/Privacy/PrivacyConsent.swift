@@ -25,6 +25,8 @@ struct PrivacyNoticeRequirements: Equatable, Sendable {
 
     static let current = Self(
         receiptAnalysis: PrivacyNoticeVersion(rawValue: 1),
-        wardrobeStyling: PrivacyNoticeVersion(rawValue: 1)
+        // v2 adds per-item average rating and rating count to styling requests.
+        // Existing v1 grants must be renewed against the updated disclosure.
+        wardrobeStyling: PrivacyNoticeVersion(rawValue: 2)
     )
 }

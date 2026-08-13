@@ -9,6 +9,7 @@ struct TodayView: View {
     let openStylingPrivacy: () -> Void
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Query private var storedItems: [Item]
     @State private var recommender: OutfitRecommender?
     @State private var configError: String?
@@ -16,13 +17,14 @@ struct TodayView: View {
     @State private var writes = WardrobeWriteCoordinator()
     @State private var activeStylingTask: Task<Void, Never>?
     @State private var activeStylingTaskID: UUID?
+    @FocusState private var occasionIsFocused: Bool
 
     private var stylingAllowed: Bool {
         privacySettings.controls.decision(for: .aiStyling).isAllowed
     }
 
     private var items: [Item] {
-        WardrobeAccountFilter.visibleItems(from: storedItems, in: accountScope)
+        WardrobeAccountFilter.styleableItems(from: storedItems, in: accountScope)
     }
 
     var body: some View {
@@ -82,13 +84,15 @@ struct TodayView: View {
                         requestInitialLook()
                     }
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .disabled(activeStylingTask != nil)
-                    .accessibilityHint("Sends a compact text catalog and recent item identifiers for AI styling.")
+                    .accessibilityHint("Sends compact catalog details, recent item identifiers, and per-item rating summaries for AI styling.")
                     .accessibilityIdentifier("today.generate")
                 }
             } else {
                 Button("Review AI styling data use", action: openStylingPrivacy)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .accessibilityIdentifier("today.reviewPrivacy")
             }
         }
@@ -104,8 +108,24 @@ struct TodayView: View {
         case .loading:
             VStack(spacing: 12) {
                 ProgressView()
-                Text("Aria is styling your day…").foregroundStyle(.secondary)
+                    .controlSize(.large)
+                    .accessibilityLabel("Styling in progress")
+                Text("Aria is styling your day…")
+                    .font(.headline)
+                Text("This usually takes less than 30 seconds.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Button("Cancel") {
+                    cancelActiveStylingTask()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .accessibilityHint("Stops the current styling request and keeps your occasion text.")
+                .accessibilityIdentifier("today.cancel")
             }
+            .multilineTextAlignment(.center)
+            .padding()
+            .accessibilityElement(children: .contain)
         case .emptyCatalog:
             ContentUnavailableView {
                 Label("Not enough to style yet", systemImage: "sparkles")
@@ -120,6 +140,7 @@ struct TodayView: View {
             } actions: {
                 Button("Review AI styling data use", action: openStylingPrivacy)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .accessibilityIdentifier("today.reviewPrivacy")
             }
         case .failed(let message):
@@ -171,22 +192,76 @@ struct TodayView: View {
     }
 
     private func lookStrip(_ look: OutfitRecommender.Look) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-                ForEach(look.items) { item in
-                    VStack(alignment: .leading, spacing: 6) {
-                        ItemThumbnail(item: item)
-                            .frame(width: 132, height: 132)
-                            .background(Color(uiColor: .secondarySystemBackground))
-                            .clipShape(.rect(cornerRadius: 14))
-                        Text(item.name)
-                            .font(.caption)
-                            .lineLimit(2)
-                            .frame(width: 132, alignment: .leading)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach(look.items) { item in
+                        accessibleLookItem(item)
+                    }
+                }
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(look.items) { item in
+                            standardLookItem(item)
+                        }
                     }
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Items in this look")
+    }
+
+    private func standardLookItem(_ item: Item) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ItemThumbnail(item: item)
+                .frame(width: 132, height: 132)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(.rect(cornerRadius: 14))
+                .accessibilityHidden(true)
+            Text(item.name)
+                .font(.caption)
+                .lineLimit(2)
+                .frame(width: 132, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityDescription(for: item))
+    }
+
+    private func accessibleLookItem(_ item: Item) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            ItemThumbnail(item: item)
+                .frame(width: 88, height: 88)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(.rect(cornerRadius: 12))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.name)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(item.category.capitalized)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                if let brand = item.brand, !brand.isEmpty {
+                    Text(brand)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityDescription(for: item))
+    }
+
+    private func accessibilityDescription(for item: Item) -> String {
+        [item.name, item.brand, item.category.capitalized]
+            .compactMap { value in
+                guard let value, !value.isEmpty else { return nil }
+                return value
+            }
+            .joined(separator: ", ")
     }
 
     private func actions(
@@ -208,6 +283,11 @@ struct TodayView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(isWorn)
+            .controlSize(.large)
+            .accessibilityHint(isWorn
+                ? "This exact look is already in today’s outfit history."
+                : "Saves this look to today’s outfit history.")
+            .accessibilityIdentifier("today.wear")
 
             if recommendation.hasAlternates {
                 Button {
@@ -218,6 +298,9 @@ struct TodayView: View {
                         .padding(.vertical, 6)
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
+                .accessibilityHint("Shows another saved option without sending a new network request.")
+                .accessibilityIdentifier("today.alternate")
             }
         }
         .padding(.top, 4)
@@ -233,8 +316,10 @@ struct TodayView: View {
             if let retry {
                 Button("Try again", action: retry)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .disabled(activeStylingTask != nil)
                     .accessibilityHint("Sends a new compact styling request.")
+                    .accessibilityIdentifier("today.retry")
             }
         }
     }
@@ -244,9 +329,13 @@ struct TodayView: View {
     private var occasionField: some View {
         TextField("Occasion (optional)", text: $occasion)
             .textFieldStyle(.roundedBorder)
+            .controlSize(.large)
             .textInputAutocapitalization(.sentences)
             .submitLabel(.done)
+            .focused($occasionIsFocused)
+            .onSubmit { occasionIsFocused = false }
             .accessibilityHint("Adds context such as work, dinner, or travel to the next styling request.")
+            .accessibilityValue(occasion.isEmpty ? "No occasion entered" : occasion)
             .accessibilityIdentifier("today.occasion")
             .onChange(of: occasion) { _, newValue in
                 let limited = StylingOccasion.limited(newValue)

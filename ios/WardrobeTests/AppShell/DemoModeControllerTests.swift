@@ -7,7 +7,7 @@ import Testing
 @Suite("Offline demo mode")
 struct DemoModeControllerTests {
     @Test func fictionalDefinitionsAndLookAreDeterministicAndSafe() {
-        #expect(DemoWardrobe.items.count == 6)
+        #expect(DemoWardrobe.items.count == 7)
         #expect(Set(DemoWardrobe.items.map(\.id)).count == DemoWardrobe.items.count)
         #expect(DemoWardrobe.todayLook.itemIDs == [
             UUID(uuidString: "D3A00000-0000-4000-8000-000000000001")!,
@@ -16,7 +16,13 @@ struct DemoModeControllerTests {
             UUID(uuidString: "D3A00000-0000-4000-8000-000000000004")!,
         ])
         #expect(Set(DemoWardrobe.todayLook.itemIDs).isSubset(of: Set(DemoWardrobe.items.map(\.id))))
-        #expect(DemoWardrobe.items.allSatisfy { $0.brand.contains("Fictional") || $0.brand.contains("Imaginary") || $0.brand == "Studio Example" })
+        #expect(Set(DemoWardrobe.recentLook.itemIDs).isSubset(of: Set(DemoWardrobe.items.map(\.id))))
+        #expect(DemoWardrobe.items.allSatisfy {
+            $0.brand.contains("Fictional")
+                || $0.brand.contains("Imaginary")
+                || $0.brand == "Studio Example"
+                || $0.brand == "Example Receipt Shop"
+        })
     }
 
     @Test func enteringSeedsOnlyAnIsolatedInMemoryContainer() throws {
@@ -34,13 +40,32 @@ struct DemoModeControllerTests {
 
         #expect(demoItems.map(\.id).sorted(by: Self.sortUUIDs) == DemoWardrobe.items.map(\.id).sorted(by: Self.sortUUIDs))
         #expect(demoItems.allSatisfy { item in
-            item.source == .manual
-                && item.accountSubjectKey == nil
-                && item.sourceMsgId == nil
+            item.sourceMsgId == nil
                 && item.imageURL == nil
                 && item.imageData == nil
         })
+        #expect(demoItems.filter { $0.source == .manual }.allSatisfy {
+            $0.accountSubjectKey == nil
+        })
+        #expect(demoItems.filter { $0.source == .email }.count == 1)
+        #expect(demoItems.filter { $0.reviewState == .pendingReview }.count == 1)
+        #expect(demoItems.first { $0.source == .email }?.extractionConfidence == .medium)
+        #expect(demoItems.first { $0.source == .email }?.sourceMsgId == nil)
+        #expect(demoItems.first { $0.source == .email }?.accountSubjectKey
+            == WardrobeAccountScope.deviceLocal.rawValue)
+        let demoOutfits = try demoContext.fetch(FetchDescriptor<Outfit>())
+        let demoWearLogs = try demoContext.fetch(FetchDescriptor<WearLog>())
+        #expect(demoOutfits.map(\.id) == [DemoWardrobe.recentLookID])
+        #expect(demoOutfits[0].accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue)
+        #expect(Set(demoOutfits[0].items.map(\.id)) == Set(DemoWardrobe.recentLook.itemIDs))
+        #expect(demoWearLogs.count == DemoWardrobe.recentLook.itemIDs.count)
+        #expect(demoWearLogs.allSatisfy { $0.outfit?.id == DemoWardrobe.recentLookID })
+        #expect(demoWearLogs.allSatisfy {
+            $0.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue
+        })
         #expect(try realContext.fetch(FetchDescriptor<Item>()).map(\.name) == ["My Real Coat"])
+        #expect(try realContext.fetchCount(FetchDescriptor<Outfit>()) == 0)
+        #expect(try realContext.fetchCount(FetchDescriptor<WearLog>()) == 0)
     }
 
     @Test func demoEditsNeverTouchRealRowsAndAreDiscardedOnExit() throws {
@@ -113,7 +138,9 @@ struct DemoModeControllerTests {
         #expect(controller.reset())
         let resetSession = try #require(controller.session)
         #expect(resetSession !== originalSession)
-        #expect(try ModelContext(resetSession.container).fetchCount(FetchDescriptor<Item>()) == 6)
+        #expect(try ModelContext(resetSession.container).fetchCount(FetchDescriptor<Item>()) == 7)
+        #expect(try ModelContext(resetSession.container).fetchCount(FetchDescriptor<Outfit>()) == 1)
+        #expect(try ModelContext(resetSession.container).fetchCount(FetchDescriptor<WearLog>()) == 4)
         #expect(try realContext.fetch(FetchDescriptor<Item>()).map(\.name) == ["Keep Me"])
     }
 
@@ -165,6 +192,12 @@ struct DemoModeControllerTests {
         #expect(controller.isActive)
         #expect(controller.session != nil)
         #expect(containerCalls == 1)
+    }
+
+    @Test func localUITestLaunchArgumentIsExact() {
+        #expect(LocalUITestLaunchPolicy.isRequested(arguments: ["Wardrobe", "--wardrobe-ui-testing-local"]))
+        #expect(!LocalUITestLaunchPolicy.isRequested(arguments: ["Wardrobe", "wardrobe-ui-testing-local"]))
+        #expect(!LocalUITestLaunchPolicy.isRequested(arguments: ["Wardrobe", "--wardrobe-ui-testing-local=true"]))
     }
 
     @Test func creationFailureLeavesNoDemoSessionAndCanBeCleared() {

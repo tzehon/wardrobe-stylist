@@ -32,7 +32,14 @@ def _queue(fake: FakeAnthropicClient, tool_input: dict) -> None:
 
 
 def _request_body(**overrides) -> dict:
-    body = {"items": CATALOG, "recently_worn_ids": [D], "occasion": "relaxed weekend"}
+    body = {
+        "items": CATALOG,
+        "recently_worn_ids": [D],
+        "item_preferences": [
+            {"id": A, "average_rating": 4.5, "rating_count": 2},
+        ],
+        "occasion": "relaxed weekend",
+    }
     body.update(overrides)
     return body
 
@@ -71,6 +78,53 @@ def test_recommend_returns_structured_outfit(client, fake_anthropic, auth_header
     assert "relaxed weekend" in user_content
     # Recently-worn ids are passed so Aria can avoid repeats.
     assert D in user_content
+    assert "Rated item preferences" in user_content
+    assert f"id={A}, average=4.50, ratings=2" in user_content
+
+
+def test_recommend_rejects_out_of_range_preference(client, fake_anthropic, auth_headers):
+    response = client.post(
+        "/recommend",
+        json=_request_body(
+            item_preferences=[{"id": A, "average_rating": 5.1, "rating_count": 1}]
+        ),
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+
+
+def test_recommend_rejects_preference_outside_catalog(
+    client, fake_anthropic, auth_headers
+):
+    response = client.post(
+        "/recommend",
+        json=_request_body(
+            item_preferences=[
+                {
+                    "id": "99999999-9999-4999-8999-999999999999",
+                    "average_rating": 5,
+                    "rating_count": 1,
+                }
+            ]
+        ),
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+    assert fake_anthropic.messages.last_call is None
+
+
+def test_recommend_rejects_recent_item_outside_catalog(
+    client, fake_anthropic, auth_headers
+):
+    response = client.post(
+        "/recommend",
+        json=_request_body(
+            recently_worn_ids=["99999999-9999-4999-8999-999999999999"]
+        ),
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+    assert fake_anthropic.messages.last_call is None
 
 
 def test_recommend_drops_hallucinated_item_ids(client, fake_anthropic, auth_headers):

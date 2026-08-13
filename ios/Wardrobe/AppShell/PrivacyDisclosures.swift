@@ -27,9 +27,10 @@ struct PrivacyDisclosure: Equatable, Sendable {
         dataShared: [
             "Item identifiers, names, categories, brands, colors, and materials",
             "Recently worn item identifiers",
+            "Per-item rating summaries: average rating and rating count",
             "Wardrobe photos and Gmail messages are not included in styling requests"
         ],
-        destination: "Those details are sent over an encrypted connection to the developer-operated Wardrobe backend, which uses Anthropic Claude to propose a look.",
+        destination: "Those details are sent over an encrypted connection to the developer-operated Wardrobe backend, which uses Anthropic Claude to propose a look. Free-text feedback, outfit rationales, and rating dates are not sent.",
         result: "The recommendation returns to this device. A request is sent only after you tap a styling action."
     )
 }

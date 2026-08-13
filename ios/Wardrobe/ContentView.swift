@@ -83,6 +83,16 @@ struct ContentView: View {
             .tag(AppTab.wardrobe)
 
             NavigationStack {
+                OutfitHistoryView(accountScope: activeAccountScope)
+                    .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
+            }
+            .tabItem {
+                Label(AppTab.history.title, systemImage: AppTab.history.systemImage)
+                    .accessibilityIdentifier(AppTab.history.accessibilityIdentifier)
+            }
+            .tag(AppTab.history)
+
+            NavigationStack {
                 if let session {
                     SettingsView(
                         session: session,
@@ -180,11 +190,16 @@ struct ContentView: View {
         guard onboardingState.hasCompleted else { return }
         guard !demoMode.isActive else { return }
         await devicePrivacy.load()
+        await devicePrivacy.automation.reconcile()
         guard !demoMode.isActive else { return }
         guard session == nil else { return }
         let madeSession = GmailSession()
+        // Publish the signed-out/restoring session before awaiting Google. This
+        // keeps all local Settings, privacy, and deletion controls available
+        // even if the SDK restore is slow or needs network recovery; only the
+        // optional Gmail section shows its bounded restoring state.
+        session = madeSession
         await madeSession.restorePreviousSignIn()
         guard !Task.isCancelled, !demoMode.isActive else { return }
-        session = madeSession
     }
 }

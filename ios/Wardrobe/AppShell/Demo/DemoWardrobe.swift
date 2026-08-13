@@ -84,6 +84,16 @@ enum DemoWardrobe {
             material: "vegetable-tanned leather",
             styleNotes: "Compact carryall with a detachable strap."
         ),
+        ItemDefinition(
+            id: UUID(uuidString: "D3A00000-0000-4000-8000-000000000007")!,
+            name: "Dusk Wrap Dress",
+            category: "dress",
+            subcategory: "wrap dress",
+            brand: "Example Receipt Shop",
+            colors: ["#4C405E"],
+            material: "linen blend",
+            styleNotes: "Fictional imported item waiting for your review."
+        ),
     ]
 
     nonisolated static let todayLook = LookDefinition(
@@ -93,14 +103,27 @@ enum DemoWardrobe {
         rationale: "The crisp shirt and pleated trousers feel polished, while the field jacket and court sneakers keep the look relaxed enough for an easy day out."
     )
 
+    nonisolated static let recentLookID = UUID(
+        uuidString: "D3A10000-0000-4000-8000-000000000001"
+    )!
+
+    nonisolated static let recentLook = LookDefinition(
+        itemIDs: [items[4].id, items[1].id, items[2].id, items[5].id],
+        occasion: "Weekend errands",
+        colorStory: "Inky navy and cedar lifted by porcelain and saffron",
+        rationale: "The ribbed tee and pleated trousers keep the base easy, while clean sneakers and the saffron tote add a practical, bright finish."
+    )
+
     @MainActor
     static func seed(into modelContext: ModelContext) throws {
         guard try modelContext.fetchCount(FetchDescriptor<Item>()) == 0 else {
             throw DemoWardrobeError.nonemptyContainer
         }
 
-        for definition in items {
-            modelContext.insert(Item(
+        var seededItems: [UUID: Item] = [:]
+        for (index, definition) in items.enumerated() {
+            let isPendingImport = index == items.indices.last
+            let item = Item(
                 id: definition.id,
                 name: definition.name,
                 category: definition.category,
@@ -109,14 +132,45 @@ enum DemoWardrobe {
                 colors: definition.colors,
                 material: definition.material,
                 styleNotes: definition.styleNotes,
-                source: .manual,
-                purchaseDate: nil,
+                source: isPendingImport ? .email : .manual,
+                purchaseDate: isPendingImport
+                    ? Date(timeIntervalSince1970: 1_704_067_200)
+                    : nil,
+                purchasePrice: isPendingImport ? 149 : nil,
+                purchaseCurrency: isPendingImport ? "USD" : nil,
                 sourceMsgId: nil,
                 imageURL: nil,
-                accountSubjectKey: nil,
+                accountSubjectKey: isPendingImport
+                    ? WardrobeAccountScope.deviceLocal.rawValue
+                    : nil,
+                extractionConfidence: isPendingImport ? .medium : nil,
+                reviewState: isPendingImport ? .pendingReview : .accepted,
                 imageData: nil,
                 thumbnailData: nil,
                 featurePrint: nil
+            )
+            modelContext.insert(item)
+            seededItems[definition.id] = item
+        }
+
+        let wornAt = Date.now.addingTimeInterval(-86_400)
+        let wornItems = recentLook.itemIDs.compactMap { seededItems[$0] }
+        let outfit = Outfit(
+            id: recentLookID,
+            createdAt: wornAt,
+            occasion: recentLook.occasion,
+            rationale: recentLook.rationale,
+            colorStory: recentLook.colorStory,
+            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
+            items: wornItems
+        )
+        modelContext.insert(outfit)
+        for item in wornItems {
+            modelContext.insert(WearLog(
+                date: wornAt,
+                item: item,
+                outfit: outfit,
+                accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
             ))
         }
         try modelContext.save()

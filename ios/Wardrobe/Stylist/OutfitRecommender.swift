@@ -144,9 +144,10 @@ final class OutfitRecommender {
         let items: [Item]
         let outfits: [Outfit]
         let recentlyWornIDs: [String]
+        let itemPreferences: [RecommendItemPreference]
         let compactCatalog: [RecommendCatalogItem]
         do {
-            items = WardrobeAccountFilter.visibleItems(
+            items = WardrobeAccountFilter.styleableItems(
                 from: try modelContext.fetch(FetchDescriptor<Item>()),
                 in: accountScope
             )
@@ -158,13 +159,19 @@ final class OutfitRecommender {
                 from: try modelContext.fetch(FetchDescriptor<WearLog>()),
                 in: accountScope
             )
+            compactCatalog = CatalogCompactor.compact(items)
+            let activeItemIDs = Set(compactCatalog.map(\.id))
             recentlyWornIDs = WearHistory.recentlyWornIDs(
                 from: wears, since: WearHistory.cutoff(from: now())
-            )
-            compactCatalog = CatalogCompactor.compact(items)
+            ).filter(activeItemIDs.contains)
+            itemPreferences = WearHistory.itemPreferences(from: wears).filter {
+                activeItemIDs.contains($0.id)
+            }
         } catch {
             guard !Task.isCancelled else { return }
-            state = .failed(message: "Couldn't read your wardrobe: \(error.localizedDescription)")
+            state = .failed(
+                message: "We couldn’t open your wardrobe for styling. Your items are still on this device. Please try again."
+            )
             return
         }
 
@@ -207,6 +214,7 @@ final class OutfitRecommender {
         let request = RecommendRequest(
             items: compactCatalog,
             recentlyWornIds: recentlyWornIDs,
+            itemPreferences: itemPreferences,
             occasion: requestOccasion
         )
 
@@ -322,13 +330,31 @@ final class OutfitRecommender {
     private static func message(for error: Error) -> String {
         switch error {
         case RecommendError.http(let status, _):
-            return "The stylist service returned an error (\(status)). Please try again."
+            switch status {
+            case 401, 403:
+                return "Styling isn’t available in this build. Please update the app and try again."
+            case 429:
+                return "Aria is receiving a lot of requests right now. Please wait a moment and try again."
+            case 500...599:
+                return "Aria is temporarily unavailable. Your wardrobe is safe on this device. Please try again."
+            default:
+                return "Aria couldn’t finish this look. Your wardrobe is safe on this device. Please try again."
+            }
         case RecommendError.decoding:
-            return "Couldn't read Aria's response. Please try again."
+            return "Aria returned a look the app couldn’t display. Please try again."
         case RecommendError.invalidResponse:
-            return "No response from the stylist service."
+            return "Aria didn’t return a usable look. Please try again."
+        case let urlError as URLError:
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:
+                return "You appear to be offline. Reconnect to style a new look. Any look saved earlier today remains stored on this device."
+            case .timedOut:
+                return "Styling took too long. Check your connection and try again."
+            default:
+                return "Aria couldn’t be reached. Check your connection and try again."
+            }
         default:
-            return error.localizedDescription
+            return "Aria couldn’t finish this look. Your wardrobe is safe on this device. Please try again."
         }
     }
 }

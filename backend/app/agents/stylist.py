@@ -43,11 +43,13 @@ Rules:
 
 3. Don't repeat recent looks. Favor items the user hasn't worn recently (the `recently_worn_ids` list); it's fine to reuse a staple when the catalog is small, but vary the overall combination from day to day.
 
-4. Make it cohesive: colors should work together, the formality should match the occasion (when one is given), and the pieces should plausibly be worn together.
+4. Treat `item_preferences` as a soft taste signal, never as a hard rule. Favor combinations containing items with consistently high ratings and be cautious with consistently low-rated items, while still respecting the occasion, catalog size, recent wear, and completeness. A missing rating means unknown—not disliked.
 
-5. Provide 1–3 `alternates` — distinct alternative looks (different mood, formality, or palette) so the user can shuffle to another option. Each alternate is a complete outfit (at least two items) with a one-line note on what makes it different. If the catalog is too small to vary meaningfully, return fewer (or no) alternates rather than near-duplicates.
+5. Make it cohesive: colors should work together, the formality should match the occasion (when one is given), and the pieces should plausibly be worn together.
 
-6. Write the `rationale` and `color_story` in your own warm, concise voice — why this look works today. `occasion` is a short label like "relaxed weekend" or "smart office"."""
+6. Provide 1–3 `alternates` — distinct alternative looks (different mood, formality, or palette) so the user can shuffle to another option. Each alternate is a complete outfit (at least two items) with a one-line note on what makes it different. If the catalog is too small to vary meaningfully, return fewer (or no) alternates rather than near-duplicates.
+
+7. Write the `rationale` and `color_story` in your own warm, concise voice — why this look works today. `occasion` is a short label like "relaxed weekend" or "smart office"."""
 
 PROPOSE_OUTFIT_TOOL: dict[str, Any] = {
     "name": TOOL_NAME,
@@ -127,6 +129,7 @@ def build_user_message(
     *,
     items: list[dict[str, Any]],
     recently_worn_ids: list[str],
+    item_preferences: list[dict[str, Any]],
     occasion: str | None,
 ) -> str:
     """Compose the single user-turn string: the compact catalog + wear history + context."""
@@ -137,6 +140,15 @@ def build_user_message(
         "Recently worn item ids (avoid repeating these looks): "
         + (", ".join(recently_worn_ids) if recently_worn_ids else "none")
     )
+    lines.append("Rated item preferences (soft signal; average out of 5):")
+    if item_preferences:
+        for preference in item_preferences:
+            lines.append(
+                f"- id={preference['id']}, average={preference['average_rating']:.2f}, "
+                f"ratings={preference['rating_count']}"
+            )
+    else:
+        lines.append("- none")
     lines.append("")
     lines.append("Catalog:")
     lines.extend(_format_item(item) for item in items)
@@ -150,6 +162,7 @@ def recommend(
     *,
     items: list[dict[str, Any]],
     recently_worn_ids: list[str],
+    item_preferences: list[dict[str, Any]],
     occasion: str | None,
 ) -> dict[str, Any]:
     """Run one recommendation. Returns ``{"tool_input": dict, "usage": dict}``.
@@ -158,7 +171,10 @@ def recommend(
     or the tool input isn't a JSON object.
     """
     user_message = build_user_message(
-        items=items, recently_worn_ids=recently_worn_ids, occasion=occasion
+        items=items,
+        recently_worn_ids=recently_worn_ids,
+        item_preferences=item_preferences,
+        occasion=occasion,
     )
     # The Anthropic SDK's `messages.create` overloads are typed with strict TypedDicts that
     # don't cover every JSON-Schema-valid input shape (e.g. `additionalProperties`/`minItems`

@@ -22,6 +22,21 @@ struct PrivacyGatekeeperTests {
             == .denied(.stylingConsentRequired))
     }
 
+    @Test func currentStylingNoticeVersionReflectsRatingSummaryDisclosure() {
+        #expect(PrivacyNoticeRequirements.current.wardrobeStyling.rawValue == 2)
+        let oldGrant = AccountPrivacyPreferences(
+            wardrobeStylingConsent: grant(version: 1),
+            dailyReminderEnabled: true
+        )
+
+        let gatekeeper = PrivacyGatekeeper()
+
+        #expect(gatekeeper.decision(for: .aiStyling, preferences: oldGrant)
+            == .denied(.stylingConsentRequired))
+        #expect(gatekeeper.decision(for: .dailyReminder, preferences: oldGrant)
+            == .denied(.stylingConsentRequired))
+    }
+
     @Test func storedGatekeeperLoadsTheRequestedSubject() async throws {
         let suiteName = "StoredPrivacyGatekeeperTests.\(UUID().uuidString)"
         let store = UserDefaultsPrivacyPreferencesStore(

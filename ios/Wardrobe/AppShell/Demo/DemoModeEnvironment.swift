@@ -20,6 +20,7 @@ struct DemoFictionalDataNotice: View {
         .font(.footnote.weight(.semibold))
         .foregroundStyle(.indigo)
         .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("demo.fictionalDataNotice")
     }
 }
