@@ -63,6 +63,18 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tth.WardrobeTests
         GENERATE_INFOPLIST_FILE: YES
+  WardrobeUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - WardrobeUITests
+    dependencies:
+      - target: Wardrobe
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tth.WardrobeUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Wardrobe
 schemes:
   Wardrobe:
     build:
@@ -71,3 +83,4 @@ schemes:
     test:
       targets:
         - WardrobeTests
+        - WardrobeUITests
