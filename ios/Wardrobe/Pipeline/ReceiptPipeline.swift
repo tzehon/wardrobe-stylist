@@ -6,6 +6,7 @@ import SwiftData
 ///
 ///   GmailReadOnlyClient (list+get, never mutating)
 ///       → SignalsExtractor + CandidateClassifier (Tier 0, on-device, fast)
+///       → JSON-LD or redacted product excerpt (on-device privacy boundary)
 ///       → ExtractClient `/extract` (Tier 2, Claude Haiku, fashion attributes)
 ///       → SwiftData `Item` (with dedup against existing rows from the same email)
 ///
@@ -15,6 +16,10 @@ import SwiftData
 @MainActor
 @Observable
 final class ReceiptPipeline {
+
+    private enum ProcessingError: Error, Sendable {
+        case extractionContractViolation
+    }
 
     enum SyncMode: Sendable {
         case manual
@@ -43,10 +48,7 @@ final class ReceiptPipeline {
     private let privacyGate: any PrivacyGateChecking
     private let privacySubjectID: PrivacySubjectID
     private let accountScope: WardrobeAccountScope
-
-    /// Maximum chars of body snippet sent to the backend. Backend's
-    /// `ExtractRequest.snippet` is capped at 8000; keep a small buffer.
-    private static let snippetCharLimit = 7500
+    private let processedStateStore: GmailProcessedStateStore
 
     /// Default Gmail search — broad enough to catch most receipts but not so
     /// broad it pulls in every newsletter. `category:purchases` is Gmail's
@@ -65,7 +67,8 @@ final class ReceiptPipeline {
         extractClient: ExtractClient,
         modelContext: ModelContext,
         privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
-        privacySubjectID: PrivacySubjectID
+        privacySubjectID: PrivacySubjectID,
+        processedStateStore: GmailProcessedStateStore? = nil
     ) {
         self.gmailClient = gmailClient
         self.extractClient = extractClient
@@ -73,6 +76,10 @@ final class ReceiptPipeline {
         self.privacyGate = privacyGate
         self.privacySubjectID = privacySubjectID
         self.accountScope = .external(privacySubjectID)
+        self.processedStateStore = processedStateStore ?? GmailProcessedStateStore(
+            modelContext: modelContext,
+            subjectID: privacySubjectID
+        )
     }
 
     /// Runs one full sync. Safe to call repeatedly — catalog-wide dedup keeps the
@@ -111,6 +118,7 @@ final class ReceiptPipeline {
         //    and never auto-removed). The sweep also heals any duplicates already
         //    in the store from before dedup went catalog-wide.
         var seenIdentities: Set<String> = []
+        let processedMessageIDs: Set<String>
         do {
             try Task.checkCancellation()
             let existing = try modelContext.fetch(FetchDescriptor<Item>())
@@ -128,6 +136,7 @@ final class ReceiptPipeline {
                 for duplicate in duplicates { modelContext.delete(duplicate) }
                 try modelContext.save()
             }
+            processedMessageIDs = try processedStateStore.processedMessageIDs()
         } catch is CancellationError {
             modelContext.rollback()
             state = .failed(message: Self.cancellationMessage)
@@ -145,10 +154,20 @@ final class ReceiptPipeline {
             // 2. Discover candidate message ids. allMessages auto-paginates;
             //    we bound it by maxMessages to keep first-run costs predictable.
             var refs: [GmailMessageList.MessageRef] = []
-            for try await ref in gmailClient.allMessages(query: query, includeSpamTrash: false) {
-                try Task.checkCancellation()
-                refs.append(ref)
-                if refs.count >= maxMessages { break }
+            var discoveredMessageIDs = processedMessageIDs
+            if maxMessages > 0 {
+                for try await ref in gmailClient.allMessages(
+                    query: query,
+                    includeSpamTrash: false
+                ) {
+                    try Task.checkCancellation()
+                    // Re-listing is intentionally cheap and resumable: known
+                    // terminal messages never incur messages.get or backend
+                    // work, and do not consume the per-run backfill budget.
+                    guard discoveredMessageIDs.insert(ref.id).inserted else { continue }
+                    refs.append(ref)
+                    if refs.count >= maxMessages { break }
+                }
             }
             let total = refs.count
             state = .running(processed: 0, total: total)
@@ -231,31 +250,68 @@ final class ReceiptPipeline {
         let signals = SignalsExtractor.makeSignals(from: message)
         let score = CandidateClassifier.classify(signals)
         guard score.likelyPurchase else {
+            try commitTerminalOutcome(
+                .notPurchase,
+                messageID: ref.id,
+                gmailHistoryID: message.historyId
+            )
             return MessageOutcome(itemsAdded: 0, wasCandidate: false, persistedIdentities: [])
         }
 
-        let snippet = String(signals.bodyText.prefix(Self.snippetCharLimit))
-        guard !snippet.isEmpty else {
+        guard let payload = ReceiptPayloadBuilder.makePayload(
+            message: message,
+            signals: signals
+        ) else {
+            try commitTerminalOutcome(
+                .emptyContent,
+                messageID: ref.id,
+                gmailHistoryID: message.historyId
+            )
             return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
         }
 
         let response = try await extractClient.extract(ExtractRequest(
             sourceMsgId: ref.id,
-            sender: signals.senderAddress,
-            subject: signals.subject,
-            snippet: snippet
+            sender: payload.senderDomain,
+            subject: payload.subject,
+            snippet: payload.snippet
         ))
         try Task.checkCancellation()
+        // Decode success is not enough: an older or compromised backend can
+        // still violate the shared semantic contract. Neither direction may
+        // become a terminal ledger result, because that would prevent a later
+        // healthy sync from retrying the Gmail message.
+        guard response.isFashion == !response.items.isEmpty else {
+            throw ProcessingError.extractionContractViolation
+        }
         guard response.isFashion else {
+            try commitTerminalOutcome(
+                .notFashion,
+                messageID: ref.id,
+                gmailHistoryID: message.historyId
+            )
             return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
         }
 
-        let result = try ingest(
+        let plan = makeIngestPlan(
             response.items,
-            sourceMsgId: ref.id,
-            internalDate: message.internalDate,
             seenIdentities: seenIdentities
         )
+        try Task.checkCancellation()
+        let outcome: ProcessedGmailMessageOutcome = plan.items.isEmpty ? .duplicate : .imported
+        let committed = try processedStateStore.commitProcessed(
+            messageID: ref.id,
+            outcome: outcome,
+            gmailHistoryID: message.historyId
+        ) {
+            try Task.checkCancellation()
+            return try stageIngest(
+                plan,
+                sourceMsgId: ref.id,
+                internalDate: message.internalDate
+            )
+        }
+        let result = committed.result
         return MessageOutcome(
             itemsAdded: result.added,
             wasCandidate: true,
@@ -265,34 +321,62 @@ final class ReceiptPipeline {
 
     // MARK: - Persistence
 
-    /// Maps `ExtractedItem`s onto SwiftData `Item`s and persists.
-    ///
-    /// Dedup rule: an item is a duplicate if the catalog already holds an
-    /// email-sourced Item with the same brand+name+category identity (see
-    /// `identityKey`). Keying on identity rather than `sourceMsgId` collapses the
-    /// same product arriving across multiple emails of one order (confirmation +
-    /// dispatch) into a single catalog entry, and keeps re-syncs idempotent.
-    private func ingest(
+    private func commitTerminalOutcome(
+        _ outcome: ProcessedGmailMessageOutcome,
+        messageID: String,
+        gmailHistoryID: String?
+    ) throws {
+        try Task.checkCancellation()
+        try processedStateStore.markProcessed(
+            messageID: messageID,
+            outcome: outcome,
+            gmailHistoryID: gmailHistoryID
+        )
+    }
+
+    private struct IngestPlan {
+        let items: [ExtractedItem]
+        let persistedIdentities: Set<String>
+    }
+
+    /// Selects new catalog identities without mutating SwiftData. This lets us
+    /// decide the ledger outcome before entering the one atomic save boundary.
+    private func makeIngestPlan(
         _ items: [ExtractedItem],
-        sourceMsgId: String,
-        internalDate: String?,
         seenIdentities: Set<String>
-    ) throws -> (added: Int, persistedIdentities: Set<String>) {
-        // Dedup is driven by the snapshot `sync()` built up front — no fetch
-        // calls in here, only insert + save. See the comment in `sync()`.
-        let purchaseDate = internalDate.flatMap(Self.parseGmailInternalDate)
+    ) -> IngestPlan {
         var seen = seenIdentities
+        var planned: [ExtractedItem] = []
         var persisted = Set<String>()
-        var added = 0
         for extracted in items {
             let key = Self.identityKey(
                 brand: extracted.brand,
                 name: extracted.name,
                 category: extracted.category.rawValue
             )
-            if seen.contains(key) { continue }
-            seen.insert(key)
+            guard seen.insert(key).inserted else { continue }
+            planned.append(extracted)
             persisted.insert(key)
+        }
+        return IngestPlan(items: planned, persistedIdentities: persisted)
+    }
+
+    /// Maps the preselected `ExtractedItem`s onto SwiftData `Item`s. The caller
+    /// owns the save; in production that is `commitProcessed`, which persists
+    /// these items and the terminal processed-message row transactionally.
+    ///
+    /// Dedup rule: an item is a duplicate if the catalog already holds an
+    /// email-sourced Item with the same brand+name+category identity (see
+    /// `identityKey`). Keying on identity rather than `sourceMsgId` collapses the
+    /// same product arriving across multiple emails of one order (confirmation +
+    /// dispatch) into a single catalog entry, and keeps re-syncs idempotent.
+    private func stageIngest(
+        _ plan: IngestPlan,
+        sourceMsgId: String,
+        internalDate: String?
+    ) throws -> (added: Int, persistedIdentities: Set<String>) {
+        let purchaseDate = internalDate.flatMap(Self.parseGmailInternalDate)
+        for extracted in plan.items {
             let item = Item(
                 name: extracted.name,
                 category: extracted.category.rawValue,
@@ -307,17 +391,8 @@ final class ReceiptPipeline {
                 accountSubjectKey: accountScope.rawValue
             )
             modelContext.insert(item)
-            added += 1
         }
-        if added > 0 {
-            do {
-                try modelContext.save()
-            } catch {
-                modelContext.rollback()
-                throw error
-            }
-        }
-        return (added, persisted)
+        return (plan.items.count, plan.persistedIdentities)
     }
 
     /// Stable de-dup identity for a catalog item: brand + name + category,

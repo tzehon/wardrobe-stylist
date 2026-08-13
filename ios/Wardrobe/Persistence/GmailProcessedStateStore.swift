@@ -15,8 +15,8 @@ struct GmailProcessedStateError: Error, Equatable, LocalizedError, Sendable {
 }
 
 /// Transaction boundary for one account's processed-message ledger and Gmail
-/// cursors. It is intentionally independent of receipt payload construction so
-/// APP-008 can adopt it without changing the HTTP contract.
+/// cursors. Receipt persistence can be staged in `commitProcessed` so catalog
+/// inserts and the terminal ledger outcome succeed or roll back together.
 @MainActor
 final class GmailProcessedStateStore {
     typealias Save = @MainActor (ModelContext) throws -> Void
@@ -62,7 +62,32 @@ final class GmailProcessedStateStore {
         if let existing = try existingMessage(scopedKey: key) {
             return existing
         }
+        return try commitProcessed(
+            messageID: messageID,
+            outcome: outcome,
+            processedAt: processedAt,
+            gmailHistoryID: gmailHistoryID,
+            changes: { () }
+        ).entry
+    }
+
+    /// Commits one terminal message outcome and any associated catalog changes
+    /// in the same SwiftData save. Callers must not use this for network or
+    /// cancellation-prone work; the closure is a synchronous staging boundary.
+    @discardableResult
+    func commitProcessed<Result>(
+        messageID: String,
+        outcome: ProcessedGmailMessageOutcome,
+        processedAt: Date = .now,
+        gmailHistoryID: String? = nil,
+        changes: () throws -> Result
+    ) throws -> (result: Result, entry: ProcessedGmailMessage) {
+        let key = Self.scopedMessageKey(accountScope: accountScope, messageID: messageID)
+        guard try existingMessage(scopedKey: key) == nil else {
+            throw GmailProcessedStateError(diagnostic: "Message is already processed")
+        }
         return try transaction {
+            let result = try changes()
             let entry = ProcessedGmailMessage(
                 scopedMessageKey: key,
                 accountSubjectKey: accountScope.rawValue,
@@ -72,7 +97,7 @@ final class GmailProcessedStateStore {
                 gmailHistoryID: gmailHistoryID
             )
             modelContext.insert(entry)
-            return entry
+            return (result, entry)
         }
     }
 
@@ -125,6 +150,9 @@ final class GmailProcessedStateStore {
             let result = try mutation()
             try save(modelContext)
             return result
+        } catch is CancellationError {
+            modelContext.rollback()
+            throw CancellationError()
         } catch let error as GmailProcessedStateError {
             modelContext.rollback()
             throw error

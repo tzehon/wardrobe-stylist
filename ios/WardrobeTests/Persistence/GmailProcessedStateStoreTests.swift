@@ -100,4 +100,35 @@ struct GmailProcessedStateStoreTests {
         #expect(try verification.fetch(FetchDescriptor<ProcessedGmailMessage>()).isEmpty)
         #expect(!fixture.context.hasChanges)
     }
+
+    @Test func failedAtomicCommitRollsBackCatalogChangesWithLedger() throws {
+        let fixture = try fixture()
+        let failing = GmailProcessedStateStore(
+            modelContext: fixture.context,
+            subjectID: .external("account-a"),
+            save: { _ in throw FixtureError.saveFailed }
+        )
+
+        #expect(throws: GmailProcessedStateError.self) {
+            try failing.commitProcessed(
+                messageID: "message",
+                outcome: .imported
+            ) {
+                fixture.context.insert(Item(
+                    name: "Transactional Shirt",
+                    category: "top",
+                    source: .email,
+                    sourceMsgId: "message",
+                    accountSubjectKey: WardrobeAccountScope.external(
+                        .external("account-a")
+                    ).rawValue
+                ))
+            }
+        }
+
+        let verification = ModelContext(fixture.container)
+        #expect(try verification.fetch(FetchDescriptor<Item>()).isEmpty)
+        #expect(try verification.fetch(FetchDescriptor<ProcessedGmailMessage>()).isEmpty)
+        #expect(!fixture.context.hasChanges)
+    }
 }
