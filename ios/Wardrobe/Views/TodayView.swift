@@ -57,6 +57,17 @@ struct TodayView: View {
             } description: {
                 Text("Add a few items to your catalog and Aria can put together a look.")
             }
+        case .consentRequired:
+            ContentUnavailableView {
+                Label("Review data use", systemImage: "hand.raised")
+            } description: {
+                Text("Styling consent is required before wardrobe details are sent for a recommendation.")
+            } actions: {
+                Button("Try Again") {
+                    Task { await restyle(recommender) }
+                }
+                .buttonStyle(.borderedProminent)
+            }
         case .failed(let message):
             errorState(message) { Task { await restyle(recommender) } }
         case .loaded(let recommendation):

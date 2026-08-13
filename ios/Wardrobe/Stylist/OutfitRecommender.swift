@@ -40,6 +40,7 @@ final class OutfitRecommender {
         case loading
         case loaded(Recommendation)
         case emptyCatalog
+        case consentRequired(PrivacyGateDenial)
         case failed(message: String)
     }
 
@@ -49,6 +50,8 @@ final class OutfitRecommender {
     private let modelContext: ModelContext
     private let store: any WardrobeStoring
     private let now: () -> Date
+    private let privacyGate: any PrivacyGateChecking
+    private let privacySubjectID: PrivacySubjectID
 
     /// An outfit needs at least this many items to be worth recommending.
     private static let minimumCatalogItems = 2
@@ -57,16 +60,31 @@ final class OutfitRecommender {
         recommendClient: RecommendClient,
         modelContext: ModelContext,
         store: (any WardrobeStoring)? = nil,
+        privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
+        privacySubjectID: PrivacySubjectID = .deviceLocal,
         now: @escaping () -> Date = Date.init
     ) {
         self.recommendClient = recommendClient
         self.modelContext = modelContext
         self.store = store ?? WardrobeStore(modelContext: modelContext)
+        self.privacyGate = privacyGate
+        self.privacySubjectID = privacySubjectID
         self.now = now
     }
 
     /// Fetch a fresh recommendation from Aria.
     func recommend(occasion: String? = nil) async {
+        let privacyDecision = await privacyGate.decision(
+            for: .aiStyling,
+            subjectID: privacySubjectID
+        )
+        guard privacyDecision.isAllowed else {
+            if case .denied(let denial) = privacyDecision {
+                state = .consentRequired(denial)
+            }
+            return
+        }
+
         // 1. Snapshot the catalog + wear history up front, before any await.
         let items: [Item]
         let recentlyWornIDs: [String]

@@ -11,6 +11,26 @@ import Testing
 @MainActor
 struct OutfitRecommenderTests {
 
+    private struct AllowPrivacyGate: PrivacyGateChecking {
+        func decision(
+            for capability: PrivacyCapability,
+            subjectID: PrivacySubjectID
+        ) async -> PrivacyGateDecision {
+            .allowed
+        }
+    }
+
+    private struct DenyPrivacyGate: PrivacyGateChecking {
+        let denial: PrivacyGateDenial
+
+        func decision(
+            for capability: PrivacyCapability,
+            subjectID: PrivacySubjectID
+        ) async -> PrivacyGateDecision {
+            .denied(denial)
+        }
+    }
+
     nonisolated private static let backendURL = URL(string: "http://test.local")!
 
     // Fixed item ids so the stubbed response can reference them.
@@ -40,6 +60,7 @@ struct OutfitRecommenderTests {
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
+            privacyGate: AllowPrivacyGate(),
             now: { Date(timeIntervalSince1970: 1_700_000_000) }
         )
     }
@@ -89,6 +110,35 @@ struct OutfitRecommenderTests {
     }
 
     // MARK: - Tests
+
+    @Test func stylingWithoutConsentReadsNoCatalogAndMakesNoBackendRequest() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        Self.seedCatalog(context)
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                deviceToken: "test-device-token",
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            privacyGate: DenyPrivacyGate(denial: .stylingConsentRequired)
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("A denied recommendation must not make a request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        await recommender.recommend()
+
+        guard case .consentRequired(let denial) = recommender.state else {
+            Issue.record("Expected consentRequired, got \(recommender.state)")
+            return
+        }
+        #expect(denial == .stylingConsentRequired)
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
 
     @Test func recommendResolvesIdsToItems() async throws {
         let container = try Self.makeContainer()
@@ -189,6 +239,7 @@ struct OutfitRecommenderTests {
             ),
             modelContext: context,
             store: failingStore,
+            privacyGate: AllowPrivacyGate(),
             now: { Date(timeIntervalSince1970: 1_700_000_000) }
         )
         await recommender.recommend()

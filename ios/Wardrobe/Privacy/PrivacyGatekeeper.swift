@@ -24,6 +24,13 @@ enum PrivacyGateDecision: Equatable, Sendable {
     }
 }
 
+protocol PrivacyGateChecking: Sendable {
+    func decision(
+        for capability: PrivacyCapability,
+        subjectID: PrivacySubjectID
+    ) async -> PrivacyGateDecision
+}
+
 /// Pure policy evaluator. It performs no storage, UI, authentication, or action
 /// side effects, so every protected call site can apply the same deterministic
 /// rules after loading preferences for its active `PrivacySubjectID`.
@@ -89,5 +96,28 @@ struct PrivacyGatekeeper: Sendable {
 
     private func hasCurrentStylingConsent(_ preferences: AccountPrivacyPreferences) -> Bool {
         preferences.wardrobeStylingConsent?.noticeVersion == requiredNotices.wardrobeStyling
+    }
+}
+
+/// Production policy adapter: loads the active subject's persisted choices, then
+/// evaluates them using the same pure, version-aware rules as unit tests.
+struct StoredPrivacyGatekeeper: PrivacyGateChecking {
+    let store: any PrivacyPreferencesStoring
+    let policy: PrivacyGatekeeper
+
+    init(
+        store: any PrivacyPreferencesStoring = UserDefaultsPrivacyPreferencesStore(),
+        requiredNotices: PrivacyNoticeRequirements = .current
+    ) {
+        self.store = store
+        self.policy = PrivacyGatekeeper(requiredNotices: requiredNotices)
+    }
+
+    func decision(
+        for capability: PrivacyCapability,
+        subjectID: PrivacySubjectID
+    ) async -> PrivacyGateDecision {
+        let preferences = await store.load(for: subjectID)
+        return policy.decision(for: capability, loadResult: preferences)
     }
 }

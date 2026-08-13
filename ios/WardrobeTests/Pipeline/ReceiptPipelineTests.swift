@@ -16,6 +16,26 @@ import Testing
 @MainActor
 struct ReceiptPipelineTests {
 
+    private struct AllowPrivacyGate: PrivacyGateChecking {
+        func decision(
+            for capability: PrivacyCapability,
+            subjectID: PrivacySubjectID
+        ) async -> PrivacyGateDecision {
+            .allowed
+        }
+    }
+
+    private struct DenyPrivacyGate: PrivacyGateChecking {
+        let denial: PrivacyGateDenial
+
+        func decision(
+            for capability: PrivacyCapability,
+            subjectID: PrivacySubjectID
+        ) async -> PrivacyGateDecision {
+            .denied(denial)
+        }
+    }
+
     // The user wants *all* orders, so the default query must not clamp recency —
     // guard against a date window creeping back into it.
     @Test func defaultQueryHasNoDateWindow() {
@@ -96,6 +116,61 @@ struct ReceiptPipelineTests {
 
     // MARK: - Tests
 
+    @Test func manualSyncWithoutConsentMakesNoGmailOrBackendRequest() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (gmail, extractClient) = Self.makeClients()
+        context.insert(Item(name: "Existing tee", category: "top", source: .email))
+        try context.save()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: DenyPrivacyGate(denial: .receiptConsentRequired)
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("A denied sync must not make a request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        guard case .failed(let message) = pipeline.state else {
+            Issue.record("Expected failed privacy state, got \(pipeline.state)")
+            return
+        }
+        #expect(message.contains("Review data use"))
+        #expect(URLProtocolStub.captured.isEmpty)
+        #expect(try context.fetch(FetchDescriptor<Item>()).count == 1)
+    }
+
+    @Test func backgroundSyncRequiresBothConsentAndAutomationPreference() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: DenyPrivacyGate(denial: .backgroundReceiptSyncDisabled)
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("A disabled background sync must not make a request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10, mode: .background)
+
+        guard case .failed(let message) = pipeline.state else {
+            Issue.record("Expected failed privacy state, got \(pipeline.state)")
+            return
+        }
+        #expect(message.contains("turned off"))
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
     @Test func ingestsFashionItemFromSingleReceipt() async throws {
         let container = try Self.makeContainer()
         let context = container.mainContext
@@ -103,7 +178,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -166,7 +242,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -219,7 +296,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_marketing"])
@@ -271,7 +349,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_fashion", "m_marketing"])
@@ -336,7 +415,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_books"])
@@ -388,7 +468,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -451,7 +532,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_broken", "m_good"])
@@ -512,7 +594,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_confirm", "m_ship"])
@@ -601,7 +684,8 @@ struct ReceiptPipelineTests {
         let pipeline = ReceiptPipeline(
             gmailClient: gmail,
             extractClient: extractClient,
-            modelContext: context
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: [])

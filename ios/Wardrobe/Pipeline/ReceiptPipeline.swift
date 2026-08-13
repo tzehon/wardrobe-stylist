@@ -16,6 +16,18 @@ import SwiftData
 @Observable
 final class ReceiptPipeline {
 
+    enum SyncMode: Sendable {
+        case manual
+        case background
+
+        var privacyCapability: PrivacyCapability {
+            switch self {
+            case .manual: .manualReceiptImport
+            case .background: .backgroundReceiptImport
+            }
+        }
+    }
+
     enum State: Equatable {
         case idle
         case running(processed: Int, total: Int)
@@ -28,6 +40,8 @@ final class ReceiptPipeline {
     private let gmailClient: GmailReadOnlyClient
     private let extractClient: ExtractClient
     private let modelContext: ModelContext
+    private let privacyGate: any PrivacyGateChecking
+    private let privacySubjectID: PrivacySubjectID
 
     /// Maximum chars of body snippet sent to the backend. Backend's
     /// `ExtractRequest.snippet` is capped at 8000; keep a small buffer.
@@ -48,11 +62,15 @@ final class ReceiptPipeline {
     init(
         gmailClient: GmailReadOnlyClient,
         extractClient: ExtractClient,
-        modelContext: ModelContext
+        modelContext: ModelContext,
+        privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
+        privacySubjectID: PrivacySubjectID = .deviceLocal
     ) {
         self.gmailClient = gmailClient
         self.extractClient = extractClient
         self.modelContext = modelContext
+        self.privacyGate = privacyGate
+        self.privacySubjectID = privacySubjectID
     }
 
     /// Runs one full sync. Safe to call repeatedly — catalog-wide dedup keeps the
@@ -60,8 +78,18 @@ final class ReceiptPipeline {
     /// across several emails (e.g. an order confirmation *and* a dispatch email).
     func sync(
         query: String = ReceiptPipeline.defaultQuery,
-        maxMessages: Int = 1000
+        maxMessages: Int = 1000,
+        mode: SyncMode = .manual
     ) async {
+        let decision = await privacyGate.decision(
+            for: mode.privacyCapability,
+            subjectID: privacySubjectID
+        )
+        guard decision.isAllowed else {
+            state = .failed(message: Self.privacyMessage(for: decision))
+            return
+        }
+
         // 1. Snapshot + de-duplicate the existing catalog up front. Doing all the
         //    SwiftData work here, *before* any `await`, keeps it in the same
         //    actor-execution slice as the @MainActor pipeline — mainContext
@@ -127,6 +155,21 @@ final class ReceiptPipeline {
             state = .complete(itemsAdded: itemsAdded, candidates: candidates, errors: errors)
         } catch {
             state = .failed(message: error.localizedDescription)
+        }
+    }
+
+    private static func privacyMessage(for decision: PrivacyGateDecision) -> String {
+        switch decision {
+        case .allowed:
+            ""
+        case .denied(.receiptConsentRequired):
+            "Review data use and allow receipt analysis before syncing Gmail."
+        case .denied(.backgroundReceiptSyncDisabled):
+            "Background receipt sync is turned off."
+        case .denied(.preferencesUnavailable):
+            "Privacy preferences are unavailable. Receipt sync was not started."
+        case .denied:
+            "Receipt sync is not allowed by the current privacy settings."
         }
     }
 

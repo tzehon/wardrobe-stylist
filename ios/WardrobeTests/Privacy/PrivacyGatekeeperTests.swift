@@ -22,6 +22,34 @@ struct PrivacyGatekeeperTests {
             == .denied(.stylingConsentRequired))
     }
 
+    @Test func storedGatekeeperLoadsTheRequestedSubject() async throws {
+        let suiteName = "StoredPrivacyGatekeeperTests.\(UUID().uuidString)"
+        let store = UserDefaultsPrivacyPreferencesStore(
+            suiteName: suiteName,
+            keyPrefix: "tests.stored-gate.\(UUID().uuidString)"
+        )
+        let allowedSubject = PrivacySubjectID.external("allowed")
+        let deniedSubject = PrivacySubjectID.external("denied")
+        try await store.save(AccountPrivacyPreferences(
+            receiptAnalysisConsent: PrivacyConsentGrant(
+                noticeVersion: PrivacyNoticeRequirements.current.receiptAnalysis,
+                grantedAt: Date(timeIntervalSince1970: 1_700_000_000)
+            ),
+            wardrobeStylingConsent: PrivacyConsentGrant(
+                noticeVersion: PrivacyNoticeRequirements.current.wardrobeStyling,
+                grantedAt: Date(timeIntervalSince1970: 1_700_000_001)
+            )
+        ), for: allowedSubject)
+        let gate = StoredPrivacyGatekeeper(store: store)
+
+        #expect(await gate.decision(for: .manualReceiptImport, subjectID: allowedSubject) == .allowed)
+        #expect(await gate.decision(for: .aiStyling, subjectID: allowedSubject) == .allowed)
+        #expect(await gate.decision(for: .manualReceiptImport, subjectID: deniedSubject)
+            == .denied(.receiptConsentRequired))
+        #expect(await gate.decision(for: .aiStyling, subjectID: deniedSubject)
+            == .denied(.stylingConsentRequired))
+    }
+
     @Test func currentReceiptConsentAllowsManualImportOnlyUntilBackgroundIsEnabled() {
         let gatekeeper = PrivacyGatekeeper(requiredNotices: required)
         var preferences = AccountPrivacyPreferences(
