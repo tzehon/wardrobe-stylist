@@ -97,6 +97,24 @@ actor UserDefaultsPrivacyPreferencesStore: PrivacyPreferencesStoring {
         defaults.removeObject(forKey: Self.storageKey(for: subjectID, keyPrefix: keyPrefix))
     }
 
+    /// Deletes and verifies one subject without touching another account's
+    /// hashed key. Used by account-scoped local-data deletion.
+    func removeAndVerify(for subjectID: PrivacySubjectID) -> Bool {
+        let key = Self.storageKey(for: subjectID, keyPrefix: keyPrefix)
+        defaults.removeObject(forKey: key)
+        return defaults.object(forKey: key) == nil
+    }
+
+    /// Deletes every app-owned privacy record, including signed-out accounts
+    /// whose opaque subject ids are no longer available to the current session.
+    /// Enumeration is constrained to this store's namespaced prefix.
+    func removeAllAppOwnedPreferencesAndVerify() -> Bool {
+        let prefix = keyPrefix + "."
+        let keys = defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix(prefix) }
+        for key in keys { defaults.removeObject(forKey: key) }
+        return defaults.dictionaryRepresentation().keys.contains { $0.hasPrefix(prefix) } == false
+    }
+
     /// Hashing keeps externally supplied identifiers and other personal values out
     /// of UserDefaults keys while preserving deterministic per-subject isolation.
     static func storageKey(for subjectID: PrivacySubjectID, keyPrefix: String) -> String {
@@ -119,6 +137,14 @@ actor UserDefaultsPrivacyPreferencesStore: PrivacyPreferencesStoring {
 
     func hasStoredDataForTesting(for subjectID: PrivacySubjectID) -> Bool {
         defaults.data(forKey: Self.storageKey(for: subjectID, keyPrefix: keyPrefix)) != nil
+    }
+
+    func replaceUnrelatedValueForTesting(_ value: String?, key: String) {
+        defaults.set(value, forKey: key)
+    }
+
+    func unrelatedValueForTesting(key: String) -> String? {
+        defaults.string(forKey: key)
     }
 #endif
 

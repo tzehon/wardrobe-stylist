@@ -5,6 +5,7 @@ struct OnboardingView: View {
 
     let isReplay: Bool
     let onComplete: (AppTab) -> Void
+    let onEnterDemo: () -> Void
     let onDismissReplay: () -> Void
 
     @State private var isInstallingSamples = false
@@ -132,6 +133,15 @@ struct OnboardingView: View {
             .buttonStyle(.bordered)
             .disabled(isInstallingSamples)
             .accessibilityIdentifier("onboarding.installSamples")
+
+            Button(action: onEnterDemo) {
+                Label("Try the offline demo", systemImage: "sparkles.rectangle.stack")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityHint("Opens a fictional, disposable wardrobe without Google sign-in or network features.")
+            .accessibilityIdentifier("onboarding.enterDemo")
 
             Button("Set up Gmail import") {
                 onComplete(.settings)

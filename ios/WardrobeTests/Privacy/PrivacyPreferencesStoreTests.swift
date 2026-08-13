@@ -99,6 +99,28 @@ struct PrivacyPreferencesStoreTests {
         #expect(await fixture.store.load(for: subjectB) == .loaded(second))
     }
 
+    @Test func allAppOwnedPurgeRemovesDeviceAndEveryAccountPreference() async throws {
+        let fixture = try makeFixture()
+        try await fixture.store.save(.defaultDeny, for: .deviceLocal)
+        try await fixture.store.save(
+            AccountPrivacyPreferences(receiptAnalysisConsent: grant(version: 1, time: 100)),
+            for: subjectA
+        )
+        try await fixture.store.save(
+            AccountPrivacyPreferences(wardrobeStylingConsent: grant(version: 1, time: 200)),
+            for: subjectB
+        )
+        let unrelatedKey = "unrelated.\(UUID().uuidString)"
+        await fixture.store.replaceUnrelatedValueForTesting("keep", key: unrelatedKey)
+
+        #expect(await fixture.store.removeAllAppOwnedPreferencesAndVerify())
+
+        #expect(await fixture.store.load(for: .deviceLocal) == .loaded(.defaultDeny))
+        #expect(await fixture.store.load(for: subjectA) == .loaded(.defaultDeny))
+        #expect(await fixture.store.load(for: subjectB) == .loaded(.defaultDeny))
+        #expect(await fixture.store.unrelatedValueForTesting(key: unrelatedKey) == "keep")
+    }
+
     @Test func corruptDataIsUnavailableAndGateFailsClosed() async throws {
         let fixture = try makeFixture()
         await fixture.store.replaceRawDataForTesting(Data("not-json".utf8), for: subjectA)

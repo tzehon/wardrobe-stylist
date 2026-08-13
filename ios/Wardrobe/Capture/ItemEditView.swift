@@ -51,6 +51,7 @@ struct ItemEditView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isDemoMode) private var isDemoMode
     @State private var draft: ItemEditDraft
     @State private var writes = WardrobeWriteCoordinator()
 
@@ -62,6 +63,12 @@ struct ItemEditView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if isDemoMode {
+                    Section {
+                        DemoFictionalDataNotice()
+                    }
+                }
+
                 if item.source == .email {
                     Section {
                         Label {

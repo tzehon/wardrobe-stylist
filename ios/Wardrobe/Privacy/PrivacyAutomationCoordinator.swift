@@ -45,6 +45,7 @@ final class PrivacyAutomationCoordinator {
     private let cancelBackground: @MainActor () -> Void
     private let enableReminder: @MainActor (DailyReminderTime) async throws -> Bool
     private let disableReminder: @MainActor () -> Void
+    private let reminderTimeStore: any DailyReminderTimeStoring
 
     init(
         controls: PrivacyControls,
@@ -59,13 +60,15 @@ final class PrivacyAutomationCoordinator {
         },
         disableReminder: @escaping @MainActor () -> Void = {
             DailyOutfitNotifier().disableDailyReminder()
-        }
+        },
+        reminderTimeStore: any DailyReminderTimeStoring = UserDefaultsDailyReminderTimeStore()
     ) {
         self.controls = controls
         self.scheduleBackground = scheduleBackground
         self.cancelBackground = cancelBackground
         self.enableReminder = enableReminder
         self.disableReminder = disableReminder
+        self.reminderTimeStore = reminderTimeStore
     }
 
     @discardableResult
@@ -126,6 +129,15 @@ final class PrivacyAutomationCoordinator {
             }
             do {
                 try await controls.setDailyReminderEnabled(true)
+                guard reminderTimeStore.save(time) else {
+                    // Keep the persisted switch consistent with the compensated
+                    // system state. A later reconciliation still fails closed
+                    // if this rollback write itself cannot be saved.
+                    try? await controls.setDailyReminderEnabled(false)
+                    disableReminder()
+                    state = .failed(.preferenceSaveFailed)
+                    return false
+                }
                 state = .ready
                 return true
             } catch {
@@ -142,6 +154,47 @@ final class PrivacyAutomationCoordinator {
             return true
         } catch {
             state = .failed(.preferenceSaveFailed)
+            return false
+        }
+    }
+
+    var reminderTime: DailyReminderTime {
+        reminderTimeStore.load()
+    }
+
+    /// Reschedules an already-enabled reminder at a user-selected clock time.
+    /// It never asks for notification permission when the preference is off.
+    /// Because the notifier uses one stable identifier, a failed `add` leaves
+    /// the previous request and persisted time intact.
+    @discardableResult
+    func setDailyReminderTime(_ time: DailyReminderTime) async -> Bool {
+        state = .updating
+        guard controls.decision(for: .dailyReminder).isAllowed else {
+            state = .failed(.stylingConsentRequired)
+            return false
+        }
+        let priorTime = reminderTimeStore.load()
+        do {
+            guard try await enableReminder(time) else {
+                state = .failed(.notificationPermissionDenied)
+                return false
+            }
+            guard reminderTimeStore.save(time) else {
+                // `UNUserNotificationCenter.add` atomically replaced the stable
+                // request. Restore the previously persisted clock so a local
+                // storage failure does not silently change the user's reminder.
+                let restored = (try? await enableReminder(priorTime)) == true
+                if !restored {
+                    try? await controls.setDailyReminderEnabled(false)
+                    disableReminder()
+                }
+                state = .failed(.preferenceSaveFailed)
+                return false
+            }
+            state = .ready
+            return true
+        } catch {
+            state = .failed(.notificationPermissionDenied)
             return false
         }
     }

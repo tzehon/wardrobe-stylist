@@ -8,6 +8,7 @@ struct ItemDetailView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isDemoMode) private var isDemoMode
     @State private var confirmingDelete = false
     @State private var showingEdit = false
     @State private var writes = WardrobeWriteCoordinator()
@@ -55,7 +56,9 @@ struct ItemDetailView: View {
                     Image(systemName: "trash")
                 }
                 .accessibilityLabel("Delete item")
-                .accessibilityHint("Permanently removes this item from your wardrobe.")
+                .accessibilityHint(isDemoMode
+                    ? "Removes this fictional item until you exit Demo Mode."
+                    : "Permanently removes this item from your wardrobe.")
                 .accessibilityIdentifier("item.detail.delete")
             }
         }
@@ -76,7 +79,9 @@ struct ItemDetailView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("“\(item.name)” will be removed from your catalog.")
+            Text(isDemoMode
+                ? "“\(item.name)” will be removed from this disposable demo catalog."
+                : "“\(item.name)” will be removed from your catalog.")
         }
         .wardrobePersistenceAlert(writes)
     }

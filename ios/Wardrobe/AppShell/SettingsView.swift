@@ -4,7 +4,10 @@ import SwiftUI
 struct SettingsView: View {
     let session: GmailSession
     let devicePrivacy: DevicePrivacySettings
+    let syncActivity: ReceiptSyncActivityController
     let onReplayOnboarding: () -> Void
+    let onEnterDemo: () -> Void
+    let onVerifiedLocalDataDeletion: () -> Void
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Item.name) private var items: [Item]
@@ -26,6 +29,12 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("settings.onboarding.replay")
 
+                Button(action: onEnterDemo) {
+                    Label("Open Offline Demo", systemImage: "sparkles.rectangle.stack")
+                }
+                .accessibilityHint("Opens a fictional, disposable wardrobe. Connected features stay off and your real wardrobe remains untouched.")
+                .accessibilityIdentifier("settings.demo.enter")
+
                 if sampleCount > 0 {
                     Button(role: .destructive) {
                         showingSampleRemoval = true
@@ -43,7 +52,8 @@ struct SettingsView: View {
             Section {
                 GmailConnectorView(
                     session: session,
-                    devicePrivacy: devicePrivacy
+                    devicePrivacy: devicePrivacy,
+                    syncActivity: syncActivity
                 )
             } header: {
                 Text("Gmail Import")
@@ -55,6 +65,18 @@ struct SettingsView: View {
 
             Section("AI Styling & Reminder") {
                 StylingPrivacySettingsView(settings: devicePrivacy)
+            }
+
+            Section {
+                LocalDataDeletionView(
+                    activeExternalSubject: session.privacySubjectID,
+                    syncActivity: syncActivity,
+                    onVerifiedDeletion: onVerifiedLocalDataDeletion
+                )
+            } header: {
+                Text("Data on This Device")
+            } footer: {
+                Text("This removes local wardrobe data and choices but does not revoke Google access. Disconnect Google is a separate action above.")
             }
 
             Section("Help & Privacy") {

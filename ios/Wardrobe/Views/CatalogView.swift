@@ -7,6 +7,7 @@ import SwiftUI
 /// `CatalogFilter` (unit-tested separately); this view is just presentation.
 struct CatalogView: View {
     let accountScope: WardrobeAccountScope
+    var allowsAddingItems = true
 
     @Query(sort: \Item.name) private var storedItems: [Item]
     @Environment(\.modelContext) private var modelContext
@@ -72,14 +73,17 @@ struct CatalogView: View {
         .wardrobePersistenceAlert(writes)
     }
 
+    @ToolbarContentBuilder
     private var addButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                showingAddItem = true
-            } label: {
-                Label("Add Item", systemImage: "plus")
+        if allowsAddingItems {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingAddItem = true
+                } label: {
+                    Label("Add Item", systemImage: "plus")
+                }
+                .accessibilityIdentifier("wardrobe.addItem")
             }
-            .accessibilityIdentifier("wardrobe.addItem")
         }
     }
 
@@ -89,11 +93,17 @@ struct CatalogView: View {
         ContentUnavailableView {
             Label("No items yet", systemImage: "square.grid.2x2")
         } description: {
-            Text("Add your first piece manually or with a photo. Gmail receipt import is optional in Settings.")
+            if allowsAddingItems {
+                Text("Add your first piece manually or with a photo. Gmail receipt import is optional in Settings.")
+            } else {
+                Text("The fictional demo catalog is empty. Exit and reopen Demo Mode to restore its sample pieces.")
+            }
         } actions: {
-            Button("Add Item") { showingAddItem = true }
-                .buttonStyle(.borderedProminent)
-                .accessibilityIdentifier("wardrobe.empty.addItem")
+            if allowsAddingItems {
+                Button("Add Item") { showingAddItem = true }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("wardrobe.empty.addItem")
+            }
         }
     }
 

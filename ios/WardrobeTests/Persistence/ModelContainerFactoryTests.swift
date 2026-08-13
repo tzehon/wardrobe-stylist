@@ -237,6 +237,44 @@ struct ModelContainerFactoryTests {
         #expect(controller.container === expectedContainer)
     }
 
+    @Test func storeControllerCanDeferProductionStoreUntilReviewerDemoExits() {
+        struct FixtureError: Error {}
+
+        var attempts = 0
+        let reviewerDemoRequested = DemoLaunchPolicy.isRequested(
+            arguments: ["Wardrobe", "--wardrobe-demo"]
+        )
+        let controller = PersistentStoreController(
+            automaticallyLoad: !reviewerDemoRequested,
+            loader: {
+                attempts += 1
+                throw FixtureError()
+            }
+        )
+
+        // Constructing the reviewer launch graph must not touch, migrate, or
+        // fail on the production store while Demo Mode is active.
+        #expect(reviewerDemoRequested)
+        #expect(attempts == 0)
+        #expect(controller.hasStartedLoading == false)
+        guard case .loading = controller.state else {
+            Issue.record("A deferred store should remain in its neutral loading state")
+            return
+        }
+
+        // Exiting Demo starts the normal production path once; a real failure
+        // then surfaces through the existing recoverable store screen.
+        controller.loadIfNeeded()
+        #expect(attempts == 1)
+        #expect(controller.hasStartedLoading)
+        guard case .failed = controller.state else {
+            Issue.record("Expected the deferred loader failure to surface after exit")
+            return
+        }
+        controller.loadIfNeeded()
+        #expect(attempts == 1)
+    }
+
     private func writeLegacyStore(to storeURL: URL) throws {
         let legacySchema = Schema([Item.self, Outfit.self, WearLog.self])
         let configuration = ModelConfiguration(

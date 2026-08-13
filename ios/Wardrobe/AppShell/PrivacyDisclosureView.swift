@@ -95,6 +95,8 @@ struct StylingPrivacySettingsView: View {
                     .accessibilityHint("Schedules a daily prompt to open Today. It does not generate a look in the background.")
                     .accessibilityIdentifier("settings.styling.reminder")
 
+                    DailyReminderTimePicker(settings: settings)
+
                     Text("The reminder only prompts you to open Today. No styling request is sent until you tap a styling action.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)

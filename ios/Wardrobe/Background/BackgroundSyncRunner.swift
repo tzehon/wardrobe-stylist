@@ -20,7 +20,11 @@ enum BackgroundSyncRunner {
 
     static func run(task: BGProcessingTask, container: ModelContainer) async {
         let controller = makeController(container: container)
-        let work = Task { @MainActor in await controller.performBackgroundSync() }
+        let work = Task { @MainActor in
+            await ReceiptSyncActivityController.shared.runReturning {
+                await controller.performBackgroundSync()
+            } ?? false
+        }
         // Must be @Sendable: iOS invokes the expiration handler on BGTaskScheduler's
         // private queue, and a plain closure formed in this @MainActor context would
         // inherit main-actor isolation and trap on entry (same crash class as the
@@ -35,7 +39,9 @@ enum BackgroundSyncRunner {
     /// enabled background toggle is required; every other state cancels.
     @discardableResult
     static func reconcilePendingRequest(container: ModelContainer) async -> Bool {
-        await makeController(container: container).reconcilePendingRequest()
+        await ReceiptSyncActivityController.shared.runReturning {
+            await makeController(container: container).reconcilePendingRequest()
+        } ?? false
     }
 
     private static func makeController(container: ModelContainer) -> BackgroundSyncController {

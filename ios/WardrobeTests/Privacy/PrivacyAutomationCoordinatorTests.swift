@@ -5,6 +5,25 @@ import Testing
 
 @MainActor
 struct PrivacyAutomationCoordinatorTests {
+    private final class FakeReminderTimeStore: DailyReminderTimeStoring {
+        var stored: DailyReminderTime = .defaultMorning
+        var saves: [DailyReminderTime] = []
+        var removeCalls = 0
+        var saveSucceeds = true
+
+        func load() -> DailyReminderTime { stored }
+        func save(_ time: DailyReminderTime) -> Bool {
+            guard saveSucceeds else { return false }
+            stored = time
+            saves.append(time)
+            return true
+        }
+        func remove() -> Bool {
+            removeCalls += 1
+            stored = .defaultMorning
+            return true
+        }
+    }
     private actor FakeStore: PrivacyPreferencesStoring {
         enum FixtureError: Error { case saveFailed }
 
@@ -150,6 +169,176 @@ struct PrivacyAutomationCoordinatorTests {
         #expect(coordinator.state == .failed(.preferenceSaveFailed))
     }
 
+    @Test func enablingReminderSchedulesAndPersistsTheUserSelectedTime() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        let timeStore = FakeReminderTimeStore()
+        var scheduled: [DailyReminderTime] = []
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { time in scheduled.append(time); return true },
+            reminderTimeStore: timeStore
+        )
+        let chosen = try #require(DailyReminderTime(hour: 18, minute: 20))
+
+        #expect(await coordinator.setDailyReminderEnabled(true, time: chosen))
+
+        #expect(scheduled == [chosen])
+        #expect(timeStore.saves == [chosen])
+        #expect(coordinator.reminderTime == chosen)
+        #expect(controls.preferences?.dailyReminderEnabled == true)
+    }
+
+    @Test func changingEnabledReminderTimeReschedulesAndPersistsOnlyAfterSuccess() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        try await controls.setDailyReminderEnabled(true)
+        let timeStore = FakeReminderTimeStore()
+        let old = try #require(DailyReminderTime(hour: 7, minute: 30))
+        _ = timeStore.save(old)
+        timeStore.saves = []
+        var scheduled: [DailyReminderTime] = []
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { time in scheduled.append(time); return true },
+            reminderTimeStore: timeStore
+        )
+        let chosen = try #require(DailyReminderTime(hour: 8, minute: 45))
+
+        #expect(await coordinator.setDailyReminderTime(chosen))
+
+        #expect(scheduled == [chosen])
+        #expect(timeStore.saves == [chosen])
+        #expect(coordinator.reminderTime == chosen)
+    }
+
+    @Test func failedTimeReschedulePreservesPriorPersistedChoiceWithoutDisablingReminder() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        try await controls.setDailyReminderEnabled(true)
+        let timeStore = FakeReminderTimeStore()
+        let old = try #require(DailyReminderTime(hour: 6, minute: 10))
+        _ = timeStore.save(old)
+        timeStore.saves = []
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { _ in throw FixtureError.expected },
+            reminderTimeStore: timeStore
+        )
+        let attempted = try #require(DailyReminderTime(hour: 9, minute: 0))
+
+        #expect(await coordinator.setDailyReminderTime(attempted) == false)
+
+        #expect(timeStore.saves.isEmpty)
+        #expect(coordinator.reminderTime == old)
+        #expect(controls.preferences?.dailyReminderEnabled == true)
+        #expect(coordinator.state == .failed(.notificationPermissionDenied))
+    }
+
+    @Test func failedTimePersistenceIsSurfacedAndDoesNotChangeStoredChoice() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        try await controls.setDailyReminderEnabled(true)
+        let timeStore = FakeReminderTimeStore()
+        let old = try #require(DailyReminderTime(hour: 7, minute: 0))
+        timeStore.stored = old
+        timeStore.saveSucceeds = false
+        var scheduled: [DailyReminderTime] = []
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { time in scheduled.append(time); return true },
+            reminderTimeStore: timeStore
+        )
+        let attempted = try #require(DailyReminderTime(hour: 11, minute: 25))
+
+        #expect(await coordinator.setDailyReminderTime(attempted) == false)
+
+        #expect(coordinator.reminderTime == old)
+        #expect(scheduled == [attempted, old])
+        #expect(coordinator.state == .failed(.preferenceSaveFailed))
+        #expect(controls.preferences?.dailyReminderEnabled == true)
+    }
+
+    @Test func failedInitialTimePersistenceCompensatesPreferenceAndSystemWork() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        let timeStore = FakeReminderTimeStore()
+        timeStore.saveSucceeds = false
+        var disableCalls = 0
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { _ in true },
+            disableReminder: { disableCalls += 1 },
+            reminderTimeStore: timeStore
+        )
+
+        #expect(await coordinator.setDailyReminderEnabled(true) == false)
+
+        #expect(disableCalls == 1)
+        #expect(controls.preferences?.dailyReminderEnabled == false)
+        #expect(coordinator.state == .failed(.preferenceSaveFailed))
+    }
+
+    @Test func failedTimePersistenceAndFailedRestoreDisableTheReminder() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        try await controls.setDailyReminderEnabled(true)
+        let timeStore = FakeReminderTimeStore()
+        timeStore.saveSucceeds = false
+        var enableCalls = 0
+        var disableCalls = 0
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { _ in
+                enableCalls += 1
+                return enableCalls == 1
+            },
+            disableReminder: { disableCalls += 1 },
+            reminderTimeStore: timeStore
+        )
+        let attempted = try #require(DailyReminderTime(hour: 13, minute: 35))
+
+        #expect(await coordinator.setDailyReminderTime(attempted) == false)
+
+        #expect(enableCalls == 2)
+        #expect(disableCalls == 1)
+        #expect(controls.preferences?.dailyReminderEnabled == false)
+        #expect(coordinator.state == .failed(.preferenceSaveFailed))
+    }
+
+    @Test func choosingTimeWhileReminderIsOffDoesNotRequestPermissionOrPersist() async throws {
+        let store = FakeStore()
+        let controls = makeControls(store: store)
+        await controls.load()
+        try await controls.grantWardrobeStyling()
+        let timeStore = FakeReminderTimeStore()
+        var enableCalls = 0
+        let coordinator = makeCoordinator(
+            controls: controls,
+            enableReminder: { _ in enableCalls += 1; return true },
+            reminderTimeStore: timeStore
+        )
+        let chosen = try #require(DailyReminderTime(hour: 10, minute: 5))
+
+        #expect(await coordinator.setDailyReminderTime(chosen) == false)
+
+        #expect(enableCalls == 0)
+        #expect(timeStore.saves.isEmpty)
+        #expect(coordinator.reminderTime == .defaultMorning)
+    }
+
     @Test func withdrawingConsentPersistsBeforeRemovingDependentWork() async throws {
         let store = FakeStore()
         let controls = makeControls(store: store)
@@ -264,14 +453,16 @@ struct PrivacyAutomationCoordinatorTests {
         scheduleBackground: @escaping @MainActor () throws -> Void = {},
         cancelBackground: @escaping @MainActor () -> Void = {},
         enableReminder: @escaping @MainActor (DailyReminderTime) async throws -> Bool = { _ in true },
-        disableReminder: @escaping @MainActor () -> Void = {}
+        disableReminder: @escaping @MainActor () -> Void = {},
+        reminderTimeStore: any DailyReminderTimeStoring = FakeReminderTimeStore()
     ) -> PrivacyAutomationCoordinator {
         PrivacyAutomationCoordinator(
             controls: controls,
             scheduleBackground: scheduleBackground,
             cancelBackground: cancelBackground,
             enableReminder: enableReminder,
-            disableReminder: disableReminder
+            disableReminder: disableReminder,
+            reminderTimeStore: reminderTimeStore
         )
     }
 }

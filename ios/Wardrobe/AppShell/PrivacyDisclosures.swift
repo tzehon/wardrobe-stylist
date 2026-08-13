@@ -13,10 +13,11 @@ struct PrivacyDisclosure: Equatable, Sendable {
         title: "Receipt analysis",
         summary: "When you start an import, Wardrobe reads likely purchase messages through Google's read-only Gmail API and filters candidates on this device.",
         dataShared: [
-            "The message identifier, sender, subject, and a limited receipt-text excerpt for likely purchase messages",
+            "A validated sender domain, sanitized subject, and either structured product fields or a limited, redacted product-text excerpt",
+            "A Gmail message identifier reaches only the developer backend for response correlation and is removed before Anthropic processing",
             "No Gmail write, delete, send, label, or settings access"
         ],
-        destination: "Likely receipt details are sent over an encrypted connection to the developer-operated Wardrobe backend, which uses Anthropic Claude to extract clothing details.",
+        destination: "The minimized fields are sent over an encrypted connection to the developer-operated Wardrobe backend, which removes the Gmail identifier and uses Anthropic Claude to extract clothing details. Full sender addresses and raw message bodies are not sent to Anthropic.",
         result: "Extracted wardrobe items are saved in your local catalog. You choose when a manual import starts."
     )
 

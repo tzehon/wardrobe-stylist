@@ -7,6 +7,7 @@ import UIKit
 struct GmailConnectorView: View {
     let session: GmailSession
     let devicePrivacy: DevicePrivacySettings
+    let syncActivity: ReceiptSyncActivityController
 
     @State private var localError: String?
 
@@ -23,7 +24,8 @@ struct GmailConnectorView: View {
                 ConnectedGmailView(
                     session: session,
                     identity: identity,
-                    devicePrivacy: devicePrivacy
+                    devicePrivacy: devicePrivacy,
+                    syncActivity: syncActivity
                 )
                 .id(identity.stableUserID)
             case .reconnectRequired(let message):
@@ -95,6 +97,7 @@ private struct ConnectedGmailView: View {
 
     let session: GmailSession
     let identity: GoogleSignInIdentity
+    let syncActivity: ReceiptSyncActivityController
 
     @Environment(\.modelContext) private var modelContext
     @Query private var storedItems: [Item]
@@ -109,10 +112,12 @@ private struct ConnectedGmailView: View {
     init(
         session: GmailSession,
         identity: GoogleSignInIdentity,
-        devicePrivacy: DevicePrivacySettings
+        devicePrivacy: DevicePrivacySettings,
+        syncActivity: ReceiptSyncActivityController
     ) {
         self.session = session
         self.identity = identity
+        self.syncActivity = syncActivity
         _privacy = State(initialValue: GmailPrivacySettings(
             subjectID: identity.privacySubjectID,
             devicePrivacy: devicePrivacy
@@ -235,13 +240,18 @@ private struct ConnectedGmailView: View {
 
                 Button("Withdraw receipt-analysis permission", role: .destructive) {
                     Task {
-                        if await privacy.withdrawReceiptAnalysis() {
+                        let completed = await syncActivity.withQuiesced {
+                            guard await privacy.withdrawReceiptAnalysis() else { return false }
                             pipeline = nil
                             pipelineConfigError = nil
+                            return true
+                        }
+                        if completed == nil {
+                            pipelineConfigError = "Another privacy or data operation is already in progress. Please try again."
                         }
                     }
                 }
-                .disabled(isBusy)
+                .disabled(privacy.isUpdating || accountAction != .idle)
                 .accessibilityIdentifier("settings.gmail.withdrawReceiptAnalysis")
             } else {
                 Button {
@@ -279,6 +289,8 @@ private struct ConnectedGmailView: View {
                 statusMessage(pipelineConfigError, color: .red)
             } else if let pipeline {
                 pipelineStatus(pipeline.state)
+            } else if syncActivity.isRunning {
+                statusMessage("Another receipt import is already running. You can stop it by signing out, disconnecting Google, or deleting local data.", color: .secondary)
             }
         }
     }
@@ -295,7 +307,7 @@ private struct ConnectedGmailView: View {
                 )
             }
             .buttonStyle(.bordered)
-            .disabled(isBusy)
+            .disabled(privacy.isUpdating || accountAction != .idle)
             .accessibilityHint("Ends the local session after turning automations off. Google access and account consent remain.")
             .accessibilityIdentifier("settings.gmail.signOut")
 
@@ -308,7 +320,7 @@ private struct ConnectedGmailView: View {
                     activeAction: .disconnecting
                 )
             }
-            .disabled(isBusy)
+            .disabled(privacy.isUpdating || accountAction != .idle)
             .accessibilityHint("Revokes Google access and clears this account’s receipt-analysis choice after turning automations off.")
             .accessibilityIdentifier("settings.gmail.disconnect")
         }
@@ -370,7 +382,8 @@ private struct ConnectedGmailView: View {
     }
 
     private var isBusy: Bool {
-        isSyncing || privacy.isUpdating || accountAction != .idle
+        syncActivity.isRunning || syncActivity.isQuiesced
+            || privacy.isUpdating || accountAction != .idle
     }
 
     private var syncButtonLabel: String {
@@ -408,29 +421,47 @@ private struct ConnectedGmailView: View {
                 return
             }
         }
-        await pipeline?.sync(mode: .manual)
+        guard let pipeline else { return }
+        let started = await syncActivity.run {
+            await pipeline.sync(mode: .manual)
+        }
+        if !started {
+            pipelineConfigError = "Another receipt import is already running. Please wait or stop it first."
+        }
     }
 
     @MainActor
     private func signOut() async {
         accountAction = .signingOut
         defer { accountAction = .idle }
-        guard await privacy.prepareForAccountExit() else { return }
-        pipeline = nil
-        pipelineConfigError = nil
-        session.signOut()
+        let completed = await syncActivity.withQuiesced {
+            guard await privacy.prepareForAccountExit() else { return false }
+            pipeline = nil
+            pipelineConfigError = nil
+            session.signOut()
+            return true
+        }
+        if completed == nil {
+            pipelineConfigError = "Another privacy or data operation is already in progress. Please try again."
+        }
     }
 
     @MainActor
     private func disconnect() async {
         accountAction = .disconnecting
         defer { accountAction = .idle }
-        guard await privacy.prepareForAccountExit() else { return }
-        pipeline = nil
-        pipelineConfigError = nil
-        await session.disconnect()
-        guard case .signedOut = session.status else { return }
-        await privacy.clearRevokedAccountPreferences()
+        let completed = await syncActivity.withQuiesced {
+            guard await privacy.prepareForAccountExit() else { return false }
+            pipeline = nil
+            pipelineConfigError = nil
+            await session.disconnect()
+            guard case .signedOut = session.status else { return false }
+            await privacy.clearRevokedAccountPreferences()
+            return true
+        }
+        if completed == nil {
+            pipelineConfigError = "Another privacy or data operation is already in progress. Please try again."
+        }
     }
 }
 

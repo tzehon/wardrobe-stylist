@@ -13,6 +13,10 @@ final class DevicePrivacySettings {
     private(set) var isUpdating = false
     private(set) var errorMessage: String?
 
+    var reminderTime: DailyReminderTime {
+        automation.reminderTime
+    }
+
     init(
         store: any PrivacyPreferencesStoring = UserDefaultsPrivacyPreferencesStore()
     ) {
@@ -52,9 +56,24 @@ final class DevicePrivacySettings {
     }
 
     @discardableResult
-    func setReminderEnabled(_ isEnabled: Bool) async -> Bool {
+    func setReminderEnabled(
+        _ isEnabled: Bool,
+        time: DailyReminderTime? = nil
+    ) async -> Bool {
         await performAutomationUpdate {
-            await automation.setDailyReminderEnabled(isEnabled)
+            await automation.setDailyReminderEnabled(
+                isEnabled,
+                time: time ?? automation.reminderTime
+            )
+        }
+    }
+
+    /// Available to a Settings time picker only while the reminder is enabled.
+    /// Choosing a time does not itself request notification authorization.
+    @discardableResult
+    func setReminderTime(_ time: DailyReminderTime) async -> Bool {
+        await performAutomationUpdate {
+            await automation.setDailyReminderTime(time)
         }
     }
 

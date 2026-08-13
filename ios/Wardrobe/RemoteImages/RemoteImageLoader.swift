@@ -73,6 +73,12 @@ actor RemoteImageLoader {
         cache.setObject(image, forKey: url as NSURL, cost: cost)
         return image
     }
+
+    /// Local-data deletion clears the only retained remote-image cache. The
+    /// session is ephemeral and URLCache is disabled, so no disk cache remains.
+    func clearCachedImages() {
+        cache.removeAllObjects()
+    }
 }
 
 enum RemoteImageResponseValidator {

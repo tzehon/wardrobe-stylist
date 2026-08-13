@@ -52,7 +52,7 @@ struct SystemNotificationCenter: UserNotificationScheduling {
     }
 }
 
-struct DailyReminderTime: Codable, Equatable, Sendable {
+struct DailyReminderTime: Codable, Equatable, Sendable, Hashable {
     let hour: Int
     let minute: Int
 
@@ -63,6 +63,62 @@ struct DailyReminderTime: Codable, Equatable, Sendable {
     }
 
     static let defaultMorning = Self(hour: 7, minute: 0)!
+
+    /// Locale-aware text for Settings and confirmation copy.
+    func formatted(locale: Locale = .current) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = locale
+        guard let date = calendar.date(from: DateComponents(hour: hour, minute: minute)) else {
+            return String(format: "%02d:%02d", hour, minute)
+        }
+        return date.formatted(
+            Date.FormatStyle(date: .omitted, time: .shortened).locale(locale)
+        )
+    }
+}
+
+/// Durable, device-local reminder clock. The enabled bit remains in the
+/// versioned privacy preferences; storing the chosen time separately keeps a
+/// reschedule from changing consent semantics.
+@MainActor
+protocol DailyReminderTimeStoring {
+    func load() -> DailyReminderTime
+    func save(_ time: DailyReminderTime) -> Bool
+    func remove() -> Bool
+}
+
+@MainActor
+final class UserDefaultsDailyReminderTimeStore: DailyReminderTimeStoring {
+    static let storageKey = "com.tth.Wardrobe.dailyReminderTime.v1"
+
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    func load() -> DailyReminderTime {
+        guard let data = defaults.data(forKey: Self.storageKey),
+              let time = try? JSONDecoder().decode(DailyReminderTime.self, from: data) else {
+            return .defaultMorning
+        }
+        return time
+    }
+
+    func save(_ time: DailyReminderTime) -> Bool {
+        guard let data = try? JSONEncoder().encode(time) else { return false }
+        defaults.set(data, forKey: Self.storageKey)
+        return load() == time
+    }
+
+    func remove() -> Bool {
+        defaults.removeObject(forKey: Self.storageKey)
+        return defaults.object(forKey: Self.storageKey) == nil
+    }
+
+    func removeAndVerify() -> Bool {
+        remove()
+    }
 }
 
 /// Schedules a truthful daily styling nudge. The outfit itself is computed only
@@ -104,7 +160,10 @@ struct DailyOutfitNotifier {
 
     /// Called only from an explicit reminder control. Requests authorization on
     /// first use, returns false without scheduling when permission is denied,
-    /// and replaces an existing request when the time changes.
+    /// and atomically replaces the stable-identifier request when the time
+    /// changes. `UNUserNotificationCenter.add` replaces a matching identifier;
+    /// there is intentionally no remove-before-add window that could lose the
+    /// user's existing reminder if scheduling fails.
     @discardableResult
     func enableDailyReminder(time: DailyReminderTime = .defaultMorning) async throws -> Bool {
         switch await center.authorizationStatus() {
@@ -115,7 +174,6 @@ struct DailyOutfitNotifier {
         case .authorized:
             break
         }
-        center.removePendingNotifications(withIdentifiers: [Self.identifier])
         try await center.add(Self.makeRequest(time: time))
         return true
     }
@@ -123,5 +181,51 @@ struct DailyOutfitNotifier {
     func disableDailyReminder() {
         center.removePendingNotifications(withIdentifiers: [Self.identifier])
         center.removeDeliveredNotifications(withIdentifiers: [Self.identifier])
+    }
+}
+
+/// A durable navigation signal lets a notification response received during
+/// cold launch survive until the tab shell is ready to consume it.
+@MainActor
+protocol AppNavigationSignalStoring {
+    func recordTodayDestination()
+    func consumeTodayDestination() -> Bool
+    func clear()
+}
+
+@MainActor
+final class UserDefaultsAppNavigationSignalStore: AppNavigationSignalStoring {
+    static let todaySignalKey = "com.tth.Wardrobe.navigation.today.pending.v1"
+
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    func recordTodayDestination() {
+        defaults.set(true, forKey: Self.todaySignalKey)
+    }
+
+    func consumeTodayDestination() -> Bool {
+        let isPending = defaults.bool(forKey: Self.todaySignalKey)
+        if isPending { defaults.removeObject(forKey: Self.todaySignalKey) }
+        return isPending
+    }
+
+    func clear() {
+        defaults.removeObject(forKey: Self.todaySignalKey)
+    }
+
+    func clearAndVerify() -> Bool {
+        clear()
+        return defaults.object(forKey: Self.todaySignalKey) == nil
+    }
+}
+
+enum DailyReminderNavigation {
+    static func isTodayDestination(userInfo: [AnyHashable: Any]) -> Bool {
+        userInfo[DailyOutfitNotifier.destinationKey] as? String
+            == DailyOutfitNotifier.todayDestination
     }
 }

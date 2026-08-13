@@ -1,13 +1,60 @@
+import GoogleSignIn
 import SwiftUI
 
 struct ContentView: View {
-    @State private var session = GmailSession()
+    let demoMode: DemoModeController
+
+    @State private var session: GmailSession?
     @State private var onboardingState = OnboardingState()
     @State private var devicePrivacy = DevicePrivacySettings()
+    @State private var syncActivity = ReceiptSyncActivityController.shared
+    @State private var localDataGeneration = 0
+    @State private var showingLocalDataDeleted = false
     @SceneStorage("com.tth.Wardrobe.selectedTab")
     private var selectedTabRawValue = AppTab.wardrobe.rawValue
 
     var body: some View {
+        Group {
+            if let demoSession = demoMode.session {
+                DemoModeRootView(
+                    session: demoSession,
+                    onReset: { _ = demoMode.reset() },
+                    onExit: demoMode.exit
+                )
+                    .id(ObjectIdentifier(demoSession))
+            } else {
+                productionTabs
+            }
+        }
+        .onOpenURL { url in
+            _ = GIDSignIn.sharedInstance.handle(url)
+        }
+        .fullScreenCover(isPresented: onboardingPresentation) {
+            OnboardingView(
+                isReplay: onboardingState.hasCompleted,
+                onComplete: completeOnboarding,
+                onEnterDemo: enterDemoFromOnboarding,
+                onDismissReplay: onboardingState.dismissReplay
+            )
+            .interactiveDismissDisabled(!onboardingState.hasCompleted)
+        }
+        .alert(
+            "Couldn’t Open Demo",
+            isPresented: demoFailurePresentation,
+            presenting: demoMode.failure
+        ) { _ in
+            Button("OK", role: .cancel) { demoMode.clearFailure() }
+        } message: { _ in
+            Text(DemoModeFailure.userMessage)
+        }
+        .alert("Local Data Deleted", isPresented: $showingLocalDataDeleted) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your local wardrobe, history, sync records, cached looks, and saved data-use choices were removed from this device. Google access was not revoked.")
+        }
+    }
+
+    private var productionTabs: some View {
         TabView(selection: selectedTab) {
             NavigationStack {
                 TodayView(
@@ -17,7 +64,7 @@ struct ContentView: View {
                         selectedTab.wrappedValue = .settings
                     }
                 )
-                .id(activeAccountScope.rawValue)
+                .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
             }
             .tabItem {
                 Label(AppTab.today.title, systemImage: AppTab.today.systemImage)
@@ -27,7 +74,7 @@ struct ContentView: View {
 
             NavigationStack {
                 CatalogView(accountScope: activeAccountScope)
-                    .id(activeAccountScope.rawValue)
+                    .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
             }
             .tabItem {
                 Label(AppTab.wardrobe.title, systemImage: AppTab.wardrobe.systemImage)
@@ -36,11 +83,19 @@ struct ContentView: View {
             .tag(AppTab.wardrobe)
 
             NavigationStack {
-                SettingsView(
-                    session: session,
-                    devicePrivacy: devicePrivacy,
-                    onReplayOnboarding: onboardingState.replay
-                )
+                if let session {
+                    SettingsView(
+                        session: session,
+                        devicePrivacy: devicePrivacy,
+                        syncActivity: syncActivity,
+                        onReplayOnboarding: onboardingState.replay,
+                        onEnterDemo: enterDemoFromSettings,
+                        onVerifiedLocalDataDeletion: handleVerifiedLocalDataDeletion
+                    )
+                    .id(localDataGeneration)
+                } else {
+                    ProgressView("Opening Settings…")
+                }
             }
             .tabItem {
                 Label(AppTab.settings.title, systemImage: AppTab.settings.systemImage)
@@ -48,17 +103,13 @@ struct ContentView: View {
             }
             .tag(AppTab.settings)
         }
-        .fullScreenCover(isPresented: onboardingPresentation) {
-            OnboardingView(
-                isReplay: onboardingState.hasCompleted,
-                onComplete: completeOnboarding,
-                onDismissReplay: onboardingState.dismissReplay
-            )
-            .interactiveDismissDisabled(!onboardingState.hasCompleted)
+        .task(id: onboardingState.hasCompleted) {
+            await prepareConnectedFeatures()
+            consumePendingTodayDestination()
         }
-        .task {
-            await devicePrivacy.load()
-            await session.restorePreviousSignIn()
+        .onReceive(NotificationCenter.default.publisher(for: .wardrobeNavigateToToday)) { _ in
+            consumePendingTodayDestination()
+            selectedTab.wrappedValue = .today
         }
     }
 
@@ -70,14 +121,23 @@ struct ContentView: View {
     }
 
     private var activeAccountScope: WardrobeAccountScope {
-        WardrobeAccountScope(activeExternalSubject: session.privacySubjectID)
+        WardrobeAccountScope(activeExternalSubject: session?.privacySubjectID)
     }
 
     private var onboardingPresentation: Binding<Bool> {
         Binding(
-            get: { onboardingState.isPresented },
+            get: { !demoMode.isActive && onboardingState.isPresented },
             set: { isPresented in
                 if !isPresented { onboardingState.dismissReplay() }
+            }
+        )
+    }
+
+    private var demoFailurePresentation: Binding<Bool> {
+        Binding(
+            get: { demoMode.failure != nil },
+            set: { isPresented in
+                if !isPresented { demoMode.clearFailure() }
             }
         )
     }
@@ -85,5 +145,46 @@ struct ContentView: View {
     private func completeOnboarding(destination: AppTab) {
         selectedTab.wrappedValue = destination
         onboardingState.complete()
+    }
+
+    private func enterDemoFromOnboarding() {
+        // Keep the real onboarding preference unchanged. First-time users return
+        // to setup after the disposable tour; returning users resume normally.
+        enterDemoWhenSyncIsQuiesced()
+    }
+
+    private func enterDemoFromSettings() {
+        enterDemoWhenSyncIsQuiesced()
+    }
+
+    private func enterDemoWhenSyncIsQuiesced() {
+        Task { @MainActor in
+            _ = await syncActivity.withQuiesced {
+                demoMode.enter()
+            }
+        }
+    }
+
+    private func consumePendingTodayDestination() {
+        guard UserDefaultsAppNavigationSignalStore().consumeTodayDestination() else { return }
+        selectedTab.wrappedValue = .today
+    }
+
+    private func handleVerifiedLocalDataDeletion() {
+        devicePrivacy = DevicePrivacySettings()
+        localDataGeneration &+= 1
+        showingLocalDataDeleted = true
+    }
+
+    private func prepareConnectedFeatures() async {
+        guard onboardingState.hasCompleted else { return }
+        guard !demoMode.isActive else { return }
+        await devicePrivacy.load()
+        guard !demoMode.isActive else { return }
+        guard session == nil else { return }
+        let madeSession = GmailSession()
+        await madeSession.restorePreviousSignIn()
+        guard !Task.isCancelled, !demoMode.isActive else { return }
+        session = madeSession
     }
 }

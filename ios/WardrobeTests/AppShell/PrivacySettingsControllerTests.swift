@@ -5,6 +5,13 @@ import Testing
 
 @MainActor
 struct PrivacySettingsControllerTests {
+    private final class FakeReminderTimeStore: DailyReminderTimeStoring {
+        var value = DailyReminderTime.defaultMorning
+        func load() -> DailyReminderTime { value }
+        func save(_ time: DailyReminderTime) -> Bool { value = time; return true }
+        func remove() -> Bool { value = .defaultMorning; return true }
+    }
+
     private actor FakeStore: PrivacyPreferencesStoring {
         enum FixtureFailure: Error { case saveFailed }
 
@@ -130,10 +137,34 @@ struct PrivacySettingsControllerTests {
         #expect(await store.value(for: accountSubject)?.wardrobeStylingConsent == nil)
     }
 
+    @Test func deviceSettingsExposeAndApplyASelectedReminderTime() async throws {
+        let store = FakeStore()
+        await store.seed(stylingPreferences(reminderEnabled: true), for: .deviceLocal)
+        let timeStore = FakeReminderTimeStore()
+        let prior = try #require(DailyReminderTime(hour: 7, minute: 15))
+        timeStore.value = prior
+        var scheduled: [DailyReminderTime] = []
+        let fixture = makeFixture(
+            store: store,
+            enableReminder: { time in scheduled.append(time); return true },
+            reminderTimeStore: timeStore
+        )
+        let chosen = try #require(DailyReminderTime(hour: 19, minute: 40))
+
+        #expect(fixture.device.reminderTime == prior)
+        #expect(await fixture.device.setReminderTime(chosen))
+
+        #expect(scheduled == [chosen])
+        #expect(fixture.device.reminderTime == chosen)
+        #expect(await store.value(for: .deviceLocal)?.dailyReminderEnabled == true)
+    }
+
     private func makeFixture(
         store: FakeStore,
         cancelBackground: @escaping @MainActor () -> Void = {},
-        disableReminder: @escaping @MainActor () -> Void = {}
+        disableReminder: @escaping @MainActor () -> Void = {},
+        enableReminder: @escaping @MainActor (DailyReminderTime) async throws -> Bool = { _ in true },
+        reminderTimeStore: any DailyReminderTimeStoring = FakeReminderTimeStore()
     ) -> (gmail: GmailPrivacySettings, device: DevicePrivacySettings) {
         let fixedNow = now
         let deviceControls = PrivacyControls(
@@ -145,8 +176,9 @@ struct PrivacySettingsControllerTests {
             controls: deviceControls,
             scheduleBackground: {},
             cancelBackground: {},
-            enableReminder: { _ in true },
-            disableReminder: disableReminder
+            enableReminder: enableReminder,
+            disableReminder: disableReminder,
+            reminderTimeStore: reminderTimeStore
         )
         let device = DevicePrivacySettings(
             controls: deviceControls,
@@ -225,5 +257,9 @@ struct PrivacyDisclosureTests {
         #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
             $0.contains("photos") && $0.contains("not included")
         })
+        #expect(PrivacyDisclosure.receiptAnalysis.dataShared.contains {
+            $0.contains("Gmail message identifier") && $0.contains("removed before Anthropic")
+        })
+        #expect(PrivacyDisclosure.receiptAnalysis.destination.contains("raw message bodies are not sent"))
     }
 }
