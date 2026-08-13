@@ -5,34 +5,44 @@ import SwiftUI
 
 @main
 struct WardrobeApp: App {
-    let container: ModelContainer
+    @State private var storeController: PersistentStoreController
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        do {
-            container = try ModelContainer(for: Item.self, Outfit.self, WearLog.self)
-        } catch {
-            fatalError("Failed to create the SwiftData ModelContainer: \(error)")
-        }
-        registerBackgroundSync()
+        let storeController = PersistentStoreController()
+        _storeController = State(initialValue: storeController)
+        Self.registerBackgroundSync(storeController: storeController)
     }
 
     var body: some Scene {
         WindowGroup {
+            launchContent
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Schedule (or re-schedule) the next sync each time we background. The
+            // OS runs it opportunistically no sooner than the earliest-begin date.
+            if phase == .background, storeController.container != nil {
+                try? ReceiptSyncScheduler.schedule()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var launchContent: some View {
+        switch storeController.state {
+        case .loading:
+            ProgressView("Opening your wardrobe…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .ready(let container):
             ContentView()
                 .onOpenURL { url in
                     // OAuth callback: route URL-scheme redirects to the GoogleSignIn SDK
                     // so it can complete the sign-in flow.
                     _ = GIDSignIn.sharedInstance.handle(url)
                 }
-        }
-        .modelContainer(container)
-        .onChange(of: scenePhase) { _, phase in
-            // Schedule (or re-schedule) the next sync each time we background. The
-            // OS runs it opportunistically no sooner than the earliest-begin date.
-            if phase == .background {
-                try? ReceiptSyncScheduler.schedule()
-            }
+                .modelContainer(container)
+        case .failed:
+            PersistentStoreErrorView(retry: storeController.retry)
         }
     }
 
@@ -49,8 +59,7 @@ struct WardrobeApp: App {
     /// or foreground, because the launch handler only runs when the OS actually
     /// launches the background task on device. The hop onto the main actor now
     /// happens explicitly inside, via `Task { @MainActor in … }`.
-    private func registerBackgroundSync() {
-        let container = container   // captured so the @Sendable closure never touches MainActor self
+    private static func registerBackgroundSync(storeController: PersistentStoreController) {
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ReceiptSyncScheduler.taskIdentifier,
             using: nil
@@ -63,6 +72,10 @@ struct WardrobeApp: App {
             // and exactly one consumer touches it from here on.
             nonisolated(unsafe) let transferredTask = processingTask
             Task { @MainActor in
+                guard let container = storeController.container else {
+                    transferredTask.setTaskCompleted(success: false)
+                    return
+                }
                 await BackgroundSyncRunner.run(task: transferredTask, container: container)
             }
         }
