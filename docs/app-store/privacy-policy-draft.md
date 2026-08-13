@@ -29,10 +29,12 @@ If you connect Gmail, the app requests only the
 send, modify, label, trash, or delete messages. On-device code searches for likely purchase
 receipts and extracts deterministic structured fields where possible.
 
-For a receipt that needs cloud analysis, the app may send a minimized selection of receipt text
-and commerce context to our backend and Anthropic. The release build is designed to redact or
-omit unrelated personal details and Google message identifiers. [VERIFY FINAL REQUEST-CAPTURE
-FIELDS AND LIST THEM EXACTLY BEFORE PUBLICATION.]
+For a receipt that needs cloud analysis, the app sends our backend a validated sender domain, a
+sanitized subject, and either bounded structured product fields or selected, redacted product
+lines. The current compatibility envelope also sends a Gmail message identifier to our backend
+for response correlation; the backend removes that identifier before sending the minimized
+product context to Anthropic. Full sender addresses and raw message bodies are not sent to
+Anthropic. [VERIFY FINAL REQUEST CAPTURE, BACKEND LOGGING, AND PROVIDER FIELDS BEFORE PUBLICATION.]
 
 ### Wardrobe information used for AI styling
 
@@ -122,4 +124,3 @@ notice before that flow resumes.
 [POSTAL ADDRESS IF REQUIRED]  
 [PRIVACY EMAIL]  
 [SUPPORT URL]
-

@@ -8,9 +8,9 @@ retention/logging is confirmed.
 | Data / source | On-device use | Leaves device? | Recipient / purpose | Intended retention | Consent / control | Apple answer status |
 |---|---|---:|---|---|---|---|
 | Gmail OAuth credentials | Authenticate read-only Gmail calls | Google SDK/API only | Google authentication/API | Managed by Google/platform | Sign out; Disconnect/revoke | Not developer-collected unless backend receives tokens; verify final auth flow |
-| Gmail sender/domain + subject | Candidate/retailer detection | Minimized form for cloud fallback | Backend → Anthropic receipt extraction | Request only; verify logs/provider | Receipt-analysis consent | Likely “Other User Content” if retained; pending |
-| Selected receipt product text | Item extraction | Yes, minimized/redacted fallback | Backend → Anthropic receipt extraction | Request only; verify logs/provider | Receipt-analysis consent | Likely “Other User Content” if retained; pending |
-| Gmail message ID/history cursor | Local dedup/incremental sync | Must not reach model; server transmission should be avoided | Local app | Until disconnect/delete or cursor expiry | Disconnect/delete | Not collected if device-only |
+| Gmail sender/domain + subject | Candidate/retailer detection | Validated sender domain and sanitized subject for cloud fallback | Backend → Anthropic receipt extraction | Request only; verify logs/provider | Receipt-analysis consent | Likely “Other User Content” if retained; pending |
+| Structured product fields or selected receipt product text | Item extraction | Yes; bounded JSON-LD product fields are preferred, otherwise minimized/redacted product lines | Backend → Anthropic receipt extraction | Request only; verify logs/provider | Receipt-analysis consent | Likely “Other User Content” if retained; pending |
+| Gmail message ID/history cursor | Local dedup/incremental sync and current API response correlation | Message ID currently reaches the backend compatibility envelope but is stripped before Anthropic; history cursor stays local | Developer backend for request correlation; local app for history cursor | Backend request only plus local state until disconnect/delete or cursor expiry; verify logs | Disconnect/delete | Pending final API-contract and logging review |
 | Receipt attachment/image/PDF | Deterministic OCR | Raw bytes must remain device-only; OCR fallback text may leave | Backend → Anthropic only if disclosed/consented | Request only; verify | Receipt-analysis consent | Pending final implementation |
 | Wardrobe item attributes | Catalog + styling | Yes for AI styling | Backend → Anthropic outfit recommendation | Request only; verify logs/provider | Styling consent | Likely “Other User Content” if retained; pending |
 | Wardrobe photos | Catalog display | No in v1 styling path | Local app | Until item/local-data deletion | Photo picker/camera; delete | Not collected if device-only |
@@ -36,4 +36,3 @@ retention/logging is confirmed.
 - [ ] Complete Apple App Privacy answers based on actual retention, linkage and tracking—not on
   whether data merely passes through a stateless endpoint.
 - [ ] Verify Delete Local Data and Disconnect remove all state promised by their copy.
-

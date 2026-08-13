@@ -25,57 +25,59 @@ kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
-| APP-001, APP-002, APP-005, APP-006, APP-007, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; restored-scope validation; transactional persistence; V2 account isolation; bounded remote images; pinned SDK/privacy manifests |
-| APP-003, APP-004 | **In progress** | Privacy controls and default-off/cancellable automation are live; verified local-data deletion and user-selected reminder time still remain |
-| APP-008 | **In progress** | Anthropic no longer receives Gmail IDs/full senders; Spam/Trash are excluded and a per-account ledger/cursor exists; payload builder, JSON-LD-first flow, redaction, and ledger integration remain |
+| APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
 | APP-009 | **GCP gate** | Public-client bearer removal is intentionally blocked on the production identity decision; the Release archive guard refuses the legacy key |
 | APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs/IDs and bearer removal remain external/GCP work |
-| APP-013–APP-016 | **In progress** | Samples, release build, CI gates, data inventory, policy/support/review drafts exist; isolated offline demo, UI target, final CI coverage, and published pages remain |
+| APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline six-item tour; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
+| APP-014 | **In progress** | A UI-test target covers three critical local/offline flows end to end; connected consent, reminder, disconnect, and delete UI flows still need deterministic UI coverage |
+| APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
+| APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
 | APP-017–APP-019 | **Submission** | App Store Connect record, media, signed archive/upload, clean-device QA, and final build/version decisions remain |
 | APP-020–APP-022 | **In progress** | Every item has a correction flow and imported cues; confidence review, favorite/archive, and bulk review remain |
-| APP-023 | **In progress** | Today is explicit-action-only and “Wear this” is transactional; daily cache, occasion input, and offline reuse remain |
-| APP-024–APP-028 | **Pending / enhancement** | History/feedback, full accessibility matrix, state polish, launch branding, and localization remain |
-| APP-029–APP-035 | **Pending / enhancement** | Structured/OCR import, incremental history execution, preferences, insights, backup, imagery tools, and widgets remain |
+| APP-023 | **Done** | Today is explicit-action-only, account-scoped daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
+| APP-024–APP-028 | **Pending / in progress** | History/feedback, full accessibility matrix, broader state polish, final launch branding, and localization remain; onboarding and critical state/accessibility identifiers are improved |
+| APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import and resumable per-account ledgering are live; OCR routing, Gmail History execution, preferences, insights, backup, imagery tools, and widgets remain |
 
-Latest complete verification after the committed account/image/release work: **279 iOS tests in
-44 suites**, **51 backend tests**, Ruff, mypy, a Release-simulator build, archive-content/privacy
-verification, and **9/9 public Release configuration guard tests** all passed. The branch has not
-changed build/version metadata and has not uploaded or deployed anything.
+Latest complete verification for the integrated branch: **358 iOS tests** total (**355 Swift
+tests in 51 suites plus 3 end-to-end UI tests**), **58 backend tests**, Ruff, mypy, a
+Release-simulator build, embedded artifact/privacy-manifest verification, and **9/9 public
+Release configuration guard tests** all passed. The branch has not changed build/version
+metadata and has not uploaded or deployed anything.
 
 ## P0 — privacy, security, and trustworthy data handling
 
-- [ ] **APP-001 · Now · Make the core app local-first.** Gmail connection must be optional.
+- [x] **APP-001 · Done · Make the core app local-first.** Gmail connection must be optional.
   A user—and App Review—can add photos, browse the catalog, and understand the product without
   granting mailbox access. Replace the current sign-in gate with a clear tab shell, onboarding,
   and an optional “Connect Gmail” path.
-- [ ] **APP-002 · Now · Add versioned, affirmative AI/data-use consent.** Immediately before any
+- [x] **APP-002 · Done · Add versioned, affirmative AI/data-use consent.** Immediately before any
   receipt or wardrobe data is sent, explain the on-device selection, developer backend,
   Anthropic processing, exact data categories and purposes. Gate manual sync, styling, and
   background work; restored sessions do not inherit a notice they never accepted. Consent is
   revocable and scoped to the connected account where possible.
-- [ ] **APP-003 · Now · Add a Privacy & Data center.** Keep Sign out, Disconnect Gmail/revoke,
+- [x] **APP-003 · Done · Add a Privacy & Data center.** Keep Sign out, Disconnect Gmail/revoke,
   Withdraw AI consent, and Delete Local Data distinct. Show the connected account, sync and
   reminder controls, data flow, policy/support links, and destructive confirmations. A delete
   operation must cancel work and verify completion before reporting success.
-- [ ] **APP-004 · Now · Stop automatic background and notification enrollment.** Both are off by
+- [x] **APP-004 · Done · Stop automatic background and notification enrollment.** Both are off by
   default and user-controlled. Disabling, disconnecting, withdrawing consent, or deleting data
   cancels pending work. Background execution re-checks sign-in, consent, and opt-in before a
   Gmail or backend call. Notification copy must not claim an outfit already exists; allow a
   reminder time and route the tap to Today.
-- [ ] **APP-005 · Now · Revalidate restored Gmail authorization.** A restored Google session is
+- [x] **APP-005 · Done · Revalidate restored Gmail authorization.** A restored Google session is
   usable only if `gmail.readonly` remains granted. Map SDK/network failures to friendly recovery
   states and keep the one-scope, GET-only guard intact. Use the official Google sign-in control
   and label the action as an optional Gmail connection.
-- [ ] **APP-006 · Now · Make persistence failures visible and recoverable.** Replace user-facing
+- [x] **APP-006 · Done · Make persistence failures visible and recoverable.** Replace user-facing
   `try?` save/delete paths with throwing operations, rollback, alerts, and no false success or
   dismissal. Replace launch-time `fatalError` with a recoverable store error screen. Define a
   versioned SwiftData migration plan before evolving persisted models.
-- [ ] **APP-007 · Now · Prevent cross-account catalog mixing.** Gmail-derived records, sync
+- [x] **APP-007 · Done · Prevent cross-account catalog mixing.** Gmail-derived records, sync
   history, preferences, and consent must have an explicit stable owner. Account A must never see
   account B's data. Existing unscoped data requires an explicit migrate-or-delete choice; it is
   never silently assigned. Local photo items may remain in a clearly identified device-local
   wardrobe if that is the chosen product model.
-- [ ] **APP-008 · Now · Minimize and deduplicate receipt transmission.** Use structured JSON-LD
+- [x] **APP-008 · Done · Minimize and deduplicate receipt transmission.** Use structured JSON-LD
   before raw text; select only product-relevant lines; redact obvious email, phone, card,
   shipping, address, and order identifiers; send a sender domain instead of a full address; and
   never expose a Gmail message ID to the model. Exclude Spam and Trash by default. Persist
@@ -85,33 +87,33 @@ changed build/version metadata and has not uploaded or deployed anything.
   authorization verified by the backend, rate limits, quotas, monitoring, and an old-build
   retirement plan. The concrete issuer/audience configuration depends on the production OAuth
   architecture in the Google sequence. No public build is releasable with the shared bearer.
-- [ ] **APP-010 · Now · Restrict remote images.** Do not load arbitrary model-derived URLs. Apply
+- [x] **APP-010 · Done · Restrict remote images.** Do not load arbitrary model-derived URLs. Apply
   HTTPS-only validation, a conservative host policy, bounded image decoding/caching, and a safe
   placeholder.
 
 ## P0 — release and App Review readiness
 
-- [ ] **APP-011 · Now · Align product identity and release configuration.** Use “Wardrobe
+- [ ] **APP-011 · In progress · Align product identity and release configuration.** Use “Wardrobe
   Stylist” consistently in the app, OAuth screen, help text, and store copy. Split development
   and production configuration. A Release archive must fail if required non-secret identifiers,
   HTTPS endpoints, policy/support URLs, or URL schemes are absent; it must also prove no shared
   backend credential is embedded.
-- [ ] **APP-012 · Now · Pin/audit dependencies and archive privacy metadata.** Pin the Google Sign
+- [x] **APP-012 · Done · Pin/audit dependencies and archive privacy metadata.** Pin the Google Sign
   In SDK to a reviewed version, commit a reproducible resolution where practical, and validate
   the exact archive's SDK signatures/privacy manifests. Add an app privacy manifest only for
   required-reason APIs the app actually uses.
-- [ ] **APP-013 · Now · Give App Review a deterministic product tour.** Add a seeded, offline demo
+- [x] **APP-013 · Done · Give App Review a deterministic product tour.** Add a seeded, offline demo
   mode or equivalent UI-test fixture that exercises Today, wardrobe browsing, item editing, and
   data controls without a reviewer sharing a personal mailbox. It must be visually and
   functionally distinct from real user data and never call Gmail or the backend.
-- [ ] **APP-014 · Now · Add end-to-end UI coverage.** Cover first launch, skipped Gmail,
+- [ ] **APP-014 · In progress · Add end-to-end UI coverage.** Cover first launch, skipped Gmail,
   disclosure/consent, demo entry, add/edit/delete item, catalog search/filter, Today states,
   reminder controls, disconnect, and local data deletion. Keep request-capture tests proving no
   network path runs without consent and no prohibited Gmail operation is representable.
-- [ ] **APP-015 · Now · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
+- [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
   full pytest/Ruff/mypy plus Swift test regressions.
-- [ ] **APP-016 · Now · Prepare accurate public-facing documents.** Replace the stale internal
+- [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** Replace the stale internal
   privacy note with policy-source text covering Google data, the backend, Anthropic, purposes,
   retention, consent withdrawal, deletion, Limited Use, security, contact, and changes. Add
   support/FAQ and App Review notes. Do not publish unverified retention or “no training” claims.
@@ -130,31 +132,31 @@ changed build/version metadata and has not uploaded or deployed anything.
 
 ## P1 — core experience polish
 
-- [ ] **APP-020 · Now · Review and correct imported items.** Receipt-derived entries land in a
+- [ ] **APP-020 · In progress · Review and correct imported items.** Receipt-derived entries land in a
   visible review state. Users can edit name, brand, category, color, size, purchase metadata,
   and image before accepting. Surface duplicates and extraction uncertainty instead of silently
   saving an incorrect catalog.
-- [ ] **APP-021 · Now · Make every item editable.** Reuse one validated item form for manual add,
+- [ ] **APP-021 · In progress · Make every item editable.** Reuse one validated item form for manual add,
   import review, and edit. Preserve the existing photo when editing and confirm destructive
   deletion. Show specific save/validation failures.
-- [ ] **APP-022 · Now · Improve catalog information architecture.** Add clear local/imported and
+- [ ] **APP-022 · In progress · Improve catalog information architecture.** Add clear local/imported and
   pending-review cues, useful empty/search-zero states, stable sorting, favorites, archive, and
   bulk review where it materially reduces effort.
-- [ ] **APP-023 · Now · Polish Today.** Cache a recommendation for the day, let users refresh
+- [x] **APP-023 · Done · Polish Today.** Cache a recommendation for the day, let users refresh
   intentionally, accept occasion/context input, explain empty/error/offline states, and never
   make a backend call merely because a tab appeared. Saving “Wear this” must be transactional
   and acknowledged only after persistence succeeds.
 - [ ] **APP-024 · Enhancement · Add outfit history and feedback.** Show worn looks, dates, and
   item details. Let users rate/save/skip a recommendation and feed those preferences into future
   prompts without weakening the catalog-ID hallucination guard.
-- [ ] **APP-025 · Now · Finish accessibility and adaptive layout.** VoiceOver names/hints and
+- [ ] **APP-025 · In progress · Finish accessibility and adaptive layout.** VoiceOver names/hints and
   traversal, Dynamic Type through accessibility sizes, minimum tap targets, sufficient contrast,
   non-color-only status, Reduce Motion, keyboard/focus behavior, and meaningful image labels.
   Test the smallest supported phone and large text.
-- [ ] **APP-026 · Now · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
+- [ ] **APP-026 · In progress · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
   SDK/backend errors and indefinite spinners. Preserve user input on failure and make destructive
   or privacy-impacting actions explicit.
-- [ ] **APP-027 · Now · Add a branded first-run and launch experience.** Explain the value before
+- [ ] **APP-027 · In progress · Add a branded first-run and launch experience.** Explain the value before
   permissions, include transparent privacy positioning, offer demo/local/Gmail paths, and replace
   the empty launch treatment while preserving fast startup.
 - [ ] **APP-028 · Enhancement · Localize user-visible copy.** Start with a complete development
@@ -163,10 +165,10 @@ changed build/version metadata and has not uploaded or deployed anything.
 
 ## P2 — feature enhancements after the public-release foundation
 
-- [ ] **APP-029 · Enhancement · Wire structured receipt extraction end to end.** The repository
+- [ ] **APP-029 · In progress · Wire structured receipt extraction end to end.** The repository
   already contains JSON-LD and OCR components; route suitable HTML/PDF/image receipts through
   them before cloud fallback, with confidence and review UI.
-- [ ] **APP-030 · Enhancement · Scalable incremental Gmail sync.** Replace the 1,000-message
+- [ ] **APP-030 · In progress · Scalable incremental Gmail sync.** Replace the 1,000-message
   ceiling/full rescans with an initial resumable backfill and Gmail History API cursor while
   retaining strict read-only endpoints and cancellation.
 - [ ] **APP-031 · Enhancement · Rich styling preferences.** Add dress code, weather/context (only
