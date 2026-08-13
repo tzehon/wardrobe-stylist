@@ -2,12 +2,60 @@ import SwiftData
 import SwiftUI
 import UIKit
 
+private enum ConnectedStatusTone {
+    case information
+    case warning
+    case error
+
+    var color: Color {
+        switch self {
+        case .information: .secondary
+        case .warning: .orange
+        case .error: .red
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .information: "info.circle"
+        case .warning: "exclamationmark.triangle"
+        case .error: "exclamationmark.triangle.fill"
+        }
+    }
+
+    var accessibilityPrefix: String {
+        switch self {
+        case .information: "Information"
+        case .warning: "Attention"
+        case .error: "Error"
+        }
+    }
+}
+
 /// Optional Google connection. The account can authorize Gmail before it
 /// authorizes receipt analysis; those are deliberately separate choices.
 struct GmailConnectorView: View {
     let session: GmailSession
     let devicePrivacy: DevicePrivacySettings
     let syncActivity: ReceiptSyncActivityController
+    private let makePrivacySettings: @MainActor (GoogleSignInIdentity) -> GmailPrivacySettings
+
+    init(
+        session: GmailSession,
+        devicePrivacy: DevicePrivacySettings,
+        syncActivity: ReceiptSyncActivityController,
+        makePrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)? = nil
+    ) {
+        self.session = session
+        self.devicePrivacy = devicePrivacy
+        self.syncActivity = syncActivity
+        self.makePrivacySettings = makePrivacySettings ?? { [devicePrivacy] identity in
+            GmailPrivacySettings(
+                subjectID: identity.privacySubjectID,
+                devicePrivacy: devicePrivacy
+            )
+        }
+    }
 
     @State private var localError: String?
 
@@ -25,18 +73,19 @@ struct GmailConnectorView: View {
                     session: session,
                     identity: identity,
                     devicePrivacy: devicePrivacy,
-                    syncActivity: syncActivity
+                    syncActivity: syncActivity,
+                    privacy: makePrivacySettings(identity)
                 )
                 .id(identity.stableUserID)
             case .reconnectRequired(let message):
                 disconnectedContent
-                statusMessage(message, color: .orange)
+                statusMessage(message, tone: .warning)
             case .cancelled:
                 disconnectedContent
-                statusMessage("Google sign-in was cancelled. Nothing was connected.", color: .secondary)
+                statusMessage("Google sign-in was cancelled. Nothing was connected.", tone: .information)
             case .failed(let message):
                 disconnectedContent
-                statusMessage(message, color: .red)
+                statusMessage(message, tone: .error)
             }
         }
     }
@@ -62,11 +111,12 @@ struct GmailConnectorView: View {
                 Label("Sign in with Google", systemImage: "person.crop.circle.badge.plus")
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
             .accessibilityHint("Connects an optional read-only Gmail account. Receipt analysis remains off until you allow it separately.")
             .accessibilityIdentifier("settings.gmail.connect")
 
             if let localError {
-                statusMessage(localError, color: .red)
+                statusMessage(localError, tone: .error)
             }
         }
     }
@@ -76,14 +126,23 @@ struct GmailConnectorView: View {
             ProgressView()
             Text(title)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
         .accessibilityIdentifier("settings.gmail.progress")
     }
 
-    private func statusMessage(_ message: String, color: Color) -> some View {
-        Text(message)
+    private func statusMessage(_ message: String, tone: ConnectedStatusTone) -> some View {
+        Label {
+            Text(message)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: tone.systemImage)
+                .foregroundStyle(tone.color)
+        }
             .font(.footnote)
-            .foregroundStyle(color)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(tone.accessibilityPrefix): \(message)")
             .accessibilityIdentifier("settings.gmail.status")
     }
 }
@@ -113,12 +172,13 @@ private struct ConnectedGmailView: View {
         session: GmailSession,
         identity: GoogleSignInIdentity,
         devicePrivacy: DevicePrivacySettings,
-        syncActivity: ReceiptSyncActivityController
+        syncActivity: ReceiptSyncActivityController,
+        privacy: GmailPrivacySettings? = nil
     ) {
         self.session = session
         self.identity = identity
         self.syncActivity = syncActivity
-        _privacy = State(initialValue: GmailPrivacySettings(
+        _privacy = State(initialValue: privacy ?? GmailPrivacySettings(
             subjectID: identity.privacySubjectID,
             devicePrivacy: devicePrivacy
         ))
@@ -146,7 +206,7 @@ private struct ConnectedGmailView: View {
             privacyControls
 
             if let errorMessage = privacy.errorMessage {
-                statusMessage(errorMessage, color: .red)
+                statusMessage(errorMessage, tone: .error)
             }
 
             Divider()
@@ -181,9 +241,13 @@ private struct ConnectedGmailView: View {
 
     private var accountHeader: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label("Connected (read-only)", systemImage: "checkmark.seal.fill")
-                .font(.headline)
-                .foregroundStyle(.green)
+            Label {
+                Text("Connected (read-only)")
+            } icon: {
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+            }
+            .font(.headline)
             Text(identity.email)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -192,6 +256,8 @@ private struct ConnectedGmailView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Connected read-only Gmail account, \(identity.email), \(items.count) local wardrobe item\(items.count == 1 ? "" : "s")")
     }
 
     @ViewBuilder
@@ -203,17 +269,25 @@ private struct ConnectedGmailView: View {
                 Text("Loading this account’s privacy choice…")
                     .foregroundStyle(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Loading this account’s privacy choice")
         case .unavailable(let failure):
-            statusMessage(failure.userMessage, color: .red)
+            statusMessage(failure.userMessage, tone: .error)
             Button("Try loading again") {
                 Task { await privacy.controls.load() }
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
+            .accessibilityHint("Attempts to load this account’s privacy choice again. Protected features stay off until it succeeds.")
         case .loaded:
             if receiptAnalysisAllowed {
-                Label("Receipt analysis allowed for this Google account", systemImage: "checkmark.shield.fill")
+                Label {
+                    Text("Receipt analysis allowed for this Google account")
+                } icon: {
+                    Image(systemName: "checkmark.shield.fill")
+                        .foregroundStyle(.green)
+                }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.green)
                     .accessibilityIdentifier("settings.gmail.receiptAnalysisAllowed")
 
                 Toggle(
@@ -252,6 +326,8 @@ private struct ConnectedGmailView: View {
                     }
                 }
                 .disabled(privacy.isUpdating || accountAction != .idle)
+                .controlSize(.large)
+                .accessibilityHint("Turns off receipt analysis and background import after any active import stops. Your local wardrobe stays in place.")
                 .accessibilityIdentifier("settings.gmail.withdrawReceiptAnalysis")
             } else {
                 Button {
@@ -260,7 +336,9 @@ private struct ConnectedGmailView: View {
                     Label("Allow receipt analysis", systemImage: "checkmark.shield")
                 }
                 .buttonStyle(.borderedProminent)
+                .controlSize(.large)
                 .disabled(isBusy)
+                .accessibilityHint("Allows limited receipt details to be analyzed only when you start an import. This does not enable background import.")
                 .accessibilityIdentifier("settings.gmail.allowReceiptAnalysis")
 
                 Text("Off by default. Connecting Google alone does not read or send receipt content for analysis.")
@@ -282,15 +360,26 @@ private struct ConnectedGmailView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
             .disabled(isBusy)
             .accessibilityIdentifier("settings.gmail.sync")
 
+            if isSyncing || syncActivity.isRunning {
+                Button("Stop current import", role: .cancel) {
+                    Task { _ = await syncActivity.cancelAndWait() }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .accessibilityHint("Cancels the current import after its active read-only request stops. Items already saved remain in your wardrobe.")
+                .accessibilityIdentifier("settings.gmail.sync.cancel")
+            }
+
             if let pipelineConfigError {
-                statusMessage(pipelineConfigError, color: .red)
+                statusMessage(pipelineConfigError, tone: .error)
             } else if let pipeline {
                 pipelineStatus(pipeline.state)
             } else if syncActivity.isRunning {
-                statusMessage("Another receipt import is already running. You can stop it by signing out, disconnecting Google, or deleting local data.", color: .secondary)
+                statusMessage("Another receipt import is already running. You can stop it by signing out, disconnecting Google, or deleting local data.", tone: .information)
             }
         }
     }
@@ -307,6 +396,7 @@ private struct ConnectedGmailView: View {
                 )
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
             .disabled(privacy.isUpdating || accountAction != .idle)
             .accessibilityHint("Ends the local session after turning automations off. Google access and account consent remain.")
             .accessibilityIdentifier("settings.gmail.signOut")
@@ -321,6 +411,7 @@ private struct ConnectedGmailView: View {
                 )
             }
             .disabled(privacy.isUpdating || accountAction != .idle)
+            .controlSize(.large)
             .accessibilityHint("Revokes Google access and clears this account’s receipt-analysis choice after turning automations off.")
             .accessibilityIdentifier("settings.gmail.disconnect")
         }
@@ -334,6 +425,7 @@ private struct ConnectedGmailView: View {
         HStack(spacing: 8) {
             if accountAction == activeAction { ProgressView() }
             Label(title, systemImage: systemImage)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -350,29 +442,50 @@ private struct ConnectedGmailView: View {
                     .foregroundStyle(.secondary)
             }
             .accessibilityElement(children: .combine)
+            .accessibilityLabel(total > 0
+                ? "Receipt import progress: processed \(processed) of \(total)"
+                : "Receipt import progress: fetching likely receipts")
         case let .complete(added, candidates, errors):
             VStack(alignment: .leading, spacing: 3) {
-                Label("Import complete", systemImage: "checkmark.circle.fill")
+                Label {
+                    Text("Import complete")
+                } icon: {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
                     .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.green)
                 Text("\(added) item\(added == 1 ? "" : "s") added from \(candidates) likely receipt\(candidates == 1 ? "" : "s").")
                 if errors > 0 {
-                    Text("\(errors) message\(errors == 1 ? "" : "s") could not be processed.")
-                        .foregroundStyle(.orange)
+                    Label {
+                        Text("\(errors) message\(errors == 1 ? "" : "s") could not be processed.")
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
             .font(.footnote)
             .accessibilityElement(children: .combine)
         case .failed(let message):
-            statusMessage(message, color: .red)
+            statusMessage(
+                ReceiptImportPresentation.failureMessage(for: message),
+                tone: .error
+            )
         }
     }
 
-    private func statusMessage(_ message: String, color: Color) -> some View {
-        Text(message)
+    private func statusMessage(_ message: String, tone: ConnectedStatusTone) -> some View {
+        Label {
+            Text(message)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: tone.systemImage)
+                .foregroundStyle(tone.color)
+        }
             .font(.footnote)
-            .foregroundStyle(color)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(tone.accessibilityPrefix): \(message)")
             .accessibilityIdentifier("settings.gmail.status")
     }
 
@@ -417,7 +530,7 @@ private struct ConnectedGmailView: View {
                 )
                 pipelineConfigError = nil
             } catch {
-                pipelineConfigError = error.localizedDescription
+                pipelineConfigError = ReceiptImportPresentation.configurationUnavailable
                 return
             }
         }

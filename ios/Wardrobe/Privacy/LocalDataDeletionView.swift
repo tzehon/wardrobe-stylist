@@ -21,6 +21,7 @@ struct LocalDataDeletionView: View {
                 showingConfirmation = true
             }
             .disabled(isDeleting)
+            .controlSize(.large)
             .accessibilityHint("Permanently removes app data stored on this device. Google access remains connected.")
             .accessibilityIdentifier("settings.privacy.deleteLocalData")
 
@@ -31,11 +32,18 @@ struct LocalDataDeletionView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Deleting and verifying local data")
                 .accessibilityIdentifier("settings.privacy.deleteLocalData.progress")
             } else if case .succeeded = coordinator?.state {
-                Label("Local data deleted", systemImage: "checkmark.circle.fill")
+                Label {
+                    Text("Local data deleted")
+                } icon: {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
                     .font(.footnote)
-                    .foregroundStyle(.green)
+                    .accessibilityLabel("Success: Local data deleted")
                     .accessibilityIdentifier("settings.privacy.deleteLocalData.success")
             }
         }

@@ -88,6 +88,22 @@ def validate(info: dict[str, Any]) -> None:
             "CFBundleDisplayName must be exactly 'Wardrobe Stylist'"
         )
 
+    launch_screen = info.get("UILaunchScreen")
+    if not isinstance(launch_screen, dict):
+        raise ReleaseConfigurationError("UILaunchScreen must be configured")
+    if launch_screen.get("UIColorName") != "LaunchBackground":
+        raise ReleaseConfigurationError(
+            "UILaunchScreen must use the branded LaunchBackground color"
+        )
+    if launch_screen.get("UIImageName") != "LaunchMark":
+        raise ReleaseConfigurationError(
+            "UILaunchScreen must use the branded LaunchMark image"
+        )
+    if launch_screen.get("UIImageRespectsSafeAreaInsets") is not True:
+        raise ReleaseConfigurationError(
+            "UILaunchScreen must keep LaunchMark inside safe-area insets"
+        )
+
     client_id = _required_string(info, "GIDClientID")
     match = _CLIENT_ID_PATTERN.fullmatch(client_id)
     if match is None:

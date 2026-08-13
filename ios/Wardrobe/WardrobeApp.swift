@@ -6,27 +6,76 @@ import SwiftUI
 struct WardrobeApp: App {
     @State private var storeController: PersistentStoreController
     @State private var demoMode: DemoModeController
+#if DEBUG
+    @State private var connectedUITestExperience: ConnectedUITestExperience?
+#endif
     @Environment(\.scenePhase) private var scenePhase
 
     private static let isReviewerDemoLaunch = DemoLaunchPolicy.isRequested(
         arguments: ProcessInfo.processInfo.arguments
     )
 
+#if DEBUG
+    private static let isConnectedUITestLaunch = ConnectedUITestLaunchPolicy.isRequested(
+        arguments: ProcessInfo.processInfo.arguments
+    )
+
+    private static let isLocalUITestLaunch = LocalUITestLaunchPolicy.isRequested(
+        arguments: ProcessInfo.processInfo.arguments
+    )
+#endif
+
     init() {
+        // The Debug-only connected UI harness never installs a notification
+        // delegate or asks the OS for permission. Its notifier dependencies are
+        // in-memory fakes, and Release builds do not contain the harness.
+#if DEBUG
+        if !Self.isConnectedUITestLaunch && !Self.isLocalUITestLaunch {
+            DailyReminderNotificationRouter.shared.install()
+        }
+#else
         DailyReminderNotificationRouter.shared.install()
+#endif
         // A command-line reviewer Demo must be able to launch even when the
         // user's real store is corrupt or needs migration. Defer opening the
         // production store until the reviewer explicitly exits the isolated
         // in-memory tour.
-        let storeController = PersistentStoreController(
-            automaticallyLoad: !Self.isReviewerDemoLaunch
-        )
+        let shouldLoadProductionStore: Bool
+#if DEBUG
+        shouldLoadProductionStore = !Self.isReviewerDemoLaunch && !Self.isConnectedUITestLaunch
+#else
+        shouldLoadProductionStore = !Self.isReviewerDemoLaunch
+#endif
+        let storeController: PersistentStoreController
+#if DEBUG
+        if Self.isLocalUITestLaunch {
+            storeController = PersistentStoreController(loader: {
+                try ModelContainerFactory.makeInMemory()
+            })
+        } else {
+            storeController = PersistentStoreController(automaticallyLoad: shouldLoadProductionStore)
+        }
+#else
+        storeController = PersistentStoreController(automaticallyLoad: shouldLoadProductionStore)
+#endif
         let demoMode = DemoModeController(
             automaticallyEnter: Self.isReviewerDemoLaunch
         )
         _storeController = State(initialValue: storeController)
         _demoMode = State(initialValue: demoMode)
-        if !Self.isReviewerDemoLaunch {
+#if DEBUG
+        _connectedUITestExperience = State(initialValue: Self.isConnectedUITestLaunch
+            ? try? ConnectedUITestExperience()
+            : nil)
+#endif
+#if DEBUG
+        let shouldRegisterBackgroundSync = !Self.isReviewerDemoLaunch
+            && !Self.isConnectedUITestLaunch
+            && !Self.isLocalUITestLaunch
+#else
+        let shouldRegisterBackgroundSync = !Self.isReviewerDemoLaunch
+#endif
+        if shouldRegisterBackgroundSync {
             Self.registerBackgroundSync(
                 storeController: storeController,
                 demoMode: demoMode
@@ -43,6 +92,9 @@ struct WardrobeApp: App {
             // restores a valid Google identity and checks that subject's current
             // receipt consent + background toggle before it submits any work.
             if phase == .background {
+#if DEBUG
+                guard !Self.isConnectedUITestLaunch && !Self.isLocalUITestLaunch else { return }
+#endif
                 guard !demoMode.isActive else { return }
                 guard let container = storeController.container else {
                     ReceiptSyncScheduler.cancel()
@@ -57,6 +109,27 @@ struct WardrobeApp: App {
 
     @ViewBuilder
     private var launchContent: some View {
+#if DEBUG
+        if Self.isConnectedUITestLaunch {
+            if let connectedUITestExperience {
+                ConnectedUITestRootView(experience: connectedUITestExperience)
+            } else {
+                ContentUnavailableView(
+                    "Isolated UI test unavailable",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("The in-memory UI-test environment could not be created.")
+                )
+            }
+        } else {
+            ordinaryLaunchContent
+        }
+#else
+        ordinaryLaunchContent
+#endif
+    }
+
+    @ViewBuilder
+    private var ordinaryLaunchContent: some View {
         if let demoSession = demoMode.session {
             // Intentionally outside the production model-container hierarchy.
             // The reviewer-launch root receives only its disposable in-memory

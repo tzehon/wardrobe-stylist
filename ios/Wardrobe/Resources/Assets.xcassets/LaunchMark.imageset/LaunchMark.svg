@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="wardrobeGradient" x1="12" y1="8" x2="108" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EA9484"/>
+      <stop offset="1" stop-color="#805A78"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#wardrobeGradient)"/>
+  <path d="M26 32 45 91 60 49 75 91 94 32"
+        fill="none" stroke="#FFFFFF" stroke-width="10"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

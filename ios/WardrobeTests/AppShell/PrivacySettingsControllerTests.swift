@@ -257,6 +257,12 @@ struct PrivacyDisclosureTests {
         #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
             $0.contains("photos") && $0.contains("not included")
         })
+        #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
+            $0.contains("average rating") && $0.contains("rating count")
+        })
+        #expect(PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("free-text feedback")
+            && PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("rating dates")
+            && PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("not sent"))
         #expect(PrivacyDisclosure.receiptAnalysis.dataShared.contains {
             $0.contains("Gmail message identifier") && $0.contains("removed before Anthropic")
         })

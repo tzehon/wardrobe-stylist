@@ -8,6 +8,25 @@ struct SettingsView: View {
     let onReplayOnboarding: () -> Void
     let onEnterDemo: () -> Void
     let onVerifiedLocalDataDeletion: () -> Void
+    private let makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)?
+
+    init(
+        session: GmailSession,
+        devicePrivacy: DevicePrivacySettings,
+        syncActivity: ReceiptSyncActivityController,
+        onReplayOnboarding: @escaping () -> Void,
+        onEnterDemo: @escaping () -> Void,
+        onVerifiedLocalDataDeletion: @escaping () -> Void,
+        makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)? = nil
+    ) {
+        self.session = session
+        self.devicePrivacy = devicePrivacy
+        self.syncActivity = syncActivity
+        self.onReplayOnboarding = onReplayOnboarding
+        self.onEnterDemo = onEnterDemo
+        self.onVerifiedLocalDataDeletion = onVerifiedLocalDataDeletion
+        self.makeGmailPrivacySettings = makeGmailPrivacySettings
+    }
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Item.name) private var items: [Item]
@@ -27,6 +46,7 @@ struct SettingsView: View {
                 } label: {
                     Label("Replay Introduction", systemImage: "sparkles.rectangle.stack")
                 }
+                .accessibilityHint("Shows the introduction again without changing privacy or account choices.")
                 .accessibilityIdentifier("settings.onboarding.replay")
 
                 Button(action: onEnterDemo) {
@@ -53,7 +73,13 @@ struct SettingsView: View {
                 GmailConnectorView(
                     session: session,
                     devicePrivacy: devicePrivacy,
-                    syncActivity: syncActivity
+                    syncActivity: syncActivity,
+                    makePrivacySettings: makeGmailPrivacySettings ?? { identity in
+                        GmailPrivacySettings(
+                            subjectID: identity.privacySubjectID,
+                            devicePrivacy: devicePrivacy
+                        )
+                    }
                 )
             } header: {
                 Text("Gmail Import")
@@ -111,6 +137,8 @@ struct SettingsView: View {
 
             Section("About") {
                 LabeledContent("Version", value: AppVersionInfo.current.displayText)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("App version \(AppVersionInfo.current.accessibilityText)")
                     .accessibilityIdentifier("settings.appVersion")
             }
         }
@@ -156,6 +184,10 @@ struct AppVersionInfo: Equatable, Sendable {
 
     var displayText: String {
         build.isEmpty ? version : "\(version) (\(build))"
+    }
+
+    var accessibilityText: String {
+        build.isEmpty ? version : "\(version), build \(build)"
     }
 
     static var current: AppVersionInfo {
@@ -223,12 +255,17 @@ private struct PrivacyOverviewView: View {
             privacySection(
                 "AI styling",
                 symbol: "sparkles",
-                text: "If you allow styling and ask for a look, a compact text catalog and recent item identifiers are sent to the developer-operated backend and Anthropic Claude. Wardrobe photos and Gmail messages are not included in styling requests."
+                text: "If you allow styling and ask for a look, a compact text catalog, recent item identifiers, and per-item average rating and rating count are sent to the developer-operated backend and Anthropic Claude. Free-text feedback, outfit rationales, rating dates, wardrobe photos, and Gmail messages are not included in styling requests."
             )
             privacySection(
                 "You stay in control",
                 symbol: "hand.raised",
                 text: "Connected features require a separate choice. Signing out of Google does not delete your local wardrobe."
+            )
+            privacySection(
+                "Google Limited Use",
+                symbol: "checkmark.shield",
+                text: "Wardrobe Stylist’s use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including its Limited Use requirements."
             )
 
             Section("External information") {

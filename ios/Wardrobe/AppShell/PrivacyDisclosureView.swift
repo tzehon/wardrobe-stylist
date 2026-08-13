@@ -19,6 +19,8 @@ struct PrivacyDisclosureView: View {
                         .labelStyle(PrivacyBulletLabelStyle())
                 }
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Data used: \(disclosure.dataShared.joined(separator: ", "))")
 
             Text(disclosure.destination)
                 .fixedSize(horizontal: false, vertical: true)
@@ -67,17 +69,25 @@ struct StylingPrivacySettingsView: View {
                     Text("Loading your styling choice…")
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Loading your AI styling privacy choice")
             case .unavailable(let failure):
                 privacyError(failure.userMessage)
                 Button("Try loading again") {
                     Task { await settings.controls.load() }
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
+                .accessibilityHint("Attempts to load your privacy choice again. AI styling stays off until it succeeds.")
             case .loaded:
                 if isAllowed {
-                    Label("AI styling allowed", systemImage: "checkmark.shield.fill")
+                    Label {
+                        Text("AI styling allowed")
+                    } icon: {
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundStyle(.green)
+                    }
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.green)
                         .accessibilityIdentifier("settings.styling.allowed")
 
                     Toggle(
@@ -106,6 +116,8 @@ struct StylingPrivacySettingsView: View {
                         Task { _ = await settings.withdrawStyling() }
                     }
                     .disabled(settings.isUpdating)
+                    .controlSize(.large)
+                    .accessibilityHint("Turns off AI styling and its daily reminder. Your local wardrobe and outfit history stay in place.")
                     .accessibilityIdentifier("settings.styling.withdraw")
                 } else {
                     Button {
@@ -114,7 +126,9 @@ struct StylingPrivacySettingsView: View {
                         Label("Allow AI styling", systemImage: "checkmark.shield")
                     }
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                     .disabled(settings.isUpdating)
+                    .accessibilityHint("Allows compact wardrobe text to be sent only after you ask for a look. This does not send a request now.")
                     .accessibilityIdentifier("settings.styling.allow")
 
                     Text("Off by default. You can add and browse wardrobe items without allowing styling.")
@@ -131,10 +145,17 @@ struct StylingPrivacySettingsView: View {
     }
 
     private func privacyError(_ message: String) -> some View {
-        Label(message, systemImage: "exclamationmark.triangle.fill")
+        Label {
+            Text(message)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.red)
+        }
             .font(.footnote)
-            .foregroundStyle(.red)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Error: \(message)")
             .accessibilityIdentifier("settings.styling.error")
     }
 }

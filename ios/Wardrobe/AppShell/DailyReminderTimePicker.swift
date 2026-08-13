@@ -24,6 +24,9 @@ struct DailyReminderTimePicker: View {
         )
         .disabled(!reminderIsEnabled || settings.isUpdating)
         .accessibilityHint("Changes the time of the enabled daily prompt to open Today.")
+        .accessibilityValue(reminderIsEnabled
+            ? selectedDate.formatted(date: .omitted, time: .shortened)
+            : "Reminder is off")
         .accessibilityIdentifier("settings.styling.reminderTime")
         .task {
             lastSavedTime = settings.reminderTime

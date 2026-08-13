@@ -9,10 +9,16 @@ struct PersistentStoreErrorView: View {
         ContentUnavailableView {
             Label("Wardrobe unavailable", systemImage: "exclamationmark.triangle")
         } description: {
-            Text(PersistentStoreFailure.userMessage)
+            VStack(spacing: 8) {
+                Text(PersistentStoreFailure.userMessage)
+                Text("Wardrobe will not reset or delete your data automatically.")
+            }
         } actions: {
             Button("Try Again", action: retry)
                 .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .accessibilityHint("Attempts to open the existing wardrobe again without deleting it.")
+                .accessibilityIdentifier("persistence.retry")
         }
     }
 }

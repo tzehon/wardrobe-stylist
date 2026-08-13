@@ -21,6 +21,11 @@ def valid_info() -> dict[str, Any]:
     client_id = "123456789012-realclient.apps.googleusercontent.com"
     return {
         "CFBundleDisplayName": "Wardrobe Stylist",
+        "UILaunchScreen": {
+            "UIColorName": "LaunchBackground",
+            "UIImageName": "LaunchMark",
+            "UIImageRespectsSafeAreaInsets": True,
+        },
         "GIDClientID": client_id,
         "CFBundleURLTypes": [
             {
@@ -43,6 +48,12 @@ class PublicReleaseValidationTests(unittest.TestCase):
         info = valid_info()
         del info["PRIVACY_POLICY_URL"]
         with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "PRIVACY_POLICY_URL"):
+            MODULE.validate(info)
+
+    def test_rejects_empty_launch_treatment(self) -> None:
+        info = valid_info()
+        info["UILaunchScreen"] = {}
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "LaunchBackground"):
             MODULE.validate(info)
 
     def test_rejects_placeholder_support_url(self) -> None:

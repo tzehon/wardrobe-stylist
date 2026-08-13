@@ -84,3 +84,10 @@ schemes:
       targets:
         - WardrobeTests
         - WardrobeUITests
+  WardrobeUI:
+    build:
+      targets:
+        Wardrobe: all
+    test:
+      targets:
+        - WardrobeUITests

@@ -39,6 +39,9 @@ struct LegacyAccountDataResolutionView: View {
                         Text("Checking data ownership…")
                             .foregroundStyle(.secondary)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Checking older imported data ownership")
+                    .accessibilityIdentifier("settings.legacyData.progress")
                 }
             }
         }
@@ -83,9 +86,14 @@ struct LegacyAccountDataResolutionView: View {
 
     private func decisionSection(_ summary: LegacyAccountDataSummary) -> some View {
         Section {
-            Label("Action required", systemImage: "person.crop.circle.badge.questionmark")
+            Label {
+                Text("Action required")
+            } icon: {
+                Image(systemName: "person.crop.circle.badge.questionmark")
+                    .foregroundStyle(.orange)
+            }
                 .font(.headline)
-                .foregroundStyle(.orange)
+                .accessibilityLabel("Action required for older imported data")
 
             Text(summaryText(summary))
                 .font(.footnote)
@@ -104,6 +112,7 @@ struct LegacyAccountDataResolutionView: View {
                 Label("Connect the matching Google account to keep this data", systemImage: "info.circle")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Button(role: .destructive) {
@@ -122,12 +131,19 @@ struct LegacyAccountDataResolutionView: View {
 
     private func failureSection(_ error: LegacyAccountDataError) -> some View {
         Section("Older Imported Data") {
-            Label(error.errorDescription ?? "Couldn’t Check Data", systemImage: "exclamationmark.triangle")
-                .foregroundStyle(.red)
+            Label {
+                Text(error.errorDescription ?? "Couldn’t Check Data")
+            } icon: {
+                Image(systemName: "exclamationmark.triangle")
+                    .foregroundStyle(.red)
+            }
+                .accessibilityLabel("Error: \(error.errorDescription ?? "Couldn’t check older imported data")")
             Text(error.recoverySuggestion ?? "Your older data remains hidden.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             Button("Try Again") { controller?.load() }
+                .controlSize(.large)
+                .accessibilityHint("Checks the hidden older data again without changing or deleting it.")
                 .accessibilityIdentifier("settings.legacyData.retry")
         }
     }

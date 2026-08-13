@@ -36,8 +36,12 @@ PY
 
 readonly INFO_PLIST="${APP_PATH}/Info.plist"
 [[ -f "${INFO_PLIST}" ]] || fail "built app has no Info.plist"
-/usr/bin/plutil -extract UILaunchScreen xml1 -o - "${INFO_PLIST}" >/dev/null \
-  || fail "built app has no UILaunchScreen key"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :UILaunchScreen:UIColorName' "${INFO_PLIST}")" == "LaunchBackground" ]] \
+  || fail "built app does not use the branded launch background"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :UILaunchScreen:UIImageName' "${INFO_PLIST}")" == "LaunchMark" ]] \
+  || fail "built app does not use the branded launch mark"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :UILaunchScreen:UIImageRespectsSafeAreaInsets' "${INFO_PLIST}")" == "true" ]] \
+  || fail "built app launch mark does not respect safe-area insets"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "${INFO_PLIST}")" == "false" ]] \
   || fail "unexpected encryption declaration"
 [[ -n "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${INFO_PLIST}")" ]] \
