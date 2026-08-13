@@ -1,5 +1,6 @@
 name: Wardrobe
 options:
+  minimumXcodeGenVersion: "2.46.0"
   bundleIdPrefix: com.tth
   deploymentTarget:
     iOS: "18.0"
@@ -21,7 +22,7 @@ settings:
 packages:
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
-    from: "8.0.0"
+    exactVersion: "9.2.0"
 targets:
   Wardrobe:
     type: application

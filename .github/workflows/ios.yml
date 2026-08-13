@@ -23,9 +23,26 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      - name: Verify build toolchain
+        run: |
+          set -euo pipefail
+          XCODE_MAJOR=$(xcodebuild -version | awk '/Xcode/{split($2, v, "."); print v[1]}')
+          SDK_MAJOR=$(xcrun --sdk iphoneos --show-sdk-version | awk -F. '{print $1}')
+          test "$XCODE_MAJOR" -ge 26
+          test "$SDK_MAJOR" -ge 26
+          xcodegen --version
+
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
+
+      - name: Resolve pinned packages
+        working-directory: ios
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Wardrobe.xcodeproj \
+            -scheme Wardrobe \
+            -onlyUsePackageVersionsFromResolvedFile
 
       - name: Pick an available iPhone simulator
         id: sim
@@ -42,8 +59,24 @@ jobs:
           xcodebuild test \
             -project Wardrobe.xcodeproj \
             -scheme Wardrobe \
-            -destination "id=${{ steps.sim.outputs.udid }}"
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -onlyUsePackageVersionsFromResolvedFile
           # NOTE: do NOT pass CODE_SIGNING_ALLOWED=NO — the app must be ad-hoc
           # signed on the simulator (CODE_SIGN_IDENTITY=- in project.yml) so the
           # Keychain has an application-identifier entitlement. Without signing,
           # TokenStorage's Keychain calls fail with -34018 (errSecMissingEntitlement).
+
+      - name: Build Release artifact
+        working-directory: ios
+        run: |
+          xcodebuild build \
+            -project Wardrobe.xcodeproj \
+            -scheme Wardrobe \
+            -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath DerivedData/ReleaseValidation \
+            -onlyUsePackageVersionsFromResolvedFile
+
+      - name: Verify Release artifact and SDK privacy manifests
+        working-directory: ios
+        run: scripts/verify-release-artifact.sh DerivedData/ReleaseValidation
