@@ -4,11 +4,11 @@ import Testing
 
 struct ItemDraftTests {
 
-    @Test func cannotSaveWithoutImage() {
+    @Test func canSaveNamedItemWithoutImage() {
         var draft = ItemDraft()
         draft.name = "Linen Tee"
         draft.hasImage = false
-        #expect(draft.canSave == false)
+        #expect(draft.canSave)
     }
 
     @Test func cannotSaveWithBlankName() {

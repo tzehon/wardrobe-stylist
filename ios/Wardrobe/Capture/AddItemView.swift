@@ -12,9 +12,11 @@ struct ItemDraft {
     var material = ""
     var hasImage = false
 
-    /// A photo and a name are the minimum to save (Phase 4 is *photo* capture).
+    /// A name is the only required field. Photos make the wardrobe richer but
+    /// are optional so the local-first experience never depends on camera or
+    /// photo-library permission.
     var canSave: Bool {
-        hasImage && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var parsedColors: [String] {
@@ -28,8 +30,8 @@ struct ItemDraft {
     }
 }
 
-/// Phase 4: capture or pick a photo, fill in a few details, and save it as a
-/// `source = .photo` catalog item with a generated thumbnail.
+/// Add a local item with optional photo capture. Items without a photo are
+/// stored as manual entries and receive a category illustration in the catalog.
 struct AddItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -45,7 +47,13 @@ struct AddItemView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Photo") { photoSection }
+                Section {
+                    photoSection
+                } header: {
+                    Text("Photo")
+                } footer: {
+                    Text("Optional. You can add the item now and use its category illustration.")
+                }
                 Section("Details") {
                     TextField("Name", text: $draft.name)
                     Picker("Category", selection: $draft.category) {
@@ -65,7 +73,9 @@ struct AddItemView: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save).disabled(!draft.canSave)
+                    Button("Save", action: save)
+                        .disabled(!draft.canSave)
+                        .accessibilityIdentifier("item.add.save")
                 }
             }
             .sheet(isPresented: $showingCamera) {
@@ -114,16 +124,15 @@ struct AddItemView: View {
     }
 
     private func save() {
-        guard let image else { return }
         let input = ManualItemInput(
             name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines),
             category: draft.category,
             brand: draft.brand.trimmedNonEmpty,
             colors: draft.parsedColors,
             material: draft.material.trimmedNonEmpty,
-            source: .photo,
-            imageData: ImageProcessor.imageData(from: image),
-            thumbnailData: ImageProcessor.thumbnailData(from: image)
+            source: image == nil ? .manual : .photo,
+            imageData: image.flatMap { ImageProcessor.imageData(from: $0) },
+            thumbnailData: image.flatMap { ImageProcessor.thumbnailData(from: $0) }
         )
         writes.perform(
             operation: .addItem,

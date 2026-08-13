@@ -73,6 +73,7 @@ struct CatalogView: View {
             } label: {
                 Label("Add Item", systemImage: "plus")
             }
+            .accessibilityIdentifier("wardrobe.addItem")
         }
     }
 
@@ -82,7 +83,11 @@ struct CatalogView: View {
         ContentUnavailableView {
             Label("No items yet", systemImage: "square.grid.2x2")
         } description: {
-            Text("Sync your Gmail receipts or add items to start building your catalog.")
+            Text("Add your first piece manually or with a photo. Gmail receipt import is optional in Settings.")
+        } actions: {
+            Button("Add Item") { showingAddItem = true }
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("wardrobe.empty.addItem")
         }
     }
 
@@ -128,6 +133,7 @@ struct CatalogView: View {
                             CatalogCell(item: item)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("wardrobe.item.\(item.id.uuidString)")
                         .contextMenu {
                             Button(role: .destructive) {
                                 pendingDeletion = item
@@ -223,6 +229,12 @@ private struct CatalogCell: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if item.source == .email {
+                Label("Imported", systemImage: "envelope")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
     }

@@ -1,21 +1,23 @@
 import SwiftData
 import SwiftUI
 
-/// Read-only detail for a single catalog item. Editing/curation comes later
-/// (Phase 4 photo capture, Phase 5 stylist); for the MVP this just surfaces
-/// everything the extraction pipeline captured, including the audit trail.
+/// Detail and correction flow for one catalog item. Receipt extraction is
+/// treated as a draft: every user-relevant attribute can be reviewed and fixed.
 struct ItemDetailView: View {
     let item: Item
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var confirmingDelete = false
+    @State private var showingEdit = false
     @State private var writes = WardrobeWriteCoordinator()
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 hero
+
+                if item.source == .email { importedDraftNotice }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.name).font(.title2.weight(.semibold))
@@ -42,12 +44,23 @@ struct ItemDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                Button("Edit") { showingEdit = true }
+                    .accessibilityHint("Change this item’s catalog details.")
+                    .accessibilityIdentifier("item.detail.edit")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(role: .destructive) {
                     confirmingDelete = true
                 } label: {
                     Image(systemName: "trash")
                 }
+                .accessibilityLabel("Delete item")
+                .accessibilityHint("Permanently removes this item from your wardrobe.")
+                .accessibilityIdentifier("item.detail.delete")
             }
+        }
+        .sheet(isPresented: $showingEdit) {
+            ItemEditView(item: item)
         }
         .confirmationDialog(
             "Delete this item?",
@@ -76,6 +89,28 @@ struct ItemDetailView: View {
             .frame(height: 240)
             .background(Color(uiColor: .secondarySystemBackground))
             .clipShape(.rect(cornerRadius: 16))
+    }
+
+    private var importedDraftNotice: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "checklist")
+                .foregroundStyle(.tint)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Review imported details")
+                    .font(.headline)
+                Text("Receipt extraction can make mistakes. Check the category, brand, colors, and material before styling with this item.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Review and edit") { showingEdit = true }
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityIdentifier("item.detail.reviewImport")
+            }
+        }
+        .padding(14)
+        .background(Color.accentColor.opacity(0.1))
+        .clipShape(.rect(cornerRadius: 14))
     }
 
     private var colorsRow: some View {

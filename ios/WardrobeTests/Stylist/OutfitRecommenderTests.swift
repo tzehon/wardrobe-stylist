@@ -73,6 +73,7 @@ struct OutfitRecommenderTests {
         func addItem(_ input: ManualItemInput) throws -> Item {
             Item(name: input.name, category: input.category, source: input.source)
         }
+        func updateItem(_ item: Item, with input: ItemUpdateInput) throws {}
         func deleteItem(_ item: Item) throws {}
 
         func recordWear(

@@ -58,6 +58,22 @@ struct WardrobeStoreTests {
         )
     }
 
+    private func updateInput(
+        name: String = "Updated linen shirt",
+        category: String = "outerwear"
+    ) -> ItemUpdateInput {
+        ItemUpdateInput(
+            name: name,
+            category: category,
+            subcategory: "overshirt",
+            brand: "Atelier",
+            colors: ["navy", "white"],
+            material: "linen",
+            styleNotes: "Relaxed fit",
+            purchaseDate: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+    }
+
     @Test func addCommitsBeforeReportingSuccess() throws {
         let fixture = try makeFixture()
         let context = fixture.context
@@ -87,6 +103,64 @@ struct WardrobeStoreTests {
 
         let retried = try WardrobeStore(modelContext: context).addItem(input)
         #expect(try verification.fetch(FetchDescriptor<Item>()).map(\.id) == [retried.id])
+    }
+
+    @Test func updateCommitsEveryEditableField() throws {
+        let fixture = try makeFixture()
+        let item = try seedItem(in: fixture.context)
+        let input = updateInput()
+
+        try WardrobeStore(modelContext: fixture.context).updateItem(item, with: input)
+
+        let fetched = try #require(fixture.context.fetch(FetchDescriptor<Item>()).first)
+        #expect(fetched.name == input.name)
+        #expect(fetched.category == input.category)
+        #expect(fetched.subcategory == input.subcategory)
+        #expect(fetched.brand == input.brand)
+        #expect(fetched.colors == input.colors)
+        #expect(fetched.material == input.material)
+        #expect(fetched.styleNotes == input.styleNotes)
+        #expect(fetched.purchaseDate == input.purchaseDate)
+        #expect(!fixture.context.hasChanges)
+    }
+
+    @Test func failedUpdateRollsBackEveryField() throws {
+        let fixture = try makeFixture()
+        let item = try seedItem(in: fixture.context)
+
+        let error = try capturePersistenceError {
+            try failingStore(fixture.context).updateItem(item, with: updateInput())
+        }
+
+        let verification = ModelContext(fixture.container)
+        let fetched = try #require(verification.fetch(FetchDescriptor<Item>()).first)
+        #expect(error.operation == .updateItem)
+        #expect(fetched.name == "Navy shirt")
+        #expect(fetched.category == "top")
+        #expect(fetched.subcategory == nil)
+        #expect(fetched.brand == nil)
+        #expect(fetched.colors.isEmpty)
+        #expect(fetched.material == nil)
+        #expect(fetched.styleNotes == nil)
+        #expect(fetched.purchaseDate == nil)
+        #expect(!fixture.context.hasChanges)
+    }
+
+    @Test func updateRejectsAnItemFromAnotherContextBeforeSaving() throws {
+        let destination = try makeFixture()
+        let source = try makeFixture()
+        let foreignItem = try seedItem(in: source.context)
+        var saveCalls = 0
+        let store = WardrobeStore(modelContext: destination.context) { _ in saveCalls += 1 }
+
+        let error = try capturePersistenceError {
+            try store.updateItem(foreignItem, with: updateInput())
+        }
+
+        #expect(error.operation == .updateItem)
+        #expect(error.diagnostic.contains("itemFromDifferentStore"))
+        #expect(saveCalls == 0)
+        #expect(foreignItem.name == "Navy shirt")
     }
 
     @Test func deleteCommitsTheRemoval() throws {

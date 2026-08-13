@@ -10,6 +10,7 @@ import SwiftData
 struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
     enum Operation: Equatable, Sendable {
         case addItem
+        case updateItem
         case deleteItem
         case recordWear
     }
@@ -25,6 +26,7 @@ struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
     var title: String {
         switch operation {
         case .addItem: "Couldn’t Save Item"
+        case .updateItem: "Couldn’t Update Item"
         case .deleteItem: "Couldn’t Delete Item"
         case .recordWear: "Couldn’t Record Outfit"
         }
@@ -34,6 +36,8 @@ struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
         switch operation {
         case .addItem:
             "Your item wasn’t added. Your details are still here, so you can try again."
+        case .updateItem:
+            "Your changes weren’t saved. Your item is unchanged, so you can try again."
         case .deleteItem:
             "The item is still in your catalog. Please try again."
         case .recordWear:
@@ -67,12 +71,27 @@ struct ManualItemInput: Sendable {
     let thumbnailData: Data?
 }
 
+/// Value input for correcting an existing catalog item. Receipt-derived fields
+/// are deliberately editable: extraction is a draft, not an unquestionable
+/// source of truth.
+struct ItemUpdateInput: Equatable, Sendable {
+    let name: String
+    let category: String
+    let subcategory: String?
+    let brand: String?
+    let colors: [String]
+    let material: String?
+    let styleNotes: String?
+    let purchaseDate: Date?
+}
+
 /// The user-triggered wardrobe mutations exposed to UI and feature code.
 /// Keeping this protocol small makes save failures deterministic in tests.
 @MainActor
 protocol WardrobeStoring {
     @discardableResult
     func addItem(_ input: ManualItemInput) throws -> Item
+    func updateItem(_ item: Item, with input: ItemUpdateInput) throws
     func deleteItem(_ item: Item) throws
 
     @discardableResult
@@ -126,6 +145,20 @@ final class WardrobeStore: WardrobeStoring {
         try validate(item, operation: .deleteItem)
         try transaction(operation: .deleteItem) {
             modelContext.delete(item)
+        }
+    }
+
+    func updateItem(_ item: Item, with input: ItemUpdateInput) throws {
+        try validate(item, operation: .updateItem)
+        try transaction(operation: .updateItem) {
+            item.name = input.name
+            item.category = input.category
+            item.subcategory = input.subcategory
+            item.brand = input.brand
+            item.colors = input.colors
+            item.material = input.material
+            item.styleNotes = input.styleNotes
+            item.purchaseDate = input.purchaseDate
         }
     }
 
