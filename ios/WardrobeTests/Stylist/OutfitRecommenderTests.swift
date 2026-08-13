@@ -11,6 +11,29 @@ import Testing
 @MainActor
 struct OutfitRecommenderTests {
 
+    private actor SuspendedPrivacyGate: PrivacyGateChecking {
+        private var continuation: CheckedContinuation<Void, Never>?
+        private var decisionCount = 0
+
+        func decision(
+            for capability: PrivacyCapability,
+            subjectID: PrivacySubjectID
+        ) async -> PrivacyGateDecision {
+            decisionCount += 1
+            if decisionCount == 1 {
+                await withCheckedContinuation { continuation = $0 }
+            }
+            return .allowed
+        }
+
+        func hasEntered() -> Bool { decisionCount > 0 }
+
+        func resume() {
+            continuation?.resume()
+            continuation = nil
+        }
+    }
+
     private struct AllowPrivacyGate: PrivacyGateChecking {
         func decision(
             for capability: PrivacyCapability,
@@ -31,6 +54,25 @@ struct OutfitRecommenderTests {
         }
     }
 
+    @MainActor
+    private final class MemoryDailyLookCache: DailyLookCaching {
+        var entries: [WardrobeAccountScope: DailyLookCacheEntry] = [:]
+        private(set) var removedScopes: [WardrobeAccountScope] = []
+
+        func load(for accountScope: WardrobeAccountScope) -> DailyLookCacheEntry? {
+            entries[accountScope]
+        }
+
+        func save(_ entry: DailyLookCacheEntry, for accountScope: WardrobeAccountScope) {
+            entries[accountScope] = entry
+        }
+
+        func remove(for accountScope: WardrobeAccountScope) {
+            removedScopes.append(accountScope)
+            entries.removeValue(forKey: accountScope)
+        }
+    }
+
     nonisolated private static let backendURL = URL(string: "http://test.local")!
 
     // Fixed item ids so the stubbed response can reference them.
@@ -45,15 +87,22 @@ struct OutfitRecommenderTests {
         )
     }
 
-    private static func seedCatalog(_ context: ModelContext) {
+    private static func seedCatalog(_ context: ModelContext) throws {
         context.insert(Item(id: idA, name: "Oversized Tee", category: "top", source: .photo))
         context.insert(Item(id: idB, name: "Slim Trouser", category: "bottom", source: .photo))
         context.insert(Item(id: idC, name: "Suede Loafers", category: "shoe", source: .photo))
-        try? context.save()
+        try context.save()
     }
 
-    private static func makeRecommender(_ context: ModelContext) -> OutfitRecommender {
-        OutfitRecommender(
+    private static func makeRecommender(
+        _ context: ModelContext,
+        dailyLookCache: any DailyLookCaching = DisabledDailyLookCache(),
+        accountScope: WardrobeAccountScope = .deviceLocal,
+        now: @escaping () -> Date = { Date(timeIntervalSince1970: 1_700_000_000) }
+    ) -> OutfitRecommender {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: backendURL,
                 deviceToken: "test-device-token",
@@ -61,7 +110,10 @@ struct OutfitRecommenderTests {
             ),
             modelContext: context,
             privacyGate: AllowPrivacyGate(),
-            now: { Date(timeIntervalSince1970: 1_700_000_000) }
+            accountScope: accountScope,
+            dailyLookCache: dailyLookCache,
+            calendar: calendar,
+            now: now
         )
     }
 
@@ -95,6 +147,13 @@ struct OutfitRecommenderTests {
         )!
     }
 
+    nonisolated private static func wait(
+        for semaphore: DispatchSemaphore,
+        timeout: TimeInterval
+    ) -> Bool {
+        semaphore.wait(timeout: .now() + timeout) == .success
+    }
+
     nonisolated private static func body(
         itemIds: [UUID], alternates: [[UUID]] = []
     ) -> String {
@@ -115,7 +174,7 @@ struct OutfitRecommenderTests {
     @Test func stylingWithoutConsentReadsNoCatalogAndMakesNoBackendRequest() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
@@ -144,7 +203,7 @@ struct OutfitRecommenderTests {
     @Test func recommendResolvesIdsToItems() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
 
         let responseBody = Self.body(itemIds: [Self.idA, Self.idB, Self.idC])
         URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
@@ -160,6 +219,435 @@ struct OutfitRecommenderTests {
         #expect(rec.occasion == "relaxed weekend")
         #expect(rec.current.items.map(\.id) == [Self.idA, Self.idB, Self.idC])
         #expect(rec.current.items.first?.name == "Oversized Tee")
+    }
+
+    @Test func sameDayRecommendationUsesCacheWithoutASecondBackendCall() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+
+        await recommender.recommend(occasion: " Work ")
+        guard case .loaded(let fetched) = recommender.state else {
+            Issue.record("Expected fetched recommendation")
+            return
+        }
+        #expect(!fetched.isCached)
+        #expect(URLProtocolStub.captured.count == 1)
+
+        await recommender.recommend(occasion: "work")
+        guard case .loaded(let cached) = recommender.state else {
+            Issue.record("Expected cached recommendation")
+            return
+        }
+        #expect(cached.isCached)
+        #expect(cached.generatedAt == fetched.generatedAt)
+        #expect(URLProtocolStub.captured.count == 1)
+    }
+
+    @Test func emptyOccasionRestoresOccasionSpecificCacheAfterRelaunch() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+
+        let first = Self.makeRecommender(context, dailyLookCache: cache)
+        await first.recommend(occasion: "Dinner")
+        let relaunched = Self.makeRecommender(context, dailyLookCache: cache)
+        await relaunched.recommend()
+
+        guard case .loaded(let restored) = relaunched.state else {
+            Issue.record("Expected cached recommendation after relaunch")
+            return
+        }
+        #expect(restored.isCached)
+        #expect(URLProtocolStub.captured.count == 1)
+    }
+
+    @Test func explicitRefreshBypassesAndReplacesTheDailyCache() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let firstBody = Self.body(itemIds: [Self.idA, Self.idB])
+        let replacementBody = Self.body(itemIds: [Self.idA, Self.idC])
+        URLProtocolStub.install { request in
+            let body = URLProtocolStub.captured.count == 1 ? firstBody : replacementBody
+            return (Self.ok(for: request), Data(body.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+
+        await recommender.recommend()
+        await recommender.recommend(refresh: true)
+
+        guard case .loaded(let refreshed) = recommender.state else {
+            Issue.record("Expected refreshed recommendation")
+            return
+        }
+        #expect(!refreshed.isCached)
+        #expect(refreshed.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idC.uuidString,
+        ])
+        #expect(URLProtocolStub.captured.count == 2)
+
+        let relaunched = Self.makeRecommender(context, dailyLookCache: cache)
+        await relaunched.recommend()
+        guard case .loaded(let restored) = relaunched.state else {
+            Issue.record("Expected refreshed cache after relaunch")
+            return
+        }
+        #expect(restored.isCached)
+        #expect(restored.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(URLProtocolStub.captured.count == 2)
+    }
+
+    @Test func cacheRemainsAccountIsolatedAtTheRecommenderBoundary() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        let accountA = WardrobeAccountScope.external(.external("account-a"))
+        let accountB = WardrobeAccountScope.external(.external("account-b"))
+        let manual = Item(id: Self.idA, name: "Shared tee", category: "top", source: .manual)
+        let trousers = Item(id: Self.idB, name: "Shared trouser", category: "bottom", source: .manual)
+        let shoes = Item(id: Self.idC, name: "Shared loafer", category: "shoe", source: .manual)
+        context.insert(manual)
+        context.insert(trousers)
+        context.insert(shoes)
+        try context.save()
+        let cache = MemoryDailyLookCache()
+        let accountABody = Self.body(itemIds: [Self.idA, Self.idB])
+        let accountBBody = Self.body(itemIds: [Self.idA, Self.idC])
+        URLProtocolStub.install { request in
+            let body = URLProtocolStub.captured.count == 1 ? accountABody : accountBBody
+            return (Self.ok(for: request), Data(body.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        await Self.makeRecommender(
+            context,
+            dailyLookCache: cache,
+            accountScope: accountA
+        ).recommend()
+        let otherAccount = Self.makeRecommender(
+            context,
+            dailyLookCache: cache,
+            accountScope: accountB
+        )
+        await otherAccount.recommend()
+
+        guard case .loaded(let recommendation) = otherAccount.state else {
+            Issue.record("Expected recommendation for account B")
+            return
+        }
+        #expect(!recommendation.isCached)
+        #expect(recommendation.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(URLProtocolStub.captured.count == 2)
+        #expect(cache.entries[accountA]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(cache.entries[accountB]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idC.uuidString,
+        ])
+
+        let restoredA = Self.makeRecommender(
+            context,
+            dailyLookCache: cache,
+            accountScope: accountA
+        )
+        await restoredA.recommend()
+        guard case .loaded(let cachedA) = restoredA.state else {
+            Issue.record("Expected account A cache")
+            return
+        }
+        #expect(cachedA.isCached)
+        #expect(cachedA.current.items.map(\.id) == [Self.idA, Self.idB])
+        #expect(URLProtocolStub.captured.count == 2)
+    }
+
+    @Test func invalidResolvableCacheIsRemovedBeforeNetworkFallback() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let compact = CatalogCompactor.compact(
+            WardrobeAccountFilter.visibleItems(
+                from: try context.fetch(FetchDescriptor<Item>()),
+                in: .deviceLocal
+            )
+        )
+        cache.entries[.deviceLocal] = DailyLookCacheEntry(
+            generatedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            catalogFingerprint: DailyLookCatalogFingerprint.make(from: compact),
+            occasion: nil,
+            response: RecommendResponse(
+                occasion: "invalid",
+                colorStory: "none",
+                rationale: "missing ids",
+                itemIds: [UUID().uuidString, UUID().uuidString],
+                alternates: [],
+                usage: [:]
+            )
+        )
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+        await recommender.recommend()
+
+        guard case .loaded(let fetched) = recommender.state else {
+            Issue.record("Expected network fallback")
+            return
+        }
+        #expect(!fetched.isCached)
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(cache.removedScopes == [.deviceLocal])
+        #expect(URLProtocolStub.captured.count == 1)
+    }
+
+    @Test func overlappingRecommendationAttemptIsIgnoredBeforePrivacyGateReturns() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let gate = SuspendedPrivacyGate()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                deviceToken: "test-device-token",
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            privacyGate: gate,
+            now: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        let first = Task { await recommender.recommend() }
+        while !(await gate.hasEntered()) { await Task.yield() }
+        #expect(recommender.isRequestInFlight)
+        await recommender.recommend(refresh: true)
+        await gate.resume()
+        await first.value
+
+        #expect(URLProtocolStub.captured.count == 1)
+        #expect(!recommender.isRequestInFlight)
+    }
+
+    @Test func cancellationAtPrivacyBoundaryLeavesIdleAndMakesNoRequestOrCacheWrite() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let gate = SuspendedPrivacyGate()
+        URLProtocolStub.install { _ in
+            Issue.record("A recommendation cancelled at the privacy boundary must not make a request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                deviceToken: "test-device-token",
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            privacyGate: gate,
+            dailyLookCache: cache,
+            now: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        let request = Task { await recommender.recommend() }
+        while !(await gate.hasEntered()) { await Task.yield() }
+        request.cancel()
+        await gate.resume()
+        await request.value
+
+        guard case .idle = recommender.state else {
+            Issue.record("Cancellation should leave the pre-request idle state")
+            return
+        }
+        #expect(URLProtocolStub.captured.isEmpty)
+        #expect(cache.entries.isEmpty)
+        #expect(!recommender.isRequestInFlight)
+    }
+
+    @Test func cancellationDuringRefreshRestoresLoadedStateAndSkipsStaleCacheWrite() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseStarted = DispatchSemaphore(value: 0)
+        let allowResponse = DispatchSemaphore(value: 0)
+        let firstBody = Self.body(itemIds: [Self.idA, Self.idB])
+        let staleBody = Self.body(itemIds: [Self.idA, Self.idC])
+        URLProtocolStub.install { request in
+            guard URLProtocolStub.captured.count > 1 else {
+                return (Self.ok(for: request), Data(firstBody.utf8))
+            }
+            responseStarted.signal()
+            allowResponse.wait()
+            return (Self.ok(for: request), Data(staleBody.utf8))
+        }
+        defer {
+            allowResponse.signal()
+            URLProtocolStub.reset()
+        }
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+        await recommender.recommend()
+        guard case .loaded(let original) = recommender.state else {
+            Issue.record("Expected the initial recommendation")
+            return
+        }
+
+        let refresh = Task { await recommender.recommend(refresh: true) }
+        let didStart = await Task.detached {
+            Self.wait(for: responseStarted, timeout: 5)
+        }.value
+        guard didStart else {
+            Issue.record("Timed out waiting for the refresh request")
+            refresh.cancel()
+            allowResponse.signal()
+            await refresh.value
+            return
+        }
+        refresh.cancel()
+        allowResponse.signal()
+        await refresh.value
+
+        guard case .loaded(let restored) = recommender.state else {
+            Issue.record("Cancellation should restore the previously loaded recommendation")
+            return
+        }
+        #expect(restored.current.items.map(\.id) == original.current.items.map(\.id))
+        #expect(restored.generatedAt == original.generatedAt)
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(URLProtocolStub.captured.count == 2)
+        #expect(!recommender.isRequestInFlight)
+    }
+
+    @Test func completionTimeIsUsedForCacheAndPresentation() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let completion = start.addingTimeInterval(120)
+        var dates = [start, start, completion]
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = Self.makeRecommender(
+            context,
+            dailyLookCache: cache,
+            now: { dates.removeFirst() }
+        )
+
+        await recommender.recommend()
+
+        guard case .loaded(let recommendation) = recommender.state else {
+            Issue.record("Expected loaded recommendation")
+            return
+        }
+        #expect(recommendation.generatedAt == completion)
+        #expect(cache.entries[.deviceLocal]?.generatedAt == completion)
+    }
+
+    @Test func occasionIsLimitedBeforeItReachesTheBackendOrCache() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+
+        await recommender.recommend(occasion: "  \(String(repeating: "x", count: 200))  ")
+
+        let body = try #require(URLProtocolStub.capturedBodies.first)
+        let json = try #require(
+            JSONSerialization.jsonObject(with: body) as? [String: Any]
+        )
+        let sentOccasion = try #require(json["occasion"] as? String)
+        #expect(sentOccasion.count == StylingOccasion.maximumLength)
+        #expect(sentOccasion == String(repeating: "x", count: StylingOccasion.maximumLength))
+        #expect(cache.entries[.deviceLocal]?.occasionKey == sentOccasion)
+    }
+
+    @Test func cachedReloadRecognizesWornAlternateAndPreventsDuplicateSameDayWear() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(
+            itemIds: [Self.idA, Self.idB],
+            alternates: [[Self.idA, Self.idC]]
+        )
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+
+        let first = Self.makeRecommender(context, dailyLookCache: cache)
+        await first.recommend()
+        first.showAnother()
+        #expect(try first.wearCurrent())
+        #expect(try context.fetch(FetchDescriptor<Outfit>()).count == 1)
+
+        let relaunched = Self.makeRecommender(context, dailyLookCache: cache)
+        await relaunched.recommend()
+        guard case .loaded(let primary) = relaunched.state else {
+            Issue.record("Expected cached recommendation")
+            return
+        }
+        #expect(primary.isCached)
+        #expect(!primary.wasWornToday)
+
+        relaunched.showAnother()
+        guard case .loaded(let alternate) = relaunched.state else {
+            Issue.record("Expected cached alternate")
+            return
+        }
+        #expect(alternate.wasWornToday)
+        #expect(try relaunched.wearCurrent() == false)
+        #expect(try context.fetch(FetchDescriptor<Outfit>()).count == 1)
+        #expect(try context.fetch(FetchDescriptor<WearLog>()).count == 2)
+        #expect(URLProtocolStub.captured.count == 1)
+    }
+
+    @Test func catalogChangeInvalidatesTheDailyCache() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+
+        await recommender.recommend()
+        context.insert(Item(name: "New jacket", category: "outerwear", source: .manual))
+        try context.save()
+        await recommender.recommend()
+
+        #expect(URLProtocolStub.captured.count == 2)
     }
 
     @Test func recommendationPayloadContainsOnlySharedAndActiveAccountData() async throws {
@@ -230,7 +718,7 @@ struct OutfitRecommenderTests {
     @Test func showAnotherCyclesThroughAlternates() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
 
         let responseBody = Self.body(
             itemIds: [Self.idA, Self.idB],
@@ -267,7 +755,7 @@ struct OutfitRecommenderTests {
     @Test func wearCurrentPersistsOutfitAndWearLogs() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
 
         let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
         URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
@@ -294,7 +782,7 @@ struct OutfitRecommenderTests {
     @Test func wearCurrentPropagatesFailureSoUISuccessCanRemainFalse() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
         let failingStore = FailingStore()
 
         let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
@@ -318,7 +806,7 @@ struct OutfitRecommenderTests {
 
         coordinator.perform(
             operation: .recordWear,
-            write: { try recommender.wearCurrent() },
+            write: { _ = try recommender.wearCurrent() },
             onSuccess: { didMarkWorn = true }
         )
 
@@ -332,7 +820,7 @@ struct OutfitRecommenderTests {
     @Test func dropsItemsNotInCatalogAndKeepsValidLook() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
 
         // Backend already guards, but resolve defensively: an unknown id is dropped.
         let bogus = UUID()
@@ -354,7 +842,7 @@ struct OutfitRecommenderTests {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
         context.insert(Item(id: Self.idA, name: "Lonely Tee", category: "top", source: .photo))
-        try? context.save()
+        try context.save()
 
         // No stub installed — recommend() must not hit the network for a tiny catalog.
         let recommender = Self.makeRecommender(context)
@@ -369,7 +857,7 @@ struct OutfitRecommenderTests {
     @Test func backendErrorSurfacesAsFailed() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
-        Self.seedCatalog(context)
+        try Self.seedCatalog(context)
 
         URLProtocolStub.install { request in
             let resp = HTTPURLResponse(

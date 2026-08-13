@@ -12,8 +12,10 @@ struct TodayView: View {
     @Query private var storedItems: [Item]
     @State private var recommender: OutfitRecommender?
     @State private var configError: String?
-    @State private var wornLookID: UUID?
+    @State private var occasion = ""
     @State private var writes = WardrobeWriteCoordinator()
+    @State private var activeStylingTask: Task<Void, Never>?
+    @State private var activeStylingTaskID: UUID?
 
     private var stylingAllowed: Bool {
         privacySettings.controls.decision(for: .aiStyling).isAllowed
@@ -26,7 +28,10 @@ struct TodayView: View {
     var body: some View {
         Group {
             if let configError {
-                errorState(configError, retry: nil)
+                errorState(configError) {
+                    self.configError = nil
+                    requestInitialLook()
+                }
             } else if let recommender {
                 content(recommender)
             } else {
@@ -39,15 +44,21 @@ struct TodayView: View {
             if let recommender, case .loaded = recommender.state {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        Task { await restyle(recommender) }
+                        requestRestyle(recommender)
                     } label: {
                         Label("Restyle", systemImage: "arrow.clockwise")
                     }
                     .accessibilityHint("Sends a new compact styling request.")
+                    .disabled(activeStylingTask != nil || recommender.isRequestInFlight)
+                    .accessibilityIdentifier("today.restyle")
                 }
             }
         }
         .wardrobePersistenceAlert(writes)
+        .onDisappear(perform: cancelActiveStylingTask)
+        .onChange(of: accountScope) { _, _ in
+            resetForAccountScopeChange()
+        }
     }
 
     private var invitation: some View {
@@ -65,12 +76,16 @@ struct TodayView: View {
             if items.isEmpty {
                 EmptyView()
             } else if stylingAllowed {
-                Button("Style a look") {
-                    Task { await setUpAndRecommend() }
+                VStack(spacing: 12) {
+                    occasionField
+                    Button("Style a look") {
+                        requestInitialLook()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(activeStylingTask != nil)
+                    .accessibilityHint("Sends a compact text catalog and recent item identifiers for AI styling.")
+                    .accessibilityIdentifier("today.generate")
                 }
-                .buttonStyle(.borderedProminent)
-                .accessibilityHint("Sends a compact text catalog and recent item identifiers for AI styling.")
-                .accessibilityIdentifier("today.generate")
             } else {
                 Button("Review AI styling data use", action: openStylingPrivacy)
                     .buttonStyle(.borderedProminent)
@@ -108,7 +123,7 @@ struct TodayView: View {
                     .accessibilityIdentifier("today.reviewPrivacy")
             }
         case .failed(let message):
-            errorState(message) { Task { await restyle(recommender) } }
+            errorState(message) { requestRestyle(recommender) }
         case .loaded(let recommendation):
             loadedLook(recommender, recommendation)
         }
@@ -119,11 +134,20 @@ struct TodayView: View {
         _ recommendation: OutfitRecommender.Recommendation
     ) -> some View {
         let look = recommendation.current
-        let isWorn = wornLookID == look.id
+        let isWorn = recommendation.wasWornToday
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text(recommendation.occasion.capitalized)
                     .font(.title2.weight(.semibold))
+
+                Label(
+                    recommendation.isCached
+                        ? "Look details saved earlier today · available offline"
+                        : "Styled \(recommendation.generatedAt.formatted(date: .omitted, time: .shortened))",
+                    systemImage: recommendation.isCached ? "clock.badge.checkmark" : "sparkles"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
                 lookStrip(look)
 
@@ -135,6 +159,11 @@ struct TodayView: View {
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
 
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Context for your next restyle")
+                        .font(.subheadline.weight(.semibold))
+                    occasionField
+                }
                 actions(recommender, recommendation, isWorn: isWorn)
             }
             .padding()
@@ -169,8 +198,7 @@ struct TodayView: View {
             Button {
                 writes.perform(
                     operation: .recordWear,
-                    write: { try recommender.wearCurrent() },
-                    onSuccess: { wornLookID = recommendation.current.id }
+                    write: { _ = try recommender.wearCurrent() }
                 )
             } label: {
                 Label(isWorn ? "Added to today" : "Wear this",
@@ -205,6 +233,7 @@ struct TodayView: View {
             if let retry {
                 Button("Try again", action: retry)
                     .buttonStyle(.borderedProminent)
+                    .disabled(activeStylingTask != nil)
                     .accessibilityHint("Sends a new compact styling request.")
             }
         }
@@ -212,32 +241,101 @@ struct TodayView: View {
 
     // MARK: - Wiring
 
-    private func setUpAndRecommend() async {
-        guard recommender == nil, configError == nil else { return }
+    private var occasionField: some View {
+        TextField("Occasion (optional)", text: $occasion)
+            .textFieldStyle(.roundedBorder)
+            .textInputAutocapitalization(.sentences)
+            .submitLabel(.done)
+            .accessibilityHint("Adds context such as work, dinner, or travel to the next styling request.")
+            .accessibilityIdentifier("today.occasion")
+            .onChange(of: occasion) { _, newValue in
+                let limited = StylingOccasion.limited(newValue)
+                if limited != newValue { occasion = limited }
+            }
+    }
+
+    private var requestedOccasion: String? {
+        StylingOccasion.requestValue(occasion)
+    }
+
+    private func requestInitialLook() {
+        let occasion = requestedOccasion
+        startStylingTask {
+            await setUpAndRecommend(occasion: occasion)
+        }
+    }
+
+    private func requestRestyle(_ recommender: OutfitRecommender) {
+        let occasion = requestedOccasion
+        startStylingTask {
+            await restyle(recommender, occasion: occasion)
+        }
+    }
+
+    private func startStylingTask(
+        operation: @escaping @MainActor () async -> Void
+    ) {
+        guard activeStylingTask == nil else { return }
+        let taskID = UUID()
+        activeStylingTaskID = taskID
+        activeStylingTask = Task { @MainActor in
+            defer { finishStylingTask(taskID) }
+            guard !Task.isCancelled else { return }
+            await operation()
+        }
+    }
+
+    private func finishStylingTask(_ taskID: UUID) {
+        guard activeStylingTaskID == taskID else { return }
+        activeStylingTask = nil
+        activeStylingTaskID = nil
+    }
+
+    private func cancelActiveStylingTask() {
+        activeStylingTask?.cancel()
+    }
+
+    private func resetForAccountScopeChange() {
+        activeStylingTask?.cancel()
+        activeStylingTask = nil
+        activeStylingTaskID = nil
+        recommender = nil
+        configError = nil
+        occasion = ""
+    }
+
+    private func setUpAndRecommend(occasion: String?) async {
         guard stylingAllowed else {
             openStylingPrivacy()
+            return
+        }
+        if let recommender {
+            await recommender.recommend(occasion: occasion)
             return
         }
         do {
             let (baseURL, deviceToken) = try BackendConfig.load()
+            guard !Task.isCancelled else { return }
             let made = OutfitRecommender(
                 recommendClient: RecommendClient(baseURL: baseURL, deviceToken: deviceToken),
                 modelContext: modelContext,
-                accountScope: accountScope
+                privacySubjectID: .deviceLocal,
+                accountScope: accountScope,
+                dailyLookCache: UserDefaultsDailyLookCache()
             )
             recommender = made
-            await made.recommend()
+            await made.recommend(occasion: occasion)
         } catch {
-            configError = "\(error)"
+            guard !Task.isCancelled else { return }
+            configError = "The styling service isn’t configured for this build. Please try again after updating the app."
         }
     }
 
-    private func restyle(_ recommender: OutfitRecommender) async {
+    private func restyle(_ recommender: OutfitRecommender, occasion: String?) async {
         guard stylingAllowed else {
             openStylingPrivacy()
             return
         }
-        wornLookID = nil
-        await recommender.recommend()
+        await recommender.recommend(occasion: occasion, refresh: true)
     }
 }
