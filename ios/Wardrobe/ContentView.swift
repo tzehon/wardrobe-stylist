@@ -12,10 +12,12 @@ struct ContentView: View {
             NavigationStack {
                 TodayView(
                     privacySettings: devicePrivacy,
+                    accountScope: activeAccountScope,
                     openStylingPrivacy: {
                         selectedTab.wrappedValue = .settings
                     }
                 )
+                .id(activeAccountScope.rawValue)
             }
             .tabItem {
                 Label(AppTab.today.title, systemImage: AppTab.today.systemImage)
@@ -24,7 +26,8 @@ struct ContentView: View {
             .tag(AppTab.today)
 
             NavigationStack {
-                CatalogView()
+                CatalogView(accountScope: activeAccountScope)
+                    .id(activeAccountScope.rawValue)
             }
             .tabItem {
                 Label(AppTab.wardrobe.title, systemImage: AppTab.wardrobe.systemImage)
@@ -64,6 +67,10 @@ struct ContentView: View {
             get: { AppTab(rawValue: selectedTabRawValue) ?? .wardrobe },
             set: { selectedTabRawValue = $0.rawValue }
         )
+    }
+
+    private var activeAccountScope: WardrobeAccountScope {
+        WardrobeAccountScope(activeExternalSubject: session.privacySubjectID)
     }
 
     private var onboardingPresentation: Binding<Bool> {

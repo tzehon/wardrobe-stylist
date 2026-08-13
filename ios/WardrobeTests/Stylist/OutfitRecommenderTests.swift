@@ -162,6 +162,71 @@ struct OutfitRecommenderTests {
         #expect(rec.current.items.first?.name == "Oversized Tee")
     }
 
+    @Test func recommendationPayloadContainsOnlySharedAndActiveAccountData() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        let subjectA = PrivacySubjectID.external("account-a")
+        let scopeA = WardrobeAccountScope.external(subjectA)
+        let scopeB = WardrobeAccountScope.external(.external("account-b"))
+        let manualID = UUID(uuidString: "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA")!
+        let importedAID = UUID(uuidString: "BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB")!
+        let importedBID = UUID(uuidString: "CCCCCCCC-CCCC-4CCC-8CCC-CCCCCCCCCCCC")!
+        let manual = Item(id: manualID, name: "Manual tee", category: "top", source: .manual)
+        let importedA = Item(
+            id: importedAID,
+            name: "Account A trousers",
+            category: "bottom",
+            source: .email,
+            accountSubjectKey: scopeA.rawValue
+        )
+        let importedB = Item(
+            id: importedBID,
+            name: "Account B shoes",
+            category: "shoe",
+            source: .email,
+            accountSubjectKey: scopeB.rawValue
+        )
+        context.insert(manual)
+        context.insert(importedA)
+        context.insert(importedB)
+        context.insert(WearLog(
+            date: Date(timeIntervalSince1970: 1_699_999_000),
+            item: importedA,
+            accountSubjectKey: scopeA.rawValue
+        ))
+        context.insert(WearLog(
+            date: Date(timeIntervalSince1970: 1_699_999_500),
+            item: importedB,
+            accountSubjectKey: scopeB.rawValue
+        ))
+        try context.save()
+
+        let responseBody = Self.body(itemIds: [manualID, importedAID])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                deviceToken: "test-device-token",
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            privacyGate: AllowPrivacyGate(),
+            accountScope: scopeA,
+            now: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        await recommender.recommend()
+
+        guard case .loaded(let recommendation) = recommender.state else {
+            Issue.record("Expected an active-account recommendation")
+            return
+        }
+        #expect(Set(recommendation.current.items.map(\.id)) == [manualID, importedAID])
+        #expect(!recommendation.current.items.map(\.id).contains(importedBID))
+        #expect(URLProtocolStub.captured.count == 1)
+    }
+
     @Test func showAnotherCyclesThroughAlternates() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
@@ -216,10 +281,14 @@ struct OutfitRecommenderTests {
         #expect(outfits.count == 1)
         #expect(outfits.first?.occasion == "relaxed weekend")
         #expect(outfits.first?.items.count == 2)
+        #expect(outfits.first?.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue)
 
         let wears = try context.fetch(FetchDescriptor<WearLog>())
         #expect(wears.count == 2)  // one per item
         #expect(Set(wears.compactMap { $0.item?.id }) == [Self.idA, Self.idB])
+        #expect(wears.allSatisfy {
+            $0.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue
+        })
     }
 
     @Test func wearCurrentPropagatesFailureSoUISuccessCanRemainFalse() async throws {

@@ -121,13 +121,21 @@ struct ModelContainerFactoryTests {
     private let outfitID = UUID(uuidString: "35DE43F8-185E-47D2-9998-B5EBA41119DE")!
     private let wearLogID = UUID(uuidString: "404F52EF-B184-444B-83D5-E87877A40B61")!
 
-    @Test func versionedSchemaPreservesTheShippedPersistentMetadata() {
+    @Test func versionOneSchemaPreservesTheShippedPersistentMetadata() {
         let legacySchema = Schema([Item.self, Outfit.self, WearLog.self])
+        let versionOneSchema = Schema(versionedSchema: WardrobeSchemaV1.self)
 
         #expect(legacySchema.version == Schema.Version(1, 0, 0))
         #expect(WardrobeSchemaV1.versionIdentifier == legacySchema.version)
-        #expect(persistentMetadata(in: ModelContainerFactory.schema) == persistentMetadata(in: legacySchema))
-        #expect(Set(ModelContainerFactory.schema.entities.map(\.name)) == ["Item", "Outfit", "WearLog"])
+        #expect(persistentMetadata(in: versionOneSchema) == persistentMetadata(in: legacySchema))
+        #expect(WardrobeSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
+        #expect(Set(ModelContainerFactory.schema.entities.map(\.name)) == [
+            "GmailSyncState",
+            "Item",
+            "Outfit",
+            "ProcessedGmailMessage",
+            "WearLog",
+        ])
     }
 
     @Test func factoryPersistsAllModelsAndRelationshipsInMemory() throws {
@@ -186,12 +194,20 @@ struct ModelContainerFactoryTests {
         #expect(item.imageData == Data([0x01, 0x02]))
         #expect(item.thumbnailData == Data([0x03]))
         #expect(item.featurePrint == Data([0x04, 0x05]))
+        #expect(item.accountSubjectKey == nil)
+        #expect(!WardrobeAccountFilter.isVisible(item, in: .deviceLocal))
         #expect(outfit.id == outfitID)
         #expect(outfit.items.map(\.id) == [itemID])
+        #expect(outfit.accountSubjectKey == nil)
+        #expect(!WardrobeAccountFilter.isVisible(outfit, in: .deviceLocal))
         #expect(wearLog.id == wearLogID)
         #expect(wearLog.item?.id == itemID)
         #expect(wearLog.outfit?.id == outfitID)
         #expect(wearLog.feedback == 4)
+        #expect(wearLog.accountSubjectKey == nil)
+        #expect(!WardrobeAccountFilter.isVisible(wearLog, in: .deviceLocal))
+        #expect(try context.fetch(FetchDescriptor<Wardrobe.ProcessedGmailMessage>()).isEmpty)
+        #expect(try context.fetch(FetchDescriptor<Wardrobe.GmailSyncState>()).isEmpty)
     }
 
     @Test func storeControllerSurfacesFailureAndCanRetryWithoutDeletingData() throws {

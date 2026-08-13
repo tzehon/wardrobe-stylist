@@ -51,6 +51,8 @@ struct SettingsView: View {
                 Text("Optional. Your wardrobe and manual item capture work without a Google account.")
             }
 
+            LegacyAccountDataResolutionView(session: session)
+
             Section("AI Styling & Reminder") {
                 StylingPrivacySettingsView(settings: devicePrivacy)
             }

@@ -97,7 +97,7 @@ private struct ConnectedGmailView: View {
     let identity: GoogleSignInIdentity
 
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var storedItems: [Item]
 
     @State private var privacy: GmailPrivacySettings
     @State private var pipeline: ReceiptPipeline?
@@ -125,6 +125,13 @@ private struct ConnectedGmailView: View {
 
     private var preferences: AccountPrivacyPreferences? {
         privacy.controls.preferences
+    }
+
+    private var items: [Item] {
+        WardrobeAccountFilter.visibleItems(
+            from: storedItems,
+            in: .external(identity.privacySubjectID)
+        )
     }
 
     var body: some View {

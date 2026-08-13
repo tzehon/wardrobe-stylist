@@ -143,7 +143,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: DenyPrivacyGate(denial: .receiptConsentRequired)
+            privacyGate: DenyPrivacyGate(denial: .receiptConsentRequired),
+            privacySubjectID: .external("pipeline-tests")
         )
         URLProtocolStub.install { _ in
             Issue.record("A denied sync must not make a request")
@@ -170,7 +171,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: DenyPrivacyGate(denial: .backgroundReceiptSyncDisabled)
+            privacyGate: DenyPrivacyGate(denial: .backgroundReceiptSyncDisabled),
+            privacySubjectID: .external("pipeline-tests")
         )
         URLProtocolStub.install { _ in
             Issue.record("A disabled background sync must not make a request")
@@ -196,7 +198,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
         URLProtocolStub.install { _ in
             Issue.record("A pre-cancelled sync must not make a request")
@@ -227,7 +230,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
         URLProtocolStub.install { @Sendable request in
             Issue.record("Cancellation must stop before a backend request")
@@ -249,7 +253,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -303,6 +308,8 @@ struct ReceiptPipelineTests {
         #expect(items.first?.category == "top")
         #expect(items.first?.source == .email)
         #expect(items.first?.sourceMsgId == "m1")
+        #expect(items.first?.accountSubjectKey
+            == WardrobeAccountScope.external(.external("pipeline-tests")).rawValue)
     }
 
     @Test func persistsImageURLFromExtraction() async throws {
@@ -313,7 +320,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -367,7 +375,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_marketing"])
@@ -420,7 +429,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_fashion", "m_marketing"])
@@ -486,7 +496,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_books"])
@@ -539,7 +550,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m1"])
@@ -603,7 +615,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_broken", "m_good"])
@@ -665,7 +678,8 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_confirm", "m_ship"])
@@ -726,27 +740,18 @@ struct ReceiptPipelineTests {
         #expect(items.count == 1)
     }
 
-    /// Duplicates already in the store (from before dedup went catalog-wide) are
-    /// healed by the up-front sweep, while a same-identity *manual* item — which
-    /// is user-curated — is left untouched.
-    @Test func sweepHealsPreExistingEmailDuplicatesButKeepsManual() async throws {
+    @Test func sameProductInAnotherAccountDoesNotSuppressOrGetHealedByActiveAccount() async throws {
         let container = try Self.makeContainer()
         let context = container.mainContext
+        let activeSubject = PrivacySubjectID.external("active-account")
+        let otherScope = WardrobeAccountScope.external(.external("other-account"))
         context.insert(Item(
-            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
-            source: .email, sourceMsgId: "confirm"
-        ))
-        context.insert(Item(
-            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
-            source: .email, sourceMsgId: "ship"
-        ))
-        context.insert(Item(
-            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
-            source: .manual
-        ))
-        context.insert(Item(
-            name: "Wool Scarf", category: "accessory", brand: "Acme", source: .email,
-            sourceMsgId: "scarf"
+            name: "Classic Oxford Shirt",
+            category: "top",
+            brand: "Everlane",
+            source: .email,
+            sourceMsgId: "other-message",
+            accountSubjectKey: otherScope.rawValue
         ))
         try context.save()
 
@@ -755,7 +760,93 @@ struct ReceiptPipelineTests {
             gmailClient: gmail,
             extractClient: extractClient,
             modelContext: context,
-            privacyGate: AllowPrivacyGate()
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: activeSubject
+        )
+        let listJSON = try PipelineFixtures.messageListJSON(ids: ["active-message"])
+        let messageJSON = try PipelineFixtures.messageJSON(
+            id: "active-message",
+            sender: Self.receiptSender,
+            subject: Self.receiptSubject,
+            body: Self.receiptBody,
+            labels: ["INBOX", "CATEGORY_PURCHASES"]
+        )
+        let extractJSON = try PipelineFixtures.extractFashionResponseJSON(
+            sourceMsgId: "active-message",
+            itemName: "Classic Oxford Shirt",
+            brand: "Everlane",
+            price: 78.0
+        )
+        URLProtocolStub.install { @Sendable request in
+            switch request.url?.host {
+            case Self.gmailHost:
+                let path = request.url?.path ?? ""
+                if path.hasSuffix("/messages") {
+                    return (Self.ok(for: request), listJSON)
+                }
+                if path.contains("/messages/active-message") {
+                    return (Self.ok(for: request), messageJSON)
+                }
+                throw URLError(.unsupportedURL)
+            case Self.backendHost:
+                return (Self.ok(for: request), extractJSON)
+            default:
+                throw URLError(.unsupportedURL)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        guard case let .complete(added, candidates, errors) = pipeline.state else {
+            Issue.record("Expected .complete, got \(pipeline.state)")
+            return
+        }
+        #expect(added == 1)
+        #expect(candidates == 1)
+        #expect(errors == 0)
+        let items = try context.fetch(FetchDescriptor<Item>())
+        #expect(items.count == 2)
+        #expect(Set(items.compactMap(\.accountSubjectKey)) == [
+            otherScope.rawValue,
+            WardrobeAccountScope.external(activeSubject).rawValue,
+        ])
+    }
+
+    /// Duplicates already in the store (from before dedup went catalog-wide) are
+    /// healed by the up-front sweep, while a same-identity *manual* item — which
+    /// is user-curated — is left untouched.
+    @Test func sweepHealsPreExistingEmailDuplicatesButKeepsManual() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let pipelineScope = WardrobeAccountScope.external(.external("pipeline-tests"))
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .email, sourceMsgId: "confirm",
+            accountSubjectKey: pipelineScope.rawValue
+        ))
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .email, sourceMsgId: "ship",
+            accountSubjectKey: pipelineScope.rawValue
+        ))
+        context.insert(Item(
+            name: "Gallery Fox Tee", category: "top", brand: "Maison Kitsuné",
+            source: .manual
+        ))
+        context.insert(Item(
+            name: "Wool Scarf", category: "accessory", brand: "Acme", source: .email,
+            sourceMsgId: "scarf", accountSubjectKey: pipelineScope.rawValue
+        ))
+        try context.save()
+
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
         )
 
         let listJSON = try PipelineFixtures.messageListJSON(ids: [])

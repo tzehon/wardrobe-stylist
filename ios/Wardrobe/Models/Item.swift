@@ -29,7 +29,8 @@ extension WardrobeSchemaV1 {
         @Attribute(.externalStorage) var thumbnailData: Data?
         var featurePrint: Data?       // archived VNFeaturePrintObservation for similarity/dedup
 
-        @Relationship(deleteRule: .nullify, inverse: \WearLog.item) var wears: [WearLog]
+        @Relationship(deleteRule: .nullify, inverse: \WardrobeSchemaV1.WearLog.item)
+        var wears: [WardrobeSchemaV1.WearLog]
 
         init(
             id: UUID = UUID(),
@@ -68,5 +69,71 @@ extension WardrobeSchemaV1 {
     }
 }
 
+/// Current item schema. `accountSubjectKey` is populated only for Gmail-derived
+/// items. A nil key on an email item means the row predates account isolation
+/// and must go through the explicit legacy resolution flow before it is shown.
+extension WardrobeSchemaV2 {
+    @Model
+    final class Item {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var category: String
+        var subcategory: String?
+        var brand: String?
+        var colors: [String]
+        var material: String?
+        var styleNotes: String?
+        var source: ItemSource
+        var purchaseDate: Date?
+        var sourceMsgId: String?
+        var imageURL: String?
+        var accountSubjectKey: String?
+
+        @Attribute(.externalStorage) var imageData: Data?
+        @Attribute(.externalStorage) var thumbnailData: Data?
+        var featurePrint: Data?
+
+        @Relationship(deleteRule: .nullify, inverse: \WardrobeSchemaV2.WearLog.item)
+        var wears: [WardrobeSchemaV2.WearLog]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            category: String,
+            subcategory: String? = nil,
+            brand: String? = nil,
+            colors: [String] = [],
+            material: String? = nil,
+            styleNotes: String? = nil,
+            source: ItemSource = .manual,
+            purchaseDate: Date? = nil,
+            sourceMsgId: String? = nil,
+            imageURL: String? = nil,
+            accountSubjectKey: String? = nil,
+            imageData: Data? = nil,
+            thumbnailData: Data? = nil,
+            featurePrint: Data? = nil
+        ) {
+            self.id = id
+            self.name = name
+            self.category = category
+            self.subcategory = subcategory
+            self.brand = brand
+            self.colors = colors
+            self.material = material
+            self.styleNotes = styleNotes
+            self.source = source
+            self.purchaseDate = purchaseDate
+            self.sourceMsgId = sourceMsgId
+            self.imageURL = imageURL
+            self.accountSubjectKey = accountSubjectKey
+            self.imageData = imageData
+            self.thumbnailData = thumbnailData
+            self.featurePrint = featurePrint
+            self.wears = []
+        }
+    }
+}
+
 /// Source-compatible name for the current model version.
-typealias Item = WardrobeSchemaV1.Item
+typealias Item = WardrobeSchemaV2.Item

@@ -42,6 +42,7 @@ final class ReceiptPipeline {
     private let modelContext: ModelContext
     private let privacyGate: any PrivacyGateChecking
     private let privacySubjectID: PrivacySubjectID
+    private let accountScope: WardrobeAccountScope
 
     /// Maximum chars of body snippet sent to the backend. Backend's
     /// `ExtractRequest.snippet` is capped at 8000; keep a small buffer.
@@ -64,13 +65,14 @@ final class ReceiptPipeline {
         extractClient: ExtractClient,
         modelContext: ModelContext,
         privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
-        privacySubjectID: PrivacySubjectID = .deviceLocal
+        privacySubjectID: PrivacySubjectID
     ) {
         self.gmailClient = gmailClient
         self.extractClient = extractClient
         self.modelContext = modelContext
         self.privacyGate = privacyGate
         self.privacySubjectID = privacySubjectID
+        self.accountScope = .external(privacySubjectID)
     }
 
     /// Runs one full sync. Safe to call repeatedly — catalog-wide dedup keeps the
@@ -113,7 +115,8 @@ final class ReceiptPipeline {
             try Task.checkCancellation()
             let existing = try modelContext.fetch(FetchDescriptor<Item>())
             var duplicates: [Item] = []
-            for item in existing.sorted(by: Self.earliestFirst) where item.source == .email {
+            for item in existing.sorted(by: Self.earliestFirst)
+            where item.source == .email && item.accountSubjectKey == accountScope.rawValue {
                 let key = Self.identityKey(
                     brand: item.brand, name: item.name, category: item.category
                 )
@@ -300,7 +303,8 @@ final class ReceiptPipeline {
                 source: .email,
                 purchaseDate: purchaseDate,
                 sourceMsgId: sourceMsgId,
-                imageURL: extracted.imageUrl
+                imageURL: extracted.imageUrl,
+                accountSubjectKey: accountScope.rawValue
             )
             modelContext.insert(item)
             added += 1

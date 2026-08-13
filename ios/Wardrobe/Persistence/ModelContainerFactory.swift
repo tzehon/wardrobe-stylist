@@ -6,7 +6,7 @@ import SwiftData
 /// Production and tests both use the same versioned schema and migration plan;
 /// tests may supply an in-memory or temporary on-disk configuration.
 enum ModelContainerFactory {
-    static let schema = Schema(versionedSchema: WardrobeSchemaV1.self)
+    static let schema = Schema(versionedSchema: WardrobeSchemaV2.self)
 
     static func make(
         configurations: [ModelConfiguration] = []

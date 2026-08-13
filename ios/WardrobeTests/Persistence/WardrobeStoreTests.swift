@@ -228,9 +228,13 @@ struct WardrobeStoreTests {
         let wearLogs = try context.fetch(FetchDescriptor<WearLog>())
         #expect(outfits.map(\.id) == [outfit.id])
         #expect(outfits.first?.createdAt == date)
+        #expect(outfits.first?.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue)
         #expect(Set(outfits.first?.items.map(\.id) ?? []) == [shirt.id, trousers.id])
         #expect(wearLogs.count == 2)
         #expect(wearLogs.allSatisfy { $0.date == date && $0.outfit?.id == outfit.id })
+        #expect(wearLogs.allSatisfy {
+            $0.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue
+        })
         #expect(Set(wearLogs.compactMap { $0.item?.id }) == [shirt.id, trousers.id])
         #expect(!context.hasChanges)
     }
@@ -298,6 +302,45 @@ struct WardrobeStoreTests {
         #expect(saveCalls == 0)
         #expect(try destination.context.fetch(FetchDescriptor<Outfit>()).isEmpty)
         #expect(try destination.context.fetch(FetchDescriptor<WearLog>()).isEmpty)
+    }
+
+    @Test func recordWearRejectsAnImportedItemFromAnotherAccount() throws {
+        let fixture = try makeFixture()
+        let accountA = WardrobeAccountScope.external(.external("account-a"))
+        let accountB = WardrobeAccountScope.external(.external("account-b"))
+        let imported = Item(
+            name: "Account A shirt",
+            category: "top",
+            source: .email,
+            accountSubjectKey: accountA.rawValue
+        )
+        fixture.context.insert(imported)
+        try fixture.context.save()
+        var saveCalls = 0
+        let store = WardrobeStore(
+            modelContext: fixture.context,
+            accountScope: accountB,
+            save: { context in
+                saveCalls += 1
+                try context.save()
+            }
+        )
+
+        let error = try capturePersistenceError {
+            try store.recordWear(
+                items: [imported],
+                occasion: nil,
+                rationale: nil,
+                colorStory: nil,
+                date: .now
+            )
+        }
+
+        #expect(error.operation == .recordWear)
+        #expect(error.diagnostic.contains("itemOutsideAccountScope"))
+        #expect(saveCalls == 0)
+        #expect(try fixture.context.fetch(FetchDescriptor<Outfit>()).isEmpty)
+        #expect(try fixture.context.fetch(FetchDescriptor<WearLog>()).isEmpty)
     }
 
     @Test func dirtyContextFailsBeforeTheActionAndDoesNotCommitOrRollbackItsBaseline() throws {

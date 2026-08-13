@@ -54,6 +54,7 @@ private enum WardrobeStoreError: Error {
     case itemFromDifferentStore
     case itemAlreadyDeleted
     case emptyWearSelection
+    case itemOutsideAccountScope
 }
 
 /// Value input for Add Item's manual-photo write. The store creates the
@@ -113,13 +114,16 @@ final class WardrobeStore: WardrobeStoring {
     typealias Save = @MainActor (ModelContext) throws -> Void
 
     private let modelContext: ModelContext
+    private let accountScope: WardrobeAccountScope
     private let save: Save
 
     init(
         modelContext: ModelContext,
+        accountScope: WardrobeAccountScope = .deviceLocal,
         save: @escaping Save = { try $0.save() }
     ) {
         self.modelContext = modelContext
+        self.accountScope = accountScope
         self.save = save
     }
 
@@ -183,6 +187,12 @@ final class WardrobeStore: WardrobeStoring {
         }
         for item in uniqueItems {
             try validate(item, operation: .recordWear)
+            guard WardrobeAccountFilter.isVisible(item, in: accountScope) else {
+                throw WardrobePersistenceError(
+                    operation: .recordWear,
+                    underlying: WardrobeStoreError.itemOutsideAccountScope
+                )
+            }
         }
         return try transaction(operation: .recordWear) {
             let outfit = Outfit(
@@ -190,11 +200,17 @@ final class WardrobeStore: WardrobeStoring {
                 occasion: occasion,
                 rationale: rationale,
                 colorStory: colorStory,
+                accountSubjectKey: accountScope.rawValue,
                 items: uniqueItems
             )
             modelContext.insert(outfit)
             for item in uniqueItems {
-                modelContext.insert(WearLog(date: date, item: item, outfit: outfit))
+                modelContext.insert(WearLog(
+                    date: date,
+                    item: item,
+                    outfit: outfit,
+                    accountSubjectKey: accountScope.rawValue
+                ))
             }
             return outfit
         }

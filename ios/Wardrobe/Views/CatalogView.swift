@@ -6,7 +6,9 @@ import SwiftUI
 /// filtering / ordering is delegated to the pure `CatalogOrganizer` /
 /// `CatalogFilter` (unit-tested separately); this view is just presentation.
 struct CatalogView: View {
-    @Query(sort: \Item.name) private var items: [Item]
+    let accountScope: WardrobeAccountScope
+
+    @Query(sort: \Item.name) private var storedItems: [Item]
     @Environment(\.modelContext) private var modelContext
 
     @State private var searchText = ""
@@ -17,6 +19,10 @@ struct CatalogView: View {
     @State private var writes = WardrobeWriteCoordinator()
 
     private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
+
+    private var items: [Item] {
+        WardrobeAccountFilter.visibleItems(from: storedItems, in: accountScope)
+    }
 
     private var sections: [CatalogSection<Item>] {
         let filtered = CatalogFilter.apply(

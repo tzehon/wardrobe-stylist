@@ -5,10 +5,11 @@ import SwiftUI
 /// Constructing this view and switching tabs never sends wardrobe data.
 struct TodayView: View {
     let privacySettings: DevicePrivacySettings
+    let accountScope: WardrobeAccountScope
     let openStylingPrivacy: () -> Void
 
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var storedItems: [Item]
     @State private var recommender: OutfitRecommender?
     @State private var configError: String?
     @State private var wornLookID: UUID?
@@ -16,6 +17,10 @@ struct TodayView: View {
 
     private var stylingAllowed: Bool {
         privacySettings.controls.decision(for: .aiStyling).isAllowed
+    }
+
+    private var items: [Item] {
+        WardrobeAccountFilter.visibleItems(from: storedItems, in: accountScope)
     }
 
     var body: some View {
@@ -217,7 +222,8 @@ struct TodayView: View {
             let (baseURL, deviceToken) = try BackendConfig.load()
             let made = OutfitRecommender(
                 recommendClient: RecommendClient(baseURL: baseURL, deviceToken: deviceToken),
-                modelContext: modelContext
+                modelContext: modelContext,
+                accountScope: accountScope
             )
             recommender = made
             await made.recommend()

@@ -18,4 +18,10 @@ struct PrivacySubjectID: RawRepresentable, Codable, Hashable, Sendable {
     static func external(_ stableID: String) -> Self {
         Self(rawValue: "external:v1:\(stableID)")
     }
+
+    /// External account subjects use a stable provider identifier. This is
+    /// false for the device-local namespace and for malformed persisted input.
+    var isExternal: Bool {
+        rawValue.hasPrefix("external:v1:") && rawValue.count > "external:v1:".count
+    }
 }

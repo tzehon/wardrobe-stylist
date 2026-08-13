@@ -52,6 +52,7 @@ final class OutfitRecommender {
     private let now: () -> Date
     private let privacyGate: any PrivacyGateChecking
     private let privacySubjectID: PrivacySubjectID
+    private let accountScope: WardrobeAccountScope
 
     /// An outfit needs at least this many items to be worth recommending.
     private static let minimumCatalogItems = 2
@@ -62,13 +63,18 @@ final class OutfitRecommender {
         store: (any WardrobeStoring)? = nil,
         privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
         privacySubjectID: PrivacySubjectID = .deviceLocal,
+        accountScope: WardrobeAccountScope = .deviceLocal,
         now: @escaping () -> Date = Date.init
     ) {
         self.recommendClient = recommendClient
         self.modelContext = modelContext
-        self.store = store ?? WardrobeStore(modelContext: modelContext)
+        self.store = store ?? WardrobeStore(
+            modelContext: modelContext,
+            accountScope: accountScope
+        )
         self.privacyGate = privacyGate
         self.privacySubjectID = privacySubjectID
+        self.accountScope = accountScope
         self.now = now
     }
 
@@ -89,8 +95,14 @@ final class OutfitRecommender {
         let items: [Item]
         let recentlyWornIDs: [String]
         do {
-            items = try modelContext.fetch(FetchDescriptor<Item>())
-            let wears = try modelContext.fetch(FetchDescriptor<WearLog>())
+            items = WardrobeAccountFilter.visibleItems(
+                from: try modelContext.fetch(FetchDescriptor<Item>()),
+                in: accountScope
+            )
+            let wears = WardrobeAccountFilter.visibleWearLogs(
+                from: try modelContext.fetch(FetchDescriptor<WearLog>()),
+                in: accountScope
+            )
             recentlyWornIDs = WearHistory.recentlyWornIDs(
                 from: wears, since: WearHistory.cutoff(from: now())
             )
