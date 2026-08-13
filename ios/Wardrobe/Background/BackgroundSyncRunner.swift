@@ -3,14 +3,14 @@ import Foundation
 import SwiftData
 
 /// Runs the receipt sync from a `BGProcessingTask` launch handler. Rebuilds the
-/// dependency graph the same way `ContentView.runSync` does, but headless: it
-/// silently restores the Gmail session from the Keychain (no UI) and bails if the
-/// user isn't signed in or the backend isn't configured.
+/// dependency graph the same way the Settings import does, but headless. The
+/// testable `BackgroundSyncController` restores and validates the external Google
+/// subject, checks current consent before any Gmail/backend work, and re-checks
+/// permission before it extends the scheduling chain.
 ///
-/// Device-only in practice — it depends on the BackgroundTasks daemon and a
-/// GoogleSignIn Keychain session, neither of which exists in the simulator/test
-/// host — so it isn't unit-tested. The scheduling logic that *is* testable lives
-/// in `ReceiptSyncScheduler`.
+/// The thin `BGProcessingTask` adapter is device-only; all policy and cancellation
+/// behavior beneath it is covered through `BackgroundSyncController` and pipeline
+/// tests in the simulator.
 @MainActor
 enum BackgroundSyncRunner {
 
@@ -19,11 +19,8 @@ enum BackgroundSyncRunner {
     static let maxMessages = 50
 
     static func run(task: BGProcessingTask, container: ModelContainer) async {
-        // Reschedule first: even if this run is killed mid-sync, the daily chain
-        // survives. Submitting with the same identifier replaces the pending one.
-        try? ReceiptSyncScheduler.schedule()
-
-        let work = Task { @MainActor in await performSync(container: container) }
+        let controller = makeController(container: container)
+        let work = Task { @MainActor in await controller.performBackgroundSync() }
         // Must be @Sendable: iOS invokes the expiration handler on BGTaskScheduler's
         // private queue, and a plain closure formed in this @MainActor context would
         // inherit main-actor isolation and trap on entry (same crash class as the
@@ -33,22 +30,47 @@ enum BackgroundSyncRunner {
         task.setTaskCompleted(success: success)
     }
 
-    private static func performSync(container: ModelContainer) async -> Bool {
-        let session = GmailSession()
-        await session.restorePreviousSignIn()
-        guard let gmailClient = session.client else { return false }
-        guard let config = try? BackendConfig.load() else { return false }
+    /// Reconciles the pending request when the app enters the background. A
+    /// restored external Google subject with current receipt consent and an
+    /// enabled background toggle is required; every other state cancels.
+    @discardableResult
+    static func reconcilePendingRequest(container: ModelContainer) async -> Bool {
+        await makeController(container: container).reconcilePendingRequest()
+    }
 
-        let pipeline = ReceiptPipeline(
-            gmailClient: gmailClient,
-            extractClient: ExtractClient(
-                baseURL: config.baseURL,
-                deviceToken: config.deviceToken
-            ),
-            modelContext: container.mainContext
+    private static func makeController(container: ModelContainer) -> BackgroundSyncController {
+        BackgroundSyncController(
+            restoreSession: {
+                let session = GmailSession()
+                await session.restorePreviousSignIn()
+                guard let identity = session.identity, let gmailClient = session.client else {
+                    throw BackgroundSessionFailure.notSignedIn
+                }
+                return BackgroundSyncSession(identity: identity, gmailClient: gmailClient)
+            },
+            privacyGate: StoredPrivacyGatekeeper(),
+            runSync: { session, subjectID in
+                guard !Task.isCancelled else { return false }
+                guard let config = try? BackendConfig.load() else { return false }
+
+                let pipeline = ReceiptPipeline(
+                    gmailClient: session.gmailClient,
+                    extractClient: ExtractClient(
+                        baseURL: config.baseURL,
+                        deviceToken: config.deviceToken
+                    ),
+                    modelContext: container.mainContext,
+                    privacySubjectID: subjectID
+                )
+                await pipeline.sync(maxMessages: maxMessages, mode: .background)
+                guard !Task.isCancelled else { return false }
+                if case .complete = pipeline.state { return true }
+                return false
+            }
         )
-        await pipeline.sync(maxMessages: maxMessages)
-        if case .failed = pipeline.state { return false }
-        return true
+    }
+
+    private enum BackgroundSessionFailure: Error {
+        case notSignedIn
     }
 }

@@ -81,10 +81,18 @@ final class ReceiptPipeline {
         maxMessages: Int = 1000,
         mode: SyncMode = .manual
     ) async {
+        guard !Task.isCancelled else {
+            state = .failed(message: Self.cancellationMessage)
+            return
+        }
         let decision = await privacyGate.decision(
             for: mode.privacyCapability,
             subjectID: privacySubjectID
         )
+        guard !Task.isCancelled else {
+            state = .failed(message: Self.cancellationMessage)
+            return
+        }
         guard decision.isAllowed else {
             state = .failed(message: Self.privacyMessage(for: decision))
             return
@@ -102,6 +110,7 @@ final class ReceiptPipeline {
         //    in the store from before dedup went catalog-wide.
         var seenIdentities: Set<String> = []
         do {
+            try Task.checkCancellation()
             let existing = try modelContext.fetch(FetchDescriptor<Item>())
             var duplicates: [Item] = []
             for item in existing.sorted(by: Self.earliestFirst) where item.source == .email {
@@ -116,7 +125,12 @@ final class ReceiptPipeline {
                 for duplicate in duplicates { modelContext.delete(duplicate) }
                 try modelContext.save()
             }
+        } catch is CancellationError {
+            modelContext.rollback()
+            state = .failed(message: Self.cancellationMessage)
+            return
         } catch {
+            modelContext.rollback()
             state = .failed(
                 message: "Failed to load existing catalog: \(error.localizedDescription)"
             )
@@ -128,7 +142,8 @@ final class ReceiptPipeline {
             // 2. Discover candidate message ids. allMessages auto-paginates;
             //    we bound it by maxMessages to keep first-run costs predictable.
             var refs: [GmailMessageList.MessageRef] = []
-            for try await ref in gmailClient.allMessages(query: query, includeSpamTrash: true) {
+            for try await ref in gmailClient.allMessages(query: query, includeSpamTrash: false) {
+                try Task.checkCancellation()
                 refs.append(ref)
                 if refs.count >= maxMessages { break }
             }
@@ -141,22 +156,44 @@ final class ReceiptPipeline {
             var errors = 0
 
             for (index, ref) in refs.enumerated() {
+                do {
+                    try Task.checkCancellation()
+                } catch {
+                    state = .failed(message: Self.cancellationMessage)
+                    return
+                }
                 state = .running(processed: index, total: total)
                 do {
                     let outcome = try await processMessage(ref, seenIdentities: seenIdentities)
                     itemsAdded += outcome.itemsAdded
                     if outcome.wasCandidate { candidates += 1 }
                     seenIdentities.formUnion(outcome.persistedIdentities)
+                } catch is CancellationError {
+                    state = .failed(message: Self.cancellationMessage)
+                    return
+                } catch where Task.isCancelled {
+                    state = .failed(message: Self.cancellationMessage)
+                    return
                 } catch {
                     errors += 1
                 }
             }
 
+            guard !Task.isCancelled else {
+                state = .failed(message: Self.cancellationMessage)
+                return
+            }
             state = .complete(itemsAdded: itemsAdded, candidates: candidates, errors: errors)
+        } catch is CancellationError {
+            state = .failed(message: Self.cancellationMessage)
+        } catch where Task.isCancelled {
+            state = .failed(message: Self.cancellationMessage)
         } catch {
             state = .failed(message: error.localizedDescription)
         }
     }
+
+    private static let cancellationMessage = "Receipt sync was cancelled."
 
     private static func privacyMessage(for decision: PrivacyGateDecision) -> String {
         switch decision {
@@ -185,7 +222,9 @@ final class ReceiptPipeline {
         _ ref: GmailMessageList.MessageRef,
         seenIdentities: Set<String>
     ) async throws -> MessageOutcome {
+        try Task.checkCancellation()
         let message = try await gmailClient.getMessage(id: ref.id)
+        try Task.checkCancellation()
         let signals = SignalsExtractor.makeSignals(from: message)
         let score = CandidateClassifier.classify(signals)
         guard score.likelyPurchase else {
@@ -203,6 +242,7 @@ final class ReceiptPipeline {
             subject: signals.subject,
             snippet: snippet
         ))
+        try Task.checkCancellation()
         guard response.isFashion else {
             return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
         }
@@ -266,7 +306,12 @@ final class ReceiptPipeline {
             added += 1
         }
         if added > 0 {
-            try modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                modelContext.rollback()
+                throw error
+            }
         }
         return (added, persisted)
     }

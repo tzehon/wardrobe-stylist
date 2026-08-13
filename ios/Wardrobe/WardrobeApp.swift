@@ -19,10 +19,17 @@ struct WardrobeApp: App {
             launchContent
         }
         .onChange(of: scenePhase) { _, phase in
-            // Schedule (or re-schedule) the next sync each time we background. The
-            // OS runs it opportunistically no sooner than the earliest-begin date.
-            if phase == .background, storeController.container != nil {
-                try? ReceiptSyncScheduler.schedule()
+            // Reconcile rather than scheduling blindly. The controller silently
+            // restores a valid Google identity and checks that subject's current
+            // receipt consent + background toggle before it submits any work.
+            if phase == .background {
+                guard let container = storeController.container else {
+                    ReceiptSyncScheduler.cancel()
+                    return
+                }
+                Task { @MainActor in
+                    await BackgroundSyncRunner.reconcilePendingRequest(container: container)
+                }
             }
         }
     }

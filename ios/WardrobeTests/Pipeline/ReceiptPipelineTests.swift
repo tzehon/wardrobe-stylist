@@ -36,6 +36,23 @@ struct ReceiptPipelineTests {
         }
     }
 
+    private struct CancellationAfterListTransport: GmailTransport {
+        let listJSON: Data
+
+        func perform(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+            if request.url?.path.hasSuffix("/messages") == true {
+                let response = HTTPURLResponse(
+                    url: request.url!,
+                    statusCode: 200,
+                    httpVersion: "HTTP/1.1",
+                    headerFields: ["Content-Type": "application/json"]
+                )!
+                return (listJSON, response)
+            }
+            throw CancellationError()
+        }
+    }
+
     // The user wants *all* orders, so the default query must not clamp recency —
     // guard against a date window creeping back into it.
     @Test func defaultQueryHasNoDateWindow() {
@@ -168,6 +185,59 @@ struct ReceiptPipelineTests {
             return
         }
         #expect(message.contains("turned off"))
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func cancelledBeforeSyncMakesNoRequestAndIsNotReportedAsSuccess() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (gmail, extractClient) = Self.makeClients()
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("A pre-cancelled sync must not make a request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let work = Task { @MainActor in
+            withUnsafeCurrentTask { $0?.cancel() }
+            await pipeline.sync(query: "test", maxMessages: 10, mode: .background)
+        }
+        await work.value
+
+        #expect(pipeline.state == .failed(message: "Receipt sync was cancelled."))
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func cancellationDuringPerMessageWorkStopsWithoutCountingAnErrorOrCompleting() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let (_, extractClient) = Self.makeClients()
+        let listJSON = try PipelineFixtures.messageListJSON(ids: ["m_cancelled", "m_never"])
+        let gmail = GmailReadOnlyClient(
+            transport: CancellationAfterListTransport(listJSON: listJSON),
+            auth: StaticTokenAuth(token: "test-token")
+        )
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
+        )
+        URLProtocolStub.install { @Sendable request in
+            Issue.record("Cancellation must stop before a backend request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10, mode: .background)
+
+        #expect(pipeline.state == .failed(message: "Receipt sync was cancelled."))
         #expect(URLProtocolStub.captured.isEmpty)
     }
 

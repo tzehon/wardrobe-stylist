@@ -71,20 +71,23 @@ struct GmailReadOnlyClient: Sendable {
     /// Streams every matching message ref across all pages of `listMessages`.
     func allMessages(
         query: String,
-        includeSpamTrash: Bool = true
+        includeSpamTrash: Bool = false
     ) -> AsyncThrowingStream<GmailMessageList.MessageRef, Error> {
         AsyncThrowingStream { continuation in
-            Task {
+            let producer = Task {
                 var pageToken: String? = nil
                 do {
                     repeat {
+                        try Task.checkCancellation()
                         let page = try await listMessages(
                             query: query,
                             includeSpamTrash: includeSpamTrash,
                             pageToken: pageToken
                         )
                         for ref in page.messages ?? [] {
-                            continuation.yield(ref)
+                            try Task.checkCancellation()
+                            guard case .terminated = continuation.yield(ref) else { continue }
+                            return
                         }
                         pageToken = page.nextPageToken
                     } while pageToken != nil
@@ -92,6 +95,11 @@ struct GmailReadOnlyClient: Sendable {
                 } catch {
                     continuation.finish(throwing: error)
                 }
+            }
+            // Breaking out of a consumer loop (for example after maxMessages)
+            // must not leave this unstructured pagination task fetching pages.
+            continuation.onTermination = { @Sendable _ in
+                producer.cancel()
             }
         }
     }
