@@ -54,6 +54,10 @@
         },
         "brand": { "type": ["string", "null"] },
         "color": { "type": ["string", "null"], "description": "Primary color, plain English." },
+        "size": {
+          "type": ["string", "null"],
+          "description": "Size exactly as shown on the receipt, for example M, EU 42, or 32W."
+        },
         "material": { "type": ["string", "null"] },
         "style_notes": { "type": ["string", "null"] },
         "price": { "type": ["number", "null"], "minimum": 0 },

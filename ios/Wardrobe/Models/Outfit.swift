@@ -63,5 +63,37 @@ extension WardrobeSchemaV2 {
     }
 }
 
+extension WardrobeSchemaV3 {
+    @Model
+    final class Outfit {
+        @Attribute(.unique) var id: UUID
+        var createdAt: Date
+        var occasion: String?
+        var rationale: String?
+        var colorStory: String?
+        var accountSubjectKey: String?
+
+        @Relationship var items: [WardrobeSchemaV3.Item]
+
+        init(
+            id: UUID = UUID(),
+            createdAt: Date = .now,
+            occasion: String? = nil,
+            rationale: String? = nil,
+            colorStory: String? = nil,
+            accountSubjectKey: String? = nil,
+            items: [WardrobeSchemaV3.Item] = []
+        ) {
+            self.id = id
+            self.createdAt = createdAt
+            self.occasion = occasion
+            self.rationale = rationale
+            self.colorStory = colorStory
+            self.accountSubjectKey = accountSubjectKey
+            self.items = items
+        }
+    }
+}
+
 /// Source-compatible name for the current model version.
-typealias Outfit = WardrobeSchemaV2.Outfit
+typealias Outfit = WardrobeSchemaV3.Outfit

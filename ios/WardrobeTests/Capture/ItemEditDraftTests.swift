@@ -22,8 +22,11 @@ struct ItemEditDraftTests {
         #expect(draft.subcategory == "button-down")
         #expect(draft.brand == "Atelier")
         #expect(draft.colors == "navy, white")
+        #expect(draft.size == "M")
         #expect(draft.material == "linen")
         #expect(draft.styleNotes == "Relaxed")
+        #expect(draft.purchasePrice == "129.5")
+        #expect(draft.purchaseCurrency == "SGD")
         #expect(draft.includesPurchaseDate)
         #expect(draft.purchaseDate == date)
     }
@@ -37,7 +40,10 @@ struct ItemEditDraftTests {
         draft.brand = " Studio "
         draft.colors = " navy, , white "
         draft.material = " cotton "
+        draft.size = " EU 42 "
         draft.styleNotes = "  "
+        draft.purchasePrice = "199.99"
+        draft.purchaseCurrency = "eur"
         draft.includesPurchaseDate = false
 
         let input = draft.updateInput
@@ -48,8 +54,11 @@ struct ItemEditDraftTests {
         #expect(input.brand == "Studio")
         #expect(input.colors == ["navy", "white"])
         #expect(input.material == "cotton")
+        #expect(input.size == "EU 42")
         #expect(input.styleNotes == nil)
         #expect(input.purchaseDate == nil)
+        #expect(input.purchasePrice == 199.99)
+        #expect(input.purchaseCurrency == "EUR")
     }
 
     @Test func requiresBothNameAndCategory() throws {
@@ -72,10 +81,13 @@ struct ItemEditDraftTests {
             subcategory: "button-down",
             brand: "Atelier",
             colors: ["navy", "white"],
+            size: "M",
             material: "linen",
             styleNotes: "Relaxed",
             source: .email,
-            purchaseDate: purchaseDate
+            purchaseDate: purchaseDate,
+            purchasePrice: 129.5,
+            purchaseCurrency: "SGD"
         )
         container.mainContext.insert(item)
         try container.mainContext.save()

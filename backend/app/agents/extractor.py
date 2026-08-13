@@ -38,11 +38,11 @@ Rules:
 
 2. Map `category` to the controlled vocabulary exactly: `top` | `bottom` | `dress` | `outerwear` | `shoe` | `bag` | `jewelry` | `accessory`. If a fashion item doesn't map cleanly, choose the closest category and mark `confidence: low`.
 
-3. Only fill optional fields you can read directly from the snippet. Leave `brand`, `color`, `material`, `style_notes`, `price`, `currency`, `image_url` as null when uncertain — never guess. `currency` is the 3-letter ISO code (USD, GBP, EUR, ...).
+3. Only fill optional fields you can read directly from the snippet. Leave `brand`, `color`, `size`, `material`, `style_notes`, `price`, `currency`, `image_url` as null when uncertain — never guess. Preserve `size` exactly as printed (for example `M`, `EU 42`, or `32W`). `currency` is the 3-letter ISO code (USD, GBP, EUR, ...).
 
 4. `confidence` per item: `high` when every required field is unambiguous in the snippet, `medium` when category and name are clear but one or two optional fields are inferred, `low` when even the core fields are uncertain.
 
-5. One entry per distinct product line. Two of the same shirt in different sizes is one entry; the iOS catalog dedupes upstream.
+5. Emit one entry per purchased unit or distinct product line. Preserve two entries when the same product appears in different sizes or quantities; the iOS app presents possible duplicates for human review instead of discarding them.
 
 6. Skip shipping, gift wrap, samples, and free promo items."""
 
@@ -87,6 +87,7 @@ RECORD_PURCHASE_TOOL: dict[str, Any] = {
                         },
                         "brand": {"type": ["string", "null"]},
                         "color": {"type": ["string", "null"]},
+                        "size": {"type": ["string", "null"]},
                         "material": {"type": ["string", "null"]},
                         "style_notes": {"type": ["string", "null"]},
                         "price": {"type": ["number", "null"], "minimum": 0},

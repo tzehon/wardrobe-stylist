@@ -8,6 +8,9 @@ protocol CatalogCategorizable {
     var name: String { get }
     var brand: String? { get }
     var purchaseDate: Date? { get }
+    var reviewState: ItemReviewState { get }
+    var isFavorite: Bool { get }
+    var isArchived: Bool { get }
 }
 
 extension Item: CatalogCategorizable {}
@@ -127,12 +130,42 @@ enum CatalogOrganizer {
 /// Search + category filtering applied to catalog items before grouping.
 enum CatalogFilter {
 
+    enum Status: String, CaseIterable, Identifiable, Sendable {
+        case active
+        case pendingReview
+        case favorites
+        case archived
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .active: "Active"
+            case .pendingReview: "Needs Review"
+            case .favorites: "Favorites"
+            case .archived: "Archived"
+            }
+        }
+    }
+
     static func apply<Element: CatalogCategorizable>(
         to items: [Element],
         search: String,
-        category: String?
+        category: String?,
+        status: Status = .active
     ) -> [Element] {
-        var result = items
+        var result = items.filter { item in
+            switch status {
+            case .active:
+                !item.isArchived
+            case .pendingReview:
+                !item.isArchived && item.reviewState == .pendingReview
+            case .favorites:
+                !item.isArchived && item.isFavorite
+            case .archived:
+                item.isArchived
+            }
+        }
         let query = search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !query.isEmpty {
             result = result.filter { item in

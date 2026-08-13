@@ -33,6 +33,7 @@ struct ExtractedItem: Codable, Sendable, Equatable {
     let confidence: FashionConfidence
     let brand: String?
     let color: String?
+    let size: String?
     let material: String?
     let styleNotes: String?
     let price: Double?

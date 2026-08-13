@@ -107,33 +107,41 @@ final class ReceiptPipeline {
             return
         }
 
-        // 1. Snapshot + de-duplicate the existing catalog up front. Doing all the
+        // 1. Snapshot existing catalog identities up front. Doing all the
         //    SwiftData work here, *before* any `await`, keeps it in the same
         //    actor-execution slice as the @MainActor pipeline — mainContext
         //    fetch/save interleaved with awaits later in the loop crashes inside
         //    SwiftData on iOS 26.
         //
-        //    Dedup identity is brand+name+category (case/space-normalised),
-        //    scoped to email-sourced items (manual/photo items are user-curated
-        //    and never auto-removed). The sweep also heals any duplicates already
-        //    in the store from before dedup went catalog-wide.
-        var seenIdentities: Set<String> = []
+        //    Duplicate identity is brand+name+category (case/space-normalised),
+        //    scoped to email-sourced items. Duplicates are never deleted: later
+        //    rows retain a pointer to the earliest candidate so the user can
+        //    distinguish a resend from two legitimately purchased pieces.
+        var knownIdentities: [String: UUID] = [:]
         let processedMessageIDs: Set<String>
         do {
             try Task.checkCancellation()
             let existing = try modelContext.fetch(FetchDescriptor<Item>())
-            var duplicates: [Item] = []
+            var duplicateMarkersChanged = false
             for item in existing.sorted(by: Self.earliestFirst)
             where item.source == .email && item.accountSubjectKey == accountScope.rawValue {
                 let key = Self.identityKey(
                     brand: item.brand, name: item.name, category: item.category
                 )
-                if seenIdentities.insert(key).inserted == false {
-                    duplicates.append(item)
+                if let primaryID = knownIdentities[key] {
+                    if item.possibleDuplicateOfItemID != primaryID {
+                        item.possibleDuplicateOfItemID = primaryID
+                        duplicateMarkersChanged = true
+                    }
+                } else {
+                    knownIdentities[key] = item.id
+                    if item.possibleDuplicateOfItemID != nil {
+                        item.possibleDuplicateOfItemID = nil
+                        duplicateMarkersChanged = true
+                    }
                 }
             }
-            if !duplicates.isEmpty {
-                for duplicate in duplicates { modelContext.delete(duplicate) }
+            if duplicateMarkersChanged {
                 try modelContext.save()
             }
             processedMessageIDs = try processedStateStore.processedMessageIDs()
@@ -186,10 +194,13 @@ final class ReceiptPipeline {
                 }
                 state = .running(processed: index, total: total)
                 do {
-                    let outcome = try await processMessage(ref, seenIdentities: seenIdentities)
+                    let outcome = try await processMessage(ref, knownIdentities: knownIdentities)
                     itemsAdded += outcome.itemsAdded
                     if outcome.wasCandidate { candidates += 1 }
-                    seenIdentities.formUnion(outcome.persistedIdentities)
+                    for (identity, id) in outcome.newPrimaryIdentities
+                    where knownIdentities[identity] == nil {
+                        knownIdentities[identity] = id
+                    }
                 } catch is CancellationError {
                     state = .failed(message: Self.cancellationMessage)
                     return
@@ -237,12 +248,12 @@ final class ReceiptPipeline {
     private struct MessageOutcome {
         var itemsAdded: Int
         var wasCandidate: Bool
-        var persistedIdentities: Set<String>
+        var newPrimaryIdentities: [String: UUID]
     }
 
     private func processMessage(
         _ ref: GmailMessageList.MessageRef,
-        seenIdentities: Set<String>
+        knownIdentities: [String: UUID]
     ) async throws -> MessageOutcome {
         try Task.checkCancellation()
         let message = try await gmailClient.getMessage(id: ref.id)
@@ -255,7 +266,7 @@ final class ReceiptPipeline {
                 messageID: ref.id,
                 gmailHistoryID: message.historyId
             )
-            return MessageOutcome(itemsAdded: 0, wasCandidate: false, persistedIdentities: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: false, newPrimaryIdentities: [:])
         }
 
         guard let payload = ReceiptPayloadBuilder.makePayload(
@@ -267,7 +278,7 @@ final class ReceiptPipeline {
                 messageID: ref.id,
                 gmailHistoryID: message.historyId
             )
-            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: true, newPrimaryIdentities: [:])
         }
 
         let response = try await extractClient.extract(ExtractRequest(
@@ -290,18 +301,17 @@ final class ReceiptPipeline {
                 messageID: ref.id,
                 gmailHistoryID: message.historyId
             )
-            return MessageOutcome(itemsAdded: 0, wasCandidate: true, persistedIdentities: [])
+            return MessageOutcome(itemsAdded: 0, wasCandidate: true, newPrimaryIdentities: [:])
         }
 
         let plan = makeIngestPlan(
             response.items,
-            seenIdentities: seenIdentities
+            knownIdentities: knownIdentities
         )
         try Task.checkCancellation()
-        let outcome: ProcessedGmailMessageOutcome = plan.items.isEmpty ? .duplicate : .imported
         let committed = try processedStateStore.commitProcessed(
             messageID: ref.id,
-            outcome: outcome,
+            outcome: .imported,
             gmailHistoryID: message.historyId
         ) {
             try Task.checkCancellation()
@@ -315,7 +325,7 @@ final class ReceiptPipeline {
         return MessageOutcome(
             itemsAdded: result.added,
             wasCandidate: true,
-            persistedIdentities: result.persistedIdentities
+            newPrimaryIdentities: result.newPrimaryIdentities
         )
     }
 
@@ -335,67 +345,90 @@ final class ReceiptPipeline {
     }
 
     private struct IngestPlan {
-        let items: [ExtractedItem]
-        let persistedIdentities: Set<String>
+        struct Entry {
+            let id: UUID
+            let extracted: ExtractedItem
+            let possibleDuplicateOfItemID: UUID?
+        }
+
+        let entries: [Entry]
+        let newPrimaryIdentities: [String: UUID]
     }
 
-    /// Selects new catalog identities without mutating SwiftData. This lets us
-    /// decide the ledger outcome before entering the one atomic save boundary.
+    /// Plans every extracted purchase without mutating SwiftData. Same-identity
+    /// items are retained and linked to the first candidate for human review.
     private func makeIngestPlan(
         _ items: [ExtractedItem],
-        seenIdentities: Set<String>
+        knownIdentities: [String: UUID]
     ) -> IngestPlan {
-        var seen = seenIdentities
-        var planned: [ExtractedItem] = []
-        var persisted = Set<String>()
+        var known = knownIdentities
+        var planned: [IngestPlan.Entry] = []
+        var newPrimaries: [String: UUID] = [:]
         for extracted in items {
             let key = Self.identityKey(
                 brand: extracted.brand,
                 name: extracted.name,
                 category: extracted.category.rawValue
             )
-            guard seen.insert(key).inserted else { continue }
-            planned.append(extracted)
-            persisted.insert(key)
+            let id = UUID()
+            let duplicateOf = known[key]
+            planned.append(IngestPlan.Entry(
+                id: id,
+                extracted: extracted,
+                possibleDuplicateOfItemID: duplicateOf
+            ))
+            if duplicateOf == nil {
+                known[key] = id
+                newPrimaries[key] = id
+            }
         }
-        return IngestPlan(items: planned, persistedIdentities: persisted)
+        return IngestPlan(entries: planned, newPrimaryIdentities: newPrimaries)
     }
 
-    /// Maps the preselected `ExtractedItem`s onto SwiftData `Item`s. The caller
+    /// Maps the planned `ExtractedItem`s onto SwiftData `Item`s. The caller
     /// owns the save; in production that is `commitProcessed`, which persists
     /// these items and the terminal processed-message row transactionally.
     ///
-    /// Dedup rule: an item is a duplicate if the catalog already holds an
-    /// email-sourced Item with the same brand+name+category identity (see
-    /// `identityKey`). Keying on identity rather than `sourceMsgId` collapses the
-    /// same product arriving across multiple emails of one order (confirmation +
-    /// dispatch) into a single catalog entry, and keeps re-syncs idempotent.
+    /// Possible-duplicate rule: matching brand+name+category values link to the
+    /// earliest account-scoped import. No catalog row is silently discarded;
+    /// processed-message ledgering, rather than destructive dedup, makes reruns
+    /// of the same Gmail message idempotent.
     private func stageIngest(
         _ plan: IngestPlan,
         sourceMsgId: String,
         internalDate: String?
-    ) throws -> (added: Int, persistedIdentities: Set<String>) {
+    ) throws -> (added: Int, newPrimaryIdentities: [String: UUID]) {
         let purchaseDate = internalDate.flatMap(Self.parseGmailInternalDate)
-        for extracted in plan.items {
+        for entry in plan.entries {
+            let extracted = entry.extracted
             let item = Item(
+                id: entry.id,
                 name: extracted.name,
                 category: extracted.category.rawValue,
                 brand: extracted.brand,
                 colors: extracted.color.map { [$0] } ?? [],
+                size: extracted.size,
                 material: extracted.material,
                 styleNotes: extracted.styleNotes,
                 source: .email,
                 purchaseDate: purchaseDate,
+                purchasePrice: extracted.price,
+                purchaseCurrency: extracted.currency,
                 sourceMsgId: sourceMsgId,
                 imageURL: extracted.imageUrl,
-                accountSubjectKey: accountScope.rawValue
+                accountSubjectKey: accountScope.rawValue,
+                extractionConfidence: ItemExtractionConfidence(
+                    rawValue: extracted.confidence.rawValue
+                ),
+                possibleDuplicateOfItemID: entry.possibleDuplicateOfItemID,
+                reviewState: .pendingReview
             )
             modelContext.insert(item)
         }
-        return (plan.items.count, plan.persistedIdentities)
+        return (plan.entries.count, plan.newPrimaryIdentities)
     }
 
-    /// Stable de-dup identity for a catalog item: brand + name + category,
+    /// Stable possible-duplicate identity for a catalog item: brand + name + category,
     /// lower-cased and trimmed, joined with a unit separator that won't occur in
     /// the fields themselves.
     private static func identityKey(brand: String?, name: String, category: String) -> String {
@@ -406,9 +439,12 @@ final class ReceiptPipeline {
     }
 
     /// Sort comparator putting earlier purchase dates first (nil dates last), so
-    /// the dedup sweep keeps the earliest-known copy of a product.
+    /// duplicate evidence points at the earliest-known copy of a product.
     private static func earliestFirst(_ a: Item, _ b: Item) -> Bool {
-        (a.purchaseDate ?? .distantFuture) < (b.purchaseDate ?? .distantFuture)
+        let aDate = a.purchaseDate ?? .distantFuture
+        let bDate = b.purchaseDate ?? .distantFuture
+        if aDate != bDate { return aDate < bDate }
+        return a.id.uuidString < b.id.uuidString
     }
 
     /// Gmail's `internalDate` is milliseconds-since-epoch as a string.

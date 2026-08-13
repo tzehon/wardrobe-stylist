@@ -129,6 +129,7 @@ struct ModelContainerFactoryTests {
         #expect(WardrobeSchemaV1.versionIdentifier == legacySchema.version)
         #expect(persistentMetadata(in: versionOneSchema) == persistentMetadata(in: legacySchema))
         #expect(WardrobeSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
+        #expect(WardrobeSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
         #expect(Set(ModelContainerFactory.schema.entities.map(\.name)) == [
             "GmailSyncState",
             "Item",
@@ -195,6 +196,13 @@ struct ModelContainerFactoryTests {
         #expect(item.thumbnailData == Data([0x03]))
         #expect(item.featurePrint == Data([0x04, 0x05]))
         #expect(item.accountSubjectKey == nil)
+        #expect(item.reviewState == .accepted)
+        #expect(item.extractionConfidence == nil)
+        #expect(item.size == nil)
+        #expect(item.purchasePrice == nil)
+        #expect(item.purchaseCurrency == nil)
+        #expect(!item.isFavorite)
+        #expect(!item.isArchived)
         #expect(!WardrobeAccountFilter.isVisible(item, in: .deviceLocal))
         #expect(outfit.id == outfitID)
         #expect(outfit.items.map(\.id) == [itemID])
@@ -208,6 +216,58 @@ struct ModelContainerFactoryTests {
         #expect(!WardrobeAccountFilter.isVisible(wearLog, in: .deviceLocal))
         #expect(try context.fetch(FetchDescriptor<Wardrobe.ProcessedGmailMessage>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<Wardrobe.GmailSyncState>()).isEmpty)
+    }
+
+    @Test func factoryMigratesAccountIsolatedV2RowsToAcceptedV3Defaults() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WardrobeV2MigrationTests-\(UUID().uuidString)", isDirectory: true)
+        let storeURL = directory.appendingPathComponent("Wardrobe.store")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let v2Schema = Schema(versionedSchema: WardrobeSchemaV2.self)
+        let v2Configuration = ModelConfiguration(
+            "MigrationFixture",
+            schema: v2Schema,
+            url: storeURL,
+            cloudKitDatabase: .none
+        )
+        do {
+            let container = try ModelContainer(
+                for: v2Schema,
+                configurations: [v2Configuration]
+            )
+            let context = container.mainContext
+            context.insert(WardrobeSchemaV2.Item(
+                id: itemID,
+                name: "Already curated",
+                category: "top",
+                source: .email,
+                sourceMsgId: "v2-message",
+                accountSubjectKey: "external:v1:test"
+            ))
+            try context.save()
+        }
+
+        let v3Configuration = ModelConfiguration(
+            "MigrationFixture",
+            schema: ModelContainerFactory.schema,
+            url: storeURL,
+            cloudKitDatabase: .none
+        )
+        let migrated = try ModelContainerFactory.make(configurations: [v3Configuration])
+        let item = try #require(migrated.mainContext.fetch(FetchDescriptor<Wardrobe.Item>()).first)
+
+        #expect(item.id == itemID)
+        #expect(item.name == "Already curated")
+        #expect(item.accountSubjectKey == "external:v1:test")
+        // Previously shipped items were already eligible for styling. A schema
+        // upgrade must not suddenly block them behind a new review queue.
+        #expect(item.reviewState == .accepted)
+        #expect(item.reviewedAt == nil)
+        #expect(item.extractionConfidence == nil)
+        #expect(!item.isFavorite)
+        #expect(!item.isArchived)
     }
 
     @Test func storeControllerSurfacesFailureAndCanRetryWithoutDeletingData() throws {

@@ -96,6 +96,7 @@ enum PipelineFixtures {
         brand: String,
         price: Double,
         currency: String = "USD",
+        size: String? = "M",
         imageURL: String? = nil
     ) throws -> Data {
         var item: [String: Any] = [
@@ -107,6 +108,7 @@ enum PipelineFixtures {
             "price": price,
             "currency": currency,
         ]
+        if let size { item["size"] = size }
         if let imageURL { item["image_url"] = imageURL }
         return try JSONSerialization.data(withJSONObject: [
             "is_fashion": true,

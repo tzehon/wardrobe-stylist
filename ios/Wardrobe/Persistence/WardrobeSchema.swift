@@ -31,13 +31,33 @@ enum WardrobeSchemaV2: VersionedSchema {
     }
 }
 
+/// Review-aware schema. Existing V2 rows migrate with accepted/default catalog
+/// state so an upgrade never hides or blocks a wardrobe the user already used.
+/// Only imports created after this version starts in pending review.
+enum WardrobeSchemaV3: VersionedSchema {
+    static let versionIdentifier = Schema.Version(3, 0, 0)
+
+    typealias ProcessedGmailMessage = WardrobeSchemaV2.ProcessedGmailMessage
+    typealias GmailSyncState = WardrobeSchemaV2.GmailSyncState
+
+    static var models: [any PersistentModel.Type] {
+        [
+            Item.self,
+            Outfit.self,
+            WearLog.self,
+            ProcessedGmailMessage.self,
+            GmailSyncState.self,
+        ]
+    }
+}
+
 /// Ordered history of every schema the app knows how to open.
 ///
 /// V1 has no migration stage because it intentionally preserves the persistent
 /// shape and default 1.0.0 version of the previously unversioned store.
 enum WardrobeMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [WardrobeSchemaV1.self, WardrobeSchemaV2.self]
+        [WardrobeSchemaV1.self, WardrobeSchemaV2.self, WardrobeSchemaV3.self]
     }
 
     static var stages: [MigrationStage] {
@@ -45,6 +65,10 @@ enum WardrobeMigrationPlan: SchemaMigrationPlan {
             .lightweight(
                 fromVersion: WardrobeSchemaV1.self,
                 toVersion: WardrobeSchemaV2.self
+            ),
+            .lightweight(
+                fromVersion: WardrobeSchemaV2.self,
+                toVersion: WardrobeSchemaV3.self
             ),
         ]
     }

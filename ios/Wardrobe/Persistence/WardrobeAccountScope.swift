@@ -63,6 +63,18 @@ enum WardrobeAccountFilter {
         items.filter { isVisible($0, in: scope) }
     }
 
+    /// Only accepted, active items can cross the AI-styling boundary. Pending
+    /// imports remain visible in the catalog for review, while archived items
+    /// remain recoverable without silently influencing recommendations.
+    static func styleableItems(
+        from items: [Item],
+        in scope: WardrobeAccountScope
+    ) -> [Item] {
+        visibleItems(from: items, in: scope).filter {
+            $0.reviewState == .accepted && !$0.isArchived
+        }
+    }
+
     static func visibleOutfits(
         from outfits: [Outfit],
         in scope: WardrobeAccountScope

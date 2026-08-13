@@ -25,6 +25,7 @@ class PurchaseItem(BaseModel):
     confidence: Confidence
     brand: str | None = None
     color: str | None = None
+    size: str | None = None
     material: str | None = None
     style_notes: str | None = None
     price: Annotated[float, Field(ge=0)] | None = None

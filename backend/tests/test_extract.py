@@ -31,6 +31,7 @@ def test_extract_returns_structured_fashion_purchase(client, fake_anthropic, aut
                     "category": "top",
                     "brand": "Everlane",
                     "color": "white",
+                    "size": "M",
                     "material": "cotton",
                     "style_notes": "minimalist",
                     "price": 78.0,
@@ -67,6 +68,7 @@ def test_extract_returns_structured_fashion_purchase(client, fake_anthropic, aut
     assert len(body["items"]) == 1
     item = body["items"][0]
     assert item["category"] == "top"
+    assert item["size"] == "M"
     assert item["currency"] == "USD"
     assert item["confidence"] == "high"
     assert "usage" in body and "input_tokens" in body["usage"]

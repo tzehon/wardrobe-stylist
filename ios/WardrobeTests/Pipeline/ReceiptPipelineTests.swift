@@ -320,6 +320,12 @@ struct ReceiptPipelineTests {
         #expect(items.first?.brand == "Everlane")
         #expect(items.first?.category == "top")
         #expect(items.first?.source == .email)
+        #expect(items.first?.size == "M")
+        #expect(items.first?.purchasePrice == 78)
+        #expect(items.first?.purchaseCurrency == "USD")
+        #expect(items.first?.extractionConfidence == .high)
+        #expect(items.first?.reviewState == .pendingReview)
+        #expect(items.first?.reviewedAt == nil)
         #expect(items.first?.sourceMsgId == "m1")
         #expect(items.first?.accountSubjectKey
             == WardrobeAccountScope.external(.external("pipeline-tests")).rawValue)
@@ -1182,11 +1188,11 @@ struct ReceiptPipelineTests {
         #expect(!processedIDs.contains("m_broken"))
     }
 
-    /// One order spread across two emails (confirmation + dispatch) listing the
-    /// same product must collapse to a single catalog item — the real bug behind
-    /// the duplicate Maison Kitsuné entries. Dedup is catalog-wide on identity,
-    /// not per-`sourceMsgId`, so the second email's identical item is skipped.
-    @Test func sameProductAcrossTwoEmailsDedupesToOneItem() async throws {
+    /// A confirmation and shipment email can describe the same product, but
+    /// silently deleting one is unsafe because two sizes or quantities may be
+    /// legitimate. Keep both once and surface the later one as a reviewable
+    /// possible duplicate; the Gmail ledger still blocks repeat sync imports.
+    @Test func sameProductAcrossTwoEmailsIsPreservedAndMarkedAsPossibleDuplicate() async throws {
         let container = try Self.makeContainer()
         let context = container.mainContext
         let (gmail, extractClient) = Self.makeClients()
@@ -1249,17 +1255,21 @@ struct ReceiptPipelineTests {
             Issue.record("Expected .complete, got \(pipeline.state)")
             return
         }
-        #expect(added == 1)        // one product, despite two candidate emails
+        #expect(added == 2)
         #expect(candidates == 2)
         #expect(errors == 0)
         let items = try context.fetch(FetchDescriptor<Item>())
-        #expect(items.count == 1)
+        #expect(items.count == 2)
+        let primary = try #require(items.first { $0.possibleDuplicateOfItemID == nil })
+        let duplicate = try #require(items.first { $0.possibleDuplicateOfItemID != nil })
+        #expect(duplicate.possibleDuplicateOfItemID == primary.id)
+        #expect(items.allSatisfy { $0.reviewState == .pendingReview })
         let outcomes = Dictionary(
             uniqueKeysWithValues: try context.fetch(FetchDescriptor<ProcessedGmailMessage>())
                 .map { ($0.gmailMessageID, $0.outcome) }
         )
         #expect(outcomes["m_confirm"] == .imported)
-        #expect(outcomes["m_ship"] == .duplicate)
+        #expect(outcomes["m_ship"] == .imported)
     }
 
     @Test func sameProductInAnotherAccountDoesNotSuppressOrGetHealedByActiveAccount() async throws {
@@ -1335,10 +1345,9 @@ struct ReceiptPipelineTests {
         ])
     }
 
-    /// Duplicates already in the store (from before dedup went catalog-wide) are
-    /// healed by the up-front sweep, while a same-identity *manual* item — which
-    /// is user-curated — is left untouched.
-    @Test func sweepHealsPreExistingEmailDuplicatesButKeepsManual() async throws {
+    /// Existing same-identity imports are retained and linked non-destructively;
+    /// manual items are outside receipt duplicate detection.
+    @Test func sweepMarksPreExistingEmailDuplicatesWithoutDeletingAnything() async throws {
         let container = try Self.makeContainer()
         let context = container.mainContext
         let pipelineScope = WardrobeAccountScope.external(.external("pipeline-tests"))
@@ -1385,11 +1394,14 @@ struct ReceiptPipelineTests {
         await pipeline.sync(query: "test", maxMessages: 10)
 
         let items = try context.fetch(FetchDescriptor<Item>())
-        // 2 email Fox dupes → 1; manual Fox kept; scarf kept ⇒ 3 total.
-        #expect(items.count == 3)
+        #expect(items.count == 4)
         let emailFox = items.filter { $0.name == "Gallery Fox Tee" && $0.source == .email }
-        #expect(emailFox.count == 1)
+        #expect(emailFox.count == 2)
+        let primary = try #require(emailFox.first { $0.possibleDuplicateOfItemID == nil })
+        let duplicate = try #require(emailFox.first { $0.possibleDuplicateOfItemID != nil })
+        #expect(duplicate.possibleDuplicateOfItemID == primary.id)
         let manualFox = items.filter { $0.name == "Gallery Fox Tee" && $0.source == .manual }
         #expect(manualFox.count == 1)
+        #expect(manualFox.first?.possibleDuplicateOfItemID == nil)
     }
 }

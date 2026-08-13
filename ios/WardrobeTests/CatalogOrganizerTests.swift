@@ -11,12 +11,26 @@ struct CatalogOrganizerTests {
         let name: String
         var brand: String?
         var purchaseDate: Date?
+        var reviewState: ItemReviewState
+        var isFavorite: Bool
+        var isArchived: Bool
 
-        init(category: String, name: String, brand: String? = nil, purchaseDate: Date? = nil) {
+        init(
+            category: String,
+            name: String,
+            brand: String? = nil,
+            purchaseDate: Date? = nil,
+            reviewState: ItemReviewState = .accepted,
+            isFavorite: Bool = false,
+            isArchived: Bool = false
+        ) {
             self.category = category
             self.name = name
             self.brand = brand
             self.purchaseDate = purchaseDate
+            self.reviewState = reviewState
+            self.isFavorite = isFavorite
+            self.isArchived = isArchived
         }
     }
 
@@ -119,6 +133,27 @@ struct CatalogOrganizerTests {
             StubItem(category: "swimwear", name: "Trunks"),
         ]
         #expect(CatalogFilter.availableCategories(in: items) == ["top", "bag", "swimwear"])
+    }
+
+    @Test func statusFiltersSeparatePendingFavoritesAndArchived() {
+        let items = [
+            StubItem(category: "top", name: "Active"),
+            StubItem(category: "bag", name: "Pending", reviewState: .pendingReview),
+            StubItem(category: "shoe", name: "Favorite", isFavorite: true),
+            StubItem(category: "dress", name: "Archived", isFavorite: true, isArchived: true),
+        ]
+
+        #expect(CatalogFilter.apply(to: items, search: "", category: nil).map(\.name)
+            == ["Active", "Pending", "Favorite"])
+        #expect(CatalogFilter.apply(
+            to: items, search: "", category: nil, status: .pendingReview
+        ).map(\.name) == ["Pending"])
+        #expect(CatalogFilter.apply(
+            to: items, search: "", category: nil, status: .favorites
+        ).map(\.name) == ["Favorite"])
+        #expect(CatalogFilter.apply(
+            to: items, search: "", category: nil, status: .archived
+        ).map(\.name) == ["Archived"])
     }
 
     // MARK: - Sorting

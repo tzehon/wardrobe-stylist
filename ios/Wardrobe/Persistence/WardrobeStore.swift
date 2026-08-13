@@ -13,6 +13,7 @@ struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
         case updateItem
         case deleteItem
         case recordWear
+        case rateOutfit
     }
 
     let operation: Operation
@@ -29,6 +30,7 @@ struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
         case .updateItem: "Couldn’t Update Item"
         case .deleteItem: "Couldn’t Delete Item"
         case .recordWear: "Couldn’t Record Outfit"
+        case .rateOutfit: "Couldn’t Save Rating"
         }
     }
 
@@ -42,6 +44,8 @@ struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
             "The item is still in your catalog. Please try again."
         case .recordWear:
             "This look wasn’t marked as worn. Please try again."
+        case .rateOutfit:
+            "Your rating wasn’t saved. The previous rating is unchanged, so you can try again."
         }
     }
 
@@ -55,6 +59,13 @@ private enum WardrobeStoreError: Error {
     case itemAlreadyDeleted
     case emptyWearSelection
     case itemOutsideAccountScope
+    case outfitFromDifferentStore
+    case outfitAlreadyDeleted
+    case outfitOutsideAccountScope
+    case invalidOutfitFeedback
+    case outfitHasNoWearLogs
+    case invalidItemInput
+    case itemNotStyleable
 }
 
 /// Value input for Add Item's manual-photo write. The store creates the
@@ -64,9 +75,15 @@ private enum WardrobeStoreError: Error {
 struct ManualItemInput: Sendable {
     let name: String
     let category: String
+    let subcategory: String?
     let brand: String?
     let colors: [String]
     let material: String?
+    let styleNotes: String?
+    let size: String?
+    let purchaseDate: Date?
+    let purchasePrice: Double?
+    let purchaseCurrency: String?
     let source: ItemSource
     let imageData: Data?
     let thumbnailData: Data?
@@ -83,7 +100,18 @@ struct ItemUpdateInput: Equatable, Sendable {
     let colors: [String]
     let material: String?
     let styleNotes: String?
+    let size: String?
     let purchaseDate: Date?
+    let purchasePrice: Double?
+    let purchaseCurrency: String?
+    let imageUpdate: ItemImageUpdate
+    let acceptPendingReview: Bool
+}
+
+enum ItemImageUpdate: Equatable, Sendable {
+    case unchanged
+    case replace(imageData: Data, thumbnailData: Data)
+    case remove
 }
 
 /// The user-triggered wardrobe mutations exposed to UI and feature code.
@@ -94,6 +122,9 @@ protocol WardrobeStoring {
     func addItem(_ input: ManualItemInput) throws -> Item
     func updateItem(_ item: Item, with input: ItemUpdateInput) throws
     func deleteItem(_ item: Item) throws
+    func setFavorite(_ isFavorite: Bool, for item: Item) throws
+    func setArchived(_ isArchived: Bool, for item: Item) throws
+    func acceptPendingItems(_ items: [Item], reviewedAt: Date) throws
 
     @discardableResult
     func recordWear(
@@ -103,6 +134,8 @@ protocol WardrobeStoring {
         colorStory: String?,
         date: Date
     ) throws -> Outfit
+
+    func rateOutfit(_ outfit: Outfit, feedback: Int) throws
 }
 
 /// The canonical transaction boundary for user-triggered SwiftData writes.
@@ -129,14 +162,27 @@ final class WardrobeStore: WardrobeStoring {
 
     @discardableResult
     func addItem(_ input: ManualItemInput) throws -> Item {
-        try transaction(operation: .addItem) {
+        try validateItemFields(
+            name: input.name,
+            category: input.category,
+            purchasePrice: input.purchasePrice,
+            purchaseCurrency: input.purchaseCurrency,
+            operation: .addItem
+        )
+        return try transaction(operation: .addItem) {
             let item = Item(
                 name: input.name,
                 category: input.category,
+                subcategory: input.subcategory,
                 brand: input.brand,
                 colors: input.colors,
+                size: input.size,
                 material: input.material,
+                styleNotes: input.styleNotes,
                 source: input.source,
+                purchaseDate: input.purchaseDate,
+                purchasePrice: input.purchasePrice,
+                purchaseCurrency: input.purchaseCurrency,
                 imageData: input.imageData,
                 thumbnailData: input.thumbnailData
             )
@@ -146,14 +192,29 @@ final class WardrobeStore: WardrobeStoring {
     }
 
     func deleteItem(_ item: Item) throws {
-        try validate(item, operation: .deleteItem)
+        try validate(item, operation: .deleteItem, requireAccountVisibility: true)
         try transaction(operation: .deleteItem) {
+            let dependents = try modelContext.fetch(FetchDescriptor<Item>())
+                .filter { $0.possibleDuplicateOfItemID == item.id }
+            if let promoted = dependents.first {
+                promoted.possibleDuplicateOfItemID = nil
+                for dependent in dependents.dropFirst() {
+                    dependent.possibleDuplicateOfItemID = promoted.id
+                }
+            }
             modelContext.delete(item)
         }
     }
 
     func updateItem(_ item: Item, with input: ItemUpdateInput) throws {
-        try validate(item, operation: .updateItem)
+        try validate(item, operation: .updateItem, requireAccountVisibility: true)
+        try validateItemFields(
+            name: input.name,
+            category: input.category,
+            purchasePrice: input.purchasePrice,
+            purchaseCurrency: input.purchaseCurrency,
+            operation: .updateItem
+        )
         try transaction(operation: .updateItem) {
             item.name = input.name
             item.category = input.category
@@ -162,8 +223,54 @@ final class WardrobeStore: WardrobeStoring {
             item.colors = input.colors
             item.material = input.material
             item.styleNotes = input.styleNotes
+            item.size = input.size
             item.purchaseDate = input.purchaseDate
+            item.purchasePrice = input.purchasePrice
+            item.purchaseCurrency = input.purchaseCurrency
+            switch input.imageUpdate {
+            case .unchanged:
+                break
+            case .replace(let imageData, let thumbnailData):
+                item.imageData = imageData
+                item.thumbnailData = thumbnailData
+                item.imageURL = nil
+                item.featurePrint = nil
+            case .remove:
+                item.imageData = nil
+                item.thumbnailData = nil
+                item.imageURL = nil
+                item.featurePrint = nil
+            }
+            if input.acceptPendingReview, item.reviewState == .pendingReview {
+                item.reviewState = .accepted
+                item.reviewedAt = .now
+            }
         }
+    }
+
+    func setFavorite(_ isFavorite: Bool, for item: Item) throws {
+        try mutateItem(item) { $0.isFavorite = isFavorite }
+    }
+
+    func setArchived(_ isArchived: Bool, for item: Item) throws {
+        try mutateItem(item) { $0.isArchived = isArchived }
+    }
+
+    func acceptPendingItems(_ items: [Item], reviewedAt: Date = .now) throws {
+        for item in items {
+            try validate(item, operation: .updateItem, requireAccountVisibility: true)
+        }
+        try transaction(operation: .updateItem) {
+            for item in items where item.reviewState == .pendingReview {
+                item.reviewState = .accepted
+                item.reviewedAt = reviewedAt
+            }
+        }
+    }
+
+    private func mutateItem(_ item: Item, mutation: (Item) -> Void) throws {
+        try validate(item, operation: .updateItem, requireAccountVisibility: true)
+        try transaction(operation: .updateItem) { mutation(item) }
     }
 
     @discardableResult
@@ -193,6 +300,12 @@ final class WardrobeStore: WardrobeStoring {
                     underlying: WardrobeStoreError.itemOutsideAccountScope
                 )
             }
+            guard item.reviewState == .accepted, !item.isArchived else {
+                throw WardrobePersistenceError(
+                    operation: .recordWear,
+                    underlying: WardrobeStoreError.itemNotStyleable
+                )
+            }
         }
         return try transaction(operation: .recordWear) {
             let outfit = Outfit(
@@ -213,6 +326,25 @@ final class WardrobeStore: WardrobeStoring {
                 ))
             }
             return outfit
+        }
+    }
+
+    func rateOutfit(_ outfit: Outfit, feedback: Int) throws {
+        guard (1...5).contains(feedback) else {
+            throw WardrobePersistenceError(
+                operation: .rateOutfit,
+                underlying: WardrobeStoreError.invalidOutfitFeedback
+            )
+        }
+        try validate(outfit, operation: .rateOutfit)
+        try transaction(operation: .rateOutfit) {
+            let logs = try modelContext.fetch(FetchDescriptor<WearLog>())
+                .filter {
+                    $0.outfit?.id == outfit.id
+                        && WardrobeAccountFilter.isVisible($0, in: accountScope)
+                }
+            guard !logs.isEmpty else { throw WardrobeStoreError.outfitHasNoWearLogs }
+            for log in logs { log.feedback = feedback }
         }
     }
 
@@ -242,7 +374,8 @@ final class WardrobeStore: WardrobeStoring {
 
     private func validate(
         _ item: Item,
-        operation: WardrobePersistenceError.Operation
+        operation: WardrobePersistenceError.Operation,
+        requireAccountVisibility: Bool = false
     ) throws {
         guard item.modelContext === modelContext else {
             throw WardrobePersistenceError(
@@ -254,6 +387,61 @@ final class WardrobeStore: WardrobeStoring {
             throw WardrobePersistenceError(
                 operation: operation,
                 underlying: WardrobeStoreError.itemAlreadyDeleted
+            )
+        }
+        if requireAccountVisibility,
+           !WardrobeAccountFilter.isVisible(item, in: accountScope) {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.itemOutsideAccountScope
+            )
+        }
+    }
+
+    private func validateItemFields(
+        name: String,
+        category: String,
+        purchasePrice: Double?,
+        purchaseCurrency: String?,
+        operation: WardrobePersistenceError.Operation
+    ) throws {
+        let validPrice = purchasePrice.map { $0.isFinite && $0 >= 0 } ?? true
+        let validCurrency = purchaseCurrency.map { value in
+            value.count == 3 && value.unicodeScalars.allSatisfy {
+                $0.isASCII && CharacterSet.uppercaseLetters.contains($0)
+            }
+        } ?? true
+        guard !name.trimmedRequired.isEmpty,
+              !category.trimmedRequired.isEmpty,
+              validPrice,
+              validCurrency else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.invalidItemInput
+            )
+        }
+    }
+
+    private func validate(
+        _ outfit: Outfit,
+        operation: WardrobePersistenceError.Operation
+    ) throws {
+        guard outfit.modelContext === modelContext else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.outfitFromDifferentStore
+            )
+        }
+        guard !outfit.isDeleted else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.outfitAlreadyDeleted
+            )
+        }
+        guard WardrobeAccountFilter.isVisible(outfit, in: accountScope) else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.outfitOutsideAccountScope
             )
         }
     }

@@ -55,5 +55,33 @@ extension WardrobeSchemaV2 {
     }
 }
 
+extension WardrobeSchemaV3 {
+    @Model
+    final class WearLog {
+        @Attribute(.unique) var id: UUID
+        var date: Date
+        var item: WardrobeSchemaV3.Item?
+        var outfit: WardrobeSchemaV3.Outfit?
+        var feedback: Int?
+        var accountSubjectKey: String?
+
+        init(
+            id: UUID = UUID(),
+            date: Date = .now,
+            item: WardrobeSchemaV3.Item? = nil,
+            outfit: WardrobeSchemaV3.Outfit? = nil,
+            feedback: Int? = nil,
+            accountSubjectKey: String? = nil
+        ) {
+            self.id = id
+            self.date = date
+            self.item = item
+            self.outfit = outfit
+            self.feedback = feedback
+            self.accountSubjectKey = accountSubjectKey
+        }
+    }
+}
+
 /// Source-compatible name for the current model version.
-typealias WearLog = WardrobeSchemaV2.WearLog
+typealias WearLog = WardrobeSchemaV3.WearLog
