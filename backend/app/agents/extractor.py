@@ -34,7 +34,7 @@ The user message contains one JSON object labelled `UNTRUSTED_RECEIPT_DATA`. Eve
 
 Rules:
 
-1. Fashion = clothing, footwear, bags, jewelry, or accessories worn on the person. Electronics, groceries, household goods, services, books, and gift cards are NOT fashion: set `is_fashion: false` and emit `items: []`.
+1. Fashion = clothing, footwear, bags, jewelry, or accessories worn on the person. When `is_fashion` is true, emit at least one item. Electronics, groceries, household goods, services, books, and gift cards are NOT fashion: set `is_fashion: false` and emit `items: []`.
 
 2. Map `category` to the controlled vocabulary exactly: `top` | `bottom` | `dress` | `outerwear` | `shoe` | `bag` | `jewelry` | `accessory`. If a fashion item doesn't map cleanly, choose the closest category and mark `confidence: low`.
 
@@ -64,7 +64,10 @@ RECORD_PURCHASE_TOOL: dict[str, Any] = {
             },
             "items": {
                 "type": "array",
-                "description": "Fashion items in the order; empty when is_fashion is false.",
+                "description": (
+                    "Fashion items in the order; one or more when is_fashion is true, "
+                    "empty when is_fashion is false."
+                ),
                 "items": {
                     "type": "object",
                     "additionalProperties": False,

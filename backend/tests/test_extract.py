@@ -159,22 +159,66 @@ def test_extract_rejects_wrong_bearer(client, fake_anthropic):
     assert resp.status_code == 401
 
 
-def test_extract_502_on_invalid_tool_input(client, fake_anthropic, auth_headers):
-    """Bad tool input from the model surfaces as 502 — never 200 with garbage."""
+def test_extract_502_on_invalid_tool_input(
+    client, fake_anthropic, auth_headers, caplog
+):
+    """Bad tool input is rejected without logging Gmail or receipt-derived values."""
+    private_product_text = "Private Customer Limited Edition Shirt"
+    private_category_value = "PRIVATE_CUSTOMER_CATEGORY"
+    private_extra_key = "private_customer_address_as_property_name"
+    private_extra_value = "88 Private Street"
+    private_gmail_id = "gmail_private_validation_id_987"
+    private_receipt_text = "Private receipt body 1x limited shirt"
     _queue(
         fake_anthropic,
         {
             "is_fashion": True,
             "items": [
-                {"name": "Shirt", "category": "INVALID_CATEGORY", "confidence": "high"}
+                {
+                    "name": private_product_text,
+                    "category": private_category_value,
+                    "confidence": "high",
+                    private_extra_key: private_extra_value,
+                }
             ],
         },
     )
+    with caplog.at_level("WARNING", logger="app.routes.extract"):
+        resp = client.post(
+            "/extract",
+            json={"source_msg_id": private_gmail_id, "snippet": private_receipt_text},
+            headers=auth_headers,
+        )
+
+    assert resp.status_code == 502
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.extract"
+    )
+    assert "count=2" in route_log
+    assert "literal_error" in route_log
+    assert "extra_forbidden" in route_log
+    assert private_product_text not in route_log
+    assert private_category_value not in route_log
+    assert private_extra_key not in route_log
+    assert private_extra_value not in route_log
+    assert private_gmail_id not in route_log
+    assert private_receipt_text not in route_log
+
+
+def test_extract_502_when_model_marks_fashion_but_returns_no_items(
+    client, fake_anthropic, auth_headers
+):
+    """An unusable extraction remains retryable instead of becoming a terminal empty result."""
+    _queue(fake_anthropic, {"is_fashion": True, "items": []})
+
     resp = client.post(
         "/extract",
-        json={"source_msg_id": "msg_bad", "snippet": "1x shirt"},
+        json={"source_msg_id": "msg_empty_fashion", "snippet": "1x shirt - $42"},
         headers=auth_headers,
     )
+
     assert resp.status_code == 502
 
 

@@ -72,7 +72,26 @@ def extract_endpoint(
     try:
         parsed = FashionPurchaseExtraction.model_validate(tool_input)
     except ValidationError as exc:
-        logger.warning("Tool input failed schema validation: %s", exc.errors())
+        # Pydantic includes the complete rejected input in `errors()` by default.
+        # That input contains caller-owned Gmail correlation metadata and may
+        # contain receipt-derived product text, neither of which belongs in logs.
+        # Do not log `loc` either: an `extra_forbidden` location may contain an
+        # arbitrary model-supplied property name and therefore user data.
+        validation_types = sorted(
+            {
+                str(error["type"])
+                for error in exc.errors(
+                    include_url=False,
+                    include_context=False,
+                    include_input=False,
+                )
+            }
+        )
+        logger.warning(
+            "Tool input failed schema validation: count=%d types=%s",
+            exc.error_count(),
+            validation_types,
+        )
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
             detail="Model returned tool input that failed schema validation.",

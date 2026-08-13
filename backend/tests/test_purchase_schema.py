@@ -63,6 +63,14 @@ VALID_FIXTURES: list[dict[str, Any]] = [
 ]
 
 INVALID_FIXTURES: list[dict[str, Any]] = [
+    # fashion requires at least one extracted item
+    {"is_fashion": True, "source_msg_id": "x", "items": []},
+    # non-fashion must never carry extracted items
+    {
+        "is_fashion": False,
+        "source_msg_id": "x",
+        "items": [{"name": "x", "category": "top", "confidence": "high"}],
+    },
     # category not in enum
     {
         "is_fashion": True,

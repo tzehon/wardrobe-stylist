@@ -22,6 +22,20 @@
       "items": { "$ref": "#/$defs/PurchaseItem" }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "is_fashion": { "const": true } },
+        "required": ["is_fashion"]
+      },
+      "then": {
+        "properties": { "items": { "minItems": 1 } }
+      },
+      "else": {
+        "properties": { "items": { "maxItems": 0 } }
+      }
+    }
+  ],
   "$defs": {
     "PurchaseItem": {
       "type": "object",
@@ -50,8 +64,7 @@
         },
         "image_url": {
           "type": ["string", "null"],
-          "format": "uri",
-          "description": "Product image URL if extractable from the receipt."
+          "description": "Untrusted product image URL candidate. The client validates HTTPS, host policy, and size before any fetch."
         }
       }
     }
