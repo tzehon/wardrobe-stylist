@@ -43,20 +43,27 @@ def extract_endpoint(
     client: anthropic.Anthropic = Depends(get_anthropic_client),
 ) -> ExtractResponse:
     try:
+        safe_subject = extractor.redact_transport_metadata(
+            req.subject, source_msg_id=req.source_msg_id, sender=req.sender
+        )
+        safe_snippet = extractor.redact_transport_metadata(
+            req.snippet, source_msg_id=req.source_msg_id, sender=req.sender
+        )
+        assert safe_snippet is not None
         result = extractor.extract(
             client,
-            source_msg_id=req.source_msg_id,
-            sender=req.sender,
-            subject=req.subject,
-            snippet=req.snippet,
+            sender_domain=extractor.sender_domain(req.sender),
+            subject=safe_subject,
+            snippet=safe_snippet,
         )
     except ExtractorError as exc:
         logger.warning("extractor.extract failed: %s", exc)
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
-    tool_input = result["tool_input"]
-    # Trust the caller's id over whatever the model echoed — protects against
-    # the model rewriting or hallucinating the source id.
+    tool_input = dict(result["tool_input"])
+    # The source id is transport metadata and never crosses the model boundary.
+    # Add it only here so the installed iOS client's response contract remains stable.
+    tool_input.pop("source_msg_id", None)
     tool_input["source_msg_id"] = req.source_msg_id
     # Belt-and-braces: drop any items if the model claimed not-fashion.
     if not tool_input.get("is_fashion", False):
