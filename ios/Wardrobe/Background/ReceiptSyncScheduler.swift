@@ -6,6 +6,7 @@ import Foundation
 /// simulator / test host). Production uses `BGTaskScheduler.shared`.
 protocol BackgroundTaskSubmitting {
     func submit(_ request: BGTaskRequest) throws
+    func cancel(taskRequestWithIdentifier identifier: String)
 }
 
 extension BGTaskScheduler: BackgroundTaskSubmitting {}
@@ -50,5 +51,14 @@ enum ReceiptSyncScheduler {
         now: Date = Date()
     ) throws {
         try submitter.submit(makeRequest(now: now))
+    }
+
+    /// Cancels the pending sync request immediately. Disabling background
+    /// import, withdrawing consent, disconnecting Gmail, and deleting data all
+    /// use this same idempotent path.
+    static func cancel(
+        using submitter: BackgroundTaskSubmitting = BGTaskScheduler.shared
+    ) {
+        submitter.cancel(taskRequestWithIdentifier: taskIdentifier)
     }
 }
