@@ -108,6 +108,30 @@ _DOMAIN_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$")
 _REDACTION = "[redacted transport metadata]"
 
 
+def _normalized_domain(raw_domain: str) -> str | None:
+    """Validate and canonicalize one bare DNS domain."""
+    try:
+        domain = raw_domain.rstrip(".").encode("idna").decode("ascii").lower()
+    except UnicodeError:
+        return None
+
+    labels = domain.split(".")
+    if (
+        len(labels) < 2
+        or len(domain) > 253
+        or not _DOMAIN_PATTERN.fullmatch(domain)
+        or any(
+            not label
+            or len(label) > 63
+            or label.startswith("-")
+            or label.endswith("-")
+            for label in labels
+        )
+    ):
+        return None
+    return domain
+
+
 def _sender_mailbox(sender: str | None) -> str | None:
     """Return a parsed mailbox only when it has a safe, usable domain."""
     if not sender:
@@ -121,30 +145,19 @@ def _sender_mailbox(sender: str | None) -> str | None:
     if not local_part or not raw_domain:
         return None
 
-    try:
-        domain = raw_domain.rstrip(".").encode("idna").decode("ascii").lower()
-    except UnicodeError:
+    domain = _normalized_domain(raw_domain)
+    if domain is None:
         return None
-
-    labels = domain.split(".")
-    if (
-        len(domain) > 253
-        or not _DOMAIN_PATTERN.fullmatch(domain)
-        or any(
-            not label
-            or len(label) > 63
-            or label.startswith("-")
-            or label.endswith("-")
-            for label in labels
-        )
-    ):
-        return None
-
     return f"{local_part}@{domain}"
 
 
 def sender_domain(sender: str | None) -> str | None:
-    """Reduce an email sender to its domain before it crosses the model boundary."""
+    """Reduce a mailbox or an already-minimized domain to a safe domain."""
+    if sender and "@" not in sender:
+        candidate = sender.strip()
+        # Display-name syntax and whitespace are not valid bare-domain input.
+        if candidate == sender and not any(character.isspace() for character in candidate):
+            return _normalized_domain(candidate)
     mailbox = _sender_mailbox(sender)
     return mailbox.rsplit("@", 1)[1] if mailbox else None
 

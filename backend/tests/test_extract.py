@@ -212,3 +212,47 @@ def test_extract_drops_unparseable_sender_before_model_call(
     user_content = call["messages"][0]["content"]
     receipt_data = json.loads(user_content.split("\n", 1)[1])
     assert receipt_data["sender_domain"] is None
+
+
+def test_extract_preserves_already_minimized_sender_domain(
+    client, fake_anthropic, auth_headers
+):
+    _queue(fake_anthropic, {"is_fashion": False, "items": []})
+
+    resp = client.post(
+        "/extract",
+        json={
+            "source_msg_id": "msg_minimized_domain",
+            "sender": "Orders.Example.COM",
+            "snippet": "1x cotton shirt - $42",
+        },
+        headers=auth_headers,
+    )
+
+    assert resp.status_code == 200
+    call = fake_anthropic.messages.last_call
+    assert call is not None
+    receipt_data = json.loads(call["messages"][0]["content"].split("\n", 1)[1])
+    assert receipt_data["sender_domain"] == "orders.example.com"
+
+
+def test_extract_rejects_invalid_bare_sender_domain(
+    client, fake_anthropic, auth_headers
+):
+    _queue(fake_anthropic, {"is_fashion": False, "items": []})
+
+    resp = client.post(
+        "/extract",
+        json={
+            "source_msg_id": "msg_invalid_domain",
+            "sender": "not a domain",
+            "snippet": "1x cotton shirt - $42",
+        },
+        headers=auth_headers,
+    )
+
+    assert resp.status_code == 200
+    call = fake_anthropic.messages.last_call
+    assert call is not None
+    receipt_data = json.loads(call["messages"][0]["content"].split("\n", 1)[1])
+    assert receipt_data["sender_domain"] is None
