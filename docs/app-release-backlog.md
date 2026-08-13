@@ -9,11 +9,38 @@ policy decision. The Google-specific order lives in
 Statuses:
 
 - **Now** — part of the current `codex/app-store-readiness` implementation branch.
+- **Done** — implemented, focused-tested, and included in a complete regression on this branch.
+- **In progress** — a safe foundation is committed, but one or more acceptance details remain.
 - **GCP gate** — coordinated code is specified here, but the production identity/policy choice
   must be completed in the Google sequence before it can be finished safely.
 - **Submission** — repository assets/checks can be prepared now; the final action happens in
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
+
+## Progress snapshot
+
+Last updated: **2026-08-13**. This table is authoritative when an item's original scope label
+below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
+kept “In progress.”
+
+| Items | Status | Verified branch outcome |
+|---|---|---|
+| APP-001, APP-002, APP-005, APP-006, APP-007, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; restored-scope validation; transactional persistence; V2 account isolation; bounded remote images; pinned SDK/privacy manifests |
+| APP-003, APP-004 | **In progress** | Privacy controls and default-off/cancellable automation are live; verified local-data deletion and user-selected reminder time still remain |
+| APP-008 | **In progress** | Anthropic no longer receives Gmail IDs/full senders; Spam/Trash are excluded and a per-account ledger/cursor exists; payload builder, JSON-LD-first flow, redaction, and ledger integration remain |
+| APP-009 | **GCP gate** | Public-client bearer removal is intentionally blocked on the production identity decision; the Release archive guard refuses the legacy key |
+| APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs/IDs and bearer removal remain external/GCP work |
+| APP-013–APP-016 | **In progress** | Samples, release build, CI gates, data inventory, policy/support/review drafts exist; isolated offline demo, UI target, final CI coverage, and published pages remain |
+| APP-017–APP-019 | **Submission** | App Store Connect record, media, signed archive/upload, clean-device QA, and final build/version decisions remain |
+| APP-020–APP-022 | **In progress** | Every item has a correction flow and imported cues; confidence review, favorite/archive, and bulk review remain |
+| APP-023 | **In progress** | Today is explicit-action-only and “Wear this” is transactional; daily cache, occasion input, and offline reuse remain |
+| APP-024–APP-028 | **Pending / enhancement** | History/feedback, full accessibility matrix, state polish, launch branding, and localization remain |
+| APP-029–APP-035 | **Pending / enhancement** | Structured/OCR import, incremental history execution, preferences, insights, backup, imagery tools, and widgets remain |
+
+Latest complete verification after the committed account/image/release work: **279 iOS tests in
+44 suites**, **51 backend tests**, Ruff, mypy, a Release-simulator build, archive-content/privacy
+verification, and **9/9 public Release configuration guard tests** all passed. The branch has not
+changed build/version metadata and has not uploaded or deployed anything.
 
 ## P0 — privacy, security, and trustworthy data handling
 
