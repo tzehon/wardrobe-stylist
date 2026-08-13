@@ -79,16 +79,32 @@ cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
 #                                localhost:8000      (simulator only)
 #                                your-app.fly.dev    (Fly.io deploy)
 #   BACKEND_DEVICE_TOKEN       = (the same string as DEVICE_TOKEN in backend/.env)
+#   PRIVACY_POLICY_URL         = https:/$()/your-domain.example/privacy
+#   SUPPORT_URL                = https:/$()/your-domain.example/support
 ```
 
 xcconfig values can't contain `//` (the rest of the line gets treated as a comment), so
 the backend URL is split into `BACKEND_SCHEME` and `BACKEND_HOST` and composed in
-`Info.plist` at build time. `ios/Config.xcconfig` (committed) `#include?`s your local file
+`Info.plist` at build time. `ios/Debug.xcconfig` (committed) `#include?`s your local file
 and feeds the values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
-`BackendDeviceToken`). Now that the backend is HTTPS on Fly.io, `Info.plist` carries no App
+`BackendDeviceToken`, and the public privacy/support links). Now that the backend is HTTPS on
+Fly.io, `Info.plist` carries no App
 Transport Security exception. To point the app back at a **plain-HTTP LAN dev backend**, set
 `BACKEND_SCHEME = http` + `BACKEND_HOST = <Mac-LAN-IP>:8000` and temporarily add an
 `NSAppTransportSecurity` → `NSAllowsArbitraryLoads = YES` block to `Info.plist` (don't commit it).
+
+`PRIVACY_POLICY_URL` and `SUPPORT_URL` are optional during local development, so their Settings
+rows remain visibly unavailable until configured. An installable device **Release** archive is
+stricter: its post-build guard requires real non-placeholder HTTPS destinations, a matching
+Google client/callback scheme, and an HTTPS backend. It also refuses to archive while the legacy
+`BackendDeviceToken` key remains in the public target. That last blocker is intentional and is
+resolved only by the per-user backend identity cutover in
+[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
+
+Release builds use a separate gitignored `ios/Distribution.xcconfig`, created from
+`ios/Distribution.xcconfig.example`. They never inherit LAN hosts or test OAuth values from
+`Secrets.xcconfig`. Do not add a shared bearer to that file; public identity is completed later
+in the GCP production sequence.
 
 ### Build / run / test
 
@@ -166,6 +182,10 @@ backend above (a real device can't reach your Mac's LAN IP). In Xcode: set a rea
 `DEVELOPMENT_TEAM` in `Secrets.xcconfig`, bump `CURRENT_PROJECT_VERSION`, then
 **Product ▸ Archive** → **Distribute App** → **App Store Connect** → **Upload**.
 Add the build to a TestFlight internal-tester group in App Store Connect.
+
+Before choosing a build number or archiving, run `ios/scripts/verify-release-artifact.sh` against
+the generated Release artifact. Device Release archives also run the strict public-configuration
+guard automatically; do not bypass it for an App Store candidate.
 
 ## Run all tests
 

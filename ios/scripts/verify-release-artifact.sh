@@ -44,6 +44,15 @@ readonly INFO_PLIST="${APP_PATH}/Info.plist"
   || fail "missing marketing version"
 [[ -n "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${INFO_PLIST}")" ]] \
   || fail "missing build number"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "${INFO_PLIST}")" == "Wardrobe Stylist" ]] \
+  || fail "CFBundleDisplayName must be Wardrobe Stylist"
+
+# A shared bearer is a public-client secret and must never be embedded in an artifact.
+# Empty local/CI substitution is tolerated here because strict device Release validation
+# separately requires the key to be removed once per-user backend identity lands.
+if device_token="$(/usr/libexec/PlistBuddy -c 'Print :BackendDeviceToken' "${INFO_PLIST}" 2>/dev/null)"; then
+  [[ -z "${device_token}" ]] || fail "built app embeds a BackendDeviceToken"
+fi
 
 readonly APP_PRIVACY_MANIFEST="${APP_PATH}/PrivacyInfo.xcprivacy"
 [[ -f "${APP_PRIVACY_MANIFEST}" ]] || fail "built app has no app-owned PrivacyInfo.xcprivacy"

@@ -79,7 +79,8 @@ specific confirmation, and a failure must never be presented as deletion or revo
   source, an asset, or Keychain. The production identity cutover is specified in
   [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
 - Release artifacts are checked for the pinned Google Sign In version, app and SDK privacy
-  manifests, launch metadata, version fields, and encryption declaration.
+  manifests, launch metadata, version fields, encryption declaration, HTTPS backend and public
+  links, matching OAuth callback configuration, and absence of the legacy shared backend bearer.
 
 ## Policy constraints
 

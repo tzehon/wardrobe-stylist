@@ -1,8 +1,8 @@
 // Project-wide build settings.
 //
 // Defaults for OAuth values are empty — the build still succeeds (and tests run) without
-// them, but live Gmail sign-in is a no-op until you create `Secrets.xcconfig` (gitignored)
-// with your real values. See `Secrets.xcconfig.example` and `docs/setup.md`.
+// them. Debug connected features use gitignored `Secrets.xcconfig`; device Release builds use
+// the separately gitignored `Distribution.xcconfig`. See both examples and `docs/setup.md`.
 
 GOOGLE_CLIENT_ID =
 GOOGLE_REVERSED_CLIENT_ID =
@@ -10,8 +10,9 @@ GOOGLE_REVERSED_CLIENT_ID =
 BACKEND_SCHEME =
 BACKEND_HOST =
 BACKEND_DEVICE_TOKEN =
+PRIVACY_POLICY_URL =
+SUPPORT_URL =
 
-// Optional include — picks up your local secrets if present. The trailing `?` means
-// "don't error if the file is missing", and because xcconfig assignments use last-wins
-// precedence, any values defined inside Secrets.xcconfig override the empty defaults above.
-#include? "Secrets.xcconfig"
+// Configuration-specific files include this common baseline, then include either
+// Secrets.xcconfig (Debug) or Distribution.xcconfig (Release). Keeping the includes
+// separate prevents a LAN backend or test OAuth client from leaking into an archive.

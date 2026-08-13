@@ -9,6 +9,7 @@
 **/credentials*.json
 **/GoogleService-Info.plist
 ios/Secrets.xcconfig
+ios/Distribution.xcconfig
 *.p8
 *.p12
 *.mobileprovision

@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - "ios/**"
+      - "shared/**"
       - ".github/workflows/ios.yml"
   pull_request:
     paths:
       - "ios/**"
+      - "shared/**"
       - ".github/workflows/ios.yml"
 
 concurrency:
@@ -35,6 +37,9 @@ jobs:
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
+
+      - name: Test public Release configuration guard
+        run: python3 ios/scripts/tests/test_validate_public_release.py
 
       - name: Resolve pinned packages
         working-directory: ios

@@ -12,6 +12,8 @@
     <string>6.0</string>
     <key>CFBundleName</key>
     <string>$(PRODUCT_NAME)</string>
+    <key>CFBundleDisplayName</key>
+    <string>Wardrobe Stylist</string>
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
@@ -45,6 +47,10 @@
     <string>$(BACKEND_SCHEME)://$(BACKEND_HOST)</string>
     <key>BackendDeviceToken</key>
     <string>$(BACKEND_DEVICE_TOKEN)</string>
+    <key>PRIVACY_POLICY_URL</key>
+    <string>$(PRIVACY_POLICY_URL)</string>
+    <key>SUPPORT_URL</key>
+    <string>$(SUPPORT_URL)</string>
     <!-- Export compliance: the app uses only standard HTTPS/TLS (Fly.io backend,
          Google/Gmail, Anthropic), which qualifies for the encryption exemption.
          Declaring NO here spares an export-compliance prompt on every TestFlight

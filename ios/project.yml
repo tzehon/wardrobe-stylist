@@ -6,8 +6,8 @@ options:
     iOS: "18.0"
   createIntermediateGroups: true
 configFiles:
-  Debug: Config.xcconfig
-  Release: Config.xcconfig
+  Debug: Debug.xcconfig
+  Release: Release.xcconfig
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -15,7 +15,7 @@ settings:
     CURRENT_PROJECT_VERSION: "3"
     # Simulator builds use ad-hoc signing — gives the app a real identity (Keychain APIs
     # need one) without requiring an Apple Developer Team. Device builds keep automatic
-    # signing with DEVELOPMENT_TEAM from Secrets.xcconfig.
+    # signing with DEVELOPMENT_TEAM from Distribution.xcconfig.
     "CODE_SIGN_STYLE[sdk=iphonesimulator*]": "Manual"
     "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
     CODE_SIGN_STYLE: Automatic
@@ -46,6 +46,12 @@ targets:
         product: GoogleSignIn
       - package: GoogleSignIn
         product: GoogleSignInSwift
+    postBuildScripts:
+      - name: Validate public Release configuration
+        script: |
+          "${SRCROOT}/scripts/validate-public-release-settings.sh" \
+            "${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
+        basedOnDependencyAnalysis: false
   WardrobeTests:
     type: bundle.unit-test
     platform: iOS
