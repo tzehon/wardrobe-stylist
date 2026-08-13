@@ -13,6 +13,8 @@ struct CatalogView: View {
     @State private var selectedCategory: String?      // nil = all categories
     @State private var sortOrder: CatalogSortOrder = .recent
     @State private var showingAddItem = false
+    @State private var pendingDeletion: Item?
+    @State private var writes = WardrobeWriteCoordinator()
 
     private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
 
@@ -49,6 +51,19 @@ struct CatalogView: View {
         .sheet(isPresented: $showingAddItem) {
             AddItemView()
         }
+        .confirmationDialog(
+            "Delete this item?",
+            isPresented: isConfirmingDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive, action: confirmDeletion)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            if let pendingDeletion {
+                Text("“\(pendingDeletion.name)” will be removed from your catalog.")
+            }
+        }
+        .wardrobePersistenceAlert(writes)
     }
 
     private var addButton: some ToolbarContent {
@@ -115,7 +130,7 @@ struct CatalogView: View {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button(role: .destructive) {
-                                delete(item)
+                                pendingDeletion = item
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -144,9 +159,22 @@ struct CatalogView: View {
         }
     }
 
-    private func delete(_ item: Item) {
-        modelContext.delete(item)
-        try? modelContext.save()
+    private var isConfirmingDelete: Binding<Bool> {
+        Binding(
+            get: { pendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented { pendingDeletion = nil }
+            }
+        )
+    }
+
+    private func confirmDeletion() {
+        guard let item = pendingDeletion else { return }
+        pendingDeletion = nil
+        writes.perform(
+            operation: .deleteItem,
+            write: { try WardrobeStore(modelContext: modelContext).deleteItem(item) }
+        )
     }
 }
 

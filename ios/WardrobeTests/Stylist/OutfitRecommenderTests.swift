@@ -44,6 +44,28 @@ struct OutfitRecommenderTests {
         )
     }
 
+    private final class FailingStore: WardrobeStoring {
+        enum FixtureError: Error { case saveFailed }
+
+        private(set) var recordWearCalls = 0
+
+        func addItem(_ input: ManualItemInput) throws -> Item {
+            Item(name: input.name, category: input.category, source: input.source)
+        }
+        func deleteItem(_ item: Item) throws {}
+
+        func recordWear(
+            items: [Item],
+            occasion: String?,
+            rationale: String?,
+            colorStory: String?,
+            date: Date
+        ) throws -> Outfit {
+            recordWearCalls += 1
+            throw WardrobePersistenceError(operation: .recordWear, underlying: FixtureError.saveFailed)
+        }
+    }
+
     nonisolated private static func ok(for request: URLRequest) -> HTTPURLResponse {
         HTTPURLResponse(
             url: request.url!, statusCode: 200, httpVersion: "HTTP/1.1",
@@ -137,7 +159,7 @@ struct OutfitRecommenderTests {
 
         let recommender = Self.makeRecommender(context)
         await recommender.recommend()
-        recommender.wearCurrent()
+        try recommender.wearCurrent()
 
         let outfits = try context.fetch(FetchDescriptor<Outfit>())
         #expect(outfits.count == 1)
@@ -147,6 +169,43 @@ struct OutfitRecommenderTests {
         let wears = try context.fetch(FetchDescriptor<WearLog>())
         #expect(wears.count == 2)  // one per item
         #expect(Set(wears.compactMap { $0.item?.id }) == [Self.idA, Self.idB])
+    }
+
+    @Test func wearCurrentPropagatesFailureSoUISuccessCanRemainFalse() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        Self.seedCatalog(context)
+        let failingStore = FailingStore()
+
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                deviceToken: "test-device-token",
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            store: failingStore,
+            now: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+        await recommender.recommend()
+        let coordinator = WardrobeWriteCoordinator()
+        var didMarkWorn = false
+
+        coordinator.perform(
+            operation: .recordWear,
+            write: { try recommender.wearCurrent() },
+            onSuccess: { didMarkWorn = true }
+        )
+
+        #expect(failingStore.recordWearCalls == 1)
+        #expect(!didMarkWorn)
+        #expect(coordinator.error?.operation == .recordWear)
+        #expect(try context.fetch(FetchDescriptor<Outfit>()).isEmpty)
+        #expect(try context.fetch(FetchDescriptor<WearLog>()).isEmpty)
     }
 
     @Test func dropsItemsNotInCatalogAndKeepsValidLook() async throws {

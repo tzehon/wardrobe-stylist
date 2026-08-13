@@ -10,6 +10,7 @@ struct ItemDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var confirmingDelete = false
+    @State private var writes = WardrobeWriteCoordinator()
 
     var body: some View {
         ScrollView {
@@ -54,14 +55,17 @@ struct ItemDetailView: View {
             titleVisibility: .visible
         ) {
             Button("Delete", role: .destructive) {
-                dismiss()
-                modelContext.delete(item)
-                try? modelContext.save()
+                writes.perform(
+                    operation: .deleteItem,
+                    write: { try WardrobeStore(modelContext: modelContext).deleteItem(item) },
+                    onSuccess: { dismiss() }
+                )
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("“\(item.name)” will be removed from your catalog.")
         }
+        .wardrobePersistenceAlert(writes)
     }
 
     // MARK: - Sections

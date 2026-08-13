@@ -12,6 +12,7 @@ struct TodayView: View {
     @State private var recommender: OutfitRecommender?
     @State private var configError: String?
     @State private var wornLookID: UUID?
+    @State private var writes = WardrobeWriteCoordinator()
 
     var body: some View {
         Group {
@@ -37,6 +38,7 @@ struct TodayView: View {
             }
         }
         .task { await setUpAndRecommend() }
+        .wardrobePersistenceAlert(writes)
     }
 
     // MARK: - Content by state
@@ -115,8 +117,11 @@ struct TodayView: View {
     ) -> some View {
         VStack(spacing: 12) {
             Button {
-                recommender.wearCurrent()
-                wornLookID = recommendation.current.id
+                writes.perform(
+                    operation: .recordWear,
+                    write: { try recommender.wearCurrent() },
+                    onSuccess: { wornLookID = recommendation.current.id }
+                )
             } label: {
                 Label(isWorn ? "Added to today" : "Wear this",
                       systemImage: isWorn ? "checkmark.circle.fill" : "checkmark.circle")

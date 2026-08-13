@@ -38,6 +38,7 @@ struct AddItemView: View {
     @State private var image: UIImage?
     @State private var pickerItem: PhotosPickerItem?
     @State private var showingCamera = false
+    @State private var writes = WardrobeWriteCoordinator()
 
     private static let categories = CatalogOrganizer.canonicalOrder
 
@@ -77,6 +78,7 @@ struct AddItemView: View {
             .onChange(of: pickerItem) { _, newValue in
                 Task { await loadPicked(newValue) }
             }
+            .wardrobePersistenceAlert(writes)
         }
     }
 
@@ -113,7 +115,7 @@ struct AddItemView: View {
 
     private func save() {
         guard let image else { return }
-        let item = Item(
+        let input = ManualItemInput(
             name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines),
             category: draft.category,
             brand: draft.brand.trimmedNonEmpty,
@@ -123,9 +125,11 @@ struct AddItemView: View {
             imageData: ImageProcessor.imageData(from: image),
             thumbnailData: ImageProcessor.thumbnailData(from: image)
         )
-        modelContext.insert(item)
-        try? modelContext.save()
-        dismiss()
+        writes.perform(
+            operation: .addItem,
+            write: { try WardrobeStore(modelContext: modelContext).addItem(input) },
+            onSuccess: { dismiss() }
+        )
     }
 }
 

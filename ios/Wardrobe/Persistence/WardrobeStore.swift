@@ -1,0 +1,240 @@
+import Foundation
+import Observation
+import SwiftData
+
+/// A persistence failure with copy that is safe to show to the user.
+///
+/// The diagnostic is retained for tests and future logging, but views must use
+/// only `title` and `message`; raw store errors may contain implementation
+/// details that do not help someone recover.
+struct WardrobePersistenceError: Error, Equatable, LocalizedError, Sendable {
+    enum Operation: Equatable, Sendable {
+        case addItem
+        case deleteItem
+        case recordWear
+    }
+
+    let operation: Operation
+    let diagnostic: String
+
+    init(operation: Operation, underlying: Error) {
+        self.operation = operation
+        self.diagnostic = String(describing: underlying)
+    }
+
+    var title: String {
+        switch operation {
+        case .addItem: "Couldn’t Save Item"
+        case .deleteItem: "Couldn’t Delete Item"
+        case .recordWear: "Couldn’t Record Outfit"
+        }
+    }
+
+    var message: String {
+        switch operation {
+        case .addItem:
+            "Your item wasn’t added. Your details are still here, so you can try again."
+        case .deleteItem:
+            "The item is still in your catalog. Please try again."
+        case .recordWear:
+            "This look wasn’t marked as worn. Please try again."
+        }
+    }
+
+    var errorDescription: String? { title }
+    var recoverySuggestion: String? { message }
+}
+
+private enum WardrobeStoreError: Error {
+    case pendingChanges
+    case itemFromDifferentStore
+    case itemAlreadyDeleted
+    case emptyWearSelection
+}
+
+/// Value input for Add Item's manual-photo write. The store creates the
+/// SwiftData model inside the transaction so retrying after rollback never
+/// reuses a detached model. Receipt/import paths intentionally use their own
+/// richer persistence pipeline.
+struct ManualItemInput: Sendable {
+    let name: String
+    let category: String
+    let brand: String?
+    let colors: [String]
+    let material: String?
+    let source: ItemSource
+    let imageData: Data?
+    let thumbnailData: Data?
+}
+
+/// The user-triggered wardrobe mutations exposed to UI and feature code.
+/// Keeping this protocol small makes save failures deterministic in tests.
+@MainActor
+protocol WardrobeStoring {
+    @discardableResult
+    func addItem(_ input: ManualItemInput) throws -> Item
+    func deleteItem(_ item: Item) throws
+
+    @discardableResult
+    func recordWear(
+        items: [Item],
+        occasion: String?,
+        rationale: String?,
+        colorStory: String?,
+        date: Date
+    ) throws -> Outfit
+}
+
+/// The canonical transaction boundary for user-triggered SwiftData writes.
+/// A mutation is successful only after `ModelContext.save()` returns. Any
+/// mutation or save failure rolls the pending transaction back before a safe
+/// `WardrobePersistenceError` reaches the UI.
+@MainActor
+final class WardrobeStore: WardrobeStoring {
+    typealias Save = @MainActor (ModelContext) throws -> Void
+
+    private let modelContext: ModelContext
+    private let save: Save
+
+    init(
+        modelContext: ModelContext,
+        save: @escaping Save = { try $0.save() }
+    ) {
+        self.modelContext = modelContext
+        self.save = save
+    }
+
+    @discardableResult
+    func addItem(_ input: ManualItemInput) throws -> Item {
+        try transaction(operation: .addItem) {
+            let item = Item(
+                name: input.name,
+                category: input.category,
+                brand: input.brand,
+                colors: input.colors,
+                material: input.material,
+                source: input.source,
+                imageData: input.imageData,
+                thumbnailData: input.thumbnailData
+            )
+            modelContext.insert(item)
+            return item
+        }
+    }
+
+    func deleteItem(_ item: Item) throws {
+        try validate(item, operation: .deleteItem)
+        try transaction(operation: .deleteItem) {
+            modelContext.delete(item)
+        }
+    }
+
+    @discardableResult
+    func recordWear(
+        items: [Item],
+        occasion: String?,
+        rationale: String?,
+        colorStory: String?,
+        date: Date
+    ) throws -> Outfit {
+        guard !items.isEmpty else {
+            throw WardrobePersistenceError(
+                operation: .recordWear,
+                underlying: WardrobeStoreError.emptyWearSelection
+            )
+        }
+        let uniqueItems = items.reduce(into: [Item]()) { result, item in
+            if !result.contains(where: { $0.id == item.id }) {
+                result.append(item)
+            }
+        }
+        for item in uniqueItems {
+            try validate(item, operation: .recordWear)
+        }
+        return try transaction(operation: .recordWear) {
+            let outfit = Outfit(
+                createdAt: date,
+                occasion: occasion,
+                rationale: rationale,
+                colorStory: colorStory,
+                items: uniqueItems
+            )
+            modelContext.insert(outfit)
+            for item in uniqueItems {
+                modelContext.insert(WearLog(date: date, item: item, outfit: outfit))
+            }
+            return outfit
+        }
+    }
+
+    private func transaction<Result>(
+        operation: WardrobePersistenceError.Operation,
+        mutation: () throws -> Result
+    ) throws -> Result {
+        // Rollback is context-wide. Refuse to begin while an older unrelated
+        // change is pending, rather than silently committing or discarding it
+        // under this action's success/error semantics.
+        if modelContext.hasChanges {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.pendingChanges
+            )
+        }
+
+        do {
+            let result = try mutation()
+            try save(modelContext)
+            return result
+        } catch {
+            modelContext.rollback()
+            throw WardrobePersistenceError(operation: operation, underlying: error)
+        }
+    }
+
+    private func validate(
+        _ item: Item,
+        operation: WardrobePersistenceError.Operation
+    ) throws {
+        guard item.modelContext === modelContext else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.itemFromDifferentStore
+            )
+        }
+        guard !item.isDeleted else {
+            throw WardrobePersistenceError(
+                operation: operation,
+                underlying: WardrobeStoreError.itemAlreadyDeleted
+            )
+        }
+    }
+}
+
+/// Shared UI write state. `onSuccess` runs strictly after the write (including
+/// its save) succeeds, so views cannot dismiss or show a success checkmark for
+/// a transaction that was rolled back.
+@MainActor
+@Observable
+final class WardrobeWriteCoordinator {
+    private(set) var error: WardrobePersistenceError?
+
+    func perform(
+        operation: WardrobePersistenceError.Operation,
+        write: () throws -> Void,
+        onSuccess: () -> Void = {}
+    ) {
+        do {
+            try write()
+            error = nil
+            onSuccess()
+        } catch let persistenceError as WardrobePersistenceError {
+            error = persistenceError
+        } catch let underlyingError {
+            error = WardrobePersistenceError(operation: operation, underlying: underlyingError)
+        }
+    }
+
+    func clearError() {
+        error = nil
+    }
+}

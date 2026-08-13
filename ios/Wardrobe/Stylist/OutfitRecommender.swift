@@ -47,6 +47,7 @@ final class OutfitRecommender {
 
     private let recommendClient: RecommendClient
     private let modelContext: ModelContext
+    private let store: any WardrobeStoring
     private let now: () -> Date
 
     /// An outfit needs at least this many items to be worth recommending.
@@ -55,10 +56,12 @@ final class OutfitRecommender {
     init(
         recommendClient: RecommendClient,
         modelContext: ModelContext,
+        store: (any WardrobeStoring)? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.recommendClient = recommendClient
         self.modelContext = modelContext
+        self.store = store ?? WardrobeStore(modelContext: modelContext)
         self.now = now
     }
 
@@ -107,21 +110,16 @@ final class OutfitRecommender {
 
     /// Record the currently shown look as worn: persists an `Outfit` and a
     /// per-item `WearLog` (item + outfit) so it feeds tomorrow's anti-repeat.
-    func wearCurrent() {
+    func wearCurrent() throws {
         guard case .loaded(let recommendation) = state else { return }
         let look = recommendation.current
-        let outfit = Outfit(
-            createdAt: now(),
+        try store.recordWear(
+            items: look.items,
             occasion: recommendation.occasion,
             rationale: look.rationale,
             colorStory: recommendation.colorStory,
-            items: look.items
+            date: now()
         )
-        modelContext.insert(outfit)
-        for item in look.items {
-            modelContext.insert(WearLog(date: now(), item: item, outfit: outfit))
-        }
-        try? modelContext.save()
     }
 
     // MARK: - Mapping
