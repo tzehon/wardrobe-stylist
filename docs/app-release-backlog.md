@@ -19,7 +19,7 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-13**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-14**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -28,21 +28,21 @@ kept “In progress.”
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
 | APP-009 | **GCP gate** | Public-client bearer removal is intentionally blocked on the production identity decision; the Release archive guard refuses the legacy key |
 | APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs/IDs and bearer removal remain external/GCP work |
-| APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline six-item tour; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
-| APP-014 | **In progress** | A UI-test target covers three critical local/offline flows end to end; connected consent, reminder, disconnect, and delete UI flows still need deterministic UI coverage |
+| APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
+| APP-014 | **Done** | Nine deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
 | APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
 | APP-017–APP-019 | **Submission** | App Store Connect record, media, signed archive/upload, clean-device QA, and final build/version decisions remain |
-| APP-020–APP-022 | **In progress** | Every item has a correction flow and imported cues; confidence review, favorite/archive, and bulk review remain |
+| APP-020–APP-022 | **Done** | V3 migration, pending-import confidence review, one validated add/edit/review form, favorites, archive, duplicate cues, useful filters, and individual/bulk acceptance are implemented and account-scoped |
 | APP-023 | **Done** | Today is explicit-action-only, account-scoped daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
-| APP-024–APP-028 | **Pending / in progress** | History/feedback, full accessibility matrix, broader state polish, final launch branding, and localization remain; onboarding and critical state/accessibility identifiers are improved |
-| APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import and resumable per-account ledgering are live; OCR routing, Gmail History execution, preferences, insights, backup, imagery tools, and widgets remain |
+| APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
+| APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest complete verification for the integrated branch: **358 iOS tests** total (**355 Swift
-tests in 51 suites plus 3 end-to-end UI tests**), **58 backend tests**, Ruff, mypy, a
-Release-simulator build, embedded artifact/privacy-manifest verification, and **9/9 public
-Release configuration guard tests** all passed. The branch has not changed build/version
-metadata and has not uploaded or deployed anything.
+Latest integrated verification: **394 iOS tests** total (**385 Swift tests plus 9 end-to-end UI
+tests**), **71 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, a
+Release-simulator build, and artifact checks for GoogleSignIn 9.2.0, the app privacy manifest,
+branded launch assets, required plist values, and 10 SDK privacy manifests all passed. The branch
+has not changed build/version metadata and has not uploaded or deployed anything.
 
 ## P0 — privacy, security, and trustworthy data handling
 
@@ -106,7 +106,7 @@ metadata and has not uploaded or deployed anything.
   mode or equivalent UI-test fixture that exercises Today, wardrobe browsing, item editing, and
   data controls without a reviewer sharing a personal mailbox. It must be visually and
   functionally distinct from real user data and never call Gmail or the backend.
-- [ ] **APP-014 · In progress · Add end-to-end UI coverage.** Cover first launch, skipped Gmail,
+- [x] **APP-014 · Done · Add end-to-end UI coverage.** Cover first launch, skipped Gmail,
   disclosure/consent, demo entry, add/edit/delete item, catalog search/filter, Today states,
   reminder controls, disconnect, and local data deletion. Keep request-capture tests proving no
   network path runs without consent and no prohibited Gmail operation is representable.
@@ -132,31 +132,31 @@ metadata and has not uploaded or deployed anything.
 
 ## P1 — core experience polish
 
-- [ ] **APP-020 · In progress · Review and correct imported items.** Receipt-derived entries land in a
+- [x] **APP-020 · Done · Review and correct imported items.** Receipt-derived entries land in a
   visible review state. Users can edit name, brand, category, color, size, purchase metadata,
   and image before accepting. Surface duplicates and extraction uncertainty instead of silently
   saving an incorrect catalog.
-- [ ] **APP-021 · In progress · Make every item editable.** Reuse one validated item form for manual add,
+- [x] **APP-021 · Done · Make every item editable.** Reuse one validated item form for manual add,
   import review, and edit. Preserve the existing photo when editing and confirm destructive
   deletion. Show specific save/validation failures.
-- [ ] **APP-022 · In progress · Improve catalog information architecture.** Add clear local/imported and
+- [x] **APP-022 · Done · Improve catalog information architecture.** Add clear local/imported and
   pending-review cues, useful empty/search-zero states, stable sorting, favorites, archive, and
   bulk review where it materially reduces effort.
 - [x] **APP-023 · Done · Polish Today.** Cache a recommendation for the day, let users refresh
   intentionally, accept occasion/context input, explain empty/error/offline states, and never
   make a backend call merely because a tab appeared. Saving “Wear this” must be transactional
   and acknowledged only after persistence succeeds.
-- [ ] **APP-024 · Enhancement · Add outfit history and feedback.** Show worn looks, dates, and
+- [x] **APP-024 · Done · Add outfit history and feedback.** Show worn looks, dates, and
   item details. Let users rate/save/skip a recommendation and feed those preferences into future
   prompts without weakening the catalog-ID hallucination guard.
-- [ ] **APP-025 · In progress · Finish accessibility and adaptive layout.** VoiceOver names/hints and
+- [x] **APP-025 · Done · Finish accessibility and adaptive layout.** VoiceOver names/hints and
   traversal, Dynamic Type through accessibility sizes, minimum tap targets, sufficient contrast,
   non-color-only status, Reduce Motion, keyboard/focus behavior, and meaningful image labels.
   Test the smallest supported phone and large text.
-- [ ] **APP-026 · In progress · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
+- [x] **APP-026 · Done · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
   SDK/backend errors and indefinite spinners. Preserve user input on failure and make destructive
   or privacy-impacting actions explicit.
-- [ ] **APP-027 · In progress · Add a branded first-run and launch experience.** Explain the value before
+- [x] **APP-027 · Done · Add a branded first-run and launch experience.** Explain the value before
   permissions, include transparent privacy positioning, offer demo/local/Gmail paths, and replace
   the empty launch treatment while preserving fast startup.
 - [ ] **APP-028 · Enhancement · Localize user-visible copy.** Start with a complete development
@@ -174,8 +174,9 @@ metadata and has not uploaded or deployed anything.
 - [ ] **APP-031 · Enhancement · Rich styling preferences.** Add dress code, weather/context (only
   with separate permission), color/fit preferences, avoid/prefer items, laundry/unavailable
   state, packing/travel capsules, and calendar-aware occasions only as explicit opt-ins.
-- [ ] **APP-032 · Enhancement · Wardrobe insights.** Cost-per-wear, least/most worn, neglected
-  items, category gaps, repeat rate, and purchase trends computed locally where possible.
+- [ ] **APP-032 · In progress · Wardrobe insights.** A local snapshot now covers looks worn,
+  pieces in rotation, unworn pieces, favorites, and most-worn items. Extend it with cost-per-wear,
+  category gaps, repeat rate, and purchase trends where the underlying data is reliable.
 - [ ] **APP-033 · Enhancement · Import/export and backup.** Export a user-readable archive,
   restore it safely, and optionally sync via the user's iCloud account. Define conflict handling,
   encryption, and deletion semantics before implementation.

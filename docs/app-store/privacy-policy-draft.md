@@ -39,9 +39,11 @@ Anthropic. [VERIFY FINAL REQUEST CAPTURE, BACKEND LOGGING, AND PROVIDER FIELDS B
 ### Wardrobe information used for AI styling
 
 If you consent to AI styling, the app may send compact wardrobe attributes—such as internal item
-ID, name, category, brand, colors and material—plus recent-wear identifiers and an occasion you
-provide to our backend and Anthropic. Wardrobe photos and purchase metadata are not included in
-the styling request unless this policy and the in-app disclosure are updated and you consent.
+ID, name, category, brand, colors and material—plus recent-wear identifiers, bounded per-item
+rating summaries (item ID, average 1–5 rating and rating count), and an occasion you provide to
+our backend and Anthropic. Rating free text, wear dates, wardrobe photos, and purchase metadata
+are not included in styling requests unless this policy and the in-app disclosure are updated and
+you consent.
 
 ### Technical information
 

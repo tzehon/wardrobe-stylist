@@ -3,11 +3,11 @@
 ## Identity
 
 - Product name: **Wardrobe Stylist**
-- Subtitle (30 characters max): [TODO]
+- Subtitle (30 characters max): **Catalog. Style. Wear more.** (candidate)
 - Bundle ID: `com.tth.Wardrobe` — confirm before first public version
-- SKU: [TODO]
-- Primary category: [Lifestyle candidate; confirm]
-- Secondary category: [TODO]
+- SKU: `wardrobe-stylist-ios` (candidate; immutable after record creation)
+- Primary category: **Lifestyle** (candidate)
+- Secondary category: **Productivity** (candidate)
 - Copyright: [YEAR LEGAL OWNER]
 - Public version: [DECIDE 1.0.0 VS CURRENT 0.1.0]
 
@@ -31,13 +31,17 @@ Features planned for the public v1 cut:
 - Clear privacy, consent, disconnect and deletion controls
 - Offline sample/demo path for product review
 
-## Promotional text
+## Promotional text candidate
 
-[170 CHARACTERS MAX; OPTIONAL AND EDITABLE WITHOUT A NEW BINARY]
+Build your wardrobe locally, import purchases with optional read-only Gmail access, and ask Aria
+for a thoughtful look when you need one.
 
-## Keywords
+## Keywords candidate
 
-[100 BYTES TOTAL; DO NOT REPEAT NAME/CATEGORY; FINALIZE WITH MARKET RESEARCH]
+`closet,outfit,clothes,fashion,catalog,organizer,lookbook,wear,receipt,styling`
+
+Recount the UTF-8 byte total after any localization or market-research changes. Do not add the
+app name, category names, competitors, or other companies.
 
 ## URLs
 
@@ -62,12 +66,14 @@ Features planned for the public v1 cut:
 Use fictional/demo data and current device specifications. Each frame should communicate one idea:
 
 1. **Your wardrobe, without an account** — polished populated catalog.
-2. **Add pieces your way** — photo/manual entry.
-3. **Optional read-only receipt import** — disclosure or result, not a Google login-only frame.
-4. **Review before it joins your wardrobe** — correction queue.
-5. **A look for today** — coordinated item strip and rationale.
-6. **Built around your choices** — concise privacy/settings view.
+2. **Make every piece yours** — full edit form with useful local details.
+3. **Review before it joins your wardrobe** — pending synthetic import and correction flow.
+4. **A thoughtful look for today** — coordinated item strip and rationale.
+5. **Remember what worked** — fictional worn-look history and wardrobe snapshot.
+6. **Connected features stay optional** — concise privacy/settings view.
+
+The detailed capture matrix, current Apple dimensions, safety checks, and evidence naming live in
+[`screenshot-plan.md`](screenshot-plan.md).
 
 Never show real Gmail content, email addresses, order numbers, receipts, wardrobe photos, tokens,
 test credentials, debug banners or raw error messages.
-

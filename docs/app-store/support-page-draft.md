@@ -43,9 +43,10 @@ iOS Settings.
 
 ### How do I delete my wardrobe?
 
-Open Settings → Privacy & Data → Delete Local Wardrobe. This removes local items, photos, outfits,
-wear history, sync state and cached recommendations. It does not delete email. [VERIFY FINAL UI
-LABELS AND SERVER-SIDE SESSION DELETION BEFORE PUBLICATION.]
+Open Settings → Data on This Device → Delete Local Data. This removes local items, photos,
+outfits, wear history, receipt sync history, cached images, recommendations, and related choices
+from this device. It does not delete email or revoke Google access. Use **Disconnect Google**
+separately when you also want to revoke the grant.
 
 ### How do I revoke Google access outside the app?
 
@@ -54,8 +55,8 @@ Wardrobe Stylist, and remove access.
 
 ### Why did a receipt import miss or mislabel an item?
 
-Automated extraction can be wrong. Open the import review queue to correct, merge, accept or delete
-an item. [PUBLISH ONLY AFTER REVIEW UI SHIPS.]
+Automated extraction can be wrong. Open the pending-import review queue to correct or accept an
+item, or delete it instead. [RECONCILE WITH THE FINAL IMPORT-REVIEW LABELS BEFORE PUBLICATION.]
 
 ## Privacy and safety
 
@@ -64,4 +65,3 @@ an item. [PUBLISH ONLY AFTER REVIEW UI SHIPS.]
 - [Delete-data instructions]
 - [Security contact]
 - [Service status page, if provided]
-

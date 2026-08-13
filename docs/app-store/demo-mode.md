@@ -7,7 +7,8 @@ personal wardrobe. Enter it from first-run onboarding (`Try the offline demo`) o
 While active:
 
 - the indigo banner labels every tab as `Demo Mode · Fictional Data`;
-- six fixed fictional items live in a dedicated in-memory SwiftData container;
+- seven fixed fictional items (including one pending synthetic import) and one fictional worn look live in a dedicated in-memory SwiftData
+  container;
 - Today renders a fixed bundled look without constructing `BackendConfig` or a recommendation
   client;
 - the production Settings screen is replaced, so Google sign-in, Gmail sync, AI styling,
@@ -15,8 +16,9 @@ While active:
 - scene-background reconciliation is skipped; an in-app Demo entered from the production shell
   leaves that shell's OAuth callback routing available for an already-running Google flow, while
   reviewer launch never constructs connected-feature UI and never starts sign-in;
-- catalog browsing, editing, and deletion operate only on the in-memory demo container.
-- Demo Settings can destructively reset that disposable container to the bundled six-item state,
+- catalog browsing, editing, deletion, and outfit-history navigation operate only on the
+  in-memory demo container;
+- Demo Settings can destructively reset that disposable container to the bundled seven-item state,
   giving reviewers a safe data-control path without touching the production store.
 
 Exiting releases that container and discards every demo edit. An in-app tour resumes the same
