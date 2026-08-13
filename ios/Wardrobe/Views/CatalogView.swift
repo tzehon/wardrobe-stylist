@@ -241,7 +241,7 @@ private struct CatalogCell: View {
 }
 
 /// Renders, in priority order: a stored local image (Phase 4 photo capture), a
-/// remote product image from the receipt (`imageURL`, loaded via `AsyncImage`),
+/// validated remote product image from the receipt (`imageURL`),
 /// or a category-symbol placeholder.
 struct ItemThumbnail: View {
     let item: Item
@@ -249,15 +249,11 @@ struct ItemThumbnail: View {
     var body: some View {
         if let data = item.thumbnailData ?? item.imageData, let image = UIImage(data: data) {
             Image(uiImage: image).resizable().scaledToFill()
-        } else if let urlString = item.imageURL, let url = URL(string: urlString) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case let .success(image): image.resizable().scaledToFill()
-                case .failure:            placeholder
-                case .empty:              ProgressView()
-                @unknown default:         placeholder
-                }
-            }
+        } else if let urlString = item.imageURL {
+            SafeRemoteImage(
+                urlString: urlString,
+                placeholderSystemName: CatalogCategoryStyle.symbol(item.category)
+            )
         } else {
             placeholder
         }
