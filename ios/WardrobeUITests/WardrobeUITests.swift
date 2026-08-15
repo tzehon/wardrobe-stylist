@@ -30,6 +30,10 @@ final class WardrobeUITests: XCTestCase {
 
         static let connectedRoot = "uiTest.connected.root"
         static let networkStatus = "uiTest.connected.networkStatus"
+        static let connectedFeatures = "settings.hub.connected"
+        static let wardrobeAndDemo = "settings.hub.wardrobe"
+        static let privacyAndData = "settings.hub.privacy"
+        static let helpAndSupport = "settings.hub.help"
         static let receiptAllow = "settings.gmail.allowReceiptAnalysis"
         static let receiptAllowed = "settings.gmail.receiptAnalysisAllowed"
         static let receiptWithdraw = "settings.gmail.withdrawReceiptAnalysis"
@@ -269,8 +273,29 @@ final class WardrobeUITests: XCTestCase {
     }
 
     @MainActor
+    func testSettingsHubKeepsDetailedControlsBehindFourClearChoices() throws {
+        let app = launchConnectedUITestExperience()
+
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 3))
+        XCTAssertTrue(element(in: app, identifier: Identifier.connectedFeatures).exists)
+        XCTAssertTrue(element(in: app, identifier: Identifier.wardrobeAndDemo).exists)
+        XCTAssertTrue(element(in: app, identifier: Identifier.privacyAndData).exists)
+        XCTAssertTrue(element(in: app, identifier: Identifier.helpAndSupport).exists)
+        XCTAssertTrue(app.staticTexts["Gmail import, AI styling, and reminders"].exists)
+        XCTAssertTrue(app.staticTexts["Data use, privacy policy, and deletion"].exists)
+        XCTAssertFalse(element(in: app, identifier: Identifier.receiptAllow).exists)
+        XCTAssertFalse(element(in: app, identifier: Identifier.deleteLocalData).exists)
+        attachScreenshot(named: "Settings - Simple Hub")
+
+        openConnectedFeatures(in: app)
+        XCTAssertTrue(app.staticTexts["Gmail Import"].exists)
+        XCTAssertTrue(scrollToText("AI Styling & Reminder", in: app))
+    }
+
+    @MainActor
     func testConnectedDisclosuresAndConsentsAreExplicitAndReversible() throws {
         var app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
 
         XCTAssertTrue(app.staticTexts["Connected (read-only)"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["reviewer@example.invalid"].exists)
@@ -294,11 +319,11 @@ final class WardrobeUITests: XCTestCase {
         receiptWithdraw.tap()
         XCTAssertTrue(receiptAllow.waitForExistence(timeout: 3))
 
-        assertNoConnectedNetworkAttempt(in: app)
         attachScreenshot(named: "Connected Settings - Receipt Consent Withdrawn")
 
         app.terminate()
         app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
 
         let stylingAllow = element(in: app, identifier: Identifier.stylingAllow)
         XCTAssertTrue(scrollToElement(stylingAllow, in: app))
@@ -319,13 +344,13 @@ final class WardrobeUITests: XCTestCase {
         XCTAssertTrue(scrollToElement(stylingWithdraw, in: app))
         stylingWithdraw.tap()
         XCTAssertTrue(stylingAllow.waitForExistence(timeout: 3))
-        assertNoConnectedNetworkAttempt(in: app)
         attachScreenshot(named: "Connected Settings - Consents Withdrawn")
     }
 
     @MainActor
     func testReminderCanEnableChangeTimeAndDisableWithoutSystemPermission() throws {
         let app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
 
         let stylingAllow = element(in: app, identifier: Identifier.stylingAllow)
         XCTAssertTrue(scrollToElement(stylingAllow, in: app))
@@ -357,7 +382,7 @@ final class WardrobeUITests: XCTestCase {
         } else {
             wheels.element(boundBy: 1).adjust(toPickerWheelValue: "15")
         }
-        app.navigationBars["Settings"].tap()
+        app.navigationBars["Connected Features"].tap()
 
         timePicker = element(in: app, identifier: Identifier.reminderTime)
         XCTAssertTrue(
@@ -375,12 +400,12 @@ final class WardrobeUITests: XCTestCase {
         XCTAssertTrue(scrollBidirectionallyToElement(timePicker, in: app))
         XCTAssertTrue(waitForEnabledState(of: timePicker, expected: false))
         XCTAssertEqual(timePicker.value as? String, "Reminder is off")
-        assertNoConnectedNetworkAttempt(in: app)
     }
 
     @MainActor
     func testSignOutRetainsLocalDataAndShowsDisconnectedState() throws {
         let app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
         let signOut = element(in: app, identifier: Identifier.signOut)
         XCTAssertTrue(scrollToElement(signOut, in: app))
         signOut.tap()
@@ -395,14 +420,18 @@ final class WardrobeUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Not connected"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.buttons["Sign in with Google"].exists)
-        XCTAssertTrue(app.staticTexts["Data on This Device"].exists || scrollToText("Data on This Device", in: app))
-        assertNoConnectedNetworkAttempt(in: app)
+        returnToSettingsHub(from: "Connected Features", in: app)
+        openPrivacyAndData(in: app)
+        XCTAssertTrue(app.staticTexts["Data on This Device"].exists)
         attachScreenshot(named: "Connected Settings - Signed Out Locally")
+        returnToSettingsHub(from: "Privacy & Data", in: app)
+        assertNoConnectedNetworkAttempt(in: app)
     }
 
     @MainActor
     func testDisconnectExplainsRevocationAndLeavesLocalDataAvailable() throws {
         let app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
         let disconnect = element(in: app, identifier: Identifier.disconnect)
         XCTAssertTrue(scrollToElement(disconnect, in: app))
         disconnect.tap()
@@ -421,15 +450,22 @@ final class WardrobeUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Not connected"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.buttons["Sign in with Google"].exists)
-        XCTAssertTrue(scrollToText("Data on This Device", in: app))
-        assertNoConnectedNetworkAttempt(in: app)
+        returnToSettingsHub(from: "Connected Features", in: app)
+        openPrivacyAndData(in: app)
+        XCTAssertTrue(app.staticTexts["Data on This Device"].exists)
         attachScreenshot(named: "Connected Settings - Google Disconnected")
+        returnToSettingsHub(from: "Privacy & Data", in: app)
+        assertNoConnectedNetworkAttempt(in: app)
     }
 
     @MainActor
     func testVerifiedLocalDeletionKeepsGoogleConnectedButRemovesFictionalRows() throws {
         let app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
         XCTAssertTrue(app.staticTexts["2 items in your local wardrobe"].waitForExistence(timeout: 5))
+
+        returnToSettingsHub(from: "Connected Features", in: app)
+        openPrivacyAndData(in: app)
 
         let delete = element(in: app, identifier: Identifier.deleteLocalData)
         XCTAssertTrue(scrollToElement(delete, in: app))
@@ -455,12 +491,15 @@ final class WardrobeUITests: XCTestCase {
         )
         app.alerts["Local Data Deleted"].buttons["OK"].tap()
 
-        XCTAssertTrue(app.staticTexts["0 items in your local wardrobe"].exists)
+        returnToSettingsHub(from: "Privacy & Data", in: app)
+        openConnectedFeatures(in: app)
+        XCTAssertTrue(app.staticTexts["0 items in your local wardrobe"].waitForExistence(timeout: 3))
         XCTAssertTrue(
             scrollDownToElement(app.staticTexts["Connected (read-only)"], in: app)
         )
-        assertNoConnectedNetworkAttempt(in: app)
         attachScreenshot(named: "Connected Settings - Verified Local Data Deletion")
+        returnToSettingsHub(from: "Connected Features", in: app)
+        assertNoConnectedNetworkAttempt(in: app)
     }
 
     @MainActor
@@ -497,6 +536,46 @@ final class WardrobeUITests: XCTestCase {
         )
         assertNoConnectedNetworkAttempt(in: app)
         return app
+    }
+
+    @MainActor
+    private func openConnectedFeatures(in app: XCUIApplication) {
+        openSettingsDestination(
+            identifier: Identifier.connectedFeatures,
+            navigationTitle: "Connected Features",
+            in: app
+        )
+    }
+
+    @MainActor
+    private func openPrivacyAndData(in app: XCUIApplication) {
+        openSettingsDestination(
+            identifier: Identifier.privacyAndData,
+            navigationTitle: "Privacy & Data",
+            in: app
+        )
+    }
+
+    @MainActor
+    private func openSettingsDestination(
+        identifier: String,
+        navigationTitle: String,
+        in app: XCUIApplication
+    ) {
+        let destination = element(in: app, identifier: identifier)
+        XCTAssertTrue(destination.waitForExistence(timeout: 3))
+        destination.tap()
+        XCTAssertTrue(app.navigationBars[navigationTitle].waitForExistence(timeout: 3))
+    }
+
+    @MainActor
+    private func returnToSettingsHub(from navigationTitle: String, in app: XCUIApplication) {
+        let navigationBar = app.navigationBars[navigationTitle]
+        XCTAssertTrue(navigationBar.waitForExistence(timeout: 2))
+        let edge = app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5))
+        let destination = app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5))
+        edge.press(forDuration: 0.05, thenDragTo: destination)
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 3))
     }
 
     @MainActor

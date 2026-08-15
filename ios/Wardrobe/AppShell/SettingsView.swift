@@ -28,6 +28,146 @@ struct SettingsView: View {
         self.makeGmailPrivacySettings = makeGmailPrivacySettings
     }
 
+    var body: some View {
+        Form {
+            Section {
+                NavigationLink {
+                    ConnectedFeaturesSettingsView(
+                        session: session,
+                        devicePrivacy: devicePrivacy,
+                        syncActivity: syncActivity,
+                        makeGmailPrivacySettings: makeGmailPrivacySettings
+                    )
+                } label: {
+                    SettingsHubRow(
+                        title: "Connected Features",
+                        subtitle: "Gmail import, AI styling, and reminders",
+                        systemImage: "wand.and.sparkles",
+                        color: .purple
+                    )
+                }
+                .accessibilityIdentifier("settings.hub.connected")
+
+                NavigationLink {
+                    WardrobeToolsSettingsView(
+                        onReplayOnboarding: onReplayOnboarding,
+                        onEnterDemo: onEnterDemo
+                    )
+                } label: {
+                    SettingsHubRow(
+                        title: "Wardrobe & Demo",
+                        subtitle: "Introduction, offline demo, and samples",
+                        systemImage: "hanger",
+                        color: .pink
+                    )
+                }
+                .accessibilityIdentifier("settings.hub.wardrobe")
+
+                NavigationLink {
+                    PrivacyAndDataSettingsView(
+                        session: session,
+                        syncActivity: syncActivity,
+                        onVerifiedLocalDataDeletion: onVerifiedLocalDataDeletion
+                    )
+                } label: {
+                    SettingsHubRow(
+                        title: "Privacy & Data",
+                        subtitle: "Data use, privacy policy, and deletion",
+                        systemImage: "hand.raised.fill",
+                        color: .blue
+                    )
+                }
+                .accessibilityIdentifier("settings.hub.privacy")
+
+                NavigationLink {
+                    HelpAndSupportSettingsView()
+                } label: {
+                    SettingsHubRow(
+                        title: "Help & Support",
+                        subtitle: "How-to guidance and contact options",
+                        systemImage: "questionmark.circle.fill",
+                        color: .orange
+                    )
+                }
+                .accessibilityIdentifier("settings.hub.help")
+            }
+
+            Section {
+                LabeledContent("Version", value: AppVersionInfo.current.displayText)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("App version \(AppVersionInfo.current.accessibilityText)")
+                    .accessibilityIdentifier("settings.appVersion")
+            }
+        }
+        .navigationTitle("Settings")
+    }
+}
+
+private struct SettingsHubRow: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: systemImage)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white)
+                .frame(width: 36, height: 36)
+                .background(color.gradient, in: RoundedRectangle(cornerRadius: 10))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.body.weight(.semibold))
+                Text(subtitle)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct ConnectedFeaturesSettingsView: View {
+    let session: GmailSession
+    let devicePrivacy: DevicePrivacySettings
+    let syncActivity: ReceiptSyncActivityController
+    let makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)?
+
+    var body: some View {
+        Form {
+            Section {
+                GmailConnectorView(
+                    session: session,
+                    devicePrivacy: devicePrivacy,
+                    syncActivity: syncActivity,
+                    makePrivacySettings: makeGmailPrivacySettings
+                )
+            } header: {
+                Text("Gmail Import")
+            } footer: {
+                Text("Optional. Your wardrobe and camera work without Google.")
+            }
+
+            LegacyAccountDataResolutionView(session: session)
+
+            Section("AI Styling & Reminder") {
+                StylingPrivacySettingsView(settings: devicePrivacy)
+            }
+        }
+        .navigationTitle("Connected Features")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct WardrobeToolsSettingsView: View {
+    let onReplayOnboarding: () -> Void
+    let onEnterDemo: () -> Void
+
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Item.name) private var items: [Item]
 
@@ -40,11 +180,11 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Wardrobe") {
+            Section {
                 Button {
                     onReplayOnboarding()
                 } label: {
-                    Label("Replay Introduction", systemImage: "sparkles.rectangle.stack")
+                    Label("Replay Introduction", systemImage: "rectangle.stack.badge.play")
                 }
                 .accessibilityHint("Shows the introduction again without changing privacy or account choices.")
                 .accessibilityIdentifier("settings.onboarding.replay")
@@ -59,90 +199,15 @@ struct SettingsView: View {
                     Button(role: .destructive) {
                         showingSampleRemoval = true
                     } label: {
-                        Label(
-                            "Remove Sample Items",
-                            systemImage: "trash"
-                        )
+                        Label("Remove Sample Items", systemImage: "trash")
                     }
                     .accessibilityHint("Removes only the sample wardrobe. Your own items stay in place.")
                     .accessibilityIdentifier("settings.samples.remove")
                 }
             }
-
-            Section {
-                GmailConnectorView(
-                    session: session,
-                    devicePrivacy: devicePrivacy,
-                    syncActivity: syncActivity,
-                    makePrivacySettings: makeGmailPrivacySettings ?? { identity in
-                        GmailPrivacySettings(
-                            subjectID: identity.privacySubjectID,
-                            devicePrivacy: devicePrivacy
-                        )
-                    }
-                )
-            } header: {
-                Text("Gmail Import")
-            } footer: {
-                Text("Optional. Your wardrobe and manual item capture work without a Google account.")
-            }
-
-            LegacyAccountDataResolutionView(session: session)
-
-            Section("AI Styling & Reminder") {
-                StylingPrivacySettingsView(settings: devicePrivacy)
-            }
-
-            Section {
-                LocalDataDeletionView(
-                    activeExternalSubject: session.privacySubjectID,
-                    syncActivity: syncActivity,
-                    onVerifiedDeletion: onVerifiedLocalDataDeletion
-                )
-            } header: {
-                Text("Data on This Device")
-            } footer: {
-                Text("This removes local wardrobe data and choices but does not revoke Google access. Disconnect Google is a separate action above.")
-            }
-
-            Section("Help & Privacy") {
-                NavigationLink {
-                    HelpView()
-                } label: {
-                    Label("Help", systemImage: "questionmark.circle")
-                }
-                .accessibilityIdentifier("settings.help")
-
-                NavigationLink {
-                    PrivacyOverviewView(links: .current)
-                } label: {
-                    Label("Privacy & Data", systemImage: "hand.raised")
-                }
-                .accessibilityIdentifier("settings.privacy")
-
-                ConfiguredExternalLink(
-                    title: "Privacy Policy",
-                    systemImage: "doc.text",
-                    url: AppExternalLinks.current.privacyPolicyURL,
-                    accessibilityIdentifier: "settings.privacyPolicy"
-                )
-
-                ConfiguredExternalLink(
-                    title: "Support",
-                    systemImage: "lifepreserver",
-                    url: AppExternalLinks.current.supportURL,
-                    accessibilityIdentifier: "settings.support"
-                )
-            }
-
-            Section("About") {
-                LabeledContent("Version", value: AppVersionInfo.current.displayText)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("App version \(AppVersionInfo.current.accessibilityText)")
-                    .accessibilityIdentifier("settings.appVersion")
-            }
         }
-        .navigationTitle("Settings")
+        .navigationTitle("Wardrobe & Demo")
+        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
             "Remove sample items?",
             isPresented: $showingSampleRemoval,
@@ -175,6 +240,77 @@ struct SettingsView: View {
         } catch {
             sampleError = SampleWardrobeError(diagnostic: String(describing: error))
         }
+    }
+}
+
+private struct PrivacyAndDataSettingsView: View {
+    let session: GmailSession
+    let syncActivity: ReceiptSyncActivityController
+    let onVerifiedLocalDataDeletion: @MainActor @Sendable () -> Void
+
+    var body: some View {
+        Form {
+            Section {
+                NavigationLink {
+                    PrivacyOverviewView(links: .current)
+                } label: {
+                    Label("How Your Data Is Used", systemImage: "hand.raised")
+                }
+                .accessibilityIdentifier("settings.privacy")
+
+                ConfiguredExternalLink(
+                    title: "Privacy Policy",
+                    systemImage: "doc.text",
+                    url: AppExternalLinks.current.privacyPolicyURL,
+                    accessibilityIdentifier: "settings.privacyPolicy"
+                )
+            }
+
+            Section {
+                LocalDataDeletionView(
+                    activeExternalSubject: session.privacySubjectID,
+                    syncActivity: syncActivity,
+                    onVerifiedDeletion: onVerifiedLocalDataDeletion
+                )
+            } header: {
+                Text("Data on This Device")
+            } footer: {
+                Text("Deleting local data does not revoke Google access. Use Disconnect Google under Connected Features for that.")
+            }
+        }
+        .navigationTitle("Privacy & Data")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct HelpAndSupportSettingsView: View {
+    var body: some View {
+        List {
+            Section {
+                NavigationLink {
+                    HelpView()
+                } label: {
+                    Label("How to Use Wardrobe", systemImage: "book")
+                }
+                .accessibilityIdentifier("settings.help")
+
+                ConfiguredExternalLink(
+                    title: "Support",
+                    systemImage: "lifepreserver",
+                    url: AppExternalLinks.current.supportURL,
+                    accessibilityIdentifier: "settings.support"
+                )
+
+                ConfiguredExternalLink(
+                    title: "Privacy Policy",
+                    systemImage: "doc.text",
+                    url: AppExternalLinks.current.privacyPolicyURL,
+                    accessibilityIdentifier: "settings.help.privacyPolicy"
+                )
+            }
+        }
+        .navigationTitle("Help & Support")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
