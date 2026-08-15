@@ -15,6 +15,7 @@ struct ItemEditView: View {
     @State private var removesExistingImage = false
     @State private var imageProcessingFailed = false
     @State private var writes = WardrobeWriteCoordinator()
+    @State private var photoPicker = ItemPhotoPickerCoordinator()
 
     init(item: Item, accountScope: WardrobeAccountScope = .deviceLocal) {
         self.item = item
@@ -36,7 +37,8 @@ struct ItemEditView: View {
                 ItemPhotoEditor(
                     selectedImage: $replacementImage,
                     removesExistingImage: $removesExistingImage,
-                    existingItem: item
+                    existingItem: item,
+                    coordinator: photoPicker
                 )
                 ItemDetailsForm(draft: $draft, categories: categories)
             }
@@ -63,6 +65,11 @@ struct ItemEditView: View {
             }
             .wardrobePersistenceAlert(writes)
         }
+        .itemPhotoPicker(
+            coordinator: photoPicker,
+            selectedImage: $replacementImage,
+            removesExistingImage: $removesExistingImage
+        )
     }
 
     private var reviewNotice: some View {

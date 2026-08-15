@@ -12,6 +12,7 @@ struct AddItemView: View {
     @State private var removesExistingImage = false
     @State private var imageProcessingFailed = false
     @State private var writes = WardrobeWriteCoordinator()
+    @State private var photoPicker = ItemPhotoPickerCoordinator()
 
     private static let categories = CatalogOrganizer.canonicalOrder
 
@@ -21,7 +22,8 @@ struct AddItemView: View {
                 ItemPhotoEditor(
                     selectedImage: $image,
                     removesExistingImage: $removesExistingImage,
-                    existingItem: nil
+                    existingItem: nil,
+                    coordinator: photoPicker
                 )
                 ItemDetailsForm(draft: $draft, categories: Self.categories)
             }
@@ -44,6 +46,11 @@ struct AddItemView: View {
             }
             .wardrobePersistenceAlert(writes)
         }
+        .itemPhotoPicker(
+            coordinator: photoPicker,
+            selectedImage: $image,
+            removesExistingImage: $removesExistingImage
+        )
     }
 
     private func save() {

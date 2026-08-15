@@ -25,6 +25,8 @@ final class WardrobeUITests: XCTestCase {
         static let startLocal = "onboarding.startLocal"
         static let onboardingHero = "onboarding.hero"
         static let localBenefit = "onboarding.benefit.local"
+        static let addItem = "wardrobe.empty.addItem"
+        static let photoLibrary = "item.photo.library"
 
         static let connectedRoot = "uiTest.connected.root"
         static let networkStatus = "uiTest.connected.networkStatus"
@@ -237,6 +239,33 @@ final class WardrobeUITests: XCTestCase {
             tab(in: app, identifier: Identifier.wardrobeTab, fallbackLabel: "Wardrobe").isSelected
         )
         XCTAssertFalse(app.buttons["Sign in with Google"].exists)
+    }
+
+    @MainActor
+    func testPhotoLibraryStaysPresentedUntilTheUserCancels() throws {
+        let app = launchApp(arguments: [
+            "--wardrobe-ui-testing-local",
+            "-\(Identifier.onboardingCompletion)", "YES",
+        ])
+
+        XCTAssertTrue(app.navigationBars["Catalog"].waitForExistence(timeout: 5))
+        element(in: app, identifier: Identifier.addItem).tap()
+        XCTAssertTrue(app.navigationBars["Add Item"].waitForExistence(timeout: 3))
+
+        element(in: app, identifier: Identifier.photoLibrary).tap()
+        let photoLibrary = app.navigationBars["Photos"]
+        XCTAssertTrue(photoLibrary.waitForExistence(timeout: 5))
+
+        RunLoop.current.run(until: Date().addingTimeInterval(1))
+        XCTAssertTrue(
+            photoLibrary.exists,
+            "The photo library must remain presented until the user selects an image or cancels."
+        )
+
+        let cancel = photoLibrary.buttons["Cancel"]
+        XCTAssertTrue(cancel.exists)
+        cancel.tap()
+        XCTAssertTrue(app.navigationBars["Add Item"].waitForExistence(timeout: 3))
     }
 
     @MainActor

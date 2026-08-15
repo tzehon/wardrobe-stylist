@@ -1,4 +1,3 @@
-import PhotosUI
 import SwiftUI
 
 /// One validated value model shared by manual add, ordinary edit, and imported
@@ -203,10 +202,7 @@ struct ItemPhotoEditor: View {
     @Binding var selectedImage: UIImage?
     @Binding var removesExistingImage: Bool
     let existingItem: Item?
-
-    @State private var pickerItem: PhotosPickerItem?
-    @State private var showingCamera = false
-    @State private var imageLoadFailed = false
+    let coordinator: ItemPhotoPickerCoordinator
 
     private var hasExistingImage: Bool {
         guard let existingItem else { return false }
@@ -221,14 +217,20 @@ struct ItemPhotoEditor: View {
             HStack(spacing: 16) {
                 if CameraPicker.isAvailable {
                     Button {
-                        showingCamera = true
+                        coordinator.present(.camera)
                     } label: {
                         Label("Take Photo", systemImage: "camera")
                     }
+                    .buttonStyle(.borderless)
+                    .accessibilityIdentifier("item.photo.camera")
                 }
-                PhotosPicker(selection: $pickerItem, matching: .images) {
+                Button {
+                    coordinator.present(.library)
+                } label: {
                     Label("Choose from Library", systemImage: "photo.on.rectangle")
                 }
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier("item.photo.library")
             }
             if selectedImage != nil || (hasExistingImage && !removesExistingImage) {
                 Button("Remove Image", role: .destructive) {
@@ -240,21 +242,6 @@ struct ItemPhotoEditor: View {
             Text("Photo")
         } footer: {
             Text("Optional. Replacing an imported image stores your chosen copy locally.")
-        }
-        .sheet(isPresented: $showingCamera) {
-            CameraPicker { captured in
-                selectedImage = captured
-                removesExistingImage = false
-            }
-            .ignoresSafeArea()
-        }
-        .onChange(of: pickerItem) { _, newValue in
-            Task { await loadPicked(newValue) }
-        }
-        .alert("Couldn’t Load Image", isPresented: $imageLoadFailed) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Choose a different image and try again.")
         }
     }
 
@@ -275,16 +262,6 @@ struct ItemPhotoEditor: View {
         }
     }
 
-    private func loadPicked(_ item: PhotosPickerItem?) async {
-        guard let item else { return }
-        guard let data = try? await item.loadTransferable(type: Data.self),
-              let loaded = UIImage(data: data) else {
-            imageLoadFailed = true
-            return
-        }
-        selectedImage = loaded
-        removesExistingImage = false
-    }
 }
 
 extension String {
