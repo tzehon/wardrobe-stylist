@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from app.agents import extractor
 from app.agents.extractor import ExtractorError
+from app.anthropic_safety import anthropic_request_slot, raise_anthropic_http_error
 from app.auth.service import BackendIdentity
 from app.dependencies import get_anthropic_client, require_backend_identity
 from app.schemas.purchase import FashionPurchaseExtraction
@@ -50,13 +51,24 @@ def extract_endpoint(
         safe_snippet = extractor.redact_transport_metadata(
             req.snippet, source_msg_id=req.source_msg_id, sender=req.sender
         )
-        assert safe_snippet is not None
-        result = extractor.extract(
-            client,
-            sender_domain=extractor.sender_domain(req.sender),
-            subject=safe_subject,
-            snippet=safe_snippet,
-        )
+        if safe_snippet is None:
+            # ``snippet`` is required by the wire schema, so this indicates an
+            # internal preprocessing contract regression. Fail closed without
+            # forwarding unredacted receipt content or logging caller data.
+            logger.error("Receipt snippet preprocessing returned no content.")
+            raise HTTPException(
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Receipt preprocessing failed.",
+            )
+        with anthropic_request_slot():
+            result = extractor.extract(
+                client,
+                sender_domain=extractor.sender_domain(req.sender),
+                subject=safe_subject,
+                snippet=safe_snippet,
+            )
+    except anthropic.APIError as exc:
+        raise_anthropic_http_error(exc)
     except ExtractorError as exc:
         logger.warning("extractor.extract failed: %s", exc)
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc

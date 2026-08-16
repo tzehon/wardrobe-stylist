@@ -31,6 +31,13 @@ from app.auth.store import (
 ChallengePurpose = Literal["attestation", "assertion"]
 logger = logging.getLogger(__name__)
 
+# One installation normally shares one public IP. A 2x aggregate allowance
+# tolerates ordinary IP changes and overlapping retries while preventing a
+# distributed caller from multiplying every per-IP budget by hundreds of
+# source addresses. These constant-subject buckets are charged first.
+_GLOBAL_RATE_LIMIT_MULTIPLIER = 2
+_GLOBAL_RATE_SUBJECT = "single-user-backend"
+
 
 class AuthFlowError(RuntimeError):
     def __init__(
@@ -108,6 +115,12 @@ class AppAttestAuthService:
     ) -> Challenge:
         store = self._required_store()
         now = self._timestamp()
+        self._consume_global_rate(
+            scope="challenge",
+            per_subject_limit=self.configuration.challenge_rate_limit_per_minute,
+            window_seconds=60,
+            now=now,
+        )
         self._consume_rate(
             scope="challenge",
             subject=client_ip,
@@ -144,7 +157,6 @@ class AppAttestAuthService:
             purpose=purpose,
             key_id=key_id,
             expires_at=expires_at,
-            client_ip_hash=self._subject_hash("challenge-ip", client_ip),
             now=now,
         )
         return Challenge(
@@ -164,6 +176,12 @@ class AppAttestAuthService:
         store = self._required_store()
         verifier = self._required_verifier()
         now = self._timestamp()
+        self._consume_global_rate(
+            scope="registration",
+            per_subject_limit=self.configuration.registration_rate_limit_per_hour,
+            window_seconds=3600,
+            now=now,
+        )
         self._consume_rate(
             scope="registration",
             subject=client_ip,
@@ -307,6 +325,12 @@ class AppAttestAuthService:
         store = self._required_store()
         verifier = self._required_verifier()
         now = self._timestamp()
+        self._consume_global_rate(
+            scope="session",
+            per_subject_limit=self.configuration.session_rate_limit_per_hour,
+            window_seconds=3600,
+            now=now,
+        )
         _decode_key_id(key_id)
         self._consume_rate(
             scope="session-ip",
@@ -317,13 +341,6 @@ class AppAttestAuthService:
         )
         installation = store.installation_for_key(key_id)
         active_installation = self._require_active_installation(installation)
-        self._consume_rate(
-            scope="session-key",
-            subject=key_id,
-            limit=self.configuration.session_rate_limit_per_hour,
-            window_seconds=3600,
-            now=now,
-        )
         assertion_bytes = _standard_base64_decode(
             assertion_object,
             field="assertion_object",
@@ -388,6 +405,22 @@ class AppAttestAuthService:
                 message="The app assertion could not be verified.",
             ) from exc
 
+        # A key identifier is public metadata, not an authentication secret.
+        # Charge the per-key quota only after proving private-key possession so
+        # an unauthenticated caller cannot starve another installation's
+        # session-renewal budget. The IP quota above still bounds bad proofs.
+        try:
+            self._consume_rate(
+                scope="session-key",
+                subject=key_id,
+                limit=self.configuration.session_rate_limit_per_hour,
+                window_seconds=3600,
+                now=now,
+            )
+        except AuthFlowError:
+            store.fail_challenge(challenge_id)
+            raise
+
         session, token = self._new_session(
             installation_id=active_installation.installation_id,
             now=now,
@@ -434,6 +467,7 @@ class AppAttestAuthService:
         now_datetime = self._now().astimezone(UTC)
         now = int(now_datetime.timestamp())
         if self.store is not None:
+            self._rate_limit_api_global(path=path, now=now)
             # Consume the trusted-IP quota before bearer lookup so missing and
             # invalid credentials cannot bypass endpoint abuse limits. A valid
             # App Attest identity is charged only once at the IP layer, then
@@ -522,6 +556,18 @@ class AppAttestAuthService:
             now=now,
         )
 
+    def _rate_limit_api_global(self, *, path: str, now: int) -> None:
+        rate_limit = self._api_rate_limit(path)
+        if rate_limit is None:
+            return
+        scope, limit = rate_limit
+        self._consume_global_rate(
+            scope=scope,
+            per_subject_limit=limit,
+            window_seconds=3600,
+            now=now,
+        )
+
     def _rate_limit_api_installation(
         self,
         *,
@@ -549,6 +595,7 @@ class AppAttestAuthService:
         limit: int,
         window_seconds: int,
         now: int,
+        reserved_global_bucket: bool = False,
     ) -> None:
         store = self._required_store()
         try:
@@ -558,6 +605,7 @@ class AppAttestAuthService:
                 limit=limit,
                 window_seconds=window_seconds,
                 now=now,
+                reserved_global_bucket=reserved_global_bucket,
             )
         except RateLimitExceeded as exc:
             _security_event(
@@ -572,6 +620,23 @@ class AppAttestAuthService:
                 message="Too many authentication or backend requests.",
                 retry_after=exc.retry_after,
             ) from exc
+
+    def _consume_global_rate(
+        self,
+        *,
+        scope: str,
+        per_subject_limit: int,
+        window_seconds: int,
+        now: int,
+    ) -> None:
+        self._consume_rate(
+            scope=f"{scope}-global",
+            subject=_GLOBAL_RATE_SUBJECT,
+            limit=per_subject_limit * _GLOBAL_RATE_LIMIT_MULTIPLIER,
+            window_seconds=window_seconds,
+            now=now,
+            reserved_global_bucket=True,
+        )
 
     def _subject_hash(self, scope: str, subject: str) -> str:
         return hmac.new(

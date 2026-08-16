@@ -95,6 +95,9 @@ def test_auth_endpoint_wire_contracts_and_extra_field_rejection() -> None:
             json={"purpose": "attestation", "unexpected": True},
         )
         assert extra.status_code == 422
+        for response in (challenge, registration, session, extra):
+            assert response.headers["cache-control"] == "no-store"
+            assert response.headers["pragma"] == "no-cache"
     finally:
         app.dependency_overrides.pop(get_auth_service, None)
 

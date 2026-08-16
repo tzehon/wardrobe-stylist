@@ -11,6 +11,13 @@ on:
       - "backend/**"
       - "shared/**"
       - ".github/workflows/backend.yml"
+  schedule:
+    # Re-check the locked environment when a new advisory appears even if the
+    # repository itself has not changed.
+    - cron: "23 4 * * 1"
+
+permissions:
+  contents: read
 
 concurrency:
   group: backend-${{ github.ref }}
@@ -23,21 +30,55 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
         with:
           enable-cache: true
+          python-version: "3.12"
+          version: "0.12.5"
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --locked
+
+      - name: Audit dependencies
+        run: uv run --locked pip-audit
+
+      - name: Static security scan
+        run: uv run --locked bandit -r app container_entrypoint.py -q
 
       - name: Test (pytest)
-        run: uv run pytest
+        run: uv run --locked pytest
 
       - name: Lint (ruff)
-        run: uv run ruff check .
+        run: uv run --locked ruff check .
 
       - name: Type-check (mypy)
-        run: uv run mypy app
+        run: uv run --locked mypy app
+
+      - name: Verify production container runs unprivileged
+        run: |
+          set -euo pipefail
+          docker build --tag wardrobe-backend-ci .
+          docker run --rm wardrobe-backend-ci sh -c \
+            'test "$(id -u)" = 10001 && grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status'
+
+          volume_name="wardrobe-auth-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          docker volume create "$volume_name" >/dev/null
+          trap 'docker volume rm "$volume_name" >/dev/null' EXIT
+
+          docker run --rm \
+            --env ENVIRONMENT=production \
+            --env APP_ATTEST_DATABASE_PATH=/data/app-attest/auth.sqlite3 \
+            --volume "$volume_name:/data" \
+            wardrobe-backend-ci \
+            sh -c 'test "$(id -u)" = 10001 && : > /data/app-attest/auth.sqlite3'
+
+          test "$(docker run --rm \
+            --env ENVIRONMENT=production \
+            --env APP_ATTEST_DATABASE_PATH=/data/app-attest/auth.sqlite3 \
+            --volume "$volume_name:/data" \
+            wardrobe-backend-ci id -u)" = "10001"
