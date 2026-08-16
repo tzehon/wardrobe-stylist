@@ -18,7 +18,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.agents import stylist
 from app.agents.stylist import StylistError
-from app.dependencies import get_anthropic_client, require_device_token
+from app.auth.service import BackendIdentity
+from app.dependencies import get_anthropic_client, require_backend_identity
 from app.schemas.recommendation import OutfitRecommendation
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,7 @@ def _sanitize_outfit(tool_input: dict[str, Any], valid_ids: set[str]) -> dict[st
 @router.post("/recommend", response_model=RecommendResponse)
 def recommend_endpoint(
     req: RecommendRequest,
-    _: None = Depends(require_device_token),
+    _: BackendIdentity = Depends(require_backend_identity),
     client: anthropic.Anthropic = Depends(get_anthropic_client),
 ) -> RecommendResponse:
     valid_ids = {item.id for item in req.items}
@@ -127,7 +128,25 @@ def recommend_endpoint(
     try:
         parsed = OutfitRecommendation.model_validate(sanitized)
     except ValidationError as exc:
-        logger.warning("Tool input failed schema validation: %s", exc.errors())
+        # Pydantic validation errors include rejected values by default, and
+        # `loc` can contain an arbitrary model-supplied extra-field name. Both
+        # may contain wardrobe text or identifiers, so logs retain only a
+        # bounded count and the framework-defined error types.
+        validation_types = sorted(
+            {
+                str(error["type"])
+                for error in exc.errors(
+                    include_url=False,
+                    include_context=False,
+                    include_input=False,
+                )
+            }
+        )
+        logger.warning(
+            "Tool input failed schema validation: count=%d types=%s",
+            exc.error_count(),
+            validation_types,
+        )
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
             detail="Model returned tool input that failed schema validation.",
