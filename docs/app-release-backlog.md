@@ -43,15 +43,16 @@ kept “In progress.”
 Latest integrated verification: **400 iOS tests** total (**389 Swift tests plus 11 end-to-end UI
 tests**), **71 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, a
 Release-simulator build, and artifact checks for GoogleSignIn 9.2.0, the app privacy manifest,
-branded launch/icon assets, required plist values, and 10 SDK privacy manifests all passed. The
-branch has not changed build/version metadata and has not uploaded or deployed anything.
+branded launch/icon assets, required plist values, and 10 SDK privacy manifests all passed. That
+scope was merged by PR #7 to `main` at `f2a02825fd4178478bfc130525463165f12d648c`; the merge did
+not change build/version metadata or upload/deploy a candidate.
 
 ## Immediate next milestone — internal TestFlight candidate
 
 These items are ordered. Do not archive early and plan to repair the same binary later.
 
-- [ ] **Publish the candidate source.** Push `codex/app-store-readiness`, review the release scope,
-  and merge the commit that will be archived.
+- [x] **Publish the candidate source.** PR #7 merged the reviewed `codex/app-store-readiness`
+  scope to `main` at `f2a02825fd4178478bfc130525463165f12d648c`.
 - [ ] **Close APP-009 and the production-client portion of APP-011.** Complete the per-user backend
   identity cutover, remove `BackendDeviceToken` from the bundle, deploy the compatible backend,
   and populate the production Google IDs, HTTPS endpoint, public links, and Team ID in the
