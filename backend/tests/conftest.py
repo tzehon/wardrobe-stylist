@@ -5,6 +5,7 @@ model, cache_control, tool_choice) and returns canned tool-use responses.
 No network ever leaves the test process.
 """
 
+import os
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any
@@ -12,6 +13,14 @@ from typing import Any
 import pytest
 from anthropic.types import ToolUseBlock
 from fastapi.testclient import TestClient
+
+# Never let the test process load deployable credentials from backend/.env.
+# These environment values take precedence before app.config is imported.
+os.environ["ANTHROPIC_API_KEY"] = "test-key-not-used"
+os.environ["DEVICE_TOKEN"] = "test-device-token"
+os.environ["APP_ATTEST_SESSION_SECRET"] = "test-session-secret-not-for-production"
+os.environ["AUTH_MODE"] = "legacy"
+os.environ["ENVIRONMENT"] = "test"
 
 from app.config import settings as runtime_settings
 from app.dependencies import get_anthropic_client

@@ -14,7 +14,8 @@ from pydantic import BaseModel, Field, ValidationError
 
 from app.agents import extractor
 from app.agents.extractor import ExtractorError
-from app.dependencies import get_anthropic_client, require_device_token
+from app.auth.service import BackendIdentity
+from app.dependencies import get_anthropic_client, require_backend_identity
 from app.schemas.purchase import FashionPurchaseExtraction
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ class ExtractResponse(FashionPurchaseExtraction):
 @router.post("/extract", response_model=ExtractResponse)
 def extract_endpoint(
     req: ExtractRequest,
-    _: None = Depends(require_device_token),
+    _: BackendIdentity = Depends(require_backend_identity),
     client: anthropic.Anthropic = Depends(get_anthropic_client),
 ) -> ExtractResponse:
     try:

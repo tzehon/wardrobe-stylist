@@ -167,20 +167,39 @@ def test_recommend_502_when_primary_unsalvageable(client, fake_anthropic, auth_h
     assert resp.status_code == 502
 
 
-def test_recommend_502_on_invalid_tool_input(client, fake_anthropic, auth_headers):
-    """Schema-invalid tool input (blank rationale) surfaces as 502, never 200 with garbage."""
+def test_recommend_502_on_invalid_tool_input(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+):
+    """Invalid model output is rejected without logging wardrobe/model text."""
+    private_extra_key = "private_wardrobe_note_as_property_name"
+    private_model_text = "PRIVATE_MODEL_WARDROBE_TEXT_987"
     _queue(
         fake_anthropic,
         {
             "occasion": "x",
             "color_story": "x",
-            "rationale": "",  # violates minLength
+            "rationale": "valid rationale",
             "item_ids": [A, B],
             "alternates": [],
+            private_extra_key: private_model_text,
         },
     )
-    resp = client.post("/recommend", json=_request_body(), headers=auth_headers)
+    with caplog.at_level("WARNING", logger="app.routes.recommend"):
+        resp = client.post("/recommend", json=_request_body(), headers=auth_headers)
+
     assert resp.status_code == 502
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.recommend"
+    )
+    assert "count=1" in route_log
+    assert "extra_forbidden" in route_log
+    assert private_extra_key not in route_log
+    assert private_model_text not in route_log
 
 
 def test_recommend_502_when_model_omits_tool_call(client, fake_anthropic, auth_headers):

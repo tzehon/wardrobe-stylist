@@ -9,6 +9,15 @@ primary_region = 'sin'
 [build]
 [env]
   ENVIRONMENT = 'production'
+  AUTH_MODE = 'app_attest'
+  APP_ATTEST_ENVIRONMENT = 'production'
+  APP_ATTEST_DATABASE_PATH = '/data/app-attest/auth.sqlite3'
+  APP_ATTEST_BUNDLE_ID = 'com.tth.Wardrobe'
+  APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES = '2'
+
+[mounts]
+  source = 'wardrobe_auth_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080

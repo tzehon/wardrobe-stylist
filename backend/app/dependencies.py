@@ -1,33 +1,40 @@
 """Reusable FastAPI dependencies.
 
-`require_device_token` enforces single-user Bearer auth. `get_anthropic_client`
-builds the Anthropic SDK client; tests override this via
+`require_backend_identity` accepts a short-lived App Attest session (or the
+explicit, expiring migration bridge). `get_anthropic_client` builds the
+Anthropic SDK client; tests override this via
 ``app.dependency_overrides`` so no real API call ever leaves the test process.
 """
 
 import anthropic
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.auth.network import request_client_ip
+from app.auth.runtime import get_auth_service, raise_auth_http_error
+from app.auth.service import AppAttestAuthService, AuthFlowError, BackendIdentity
 from app.config import settings
 
 _bearer = HTTPBearer(auto_error=False)
 
 
-def require_device_token(
+def require_backend_identity(
+    request: Request,
     creds: HTTPAuthorizationCredentials | None = Depends(_bearer),
-) -> None:
-    """Fail closed: if ``DEVICE_TOKEN`` is unset, refuse all requests rather than allow any."""
-    if not settings.device_token:
-        raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="DEVICE_TOKEN not configured on the backend.",
+    service: AppAttestAuthService = Depends(get_auth_service),
+) -> BackendIdentity:
+    """Fail closed unless a bearer maps to a live installation session."""
+    try:
+        return service.authenticate_bearer(
+            token=creds.credentials if creds is not None else "",
+            path=request.url.path,
+            client_ip=request_client_ip(
+                request,
+                production=service.configuration.deployment_environment == "production",
+            ),
         )
-    if creds is None or creds.credentials != settings.device_token:
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid bearer token.",
-        )
+    except AuthFlowError as exc:
+        raise_auth_http_error(exc)
 
 
 def get_anthropic_client() -> anthropic.Anthropic:
