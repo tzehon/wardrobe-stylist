@@ -22,6 +22,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Select newest installed Xcode 26
+        run: |
+          set -euo pipefail
+          XCODE_APP=$(python3 -c '
+          import re
+          from pathlib import Path
+
+          candidates = []
+          for path in Path("/Applications").glob("Xcode_26*.app"):
+              match = re.fullmatch(r"Xcode_(\d+(?:\.\d+)*)\.app", path.name)
+              if match and path.is_dir():
+                  version = tuple(int(part) for part in match.group(1).split("."))
+                  candidates.append((version, str(path)))
+
+          print(max(candidates)[1] if candidates else "")
+          ')
+          if [[ -z "$XCODE_APP" || ! -d "$XCODE_APP/Contents/Developer" ]]; then
+            echo "No installed Xcode 26 developer directory was found." >&2
+            exit 1
+          fi
+          echo "Selected $XCODE_APP"
+          echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> "$GITHUB_ENV"
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
