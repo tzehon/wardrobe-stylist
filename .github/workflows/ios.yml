@@ -72,11 +72,32 @@ jobs:
             -scheme Wardrobe \
             -onlyUsePackageVersionsFromResolvedFile
 
-      - name: Pick an available iPhone simulator
+      - name: Pick an iOS 26 iPhone simulator
         id: sim
         run: |
-          UDID=$(xcrun simctl list devices available --json \
-            | python3 -c "import sys,json; d=json.load(sys.stdin)['devices']; ids=[x['udid'] for rt in d for x in d[rt] if x.get('isAvailable') and 'iPhone' in x['name']]; print(ids[0] if ids else '')")
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json
+          import re
+          import sys
+
+          candidates = []
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              match = re.search(r"\.iOS-(\d+)-(\d+)(?:-(\d+))?$", runtime)
+              if not match or int(match.group(1)) != 26:
+                  continue
+              version = tuple(int(part or 0) for part in match.groups())
+              for device in devices:
+                  name = device.get("name", "")
+                  if device.get("isAvailable") and name.startswith("iPhone"):
+                      candidates.append((version, name == "iPhone 17", device["udid"]))
+
+          print(max(candidates)[2] if candidates else "")
+          ')
+          if [[ -z "$UDID" ]]; then
+            echo "No available iPhone simulator with an iOS 26 runtime was found." >&2
+            exit 1
+          fi
           echo "Picked simulator UDID: $UDID"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
