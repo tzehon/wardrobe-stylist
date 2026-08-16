@@ -2,8 +2,9 @@
 
 This is intentionally deferred until the app-side readiness branch is complete. The current
 single-user TestFlight configuration is not suitable for a generally available App Store app:
-`gmail.readonly` is a **restricted** scope, receipt data crosses a developer-controlled backend,
-and a public iOS client cannot safely hold the backend's shared bearer token.
+`gmail.readonly` is a **restricted** scope and receipt data crosses a developer-controlled
+backend. Backend authorization is now a separate Apple decision: Wardrobe uses anonymous,
+per-installation App Attest sessions, while Google remains solely the optional Gmail connection.
 
 Do these steps in order. Do not flip the existing project to production first and try to make the
 code match afterward.
@@ -11,7 +12,8 @@ code match afterward.
 The next internal TestFlight build also follows the public-candidate standard in
 [`app-store/internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md). Internal
 describes the tester group only; it does not authorize a shared bearer, placeholder release
-configuration, or Apple's non-promotable **TestFlight Internal Only** artifact type.
+configuration, an incomplete App Attest deployment, or Apple's non-promotable **TestFlight
+Internal Only** artifact type.
 
 ## 1. Decide the permitted data-processing architecture
 
@@ -72,25 +74,38 @@ configuration, or Apple's non-promotable **TestFlight Internal Only** artifact t
 
 **Exit:** consent configuration matches the production binary and published policy verbatim.
 
-## 5. Create production OAuth clients and backend identity audiences
+## 5. Create the production Gmail client and coordinate App Attest identity
 
 - [ ] Create the production iOS client for the final bundle ID. Add the Apple Team ID and App
   Store ID when available; configure the exact reversed-client-ID URL scheme.
-- [ ] Create the appropriate server/web OAuth audience only if the chosen per-user backend
-  authorization flow needs it. Do not place a client secret in the iOS app.
-- [ ] Implement the deferred `APP-009` cutover: obtain a refreshed per-user identity assertion,
-  verify signature/issuer/expiry/audience and stable `sub` at the backend, issue a short-lived app
-  session if useful, rate-limit by identity, and monitor abuse. App Attest can add defense in
-  depth; it does not turn a shared client token into a secret.
-- [ ] During backend rollout the service may accept both mechanisms briefly. Before the next
-  always-ready internal TestFlight candidate, remove `BackendDeviceToken` from the app/archive,
-  disable and rotate the legacy backend token, and retire incompatible old builds with an
-  explicit minimum-version plan. Do not upload a deliberately weaker beta binary.
-- [ ] Upgrade and pin Google Sign In, validate App Check/App Attest decisions, and test fresh,
-  restored, expired, revoked, account-switch, offline, and denied-scope states.
+- [ ] Do not create a server/web OAuth audience for Wardrobe backend authorization and do not send
+  a Google ID token to `/extract` or `/recommend`. No Google client secret belongs in the iOS app.
+  Google authorization remains an optional, one-scope Gmail grant and is independent from the
+  anonymous Wardrobe backend session.
+- [ ] Complete the deferred `APP-009` App Attest cutover in parallel with this Google work:
+  confirm the exact Apple App ID prefix, enable the capability for `com.tth.Wardrobe`, regenerate
+  profiles, and verify fresh challenge/attestation/assertion flows on a physical device. The
+  backend must validate Apple trust/nonce/RP ID/key/environment/counter before issuing a
+  short-lived per-installation session. On iOS 27+, it must also validate the signed production
+  category and exact bundle build; on iOS 18–26 those runtime fields are expected to be absent.
+- [ ] Provision durable, private backend auth state before production enablement. Persist only
+  App Attest public keys, opaque Apple receipts, counters, challenges, hashed sessions, and rate
+  windows; define the Fly volume/database topology plus backup, snapshot, restore, retention, and
+  deletion behavior without persisting Gmail receipt or wardrobe payloads. Treat receipt
+  validation/risk metrics as a separate policy gate before trusting or redeeming that evidence.
+- [ ] During backend rollout the service may accept the legacy bearer only in a deliberately
+  time-bounded bridge with an explicit expiry. Before the next always-ready internal TestFlight
+  candidate closes APP-009, remove `BackendDeviceToken` from the app/archive, deploy
+  App-Attest-only auth, unset/rotate the legacy token, prove old builds fail, and retain an
+  App-Attest-only rollback image that preserves the auth store.
+- [ ] Test the two independent boundaries separately. App Attest: clean install, update, reinstall,
+  sandbox/production, assertion expiry/counter/replay, offline/server failure, unsupported service,
+  and background renewal. Google: fresh/restored/expired/revoked/account-switch/offline and denied
+  `gmail.readonly` states. Local wardrobe and Demo Mode must not require either service.
 
-**Exit:** a Release archive contains no shared secret and backend authorization is per-user,
-short-lived, validated, rate-limited, and covered by negative tests.
+**Exit:** a Release archive contains no shared secret; backend authorization is anonymous,
+per-installation, short-lived, App Attest-validated, rate-limited, durably backed, and covered by
+negative and physical-device tests; Google remains optional Gmail only.
 
 ## 6. Finish in-app disclosure, controls, and evidence
 
@@ -138,8 +153,10 @@ short-lived, validated, rate-limited, and covered by negative tests.
 
 - [ ] Deploy the verified backend/config first, then upload a production-client build through
   Xcode's **TestFlight & App Store** route and add it only to the internal tester group.
-  Exercise real-device sign-in, scope restoration, consent upgrade, account switch, revocation,
-  deletion, rate limits, background opt-in/expiry, and minimized request capture.
+  Exercise real-device App Attest enrollment/session renewal; record tester OS/runtime-field
+  presence and verify category/build on iOS 27+. Then test Gmail sign-in, scope restoration,
+  consent upgrade, account switch, revocation, deletion, rate limits, background opt-in/expiry,
+  and minimized request capture.
 - [ ] Roll out gradually with error/auth/abuse monitoring and cost alerts. Keep privacy/support
   pages and contacts live.
 - [ ] Submit the same verified binary/data flow to App Review with a demo path and precise review
@@ -152,9 +169,11 @@ short-lived, validated, rate-limited, and covered by negative tests.
 
 The inspected development project was External but still in Testing, with two test users and a
 100-user cap. It had no logo/homepage/privacy/terms URLs or authorized domain; the iOS client had
-the correct `com.tth.Wardrobe` bundle ID but no Team ID/App Store ID, and App Check was off. The
-project also showed no billing account, a stale contact warning, and weak ownership redundancy.
-These are observations from the development console, not instructions to mutate it in place.
+the correct `com.tth.Wardrobe` bundle ID but no Team ID/App Store ID. Google App Check being off is
+not the Wardrobe backend-identity decision; Apple App Attest is configured independently in the
+Apple Developer account and backend. The project also showed no billing account, a stale contact
+warning, and weak ownership redundancy. These are observations from the development console, not
+instructions to mutate it in place.
 
 ## Official Google references
 
@@ -166,3 +185,10 @@ These are observations from the development console, not instructions to mutate 
 - [Restricted-scope verification FAQ](https://support.google.com/cloud/answer/13463817)
 - [Security assessment requirements](https://support.google.com/cloud/answer/13465431)
 - [Verification submission guide](https://support.google.com/cloud/answer/13461325)
+
+## Official Apple App Attest references
+
+- [Establishing your app's integrity](https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity)
+- [Validating apps that connect to your server](https://developer.apple.com/documentation/devicecheck/validating-apps-that-connect-to-your-server)
+- [Preparing to use App Attest](https://developer.apple.com/documentation/devicecheck/preparing-to-use-the-app-attest-service)
+- [App Attest environment entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.devicecheck.appattest-environment)

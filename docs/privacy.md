@@ -44,9 +44,11 @@ The intended public-release contract is:
   an explicitly documented backup/sync feature.
 
 The current public-release work and remaining blockers are tracked in
-[`app-release-backlog.md`](app-release-backlog.md). In particular, the existing internal-build
-shared backend bearer is bundled in the client and is **not a secret**; it must be replaced by
-short-lived per-user authorization before public distribution.
+[`app-release-backlog.md`](app-release-backlog.md). Previous internal builds bundled a shared
+backend bearer that was **not a secret**. The current client removes that credential and can use
+remote AI only through anonymous, per-installation App Attest sessions. `APP-009` remains open
+until Apple provisioning, durable Fly auth state, physical-device verification, production
+cutover, and legacy retirement are evidenced.
 
 ## Data inventory
 

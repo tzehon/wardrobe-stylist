@@ -2,19 +2,19 @@
 
 This is the implementation source of truth for turning the current personal TestFlight build
 into a public App Store product. It deliberately separates work we can complete in this
-repository from Google Cloud and App Store Connect work that needs an external account or a
-policy decision. The Google-specific order lives in
+repository from Apple Developer, Fly.io, Google Cloud, and App Store Connect work that needs an
+external account or verified production fact. The Google-specific order lives in
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md). Every beta now follows the
 [`internal TestFlight, always App-Store-ready`](app-store/internal-testflight-runbook.md) runbook:
 the tester group is internal, but the archive and upload remain eligible for later App Review.
 
 Statuses:
 
-- **Now** — part of the current `codex/app-store-readiness` implementation branch.
+- **Now** — part of the current implementation tranche.
 - **Done** — implemented, focused-tested, and included in a complete regression on this branch.
 - **In progress** — a safe foundation is committed, but one or more acceptance details remain.
-- **GCP gate** — coordinated code is specified here, but the production identity/policy choice
-  must be completed in the Google sequence before it can be finished safely.
+- **External gate** — repository work is specified here, but Apple Developer, Fly.io, Google
+  Cloud, policy, or release facts must be completed and evidenced before the item can close.
 - **Submission** — repository assets/checks can be prepared now; the final action happens in
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
@@ -28,8 +28,8 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **GCP gate** | Public-client bearer removal is intentionally blocked on the production identity decision; the Release archive guard refuses the legacy key |
-| APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs/IDs and bearer removal remain external/GCP work |
+| APP-009 | **External gate** | App Attest per-installation identity is implemented and regression-tested on `codex/app-009-backend-identity`; Apple capability/profile setup, production Fly storage/deployment, physical-device proof, and legacy retirement remain open |
+| APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs, Google Gmail client IDs, Apple Team/App ID values, and compatible backend remain external work |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
 | APP-014 | **Done** | Eleven deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
@@ -40,12 +40,12 @@ kept “In progress.”
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest integrated verification: **400 iOS tests** total (**389 Swift tests plus 11 end-to-end UI
-tests**), **71 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, a
-Release-simulator build, and artifact checks for GoogleSignIn 9.2.0, the app privacy manifest,
-branded launch/icon assets, required plist values, and 10 SDK privacy manifests all passed. That
-scope was merged by PR #7 to `main` at `f2a02825fd4178478bfc130525463165f12d648c`; the merge did
-not change build/version metadata or upload/deploy a candidate.
+Latest branch verification: **416 iOS tests** total (**405 Swift tests plus 11 end-to-end UI
+tests**), **139 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, and
+the app-icon validation tests all passed. The readiness baseline was merged by PR #7 to `main` at
+`f2a02825fd4178478bfc130525463165f12d648c`; the APP-009 follow-up remains on
+`codex/app-009-backend-identity` and has not changed build/version metadata, deployed the backend,
+or uploaded a candidate.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -53,10 +53,16 @@ These items are ordered. Do not archive early and plan to repair the same binary
 
 - [x] **Publish the candidate source.** PR #7 merged the reviewed `codex/app-store-readiness`
   scope to `main` at `f2a02825fd4178478bfc130525463165f12d648c`.
-- [ ] **Close APP-009 and the production-client portion of APP-011.** Complete the per-user backend
-  identity cutover, remove `BackendDeviceToken` from the bundle, deploy the compatible backend,
-  and populate the production Google IDs, HTTPS endpoint, public links, and Team ID in the
-  gitignored distribution configuration.
+- [x] **Implement the repository portion of APP-009.** Anonymous per-installation App Attest
+  enrollment and short-lived sessions now replace `BackendDeviceToken`; the backend verifies
+  attestations/assertions, persists only auth/security metadata, rejects replay, applies bounded
+  quotas, and retains only a time-bounded legacy bridge for deployment migration. Google remains
+  an optional Gmail connection and is not the Wardrobe backend identity.
+- [ ] **Close the external portion of APP-009 and production-client portion of APP-011.** Enable
+  the Apple capability and profiles; provision durable Fly auth state; deploy and verify the
+  production-only cutover; rotate the Anthropic key and legacy `DEVICE_TOKEN`; and populate the
+  production Google Gmail IDs, HTTPS endpoint, public links, and Team ID in the gitignored
+  distribution configuration. Retain physical-device development and TestFlight evidence.
 - [ ] **Close the publication portion of APP-016.** Publish and verify the final privacy/support
   pages and reconcile their claims with the code, Anthropic terms, Google Limited Use, and App
   Privacy inventory.
@@ -109,11 +115,40 @@ not used because Apple prevents that artifact from being submitted to customers 
   shipping, address, and order identifiers; send a sender domain instead of a full address; and
   never expose a Gmail message ID to the model. Exclude Spam and Trash by default. Persist
   per-account processed IDs/history state so background runs do not retransmit the same mail.
-- [ ] **APP-009 · GCP gate · Remove the shared backend bearer from the public client.** A token in
-  `Info.plist` is extractable, even if moved to Keychain. Replace it with short-lived per-user
-  authorization verified by the backend, rate limits, quotas, monitoring, and an old-build
-  retirement plan. The concrete issuer/audience configuration depends on the production OAuth
-  architecture in the Google sequence. No public build is releasable with the shared bearer.
+- [ ] **APP-009 · External gate · Replace the shared bearer with App Attest-backed anonymous
+  sessions.** A token in `Info.plist` is extractable even if copied to Keychain. The chosen
+  identity is one Apple-certified app installation, not a human account: Google remains solely
+  the optional `gmail.readonly` connection, and reinstall/migration/restore starts a new Wardrobe
+  backend identity. Complete all of the following before marking this item done:
+  - Enroll an App Attest Secure Enclave key from a fresh, single-use server challenge; verify the
+    Apple certificate chain, nonce, exact registered App ID prefix + `com.tth.Wardrobe`, key ID,
+    environment, and zero attestation counter. On iOS 27+, require and allowlist Apple's signed
+    validation-category and bundle-build extensions; accept their signed absence on iOS 18–26.
+    Persist only the verified public key, the opaque Apple receipt carried by that successful
+    attestation, anonymous installation ID, and security metadata. Do not describe the receipt
+    itself as verified until its Apple receipt validation/risk-metric policy is implemented and
+    evidenced.
+  - Renew short-lived backend sessions with assertions over canonical client data and a fresh
+    challenge. Consume challenges exactly once and advance each assertion counter atomically.
+    Apply bounded enrollment/session/API rate limits, quotas, monitoring, and negative tests.
+  - Keep local wardrobe and Demo Mode working when App Attest is unavailable or verification is
+    offline; remote AI must fail closed with clear recovery. Never trust a client-declared
+    unsupported state as permission to mint an unauthenticated session.
+  - Enable App Attest on the explicit Apple App ID, confirm the real App ID prefix instead of
+    assuming it equals the Team ID, regenerate provisioning profiles, and inspect the archive's
+    entitlement. Test sandbox enrollment on a development-signed physical iPhone and production
+    category `2` through TestFlight; reserve category `4` for App Store builds. Simulator fakes do
+    not clear this gate.
+  - Provision durable, private Fly auth storage before enabling the new flow. Record the SQLite
+    volume or shared-database topology, atomicity, backup/snapshot behavior, retention/deletion
+    criteria, and restore rehearsal. Receipt text and wardrobe payloads must never enter it.
+  - Use a time-bounded bridge deployment only if needed to move existing testers. Record its
+    expiry, then deploy App-Attest-only auth, unset/rotate `DEVICE_TOKEN`, prove an old build is
+    rejected, retain a validated App-Attest-only rollback image, and record commit/image,
+    categories/build allowlist, tester OS/runtime-field presence, volume, tests, and physical-device
+    evidence. Build/category rejection is enforceable only when iOS 27+ supplies those signed fields;
+    the pre-App-Attest shared-token build must be rejected on every OS.
+  No public build is releasable with the shared bearer or an in-memory-only production auth store.
 - [x] **APP-010 · Done · Restrict remote images.** Do not load arbitrary model-derived URLs. Apply
   HTTPS-only validation, a conservative host policy, bounded image decoding/caching, and a safe
   placeholder.
@@ -124,7 +159,9 @@ not used because Apple prevents that artifact from being submitted to customers 
   Stylist” consistently in the app, OAuth screen, help text, and store copy. Split development
   and production configuration. A Release archive must fail if required non-secret identifiers,
   HTTPS endpoints, policy/support URLs, or URL schemes are absent; it must also prove no shared
-  backend credential is embedded.
+  backend credential is embedded. Google client configuration authorizes only optional Gmail;
+  the Apple Team/App ID capability, App Attest entitlement, backend URL, and accepted release
+  build must also match the production deployment and signed archive.
 - [x] **APP-012 · Done · Pin/audit dependencies and archive privacy metadata.** Pin the Google Sign
   In SDK to a reviewed version, commit a reproducible resolution where practical, and validate
   the exact archive's SDK signatures/privacy manifests. Add an app privacy manifest only for
@@ -228,7 +265,8 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 
 Before calling the branch public-release-ready, also complete a clean simulator UI run, physical
 device permission/auth QA, a signed Release archive/validation, request-capture privacy tests,
-and the external gates in the Google and App Store submission sequences.
+durable Fly auth-store/deployment evidence, and the external Apple Developer, Google, and App
+Store submission gates. Simulator App Attest fakes never replace the physical-device gate.
 
 ## Current external references
 
@@ -237,3 +275,6 @@ and the external gates in the Google and App Store submission sequences.
 - [Apple App Privacy guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy)
 - [Apple submission flow](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app)
 - [Apple screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications)
+- [Apple App Attest client integration](https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity)
+- [Apple App Attest server validation](https://developer.apple.com/documentation/devicecheck/validating-apps-that-connect-to-your-server)
+- [Fly volume persistence and single-machine boundary](https://fly.io/docs/volumes/overview/)

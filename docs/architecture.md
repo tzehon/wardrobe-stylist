@@ -1,12 +1,14 @@
 # Architecture
 
 Wardrobe Stylist is a **local-first, privacy-first** personal app. Almost everything
-happens on the iPhone; a thin stateless backend exists only to hold the Anthropic API key
-and call Claude. This document explains the components, the data flows, and how the
+happens on the iPhone; a thin, content-stateless backend holds the Anthropic API key, calls
+Claude, and persists only minimum App Attest authentication/security metadata. This document
+explains the components, the data flows, and how the
 **read-only Gmail** and **hybrid-privacy** guarantees are realized.
 
 - [System overview](#system-overview)
 - [Privacy & trust boundaries](#privacy--trust-boundaries)
+- [Anonymous backend authorization](#anonymous-backend-authorization)
 - [Receipt extraction pipeline](#receipt-extraction-pipeline-gmail--catalog)
 - [Daily recommendation flow](#daily-recommendation-flow)
 - [Data model](#data-model)
@@ -16,8 +18,9 @@ and call Claude. This document explains the components, the data flows, and how 
 
 ## System overview
 
-Three actors: the **iPhone** (does the real work), **Google** (OAuth + read-only Gmail),
-and a **stateless backend** that proxies to the **Anthropic API**.
+The **iPhone** does the real work, **Google** provides optional OAuth + read-only Gmail,
+**Apple App Attest** certifies a genuine app installation, and a content-stateless backend proxies
+minimized requests to the **Anthropic API**. Google does not identify the app to the backend.
 
 ```mermaid
 flowchart TB
@@ -27,7 +30,7 @@ flowchart TB
         Gmail["GmailReadOnlyClient<br/>read-only endpoints only"]
         Filter["Candidate filter<br/>schema.org · Vision OCR"]
         VisionML["Vision<br/>cutout · color · feature-print"]
-        Keychain[["Keychain<br/>OAuth tokens · device token"]]
+        Keychain[["Keychain<br/>OAuth tokens · App Attest key ID"]]
         UI --- Store
         Gmail --> Filter
         Filter --> Store
@@ -40,23 +43,28 @@ flowchart TB
         GmailAPI["Gmail REST API<br/>read endpoints"]
     end
 
-    subgraph Cloud["Backend on Fly.io — stateless"]
-        API["FastAPI proxy<br/>/extract · /categorize · /recommend"]
+    subgraph Cloud["Backend on Fly.io — content-stateless"]
+        API["FastAPI<br/>/auth · /extract · /recommend"]
+        AuthDB[("Durable auth state<br/>public key · receipt · counter<br/>challenges · session hashes")]
         Key[["ANTHROPIC_API_KEY<br/>secret, never on device"]]
         API -. reads .- Key
+        API <--> AuthDB
     end
 
+    Apple["Apple App Attest<br/>key certification"]
     Anthropic["Anthropic API<br/>Haiku · Sonnet · Opus"]
 
     Gmail <-->|GET only| GmailAPI
     Gmail -. OAuth .-> OAuth
-    Filter -->|minimal text + few images<br/>Bearer device token| API
+    Keychain <-->|attestation/assertion| Apple
+    Filter -->|minimal text + few images<br/>short-lived installation session| API
     API --> Anthropic
 ```
 
 **Key idea:** raw email never leaves the phone. On-device filtering reduces a mailbox to a
 few candidate receipts, and only **minimal extracted text** (plus the occasional product
-image) is sent to the backend. The backend keeps no email data.
+image) is sent to the backend. The backend keeps no receipt or wardrobe payloads; its durable
+store contains only anonymous authentication/security metadata.
 
 ## Privacy & trust boundaries
 
@@ -67,7 +75,7 @@ flowchart LR
         Mail["Full email bodies"]
         Imgs["Item photos"]
         Cat["Catalog + wear history"]
-        Tok["OAuth + device tokens (Keychain)"]
+        Tok["OAuth tokens + App Attest private key<br/>(Keychain / Secure Enclave)"]
     end
 
     subgraph Leaves["Leaves device (minimized)"]
@@ -75,20 +83,69 @@ flowchart LR
         Snip["Minimal receipt snippets"]
         Few["A few product/item images"]
         Attrs["Item attributes (ids, colors, categories)"]
+        Auth["App Attest key ID, receipt/assertions,<br/>anonymous installation session"]
     end
 
-    OnDevice -->|on-device filtering| Leaves
-    Leaves -->|HTTPS + Bearer| Backend["Backend (no persistence)"]
+    OnDevice -->|on-device filtering / proof| Leaves
+    Leaves -->|HTTPS + short-lived Bearer| Backend["Backend<br/>payloads transient"]
+    Backend --> AuthStore[("Durable auth/security metadata only")]
     Backend --> LLM["Claude (Anthropic)"]
 ```
 
 | Data | Where it lives | Leaves device? |
 |---|---|---|
 | Full email bodies | Phone (transient, during sync) | ❌ never |
-| OAuth + device tokens | Keychain | ❌ never |
+| Gmail OAuth tokens | Keychain; sent only to Google APIs | ❌ never sent to Wardrobe backend |
+| App Attest private key | Secure Enclave | ❌ never extractable |
+| App Attest key ID, opaque Apple receipt, counters and session metadata | Keychain + backend auth store | ✅ security/authorization only; receipt trust/risk assessment remains a separate gate |
 | Catalog, images, wear history | SwiftData + on-disk | ❌ never (optional iCloud later) |
 | Minimal receipt snippets | sent to backend → Claude | ✅ minimized |
 | Item attributes for styling | sent to backend → Claude | ✅ ids + attributes |
+
+The anonymous installation identifier is not a Wardrobe account and is not a Google identity. It
+survives normal app updates but is recreated after reinstall, migration, or backup restoration.
+The final retention, deletion, logging, and Fly snapshot periods remain release facts to verify;
+this architecture does not promise values that have not been confirmed.
+
+## Anonymous backend authorization
+
+Remote AI uses App Attest-backed, short-lived sessions without presenting a login screen:
+
+```mermaid
+sequenceDiagram
+    participant App as iOS app
+    participant Apple as Apple App Attest
+    participant API as Wardrobe backend
+    participant DB as Durable auth store
+
+    App->>API: Request one-time attestation challenge
+    App->>Apple: Generate key; attest SHA256(challenge)
+    Apple-->>App: Attestation object
+    App->>API: key ID + attestation object
+    API->>API: Verify Apple chain, nonce, RP ID,<br/>environment and counter; iOS 27+ category/build
+    API->>DB: Store public key + receipt + installation metadata
+    API-->>App: Short-lived Bearer session
+    Note over App,API: Later, after expiry
+    App->>API: Request assertion challenge
+    App->>Apple: Sign canonical client data
+    App->>API: assertion + exact client data
+    API->>DB: Atomically consume challenge and advance counter
+    API-->>App: New short-lived Bearer session
+```
+
+The production verifier always requires the exact registered App ID prefix + bundle ID, App Attest
+environment, key binding, nonce/signature, and monotonic counter. On iOS 27+, Apple appends signed
+validation-category and bundle-version extensions; when present, both are required and must match
+the configured distribution categories (`2` TestFlight, `4` App Store) and explicit build
+allowlist. Their signed absence is accepted for supported iOS 18–26 clients because removing them
+from an iOS 27+ proof would invalidate the nonce or signature. Challenges are randomized, expiring,
+purpose-bound, and single-use; the assertion counter advances atomically. Enrollment, session
+renewal, `/extract`, and `/recommend` are rate-limited by coarse, minimized security identifiers.
+
+App Attest is a physical-device boundary. Simulator tests use an injected fake. If
+`DCAppAttestService.isSupported` is false—or secure verification is offline—the app keeps the
+local wardrobe and offline Demo Mode usable but does not mint an unauthenticated remote-AI
+session. Google can still be connected or disconnected solely for optional Gmail receipt access.
 
 ## Receipt extraction pipeline (Gmail → catalog)
 
@@ -162,7 +219,7 @@ user's own catalog. v1 is a **single Claude Opus 4.8 call** with a forced
 `propose_outfit` tool (the cached styling rubric is the stable prefix; the
 per-request catalog rides in the user message) — no subagents and no weather
 yet. The app sends only a **compact, text-only** snapshot (item ids + attributes,
-no images) plus the ids worn in the last ~14 days; the backend persists nothing.
+no images) plus the ids worn in the last ~14 days; the backend does not persist that payload.
 
 ```mermaid
 sequenceDiagram
@@ -173,7 +230,7 @@ sequenceDiagram
 
     User->>App: Open "Today"
     App->>App: Compact catalog + recent-worn ids (WearLog)
-    App->>API: POST /recommend (Bearer device token)
+    App->>API: POST /recommend (short-lived installation session)
     API->>Aria: propose_outfit (forced tool · cached rubric)
     Aria-->>API: outfit + alternates + rationale (structured)
     API->>API: Guard — drop any id not in the submitted catalog
@@ -255,10 +312,11 @@ Two independent layers (see [`docs/privacy.md`](privacy.md) and the guard test):
 
 | Layer | Technology |
 |---|---|
-| iOS UI | SwiftUI (iOS 18 target, min 17) |
+| iOS UI | SwiftUI (iOS 18 deployment target) |
 | Persistence | SwiftData; images via `.externalStorage` |
 | Gmail auth | GoogleSignIn-iOS (scope `gmail.readonly`), tokens in Keychain |
 | Gmail API | URLSession → read-only REST endpoints |
+| Backend auth | DeviceCheck App Attest + short-lived anonymous installation sessions |
 | On-device ML | Vision (subject lift, color, feature-print), Vision OCR |
 | Context | WeatherKit, EventKit |
 | Backend | FastAPI + Anthropic SDK (uv, ruff, mypy, pytest) |
@@ -272,10 +330,23 @@ Two independent layers (see [`docs/privacy.md`](privacy.md) and the guard test):
 flowchart LR
     Dev["Developer Mac<br/>Xcode · uv"] -->|TestFlight / device| Phone["iPhone (the app)"]
     Dev -->|fly deploy| Fly["Fly.io<br/>FastAPI"]
-    Phone <-->|HTTPS Bearer| Fly
+    Phone <-->|HTTPS short-lived session| Fly
     Fly -->|HTTPS| Anthropic["Anthropic API"]
     Phone <-->|HTTPS OAuth + GET| Google["Google / Gmail"]
+    Phone <-->|attest key / sign assertions| Apple["Apple App Attest"]
+    Fly <--> AuthDB[("Private durable auth volume/database")]
 ```
 
-- The backend stores secrets as Fly.io secrets (`ANTHROPIC_API_KEY`, `DEVICE_TOKEN`).
-- The app stores only the user's OAuth tokens and the backend device token (Keychain).
+- The backend stores `ANTHROPIC_API_KEY` and its App Attest session-signing secret as Fly.io
+  secrets. `DEVICE_TOKEN` is allowed only during a recorded, time-bounded migration bridge and is
+  unset/rotated before APP-009 closes.
+- The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
+  anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived
+  sessions, and coarse rate windows. The receipt is not trusted as fraud evidence until its
+  separate Apple receipt checks are implemented. The store contains no Gmail receipt text,
+  wardrobe catalog, photos, or recommendation payload.
+- The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
+  private key stays in the Secure Enclave; the short-lived access token is memory-only.
+- Google is not an account system for Wardrobe backend access. A user can style a local/photo
+  wardrobe without Google as long as the installation can establish its anonymous App Attest
+  session.

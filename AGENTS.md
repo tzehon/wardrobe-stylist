@@ -4,14 +4,15 @@ Durable guidance for Codex and other coding agents working in this repository.
 
 ## What this is
 
-A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail purchase receipts (read-only) and photos to build a wardrobe catalog, then recommends non-repeating daily outfits. Backend is a thin Python FastAPI proxy that holds the Anthropic key and calls Claude.
+A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail purchase receipts (read-only) and photos to build a wardrobe catalog, then recommends non-repeating daily outfits. The Python FastAPI backend holds the Anthropic key, calls Claude, and persists only the minimum App Attest authentication/security metadata needed to authorize the public API. It must never persist receipt or wardrobe payloads.
 
 ## Hard rules (do not violate)
 
 1. **Gmail is READ-ONLY, always.** Never add, call, or reference any Gmail write/mutate operation (send, insert, import, modify, batchModify, trash, untrash, delete, batchDelete, drafts.*, labels create/update/delete, settings.update*, threads modify/trash/delete). All Gmail access goes through `ios/Wardrobe/Gmail/GmailReadEndpoint.swift` (an allowlist enum; every case is a `GET`). The only OAuth scope is `https://www.googleapis.com/auth/gmail.readonly`. `WardrobeTests/GmailReadOnlyGuardTests` enforces this — keep it green. The guard scans `ios/Wardrobe/Gmail/` only; that's intentional, because the structural read-only guarantee comes from confining all Gmail HTTP to the endpoint enum in that directory.
 2. **Never embed the Anthropic API key (or any secret) in the iOS app.** Secrets live only in the backend (env/Fly.io secrets). `.env`/credentials are gitignored.
 3. **Hybrid privacy.** Do Gmail fetching + candidate filtering on-device; send only minimal text/images to the backend. The backend must not persist email content.
-4. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: `uv run pytest` (+ `ruff`/`mypy`); iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
+4. **Backend identity is anonymous and per installation.** Google sign-in exists only for optional read-only Gmail import; it is never the Wardrobe backend identity. Public backend sessions come from an Apple-certified App Attest key for one app installation, expire quickly, and are renewed with a fresh one-time assertion challenge. App Attest is not a human account and does not survive reinstall, migration, or restore. Never reintroduce a shared client bearer or an unauthenticated remote-AI fallback. If App Attest is unsupported, local wardrobe and Demo Mode keep working while remote AI fails closed with a clear recovery message.
+5. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: `uv run pytest` (+ `ruff`/`mypy`); iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
 
 ## Layout
 
@@ -19,22 +20,24 @@ A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail p
   - `Wardrobe/Models/` — SwiftData `@Model`s (Item, Outfit, WearLog).
   - `Wardrobe/Gmail/` — read-only Gmail layer (scope + endpoint allowlist + URLSession client + Codable models + MIME walker + base64url + Keychain `TokenStorage` + GoogleSignIn-backed auth + `GmailSession` state).
   - `Wardrobe/Receipts/` — on-device receipt extraction (Tier 0/1): `HTMLStripper`, `RetailerDirectory`, `CandidateClassifier` + `SignalsExtractor`, `JSONLDExtractor` (schema.org), `OCREngine` + `AttachmentOCR` (Vision + PDFKit). Pure functions / actors, no Gmail HTTP.
-  - `Wardrobe/Backend/` — backend HTTP clients (POST + Bearer + snake_case round-trip): `/extract` via `ExtractAPI` + `ExtractClient`, `/recommend` via `RecommendAPI` + `RecommendClient`, plus `BackendConfig` (reads Info.plist).
+  - `Wardrobe/Backend/` — backend HTTP clients (POST + short-lived Bearer + snake_case round-trip): `/extract` via `ExtractAPI` + `ExtractClient`, `/recommend` via `RecommendAPI` + `RecommendClient`; `AppAttestAuthorization` enrolls one Secure Enclave key and renews memory-only sessions, while `BackendConfig` reads only the backend URL from Info.plist.
   - `Wardrobe/Pipeline/` — `ReceiptPipeline`: orchestrates Gmail fetch → Tier 0 → `/extract` → SwiftData `Item`, with catalog-wide identity dedup (brand+name+category) + a heal sweep.
   - `Wardrobe/Views/` — SwiftUI screens: Phase 3 catalog (`CatalogView` grid grouped by dynamic categories with search/filter/sort/delete; `ItemDetailView`; pure `CatalogOrganizer`/`CatalogFilter`) and Phase 5 `TodayView` (Aria's daily look + alternates + "Wear this").
   - `Wardrobe/Capture/` — Phase 4 manual photo capture: `ImageProcessor` (pure UIKit downscale/thumbnail), `CameraPicker` (UIImagePickerController wrapper, device-only), `AddItemView` + `ItemDraft` (PhotosPicker/camera → details form → `source = .photo` Item).
   - `Wardrobe/Stylist/` — Phase 5 daily stylist "Aria": pure `CatalogCompactor` (Item → minimal `/recommend` payload, no images) + `WearHistory` (recent-worn ids for anti-repeat), and `OutfitRecommender` (`@Observable`; fetch → `/recommend` → resolve ids back to `Item`s → persist `Outfit` + per-item `WearLog`). The Today UI lives in `Views/TodayView.swift`.
   - `Wardrobe/Background/` — Phase 6 background sync: `ReceiptSyncScheduler` (pure `BGProcessingTaskRequest` builder + submit via a `BackgroundTaskSubmitting` seam; unit-tested) and `BackgroundSyncRunner` (`@MainActor` launch-handler glue: restores the Gmail session headless, runs `ReceiptPipeline.sync`, reschedules — device-only, not unit-tested). Registered in `WardrobeApp.init`; rescheduled on `.background`.
   - `Wardrobe/Notifications/` — Phase 6 daily nudge: `DailyOutfitNotifier` (pure repeating-`UNCalendarNotificationTrigger` request builder + a `UserNotificationScheduling` seam; the outfit itself is computed on open, so the notification never hits the network). Enabled from `ContentView` after sign-in.
-  - `Wardrobe/Info.plist` — hand-managed; reads `$(GOOGLE_CLIENT_ID)`, `$(GOOGLE_REVERSED_CLIENT_ID)`, `$(BACKEND_SCHEME)`, `$(BACKEND_HOST)`, `$(BACKEND_DEVICE_TOKEN)` from `Config.xcconfig`, which `#include?`s the gitignored `Secrets.xcconfig` (template: `Secrets.xcconfig.example`). xcconfig values can't contain `//` (it starts a comment), which is why the backend URL is split into scheme + host and composed in the plist.
+  - `Wardrobe/Info.plist` — hand-managed; reads `$(GOOGLE_CLIENT_ID)`, `$(GOOGLE_REVERSED_CLIENT_ID)`, `$(BACKEND_SCHEME)`, and `$(BACKEND_HOST)` from configuration-specific xcconfig files. It must never contain `BackendDeviceToken`. xcconfig values can't contain `//` (it starts a comment), which is why the backend URL is split into scheme + host and composed in the plist.
+  - `Wardrobe/Wardrobe.entitlements` — App Attest environment entitlement supplied by XcodeGen. Debug uses Apple's development/sandbox environment; TestFlight and App Store distribution use production. The registered App ID capability and provisioning profile must match the signed archive.
   - `WardrobeTests/` — Swift Testing unit tests + the read-only guard + URLProtocolStub (with body capture) + JSON-LD / Gmail / Backend fixtures.
 - `backend/` — FastAPI app (`app/`), tests (`tests/`), managed with **uv**.
-  - `app/routes/extract.py` — `POST /extract` (Bearer-auth, snippet → structured purchase array).
+  - `app/auth/` — App Attest challenge, attestation, assertion, short-lived session, rate-limit, and durable SQLite auth-state logic. The store is security metadata only: public keys, opaque Apple attestation receipts, counters, challenges, session hashes, and coarse rate windows; no Gmail receipt/catalog payload enters it. Do not treat or describe the Apple receipt as independently verified until its PKCS#7/risk-metric validation policy is implemented and evidenced.
+  - `app/routes/extract.py` — `POST /extract` (short-lived session Bearer, snippet → structured purchase array).
   - `app/agents/extractor.py` — Claude Haiku call: tool use forced via `tool_choice`, `cache_control:ephemeral` on the system block (caches `tools` + `system` together; activates once the prefix exceeds Haiku 4.5's ~4096-token threshold).
-  - `app/routes/recommend.py` — `POST /recommend` (Bearer-auth, compact catalog + recent-worn ids → one outfit). A server-side guard rejects any item id Aria returns that wasn't in the submitted catalog.
+  - `app/routes/recommend.py` — `POST /recommend` (short-lived session Bearer, compact catalog + recent-worn ids → one outfit). A server-side guard rejects any item id Aria returns that wasn't in the submitted catalog.
   - `app/agents/stylist.py` — Claude Opus 4.8 call ("Aria"): forced `propose_outfit` tool use + `cache_control:ephemeral` on the styling rubric; the per-request catalog goes in the volatile user message.
   - `app/schemas/purchase.py` / `app/schemas/recommendation.py` — Pydantic mirrors of `shared/schemas/purchase.schema.json` / `outfit.schema.json` (`extra=forbid`).
-  - `app/dependencies.py` — fail-closed Bearer auth + Anthropic client provider (overridable in tests).
+  - `app/dependencies.py` — fail-closed session authorization + Anthropic client provider (overridable in tests). Production must refuse legacy-only auth.
 - `shared/schemas/` — JSON Schemas shared by iOS + backend (the data contract; both sides validate against these, contract test pins them to the same golden fixtures).
 - `docs/` — setup + architecture (with diagrams). Read these first.
 
@@ -55,6 +58,8 @@ Run the backend with `--host 0.0.0.0` (not the default `127.0.0.1`) when testing
 
 Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator — gate or mock those paths in tests and verify on a real device. Vision *text recognition* (used by `AttachmentOCR`) does work in the sim.
 
+App Attest is also a physical-device boundary. Simulator tests use an injected fake service; before distribution, exercise sandbox attestation on a development-signed iPhone and production attestation/assertion/session renewal through TestFlight.
+
 ## Release impact, versioning & TestFlight
 
 - After every completed change, explicitly decide and report whether it requires a new TestFlight build. Do not silently omit the release assessment.
@@ -62,13 +67,14 @@ Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator �
 - A TestFlight build is not required for documentation, `AGENTS.md`, GitHub Actions, agent configuration, tests-only changes, or backward-compatible backend-only changes that do not alter the iOS bundle.
 - When a build is required, first confirm the latest build already uploaded to App Store Connect, then increment `CURRENT_PROJECT_VERSION` in `ios/project.yml` to the next unused integer. Do not change `MARKETING_VERSION` unless the user requests a new public version or the change belongs to a planned version milestone.
 - Before uploading, run the full backend and iOS regression suites, regenerate the Xcode project, create a signed Release archive, validate it, upload it to App Store Connect, add it to the internal TestFlight group, and confirm processing succeeds. Never reuse a build number.
+- Before an App Attest build can ship, confirm the exact App ID prefix from Certificates, Identifiers & Profiles (do not assume it equals the Team ID), enable the capability for `com.tth.Wardrobe`, regenerate signing profiles, provision durable production auth storage, and configure explicit production allowlists for validation category (`2` for TestFlight, `4` for App Store) and accepted bundle builds. Apple adds those signed runtime fields on iOS 27+; iOS 18–26 still requires the complete core App Attest proof but cannot be build/category-gated. Retain the archive's entitlement, tester OS version, runtime-field presence, and physical-device evidence.
 - If release impact, the next unused build number, signing state, or distribution intent is uncertain, ask the user before changing version metadata or uploading a build.
 
 ## Conventions
 
 - **Models in use:** Claude `claude-haiku-4-5` (extraction/categorize), `claude-opus-4-8` (stylist "Aria"; the latest, most capable model — cost is a non-issue for a single user), `claude-opus-4-7` (other hard cases). When adding or modifying an Anthropic SDK call, verify the syntax against the current official Anthropic documentation and preserve prompt caching. Use **tool use** for structured JSON and validate outputs against `shared/schemas/`.
 - **Read-only guard scope:** `GmailReadOnlyGuardTests` scans only `ios/Wardrobe/Gmail/`. New code that needs network must either (a) live elsewhere and not call Gmail, or (b) live in `Gmail/` and go through the `GmailReadEndpoint` enum (every case is `GET`).
-- **Code signing:** simulator builds use ad-hoc signing (`CODE_SIGN_IDENTITY = "-"`) so Keychain works without a team. Device builds use `CODE_SIGN_STYLE = Automatic` with `DEVELOPMENT_TEAM` from `Secrets.xcconfig`.
+- **Code signing:** simulator builds use ad-hoc signing (`CODE_SIGN_IDENTITY = "-"`) so Keychain works without a team. Device builds use automatic signing; local Debug values come from `Secrets.xcconfig`, while distribution Team ID and identifiers come from the separate gitignored `Distribution.xcconfig`. Adding App Attest to the registered App ID invalidates old profiles, so inspect both archive entitlements and the embedded profile.
 - **App Transport Security:** the backend is on HTTPS (Fly.io), so `Info.plist` carries **no** ATS exception — the dev-only `NSAllowsArbitraryLoads` + `NSLocalNetworkUsageDescription` keys were removed once production went HTTPS. If you need to point the app back at a plain-HTTP LAN dev backend, re-add an `NSAppTransportSecurity` exception locally (don't commit it).
 - **Commits:** Use logically independent Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Do not add AI co-author or attribution trailers unless the user explicitly requests one.
 - **iOS target:** iOS 18 deployment, Swift 6 language mode, Swift Testing for new tests, XCTest only where needed (UI flows / `URLProtocol` stubbing).
@@ -77,6 +83,8 @@ Note: Vision feature-print / subject-lift do **not** run in the iOS Simulator �
 
 - Treat any new Gmail write or mutation capability as a release blocker. Gmail HTTP must remain confined to `ios/Wardrobe/Gmail/`, routed through `GmailReadEndpoint`, and limited to `GET` with the `gmail.readonly` OAuth scope.
 - Flag secrets, API keys, device tokens, OAuth credentials, or production configuration embedded in the iOS target or committed files. Anthropic credentials belong only in backend environment/Fly.io secrets.
+- Treat any shared client bearer, Google-backed Wardrobe account requirement, client-asserted "unsupported App Attest" bypass, reusable challenge, non-monotonic assertion counter, sandbox credential accepted in production, or in-memory-only production auth state as a release blocker. Auth-state updates must be atomic and survive Fly restarts/deploys; Google remains solely an optional Gmail connection.
+- App Attest's core certificate/key/nonce proof authorizes the installation. The opaque Apple receipt is separate fraud-risk evidence: never claim or consume it as trusted until its Apple receipt signature, chain, App ID, freshness, and public-key binding checks are implemented against official fixtures.
 - Flag backend/iOS payload changes that are not reflected in the JSON Schemas, their Pydantic and Swift mirrors, golden fixtures, and contract tests.
 - Flag recommendation paths that accept item ids not present in the submitted catalog or otherwise weaken the server-side hallucination guard.
 - Review Swift 6 concurrency boundaries carefully, especially `@MainActor`, `@Sendable`, background-task callbacks, and non-Sendable system framework types.
