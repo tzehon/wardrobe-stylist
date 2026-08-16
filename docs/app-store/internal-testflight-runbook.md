@@ -21,9 +21,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## Current candidate status — 2026-08-16
 
-- Branch: `codex/app-store-readiness`, clean and committed locally, not yet pushed or merged.
+- Candidate source: PR #7 is merged to `main` at
+  `f2a02825fd4178478bfc130525463165f12d648c`. APP-009 follow-up work is isolated on
+  `codex/app-009-backend-identity`.
 - Local version/build: `MARKETING_VERSION = 0.1.0`, `CURRENT_PROJECT_VERSION = 3`.
-- The branch has not changed version metadata and has not been uploaded to TestFlight.
+- The merged candidate scope and APP-009 follow-up have not changed version metadata or uploaded
+  a new TestFlight build.
 - The next build number is unknown until the highest uploaded build is checked in App Store
   Connect. Never infer it from the repository alone.
 - A signed device archive is intentionally blocked while `BackendDeviceToken` remains in the app.
@@ -31,8 +34,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## One-time gates before the next internal build
 
-- [ ] Push the readiness branch, review it, and merge the intended release scope so the uploaded
-  commit is recoverable from the remote repository.
+- [x] Push the readiness branch, review it, and merge the intended release scope so the uploaded
+  commit is recoverable from the remote repository. PR #7 merged it to `main` at
+  `f2a02825fd4178478bfc130525463165f12d648c`.
 - [ ] Complete `APP-009`: replace the extractable shared backend bearer with short-lived per-user
   authorization validated by the backend; remove `BackendDeviceToken` from the iOS bundle and
   retire/rotate the legacy backend token.
@@ -106,4 +110,3 @@ increment the build number and repeat the full loop. Never "patch" an uploaded c
 - [Upload builds](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds)
 - [Add internal testers](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers)
 - [View builds and upload status](https://developer.apple.com/help/app-store-connect/manage-builds/view-builds-and-metadata)
-
