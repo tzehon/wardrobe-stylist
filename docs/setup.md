@@ -26,7 +26,7 @@ fresh checkout to running all tests; Gmail/Anthropic wiring is staged by phase.
 | git | 2.40+ | `brew install git` |
 | flyctl (deploy only) | latest | `brew install flyctl` |
 
-Accounts: a **paid Apple Developer account** (for WeatherKit/TestFlight in later phases), a
+Accounts: a **paid Apple Developer account** (App Attest capability, signing, and TestFlight), a
 **Google Cloud** project (read-only Gmail OAuth), an **Anthropic API key**, and a **Fly.io**
 account (backend hosting).
 
@@ -44,17 +44,39 @@ Layout: `ios/` (app), `backend/` (proxy), `shared/schemas/` (data contract), `do
 ```bash
 cd backend
 uv sync                       # creates .venv and installs deps from uv.lock
-cp .env.example .env          # then fill in:
-                              #   ANTHROPIC_API_KEY=sk-ant-...
-                              #   DEVICE_TOKEN=$(python3 -c "import secrets;print(secrets.token_urlsafe(32))")
+cp .env.example .env
+chmod 600 .env                 # keep local backend secrets owner-readable only
 uv run uvicorn app.main:app --reload --host 0.0.0.0   # 0.0.0.0 = listen on all interfaces
 curl localhost:8000/health    # {"status":"ok","environment":"dev"}
 ```
 
 `--host 0.0.0.0` lets the iPhone on the same Wi-Fi reach the dev server (at your Mac's LAN
-IP). For sim-only dev you can drop it. The same `DEVICE_TOKEN` value must be pasted into
-`ios/Secrets.xcconfig` (see iOS section below). `.env` (gitignored) holds `ANTHROPIC_API_KEY`
-and `DEVICE_TOKEN`. The config is import-safe, so tests and `/health` work without them.
+IP). For sim-only dev you can drop it. The config is import-safe, so tests and `/health` work
+without release secrets.
+
+Live connected AI on a physical development iPhone uses App Attest sandbox identity. Configure
+the gitignored `.env` with development values, never production placeholders:
+
+```dotenv
+ANTHROPIC_API_KEY=sk-ant-...
+AUTH_MODE=app_attest
+APP_ATTEST_APP_ID_PREFIX=<exact-prefix-from-Apple-registered-App-ID>
+APP_ATTEST_BUNDLE_ID=com.tth.Wardrobe
+APP_ATTEST_ENVIRONMENT=development
+APP_ATTEST_DATABASE_PATH=/absolute/private/path/wardrobe-auth/auth.sqlite3
+APP_ATTEST_SESSION_SECRET=<at-least-32-random-bytes>
+APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES=3
+APP_ATTEST_ALLOWED_BUNDLE_VERSIONS=3
+ENVIRONMENT=dev
+```
+
+The build string allowlist must match the app actually installed. The current iOS app has no
+shared token and cannot use backend legacy auth. `AUTH_MODE=legacy` + `DEVICE_TOKEN` are limited to
+backend-only curl/test compatibility; `AUTH_MODE=bridge` exists only for a time-bounded production
+migration of already-installed legacy builds. Neither is an iOS development setup. The iOS
+Simulator cannot perform real App Attest, so local/Demo Mode remains usable there while connected
+AI fails closed; tests use an injected fake authorization service. Connected-app development
+requires a physical iPhone, development App Attest, and the development configuration above.
 
 > macOS firewall blocking port 8000? System Settings → Network → Firewall → allow incoming
 > for the Python process the first time it asks, or temporarily turn the firewall off for dev.
@@ -78,7 +100,6 @@ cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
 #   BACKEND_HOST               = <Mac-LAN-IP>:8000   (iPhone on same Wi-Fi)
 #                                localhost:8000      (simulator only)
 #                                your-app.fly.dev    (Fly.io deploy)
-#   BACKEND_DEVICE_TOKEN       = (the same string as DEVICE_TOKEN in backend/.env)
 #   PRIVACY_POLICY_URL         = https:/$()/your-domain.example/privacy
 #   SUPPORT_URL                = https:/$()/your-domain.example/support
 ```
@@ -87,24 +108,41 @@ xcconfig values can't contain `//` (the rest of the line gets treated as a comme
 the backend URL is split into `BACKEND_SCHEME` and `BACKEND_HOST` and composed in
 `Info.plist` at build time. `ios/Debug.xcconfig` (committed) `#include?`s your local file
 and feeds the values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
-`BackendDeviceToken`, and the public privacy/support links). Now that the backend is HTTPS on
-Fly.io, `Info.plist` carries no App
+and the public privacy/support links). Backend sessions are established at runtime with an
+App Attest key; no shared backend credential belongs in `Info.plist` or either xcconfig. Now that
+the backend is HTTPS on Fly.io, `Info.plist` carries no App
 Transport Security exception. To point the app back at a **plain-HTTP LAN dev backend**, set
 `BACKEND_SCHEME = http` + `BACKEND_HOST = <Mac-LAN-IP>:8000` and temporarily add an
 `NSAppTransportSecurity` → `NSAllowsArbitraryLoads = YES` block to `Info.plist` (don't commit it).
 
 `PRIVACY_POLICY_URL` and `SUPPORT_URL` are optional during local development, so their Settings
 rows remain visibly unavailable until configured. An installable device **Release** archive is
-stricter: its post-build guard requires real non-placeholder HTTPS destinations, a matching
-Google client/callback scheme, and an HTTPS backend. It also refuses to archive while the legacy
-`BackendDeviceToken` key remains in the public target. That last blocker is intentional and is
-resolved only by the per-user backend identity cutover in
-[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
+stricter: its post-build configuration guard requires real non-placeholder HTTPS destinations, a
+matching Google client/callback scheme, an HTTPS backend, and no legacy `BackendDeviceToken` key;
+the candidate additionally requires the signed App Attest entitlement/profile. Passing local
+checks does not prove the external Apple capability, durable Fly store, production backend, or
+physical TestFlight flow.
 
 Release builds use a separate gitignored `ios/Distribution.xcconfig`, created from
 `ios/Distribution.xcconfig.example`. They never inherit LAN hosts or test OAuth values from
-`Secrets.xcconfig`. Do not add a shared bearer to that file; public identity is completed later
-in the GCP production sequence.
+`Secrets.xcconfig`. Do not add a shared bearer to that file. Google identifiers configure only
+optional Gmail; anonymous backend identity is App Attest-based and independent from Google.
+
+### App Attest physical-device setup
+
+1. In Certificates, Identifiers & Profiles, open the explicit App ID `com.tth.Wardrobe` and record
+   its exact App ID prefix. Do not infer it from `DEVELOPMENT_TEAM`.
+2. Enable App Attest for that App ID. Existing provisioning profiles may become invalid; allow
+   automatic signing to regenerate them or recreate them deliberately.
+3. Regenerate the Xcode project. `Wardrobe.entitlements` uses the sandbox environment for Debug
+   and production for Release; TestFlight/App Store distributions use production regardless.
+4. Run on a physical iPhone and exercise enrollment plus session renewal. On iOS 27+, verify that
+   the development backend accepts signed validation category `3` and the exact installed build.
+   On iOS 18–26, record the expected absence of those newer runtime fields while proving the full
+   core App Attest flow. Simulator fakes do not replace this test.
+5. Before distribution, inspect both the archive's signed entitlement and embedded provisioning
+   profile. The TestFlight production backend must accept category `2` and the exact uploaded
+   build; category `4` is reserved for App Store distribution.
 
 ### Build / run / test
 
@@ -147,19 +185,39 @@ https://console.anthropic.com and set a monthly budget alert (personal use is ~$
 
 ## Deploy the backend (Fly.io)
 
-The repo ships a `backend/Dockerfile` (uv-based) and `backend/fly.toml` (HTTPS,
-scale-to-zero, `/health` check), so you don't run `fly launch` from scratch —
-just claim an app name, set secrets, and deploy:
+The repo ships a `backend/Dockerfile` and `backend/fly.toml`. App Attest adds durable authentication
+state, so a production deploy also needs a private Fly volume (or reviewed shared database) before
+`AUTH_MODE=app_attest` can start. Never use the container filesystem or an in-memory store for
+production counters/challenges.
 
 ```bash
 cd backend
 fly launch --no-deploy --copy-config   # reuses the committed fly.toml; pick a unique app name + region
+fly volumes create <auth-volume-name> --region <primary-region>
 fly secrets set \
   ANTHROPIC_API_KEY=sk-ant-... \
-  DEVICE_TOKEN=$(python -c "import secrets;print(secrets.token_urlsafe(32))")
+  APP_ATTEST_SESSION_SECRET=<at-least-32-random-bytes>
 fly deploy
 fly open /health                        # should return {"status":"ok","environment":"production"}
 ```
+
+Before deploying, make the committed Fly mount source match the created volume and set reviewed
+production configuration: `AUTH_MODE=app_attest`, `APP_ATTEST_APP_ID_PREFIX` from the Apple portal,
+`APP_ATTEST_BUNDLE_ID=com.tth.Wardrobe`, `APP_ATTEST_ENVIRONMENT=production`,
+`APP_ATTEST_DATABASE_PATH` under `/data`, validation category `2` for the next TestFlight build
+(and `4` only when serving App Store builds), and an exact bundle-build allowlist chosen from App
+Store Connect. These signed category/build fields are enforced whenever Apple supplies them on
+iOS 27+; older supported OS versions still require the complete core App Attest proof. These are
+release facts, not values to guess from this repository.
+
+Record the volume/machine topology, atomic SQLite behavior, snapshot and backup configuration,
+restore rehearsal, and retention/deletion criteria. Fly volumes are single-machine local storage;
+do not scale to multiple independent volumes without a designed shared/replicated auth store. The
+database may contain only App Attest public keys, opaque Apple attestation receipts, counters,
+challenges, hashed sessions, and coarse rate windows—never Gmail receipt or wardrobe payloads.
+The core certificate/key/nonce proof authorizes an installation; do not trust or redeem the separate
+Apple receipt for a fraud metric until its PKCS#7 signature/chain, App ID, creation time, and
+attested-public-key binding are independently validated with official-format evidence.
 
 The image build is verifiable locally first: `docker build -t wb backend && docker run --rm -p 8080:8080 wb`, then `curl localhost:8080/health`.
 
@@ -173,18 +231,19 @@ Then point the app at the deployed backend and drop the dev-only HTTP exception:
    longer needed (and App Store review flags it).
 3. `cd ios && xcodegen generate` and rebuild.
 
-That `DEVICE_TOKEN` flow documents the existing local/personal development backend only. It is
-not permitted in the next always-ready TestFlight archive: complete `APP-009`, migrate the backend
-to validated per-user authorization, then remove the key from the iOS bundle and rotate/retire the
-legacy token before distribution.
+For an existing installation, a bridge may temporarily accept both mechanisms only with a recorded
+expiry and deployment evidence. After the App Attest TestFlight client is verified, deploy
+App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove the old client is rejected. Retain a
+known-good App-Attest-only image and preserve the auth volume for rollback; never roll back by
+re-enabling the shared bearer.
 
 ## TestFlight (Phase 6 distribution)
 
 Every internal beta is built as an App Store candidate. Follow the full
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
 
-1. Finish the per-user backend identity cutover and remove the shared `BackendDeviceToken` from
-   the iOS bundle. A device Release archive intentionally fails until this is done.
+1. Finish `APP-009`: App Attest per-installation sessions, durable Fly auth state, physical-device
+   sandbox/production verification, no `BackendDeviceToken`, and retired legacy backend auth.
 2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
    `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
 3. Check App Store Connect for the highest uploaded build, then set the next unused
@@ -196,11 +255,26 @@ Every internal beta is built as an App Store candidate. Follow the full
    Do not choose **TestFlight Internal Only**: Apple prevents that artifact from later being
    submitted to customers.
 6. After processing, add the build only to the Internal Testing group and complete upgrade plus
-   clean-device QA. Adding it to an internal group does not submit it for App Review.
+   clean-device QA, including enrollment/session renewal, tester OS/runtime-field evidence,
+   production category/build evidence on iOS 27+, reinstall identity reset, offline local/demo
+   behavior, and rejection of the pre-App-Attest shared-token build. Adding it to an internal group
+   does not submit it for App Review.
 
 Before choosing a build number or archiving, run `ios/scripts/verify-release-artifact.sh` against
-the generated Release artifact. Device Release archives also run the strict public-configuration
-guard automatically; never bypass it.
+the generated simulator Release artifact. Xcode omits App Attest from simulator signatures, so this
+is only a structural preflight. After creating the signed device archive, run the same verifier with
+the archived app as its second argument; that pass requires the signed production App Attest
+entitlement and no shared bearer:
+
+```bash
+cd ios
+./scripts/verify-release-artifact.sh DerivedData/ReleaseValidation
+./scripts/verify-release-artifact.sh DerivedData/ReleaseValidation \
+  "/path/to/Wardrobe.xcarchive/Products/Applications/Wardrobe.app"
+```
+
+Device Release archives also run the strict public-configuration guard automatically; never bypass
+it.
 
 ## Run all tests
 

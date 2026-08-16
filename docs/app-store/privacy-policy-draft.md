@@ -98,8 +98,9 @@ For access, correction, deletion, or privacy questions about any server-side inf
 ## Security
 
 We use HTTPS in transit, platform-provided credential storage, least-privilege read-only Gmail
-scope, schema validation, per-user backend authorization, rate limits, dependency review, and
-automated tests intended to prevent Gmail write capability and unauthorized data transmission.
+scope, schema validation, anonymous per-installation App Attest backend authorization, rate
+limits, dependency review, and automated tests intended to prevent Gmail write capability and
+unauthorized data transmission.
 [REMOVE ANY CONTROL NOT VERIFIED IN THE FINAL PRODUCTION DEPLOYMENT.]
 
 No method of storage or transmission is completely secure. Contact [SECURITY EMAIL] if you

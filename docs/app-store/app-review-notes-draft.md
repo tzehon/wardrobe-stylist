@@ -6,7 +6,10 @@
 
 Wardrobe Stylist is a local-first wardrobe catalog and optional AI styling app. A reviewer can
 explore the local/demo wardrobe without Google. Gmail connection is optional and strictly
-read-only; it imports clothing purchase information from likely receipts.
+read-only; it imports clothing purchase information from likely receipts. The app has no
+Wardrobe account or login. When a reviewer explicitly uses remote AI, Apple App Attest verifies
+that installation and the backend issues a short-lived anonymous session; Google is not used to
+authorize styling or the developer backend.
 
 ## Reviewer path without personal data
 
@@ -26,6 +29,11 @@ store and discarded on reset or exit; it does not open the production wardrobe m
 launching the tour. The same deterministic path is covered by the app's UI-test launch argument
 `--wardrobe-demo`, but reviewers should use the visible first-run button above.
 
+App Attest is not required for this offline reviewer path. If secure installation verification,
+the network, or the backend is unavailable, the app keeps local wardrobe and Demo Mode usable and
+fails closed only for remote AI with a recovery message; it does not mint an unauthenticated
+fallback session.
+
 ## Gmail test path
 
 1. Open **Settings → Connected Features → Receipt Import → Connect Gmail**.
@@ -44,7 +52,9 @@ Expected item/result: [EXPECTED RESULT]
 The app names the developer backend and Anthropic before receipt or styling data is transmitted.
 Receipt analysis and wardrobe styling have separate, versioned consent records. With consent
 absent or withdrawn, automated request-capture tests verify the protected network paths make zero
-Gmail/backend calls. [VERIFY IN SUBMITTED COMMIT.]
+Gmail/backend calls. The backend retains only the minimum anonymous App Attest authentication and
+abuse-prevention metadata; it is intended not to persist receipt or wardrobe payloads. [VERIFY
+THE SUBMITTED COMMIT, PRODUCTION LOGGING, AUTH-STORE RETENTION, AND BACKUPS.]
 
 ## Background and notifications
 
@@ -54,10 +64,15 @@ consent and a separate toggle. iOS schedules it opportunistically, not at an exa
 
 ## Backend availability
 
-Production API: [HTTPS HOST]  
-Health URL: [HEALTH URL]  
-Review-window minimum instances: [VALUE]  
-Status/support: [URL]
+- Production API: [HTTPS HOST]
+- Health URL: [HEALTH URL]
+- Review-window minimum instances: [VALUE]
+- Status/support: [URL]
+- App Attest environment and tester OS/runtime fields:
+  [PRODUCTION / OS VERSION / EXTENSIONS PRESENT OR EXPECTED ABSENT]
+- iOS 27+ App Attest category/build allowlist:
+  [TESTFLIGHT 2 OR APP STORE 4 / EXACT BUILD]
+- Durable auth-store/restore evidence: [REFERENCE]
 
 ## Non-obvious implementation assurances
 
@@ -66,8 +81,12 @@ Status/support: [URL]
 - The server rejects recommendation item IDs not present in the submitted catalog.
 - Receipt and wardrobe payloads are schema-validated.
 - The public client contains no Anthropic key or shared backend bearer. [MUST BE TRUE.]
+- Backend authorization uses an Apple-certified key unique to this installation and a short-lived
+  session. Reinstalling creates a new anonymous installation identity; it does not create or link
+  a human account.
 - Sign in with Apple is not presented because the Google connection is solely for the specific
-  Gmail receipt-import service; the core app does not require a Wardrobe account.
+  Gmail receipt-import service; the core app and backend do not require a Google or Wardrobe
+  account.
 
 ## Build-specific checks before pasting these notes
 
@@ -76,6 +95,14 @@ Status/support: [URL]
 - [ ] Confirm the selected review account can complete Google authorization without unavailable
   employee-only steps and that any verification warning has been resolved.
 - [ ] Confirm the production API is healthy throughout the review window.
+- [ ] Confirm App Attest is enabled for the exact App ID and prefix; the archive/profile contain
+  the entitlement; and the uploaded TestFlight build completes production attestation. On iOS
+  27+, confirm signed category `2` and the exact submitted bundle build; on iOS 18–26, record the
+  expected absence of those runtime fields without claiming build/category enforcement.
+- [ ] Confirm durable auth storage, snapshot/backup and restore evidence, logging/retention claims,
+  rate limits, and an App-Attest-only rollback image against the deployed backend.
+- [ ] Confirm the migration bridge is disabled, `DEVICE_TOKEN` is unset/rotated, and an obsolete
+  shared-bearer build is rejected without breaking the submitted build.
 - [ ] Attach a short screen recording only if the connected flow needs additional explanation.
 - [ ] Re-run the public Release configuration and request-capture guards against the archive.
 
