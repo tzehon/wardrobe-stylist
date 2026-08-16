@@ -18,7 +18,7 @@ Connect can scale it for smaller displays. Re-check the dimensions immediately b
 | 3 | **Review imports before they join** | Pending imported-item review using a synthetic receipt item | No real retailer order data or mailbox identity |
 | 4 | **A thoughtful look for today** | Demo Today recommendation and rationale | Offline label visible; no loading/error state |
 | 5 | **Remember what worked** | Demo History with a fictional worn look | Date/time locale is intentional and consistent |
-| 6 | **Connected features stay optional** | Privacy & Data or Demo Settings controls | Clearly show local use and optional Google/AI choices |
+| 6 | **Connected features stay optional** | Simplified Settings hub, Privacy & Data, or Demo Settings controls | Clearly show local use and optional Google/AI choices |
 
 The first three frames should communicate the core value even when seen alone. Prefer native app
 UI with minimal, truthful framing text; do not imply weather, calendar, cloud backup, or other

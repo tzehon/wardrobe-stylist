@@ -7,7 +7,7 @@
 
 Contact: [SUPPORT EMAIL OR FORM]  
 Expected response time: [BUSINESS-DAY TARGET]  
-App version/build: available in Wardrobe Stylist → Settings → About
+App version/build: available at the bottom of Wardrobe Stylist → Settings
 
 When reporting a problem, include the app version, iOS version, device model, what you expected,
 and what happened. Do not email receipt contents, OAuth tokens, backend credentials, or private
@@ -37,16 +37,16 @@ cannot access Gmail again unless you reconnect. Neither action changes or delete
 
 ### How do I stop background receipt import or reminders?
 
-Open Settings and turn the corresponding control off. Background import is opportunistic—iOS does
-not guarantee an exact schedule. Reminders are local notifications and can also be controlled in
-iOS Settings.
+Open **Settings → Connected Features** and turn the corresponding control off. Background import
+is opportunistic—iOS does not guarantee an exact schedule. Reminders are local notifications and
+can also be controlled in iOS Settings.
 
 ### How do I delete my wardrobe?
 
-Open Settings → Data on This Device → Delete Local Data. This removes local items, photos,
-outfits, wear history, receipt sync history, cached images, recommendations, and related choices
-from this device. It does not delete email or revoke Google access. Use **Disconnect Google**
-separately when you also want to revoke the grant.
+Open **Settings → Privacy & Data → Delete Local Data**. This removes local items, photos, outfits,
+wear history, receipt sync history, cached images, recommendations, and related choices from this
+device. It does not delete email or revoke Google access. Use **Settings → Connected Features →
+Disconnect Google** separately when you also want to revoke the grant.
 
 ### How do I revoke Google access outside the app?
 

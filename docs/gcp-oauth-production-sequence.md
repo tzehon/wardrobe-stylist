@@ -8,6 +8,11 @@ and a public iOS client cannot safely hold the backend's shared bearer token.
 Do these steps in order. Do not flip the existing project to production first and try to make the
 code match afterward.
 
+The next internal TestFlight build also follows the public-candidate standard in
+[`app-store/internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md). Internal
+describes the tester group only; it does not authorize a shared bearer, placeholder release
+configuration, or Apple's non-promotable **TestFlight Internal Only** artifact type.
+
 ## 1. Decide the permitted data-processing architecture
 
 - [ ] Ask Google's verification team to classify the truthful use case: read-only receipt
@@ -77,9 +82,10 @@ code match afterward.
   verify signature/issuer/expiry/audience and stable `sub` at the backend, issue a short-lived app
   session if useful, rate-limit by identity, and monitor abuse. App Attest can add defense in
   depth; it does not turn a shared client token into a secret.
-- [ ] During internal migration the backend may accept both mechanisms briefly. Before the first
-  public binary, remove `BackendDeviceToken` from the app/archive, disable and rotate the legacy
-  backend token, and retire incompatible old builds with an explicit minimum-version plan.
+- [ ] During backend rollout the service may accept both mechanisms briefly. Before the next
+  always-ready internal TestFlight candidate, remove `BackendDeviceToken` from the app/archive,
+  disable and rotate the legacy backend token, and retire incompatible old builds with an
+  explicit minimum-version plan. Do not upload a deliberately weaker beta binary.
 - [ ] Upgrade and pin Google Sign In, validate App Check/App Attest decisions, and test fresh,
   restored, expired, revoked, account-switch, offline, and denied-scope states.
 
@@ -130,7 +136,8 @@ short-lived, validated, rate-limited, and covered by negative tests.
 
 ## 9. Production rollout and continuing compliance
 
-- [ ] Deploy the verified backend/config first, then a TestFlight build using production clients.
+- [ ] Deploy the verified backend/config first, then upload a production-client build through
+  Xcode's **TestFlight & App Store** route and add it only to the internal tester group.
   Exercise real-device sign-in, scope restoration, consent upgrade, account switch, revocation,
   deletion, rate limits, background opt-in/expiry, and minimized request capture.
 - [ ] Roll out gradually with error/auth/abuse monitoring and cost alerts. Keep privacy/support

@@ -4,7 +4,9 @@ This is the implementation source of truth for turning the current personal Test
 into a public App Store product. It deliberately separates work we can complete in this
 repository from Google Cloud and App Store Connect work that needs an external account or a
 policy decision. The Google-specific order lives in
-[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
+[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md). Every beta now follows the
+[`internal TestFlight, always App-Store-ready`](app-store/internal-testflight-runbook.md) runbook:
+the tester group is internal, but the archive and upload remain eligible for later App Review.
 
 Statuses:
 
@@ -19,7 +21,7 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-14**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-16**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -29,20 +31,44 @@ kept “In progress.”
 | APP-009 | **GCP gate** | Public-client bearer removal is intentionally blocked on the production identity decision; the Release archive guard refuses the legacy key |
 | APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs/IDs and bearer removal remain external/GCP work |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
-| APP-014 | **Done** | Nine deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
+| APP-014 | **Done** | Eleven deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
 | APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
-| APP-017–APP-019 | **Submission** | App Store Connect record, media, signed archive/upload, clean-device QA, and final build/version decisions remain |
+| APP-017–APP-019 | **Submission / next milestone** | Use the always-ready internal TestFlight lane: finish the binary/config gates, choose the next unused build in App Store Connect, upload through **TestFlight & App Store**, distribute only to an internal group, and retain clean-device evidence |
 | APP-020–APP-022 | **Done** | V3 migration, pending-import confidence review, one validated add/edit/review form, favorites, archive, duplicate cues, useful filters, and individual/bulk acceptance are implemented and account-scoped |
 | APP-023 | **Done** | Today is explicit-action-only, account-scoped daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest integrated verification: **394 iOS tests** total (**385 Swift tests plus 9 end-to-end UI
+Latest integrated verification: **400 iOS tests** total (**389 Swift tests plus 11 end-to-end UI
 tests**), **71 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, a
 Release-simulator build, and artifact checks for GoogleSignIn 9.2.0, the app privacy manifest,
-branded launch assets, required plist values, and 10 SDK privacy manifests all passed. The branch
-has not changed build/version metadata and has not uploaded or deployed anything.
+branded launch/icon assets, required plist values, and 10 SDK privacy manifests all passed. The
+branch has not changed build/version metadata and has not uploaded or deployed anything.
+
+## Immediate next milestone — internal TestFlight candidate
+
+These items are ordered. Do not archive early and plan to repair the same binary later.
+
+- [ ] **Publish the candidate source.** Push `codex/app-store-readiness`, review the release scope,
+  and merge the commit that will be archived.
+- [ ] **Close APP-009 and the production-client portion of APP-011.** Complete the per-user backend
+  identity cutover, remove `BackendDeviceToken` from the bundle, deploy the compatible backend,
+  and populate the production Google IDs, HTTPS endpoint, public links, and Team ID in the
+  gitignored distribution configuration.
+- [ ] **Close the publication portion of APP-016.** Publish and verify the final privacy/support
+  pages and reconcile their claims with the code, Anthropic terms, Google Limited Use, and App
+  Privacy inventory.
+- [ ] **Choose candidate metadata from external truth.** Check the highest uploaded build in App
+  Store Connect, select the next unused `CURRENT_PROJECT_VERSION`, and decide whether the next
+  candidate should use public version `1.0.0` so the exact internal build can later be promoted.
+- [ ] **Run and upload the candidate.** Follow
+  [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md): complete regression,
+  signed archive, validation, normal **TestFlight & App Store** upload, processing review, internal
+  group assignment, upgrade/clean-device QA, and retained release evidence.
+
+Using an internal tester group does not relax the binary standard. **TestFlight Internal Only** is
+not used because Apple prevents that artifact from being submitted to customers later.
 
 ## P0 — privacy, security, and trustworthy data handling
 
@@ -127,8 +153,10 @@ has not changed build/version metadata and has not uploaded or deployed anything
   only a login screen.
 - [ ] **APP-019 · Submission · Final distribution verification.** Confirm the latest App Store
   Connect build before choosing the next build number; decide whether the public marketing
-  version is `1.0.0`; archive with the currently required Xcode/iOS SDK; validate/upload; wait for
-  processing; test on a clean physical device; keep backend health available through review.
+  version is `1.0.0`; archive with the currently required Xcode/iOS SDK; validate and upload using
+  **TestFlight & App Store** rather than **TestFlight Internal Only**; distribute the processed
+  build to the internal group; test upgrade and clean install on a physical device; retain the
+  evidence needed to promote that same binary; keep backend health available through review.
 
 ## P1 — core experience polish
 

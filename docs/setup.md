@@ -173,19 +173,34 @@ Then point the app at the deployed backend and drop the dev-only HTTP exception:
    longer needed (and App Store review flags it).
 3. `cd ios && xcodegen generate` and rebuild.
 
-The app then talks to `https://<your-app>.fly.dev` using the same `DEVICE_TOKEN` as a Bearer.
+That `DEVICE_TOKEN` flow documents the existing local/personal development backend only. It is
+not permitted in the next always-ready TestFlight archive: complete `APP-009`, migrate the backend
+to validated per-user authorization, then remove the key from the iOS bundle and rotate/retire the
+legacy token before distribution.
 
 ## TestFlight (Phase 6 distribution)
 
-Requires an **Apple Developer Program** membership ($99/yr) and the production
-backend above (a real device can't reach your Mac's LAN IP). In Xcode: set a real
-`DEVELOPMENT_TEAM` in `Secrets.xcconfig`, bump `CURRENT_PROJECT_VERSION`, then
-**Product ▸ Archive** → **Distribute App** → **App Store Connect** → **Upload**.
-Add the build to a TestFlight internal-tester group in App Store Connect.
+Every internal beta is built as an App Store candidate. Follow the full
+[internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
+
+1. Finish the per-user backend identity cutover and remove the shared `BackendDeviceToken` from
+   the iOS bundle. A device Release archive intentionally fails until this is done.
+2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
+   `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
+3. Check App Store Connect for the highest uploaded build, then set the next unused
+   `CURRENT_PROJECT_VERSION`. Set the intended public `MARKETING_VERSION` before archiving if the
+   exact beta may be promoted.
+4. Regenerate, run the complete backend/Swift/UI/Release validation, and create a signed device
+   archive with **Product ▸ Archive**.
+5. In Organizer choose **Validate App**, then **Distribute App ▸ TestFlight & App Store ▸ Upload**.
+   Do not choose **TestFlight Internal Only**: Apple prevents that artifact from later being
+   submitted to customers.
+6. After processing, add the build only to the Internal Testing group and complete upgrade plus
+   clean-device QA. Adding it to an internal group does not submit it for App Review.
 
 Before choosing a build number or archiving, run `ios/scripts/verify-release-artifact.sh` against
 the generated Release artifact. Device Release archives also run the strict public-configuration
-guard automatically; do not bypass it for an App Store candidate.
+guard automatically; never bypass it.
 
 ## Run all tests
 

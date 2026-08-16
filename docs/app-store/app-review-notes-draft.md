@@ -28,11 +28,12 @@ launching the tour. The same deterministic path is covered by the app's UI-test 
 
 ## Gmail test path
 
-1. Open Settings → Receipt Import → Connect Gmail.
+1. Open **Settings → Connected Features → Receipt Import → Connect Gmail**.
 2. Read and affirm the disclosure immediately before the Google authorization screen.
 3. The app requests only `https://www.googleapis.com/auth/gmail.readonly`.
 4. Tap **Sync Receipts**, then review and correct pending imported items before accepting them.
-5. Disconnect Gmail in Settings; the grant is revoked and background work is cancelled.
+5. Disconnect Gmail in **Settings → Connected Features**; the grant is revoked and background
+   work is cancelled.
 
 Test account: [APP STORE CONNECT REVIEW CREDENTIAL FIELD ONLY]  
 Representative receipt subject: [FICTIONAL TEST SUBJECT]  

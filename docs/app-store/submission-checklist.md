@@ -3,6 +3,12 @@
 This is the final operational checklist, not proof that an item is already complete. Attach the
 release evidence beside each checked item and use the exact uploaded build throughout.
 
+For internal beta distribution, follow
+[`internal-testflight-runbook.md`](internal-testflight-runbook.md). Internal describes the tester
+audience, not a weaker binary: use Xcode's **TestFlight & App Store** route and add the processed
+build only to an Internal Testing group. Do not use **TestFlight Internal Only** when the build may
+later be promoted to customers.
+
 ## 1. External decisions and account readiness
 
 - [ ] Confirm legal seller name/entity, copyright owner, postal address, support/privacy/security
@@ -45,7 +51,8 @@ or editable: [Required, localizable, and editable properties](https://developer.
 ## 4. Release candidate and evidence
 
 - [ ] Confirm the latest build already uploaded to App Store Connect, then select the next unused
-  `CURRENT_PROJECT_VERSION`. Change `MARKETING_VERSION` only after the public-version decision.
+  `CURRENT_PROJECT_VERSION`. If this exact internal build may be promoted, set the intended public
+  `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
 - [ ] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
 - [ ] Confirm Gmail remains GET-only with only `gmail.readonly`, no Anthropic/shared backend secret
@@ -56,6 +63,8 @@ or editable: [Required, localizable, and editable properties](https://developer.
   validated for a launch-screen configuration: [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
 - [ ] Create, validate, and export the signed archive; record archive hash, commit, version/build,
   Xcode/SDK, dependency resolution, entitlements, privacy manifests, symbols, and validation output.
+- [ ] Distribute from Organizer using **TestFlight & App Store**. Do not use **TestFlight Internal
+  Only**, and do not bypass the device-Release public configuration guard.
 - [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
   Demo Mode, photo/camera, Gmail consent/import/review, styling, reminders, background expiry,
   sign out, disconnect, deletion, account switching, and relaunch.
@@ -64,6 +73,8 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 - [ ] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
 - [ ] Select the processed build and re-check its device requirements and displayed metadata.
+- [ ] For the internal QA phase, add the processed build only to the intended Internal Testing
+  group, enter truthful What to Test notes, and retain upgrade plus clean-device evidence.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
