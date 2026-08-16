@@ -5,28 +5,24 @@ import Testing
 
 struct BackendConfigTests {
 
-    @Test func loadsBaseURLAndDeviceTokenFromInfoPlist() throws {
+    @Test func loadsBaseURLFromInfoPlistWithoutAClientSecret() throws {
         // 192.0.2.x is RFC 5737 TEST-NET-1 — reserved for documentation/examples.
-        let (url, token) = try BackendConfig.load(infoPlist: [
+        let url = try BackendConfig.load(infoPlist: [
             "BackendBaseURL": "http://192.0.2.1:8000",
-            "BackendDeviceToken": "secret-token",
         ])
         #expect(url.absoluteString == "http://192.0.2.1:8000")
-        #expect(token == "secret-token")
     }
 
-    @Test func trimsWhitespaceAroundValues() throws {
-        let (url, token) = try BackendConfig.load(infoPlist: [
+    @Test func trimsWhitespaceAroundURL() throws {
+        let url = try BackendConfig.load(infoPlist: [
             "BackendBaseURL": "  http://x.example  ",
-            "BackendDeviceToken": "  t  ",
         ])
         #expect(url.absoluteString == "http://x.example")
-        #expect(token == "t")
     }
 
     @Test func throwsWhenURLMissing() {
         do {
-            _ = try BackendConfig.load(infoPlist: ["BackendDeviceToken": "t"])
+            _ = try BackendConfig.load(infoPlist: [:])
             Issue.record("Expected missingValue")
         } catch BackendConfig.LoadError.missingValue(let key) {
             #expect(key == "BACKEND_BASE_URL")
@@ -39,7 +35,6 @@ struct BackendConfigTests {
         do {
             _ = try BackendConfig.load(infoPlist: [
                 "BackendBaseURL": "",
-                "BackendDeviceToken": "t",
             ])
             Issue.record("Expected missingValue")
         } catch BackendConfig.LoadError.missingValue(let key) {
@@ -53,7 +48,6 @@ struct BackendConfigTests {
         do {
             _ = try BackendConfig.load(infoPlist: [
                 "BackendBaseURL": "not a url at all",
-                "BackendDeviceToken": "t",
             ])
             Issue.record("Expected invalidURL")
         } catch BackendConfig.LoadError.invalidURL {
@@ -63,30 +57,11 @@ struct BackendConfigTests {
         }
     }
 
-    @Test func throwsWhenTokenMissing() {
-        do {
-            _ = try BackendConfig.load(infoPlist: [
-                "BackendBaseURL": "http://x.example",
-            ])
-            Issue.record("Expected missingValue")
-        } catch BackendConfig.LoadError.missingValue(let key) {
-            #expect(key == "BACKEND_DEVICE_TOKEN")
-        } catch {
-            Issue.record("Wrong error: \(error)")
-        }
-    }
-
-    @Test func throwsWhenTokenEmpty() {
-        do {
-            _ = try BackendConfig.load(infoPlist: [
-                "BackendBaseURL": "http://x.example",
-                "BackendDeviceToken": "   ",
-            ])
-            Issue.record("Expected missingValue")
-        } catch BackendConfig.LoadError.missingValue(let key) {
-            #expect(key == "BACKEND_DEVICE_TOKEN")
-        } catch {
-            Issue.record("Wrong error: \(error)")
-        }
+    @Test func ignoresLegacyDeviceTokenIfPresentInInjectedDictionary() throws {
+        let url = try BackendConfig.load(infoPlist: [
+            "BackendBaseURL": "https://x.example",
+            "BackendDeviceToken": "must-not-be-read",
+        ])
+        #expect(url.absoluteString == "https://x.example")
     }
 }

@@ -3,3 +3,8 @@
 // Optional local development values. Missing values keep unit tests and the local-first
 // app shell buildable; connected features fail closed until configured.
 #include? "Secrets.xcconfig"
+
+// Development-signed physical-device builds use Apple's App Attest sandbox.
+// The simulator reports App Attest unsupported and connected AI features fail
+// closed; local/demo features remain available.
+APP_ATTEST_ENVIRONMENT = development

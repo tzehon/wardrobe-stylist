@@ -36,6 +36,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.tth.Wardrobe
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: Wardrobe/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Wardrobe/Wardrobe.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         # App icon lives in Wardrobe/Resources/Assets.xcassets. actool injects
         # CFBundleIconName + the icon files into the built Info.plist (required by

@@ -1,7 +1,6 @@
 // Copy to Distribution.xcconfig (gitignored) only when preparing a signed distribution build.
-// These are identifiers/endpoints, not a place for a shared client secret. The public Release
-// guard rejects BackendDeviceToken even if it is empty in the final Info.plist; the key itself
-// is removed during the per-user backend identity cutover described in the GCP sequence.
+// These are identifiers/endpoints, not a place for a shared client secret. Backend sessions are
+// established at runtime with a per-installation App Attest key.
 
 GOOGLE_CLIENT_ID = 123456789012-productionclient.apps.googleusercontent.com
 GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.123456789012-productionclient

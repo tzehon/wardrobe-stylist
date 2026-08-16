@@ -521,10 +521,10 @@ private struct ConnectedGmailView: View {
                     pipelineConfigError = "Reconnect Gmail before starting a receipt import."
                     return
                 }
-                let (baseURL, deviceToken) = try BackendConfig.load()
+                let baseURL = try BackendConfig.load()
                 pipeline = ReceiptPipeline(
                     gmailClient: gmailClient,
-                    extractClient: ExtractClient(baseURL: baseURL, deviceToken: deviceToken),
+                    extractClient: ExtractClient(baseURL: baseURL),
                     modelContext: modelContext,
                     privacySubjectID: identity.privacySubjectID
                 )

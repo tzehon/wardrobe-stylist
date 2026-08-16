@@ -119,8 +119,8 @@ def validate(info: dict[str, Any]) -> None:
     _public_https_url(info, "SUPPORT_URL")
 
     # Absence is intentional. An empty key is still evidence that the obsolete shared-secret
-    # architecture remains wired into the target, so public archives stay blocked until the
-    # per-user backend identity migration in the GCP production sequence is complete.
+    # architecture remains wired into the target. Public archives authenticate at runtime with
+    # a per-installation App Attest key and short-lived backend session instead.
     if "BackendDeviceToken" in info:
         raise ReleaseConfigurationError(
             "BackendDeviceToken must be removed from the public app and Info.plist"

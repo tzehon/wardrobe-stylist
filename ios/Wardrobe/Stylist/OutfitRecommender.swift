@@ -329,6 +329,8 @@ final class OutfitRecommender {
 
     private static func message(for error: Error) -> String {
         switch error {
+        case let authorizationError as AppAttestAuthorizationError:
+            return authorizationError.localizedDescription
         case RecommendError.http(let status, _):
             switch status {
             case 401, 403:
