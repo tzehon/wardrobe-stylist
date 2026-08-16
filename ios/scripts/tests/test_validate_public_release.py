@@ -21,6 +21,7 @@ def valid_info() -> dict[str, Any]:
     client_id = "123456789012-realclient.apps.googleusercontent.com"
     return {
         "CFBundleDisplayName": "Wardrobe Stylist",
+        "CFBundleIdentifier": "com.tth.Wardrobe",
         "UILaunchScreen": {
             "UIColorName": "LaunchBackground",
             "UIImageName": "LaunchMark",
@@ -68,10 +69,46 @@ class PublicReleaseValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "HTTPS"):
             MODULE.validate(info)
 
+    def test_rejects_backend_query(self) -> None:
+        info = valid_info()
+        info["BackendBaseURL"] = "https://api.wardrobestylist.app?destination=elsewhere"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "query or fragment"):
+            MODULE.validate(info)
+
+    def test_rejects_backend_fragment(self) -> None:
+        info = valid_info()
+        info["BackendBaseURL"] = "https://api.wardrobestylist.app#alternate"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "query or fragment"):
+            MODULE.validate(info)
+
+    def test_rejects_malformed_backend_port_without_leaking_a_value_error(self) -> None:
+        info = valid_info()
+        info["BackendBaseURL"] = "https://api.wardrobestylist.app:99999"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "well-formed"):
+            MODULE.validate(info)
+
+    def test_rejects_wrong_bundle_identifier(self) -> None:
+        info = valid_info()
+        info["CFBundleIdentifier"] = "com.example.Wardrobe"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "CFBundleIdentifier"):
+            MODULE.validate(info)
+
+    def test_rejects_app_transport_security_key_even_when_empty(self) -> None:
+        info = valid_info()
+        info["NSAppTransportSecurity"] = {}
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "NSAppTransportSecurity"):
+            MODULE.validate(info)
+
     def test_rejects_private_backend_address(self) -> None:
         info = valid_info()
         info["BackendBaseURL"] = "https://192.168.1.10"
         with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "private/local"):
+            MODULE.validate(info)
+
+    def test_rejects_special_use_local_backend_hostname(self) -> None:
+        info = valid_info()
+        info["BackendBaseURL"] = "https://wardrobe.home.arpa"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "public hostname"):
             MODULE.validate(info)
 
     def test_rejects_mismatched_callback_scheme(self) -> None:

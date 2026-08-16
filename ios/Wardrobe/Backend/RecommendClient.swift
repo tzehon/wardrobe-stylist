@@ -15,7 +15,7 @@ struct RecommendClient: Sendable {
     init(
         baseURL: URL,
         authorization: any BackendAuthorizing = AppAttestAuthorization.shared,
-        session: URLSession = .shared
+        session: URLSession = BackendHTTPSession.shared
     ) {
         self.baseURL = baseURL
         self.authorization = authorization

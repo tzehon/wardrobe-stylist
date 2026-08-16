@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DERIVED_DATA_PATH="${1:-DerivedData/ReleaseValidation}"
 readonly RESOLVED_FILE="Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 readonly APP_PATH="${2:-${DERIVED_DATA_PATH}/Build/Products/Release-iphonesimulator/Wardrobe.app}"
@@ -13,6 +14,8 @@ fail() {
 
 [[ -f "${RESOLVED_FILE}" ]] || fail "missing ${RESOLVED_FILE}"
 [[ -d "${APP_PATH}" ]] || fail "missing Release app at ${APP_PATH}"
+/usr/bin/codesign --verify --deep --strict "${APP_PATH}" >/dev/null 2>&1 \
+  || fail "built app code signature is invalid"
 
 /usr/bin/python3 - "${RESOLVED_FILE}" <<'PY'
 import json
@@ -50,6 +53,12 @@ readonly INFO_PLIST="${APP_PATH}/Info.plist"
   || fail "missing build number"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "${INFO_PLIST}")" == "Wardrobe Stylist" ]] \
   || fail "CFBundleDisplayName must be Wardrobe Stylist"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${INFO_PLIST}")" == "com.tth.Wardrobe" ]] \
+  || fail "CFBundleIdentifier must be com.tth.Wardrobe"
+
+if /usr/libexec/PlistBuddy -c 'Print :NSAppTransportSecurity' "${INFO_PLIST}" >/dev/null 2>&1; then
+  fail "built app contains an App Transport Security exception"
+fi
 
 # A shared bearer is a public-client secret and must never remain wired into an artifact,
 # including as an empty plist key.
@@ -65,22 +74,24 @@ readonly BUILT_PLATFORM="$(
 )"
 case "${BUILT_PLATFORM}" in
   iphoneos)
+    /usr/bin/python3 "${SCRIPT_DIR}/validate_public_release.py" "${INFO_PLIST}"
     readonly ENTITLEMENTS_PLIST="$(/usr/bin/mktemp -t wardrobe-release-entitlements)"
-    trap '/bin/rm -f "${ENTITLEMENTS_PLIST}"' EXIT
-    /usr/bin/codesign -d --entitlements :- "${APP_PATH}" >"${ENTITLEMENTS_PLIST}" 2>/dev/null \
+    readonly PROFILE_PLIST="$(/usr/bin/mktemp -t wardrobe-release-profile)"
+    trap '/bin/rm -f "${ENTITLEMENTS_PLIST}" "${PROFILE_PLIST}"' EXIT
+    /usr/bin/codesign --display --entitlements - --xml "${APP_PATH}" \
+      >"${ENTITLEMENTS_PLIST}" 2>/dev/null \
       || fail "could not read the built app entitlements"
     /usr/bin/plutil -lint "${ENTITLEMENTS_PLIST}" >/dev/null \
       || fail "built app entitlements are invalid"
-    if ! APP_ATTEST_ENVIRONMENT="$(
-      /usr/bin/plutil -extract com.apple.developer.devicecheck.appattest-environment \
-        raw -o - "${ENTITLEMENTS_PLIST}" 2>/dev/null
-    )"; then
-      fail "device app has no App Attest environment entitlement"
-    fi
-    readonly APP_ATTEST_ENVIRONMENT
-    [[ "${APP_ATTEST_ENVIRONMENT}" == "production" ]] \
-      || fail "device app App Attest environment must be production, got ${APP_ATTEST_ENVIRONMENT}"
-    readonly APP_ATTEST_RESULT="production App Attest entitlement"
+    readonly EMBEDDED_PROFILE="${APP_PATH}/embedded.mobileprovision"
+    [[ -f "${EMBEDDED_PROFILE}" ]] || fail "device app has no embedded provisioning profile"
+    /usr/bin/security cms -D -i "${EMBEDDED_PROFILE}" -o "${PROFILE_PLIST}" >/dev/null 2>&1 \
+      || fail "could not decode the embedded provisioning profile"
+    /usr/bin/plutil -lint "${PROFILE_PLIST}" >/dev/null \
+      || fail "embedded provisioning profile is invalid"
+    /usr/bin/python3 "${SCRIPT_DIR}/verify_release_identity.py" \
+      "${INFO_PLIST}" "${ENTITLEMENTS_PLIST}" "${PROFILE_PLIST}"
+    readonly APP_ATTEST_RESULT="production App Attest entitlement and matching provisioning profile"
     ;;
   iphonesimulator)
     readonly APP_ATTEST_RESULT="simulator artifact (signed entitlement deferred to device archive)"

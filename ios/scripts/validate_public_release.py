@@ -33,6 +33,7 @@ _PLACEHOLDER_FRAGMENTS = (
     "paste-",
     "$(",
 )
+_NONPUBLIC_HOST_SUFFIXES = (".home.arpa", ".local")
 
 
 def _required_string(info: dict[str, Any], key: str) -> str:
@@ -46,21 +47,38 @@ def _required_string(info: dict[str, Any], key: str) -> str:
     return value
 
 
-def _public_https_url(info: dict[str, Any], key: str) -> str:
+def _public_https_url(
+    info: dict[str, Any],
+    key: str,
+    *,
+    forbid_query_fragment: bool = False,
+) -> str:
     raw_value = _required_string(info, key)
-    parts = urlsplit(raw_value)
-    if parts.scheme.lower() != "https" or not parts.hostname:
+    try:
+        parts = urlsplit(raw_value)
+        host_value = parts.hostname
+        # Accessing port performs urllib's range and numeric validation.
+        _ = parts.port
+    except ValueError as error:
+        raise ReleaseConfigurationError(f"{key} must be a well-formed HTTPS URL") from error
+    if parts.scheme.lower() != "https" or not host_value:
         raise ReleaseConfigurationError(f"{key} must be an absolute HTTPS URL")
     if parts.username or parts.password:
         raise ReleaseConfigurationError(f"{key} must not contain URL credentials")
-    host = parts.hostname.rstrip(".").lower()
+    if forbid_query_fragment and ("?" in raw_value or "#" in raw_value):
+        raise ReleaseConfigurationError(f"{key} must not contain a query or fragment")
+    host = host_value.rstrip(".").lower()
     try:
         address = ipaddress.ip_address(host)
     except ValueError:
         address = None
     if address is not None and not address.is_global:
         raise ReleaseConfigurationError(f"{key} must not target a private/local address")
-    if host in {"localhost", "localhost.localdomain"} or "." not in host:
+    if (
+        host in {"localhost", "localhost.localdomain"}
+        or host.endswith(_NONPUBLIC_HOST_SUFFIXES)
+        or "." not in host
+    ):
         raise ReleaseConfigurationError(f"{key} must use a public hostname")
     return raw_value
 
@@ -86,6 +104,18 @@ def validate(info: dict[str, Any]) -> None:
     if info.get("CFBundleDisplayName") != "Wardrobe Stylist":
         raise ReleaseConfigurationError(
             "CFBundleDisplayName must be exactly 'Wardrobe Stylist'"
+        )
+    if info.get("CFBundleIdentifier") != "com.tth.Wardrobe":
+        raise ReleaseConfigurationError(
+            "CFBundleIdentifier must be exactly 'com.tth.Wardrobe'"
+        )
+
+    # Production talks only to public HTTPS services. Reject the key itself so
+    # a locally added development exception cannot survive into an archive,
+    # even if it happens to be empty or narrowly scoped today.
+    if "NSAppTransportSecurity" in info:
+        raise ReleaseConfigurationError(
+            "NSAppTransportSecurity must be removed from public Release builds"
         )
 
     launch_screen = info.get("UILaunchScreen")
@@ -114,7 +144,7 @@ def validate(info: dict[str, Any]) -> None:
             "Google callback URL scheme does not match the reversed GIDClientID"
         )
 
-    _public_https_url(info, "BackendBaseURL")
+    _public_https_url(info, "BackendBaseURL", forbid_query_fragment=True)
     _public_https_url(info, "PRIVACY_POLICY_URL")
     _public_https_url(info, "SUPPORT_URL")
 
