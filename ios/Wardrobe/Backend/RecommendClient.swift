@@ -20,6 +20,10 @@ struct RecommendClient: Sendable {
     func recommend(_ payload: RecommendRequest) async throws -> RecommendResponse {
         var request = URLRequest(url: baseURL.appending(path: "recommend"))
         request.httpMethod = "POST"
+        // A recommendation must always reach a terminal UI state. A bounded
+        // request avoids leaving Today on an indefinite spinner when a mobile
+        // connection stalls without immediately failing.
+        request.timeoutInterval = 30
         request.setValue("Bearer \(deviceToken)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")

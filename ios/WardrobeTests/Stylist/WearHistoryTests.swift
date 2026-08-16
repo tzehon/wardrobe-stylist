@@ -48,4 +48,22 @@ struct WearHistoryTests {
         let cutoff = WearHistory.cutoff(from: now, windowDays: 7)
         #expect(cutoff == now.addingTimeInterval(-7 * 86_400))
     }
+
+    @MainActor
+    @Test func aggregatesValidRatingsByItemInStableOrder() {
+        let itemB = Item(id: UUID(uuidString: "BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB")!, name: "B", category: "top")
+        let itemA = Item(id: UUID(uuidString: "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA")!, name: "A", category: "bottom")
+        let preferences = WearHistory.itemPreferences(from: [
+            WearLog(item: itemB, feedback: 5),
+            WearLog(item: itemA, feedback: 2),
+            WearLog(item: itemA, feedback: 4),
+            WearLog(item: itemA, feedback: nil),
+            WearLog(item: itemB, feedback: 8),
+        ])
+
+        #expect(preferences == [
+            RecommendItemPreference(id: itemA.id.uuidString, averageRating: 3, ratingCount: 2),
+            RecommendItemPreference(id: itemB.id.uuidString, averageRating: 5, ratingCount: 1),
+        ])
+    }
 }

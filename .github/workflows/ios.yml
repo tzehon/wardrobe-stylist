@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - "ios/**"
+      - "shared/**"
       - ".github/workflows/ios.yml"
   pull_request:
     paths:
       - "ios/**"
+      - "shared/**"
       - ".github/workflows/ios.yml"
 
 concurrency:
@@ -20,18 +22,82 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Select newest installed Xcode 26
+        run: |
+          set -euo pipefail
+          XCODE_APP=$(python3 -c '
+          import re
+          from pathlib import Path
+
+          candidates = []
+          for path in Path("/Applications").glob("Xcode_26*.app"):
+              match = re.fullmatch(r"Xcode_(\d+(?:\.\d+)*)\.app", path.name)
+              if match and path.is_dir():
+                  version = tuple(int(part) for part in match.group(1).split("."))
+                  candidates.append((version, str(path)))
+
+          print(max(candidates)[1] if candidates else "")
+          ')
+          if [[ -z "$XCODE_APP" || ! -d "$XCODE_APP/Contents/Developer" ]]; then
+            echo "No installed Xcode 26 developer directory was found." >&2
+            exit 1
+          fi
+          echo "Selected $XCODE_APP"
+          echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> "$GITHUB_ENV"
+
       - name: Install XcodeGen
         run: brew install xcodegen
+
+      - name: Verify build toolchain
+        run: |
+          set -euo pipefail
+          XCODE_MAJOR=$(xcodebuild -version | awk '/Xcode/{split($2, v, "."); print v[1]}')
+          SDK_MAJOR=$(xcrun --sdk iphoneos --show-sdk-version | awk -F. '{print $1}')
+          test "$XCODE_MAJOR" -ge 26
+          test "$SDK_MAJOR" -ge 26
+          xcodegen --version
 
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
 
-      - name: Pick an available iPhone simulator
+      - name: Test public Release configuration guard
+        run: python3 ios/scripts/tests/test_validate_public_release.py
+
+      - name: Resolve pinned packages
+        working-directory: ios
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Wardrobe.xcodeproj \
+            -scheme Wardrobe \
+            -onlyUsePackageVersionsFromResolvedFile
+
+      - name: Pick an iOS 26 iPhone simulator
         id: sim
         run: |
-          UDID=$(xcrun simctl list devices available --json \
-            | python3 -c "import sys,json; d=json.load(sys.stdin)['devices']; ids=[x['udid'] for rt in d for x in d[rt] if x.get('isAvailable') and 'iPhone' in x['name']]; print(ids[0] if ids else '')")
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json
+          import re
+          import sys
+
+          candidates = []
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              match = re.search(r"\.iOS-(\d+)-(\d+)(?:-(\d+))?$", runtime)
+              if not match or int(match.group(1)) != 26:
+                  continue
+              version = tuple(int(part or 0) for part in match.groups())
+              for device in devices:
+                  name = device.get("name", "")
+                  if device.get("isAvailable") and name.startswith("iPhone"):
+                      candidates.append((version, name == "iPhone 17", device["udid"]))
+
+          print(max(candidates)[2] if candidates else "")
+          ')
+          if [[ -z "$UDID" ]]; then
+            echo "No available iPhone simulator with an iOS 26 runtime was found." >&2
+            exit 1
+          fi
           echo "Picked simulator UDID: $UDID"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
@@ -42,8 +108,24 @@ jobs:
           xcodebuild test \
             -project Wardrobe.xcodeproj \
             -scheme Wardrobe \
-            -destination "id=${{ steps.sim.outputs.udid }}"
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -onlyUsePackageVersionsFromResolvedFile
           # NOTE: do NOT pass CODE_SIGNING_ALLOWED=NO — the app must be ad-hoc
           # signed on the simulator (CODE_SIGN_IDENTITY=- in project.yml) so the
           # Keychain has an application-identifier entitlement. Without signing,
           # TokenStorage's Keychain calls fail with -34018 (errSecMissingEntitlement).
+
+      - name: Build Release artifact
+        working-directory: ios
+        run: |
+          xcodebuild build \
+            -project Wardrobe.xcodeproj \
+            -scheme Wardrobe \
+            -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath DerivedData/ReleaseValidation \
+            -onlyUsePackageVersionsFromResolvedFile
+
+      - name: Verify Release artifact and SDK privacy manifests
+        working-directory: ios
+        run: scripts/verify-release-artifact.sh DerivedData/ReleaseValidation

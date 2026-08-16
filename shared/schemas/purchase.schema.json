@@ -22,6 +22,20 @@
       "items": { "$ref": "#/$defs/PurchaseItem" }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "is_fashion": { "const": true } },
+        "required": ["is_fashion"]
+      },
+      "then": {
+        "properties": { "items": { "minItems": 1 } }
+      },
+      "else": {
+        "properties": { "items": { "maxItems": 0 } }
+      }
+    }
+  ],
   "$defs": {
     "PurchaseItem": {
       "type": "object",
@@ -40,6 +54,10 @@
         },
         "brand": { "type": ["string", "null"] },
         "color": { "type": ["string", "null"], "description": "Primary color, plain English." },
+        "size": {
+          "type": ["string", "null"],
+          "description": "Size exactly as shown on the receipt, for example M, EU 42, or 32W."
+        },
         "material": { "type": ["string", "null"] },
         "style_notes": { "type": ["string", "null"] },
         "price": { "type": ["number", "null"], "minimum": 0 },
@@ -50,8 +68,7 @@
         },
         "image_url": {
           "type": ["string", "null"],
-          "format": "uri",
-          "description": "Product image URL if extractable from the receipt."
+          "description": "Untrusted product image URL candidate. The client validates HTTPS, host policy, and size before any fetch."
         }
       }
     }

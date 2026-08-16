@@ -10,11 +10,16 @@ struct ReceiptSyncSchedulerTests {
 
     private final class FakeSubmitter: BackgroundTaskSubmitting {
         var submitted: [BGTaskRequest] = []
+        var cancelledIdentifiers: [String] = []
         var error: Error?
 
         func submit(_ request: BGTaskRequest) throws {
             if let error { throw error }
             submitted.append(request)
+        }
+
+        func cancel(taskRequestWithIdentifier identifier: String) {
+            cancelledIdentifiers.append(identifier)
         }
     }
 
@@ -49,6 +54,15 @@ struct ReceiptSyncSchedulerTests {
         #expect(throws: StubError.self) {
             try ReceiptSyncScheduler.schedule(using: submitter, now: now)
         }
+        #expect(submitter.submitted.isEmpty)
+    }
+
+    @Test func cancelUsesTheExactRegisteredIdentifier() {
+        let submitter = FakeSubmitter()
+
+        ReceiptSyncScheduler.cancel(using: submitter)
+
+        #expect(submitter.cancelledIdentifiers == [ReceiptSyncScheduler.taskIdentifier])
         #expect(submitter.submitted.isEmpty)
     }
 }

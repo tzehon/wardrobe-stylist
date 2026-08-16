@@ -35,13 +35,28 @@ struct RecommendCatalogItem: Codable, Sendable, Equatable {
 struct RecommendRequest: Codable, Sendable, Equatable {
     let items: [RecommendCatalogItem]
     let recentlyWornIds: [String]
+    let itemPreferences: [RecommendItemPreference]
     let occasion: String?
 
-    init(items: [RecommendCatalogItem], recentlyWornIds: [String], occasion: String? = nil) {
+    init(
+        items: [RecommendCatalogItem],
+        recentlyWornIds: [String],
+        itemPreferences: [RecommendItemPreference] = [],
+        occasion: String? = nil
+    ) {
         self.items = items
         self.recentlyWornIds = recentlyWornIds
+        self.itemPreferences = itemPreferences
         self.occasion = occasion
     }
+}
+
+/// A bounded aggregate derived from on-device outfit feedback. It contains no
+/// free text and only references catalog IDs already present in this request.
+struct RecommendItemPreference: Codable, Sendable, Equatable {
+    let id: String
+    let averageRating: Double
+    let ratingCount: Int
 }
 
 /// An alternative look for "show me another".

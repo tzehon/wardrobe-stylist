@@ -1,26 +1,44 @@
 import SwiftData
 import SwiftUI
 
-/// Phase 3: browse the wardrobe catalog — grouped into dynamic category
-/// sections, with search, category filtering, sorting, and delete. Grouping /
-/// filtering / ordering is delegated to the pure `CatalogOrganizer` /
-/// `CatalogFilter` (unit-tested separately); this view is just presentation.
+/// Account-scoped catalog with explicit import-review, favorite, and archive
+/// states. Archived items stay recoverable but never enter styling; pending
+/// imports stay visible and can be accepted individually or as one batch.
 struct CatalogView: View {
-    @Query(sort: \Item.name) private var items: [Item]
+    let accountScope: WardrobeAccountScope
+    var allowsAddingItems = true
+
+    @Query(sort: \Item.name) private var storedItems: [Item]
     @Environment(\.modelContext) private var modelContext
 
     @State private var searchText = ""
-    @State private var selectedCategory: String?      // nil = all categories
+    @State private var selectedCategory: String?
+    @State private var selectedStatus: CatalogFilter.Status = .active
     @State private var sortOrder: CatalogSortOrder = .recent
     @State private var showingAddItem = false
+    @State private var pendingDeletion: Item?
+    @State private var confirmingBulkAcceptance = false
+    @State private var writes = WardrobeWriteCoordinator()
 
-    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
+    private var items: [Item] {
+        WardrobeAccountFilter.visibleItems(from: storedItems, in: accountScope)
+    }
+
+    private var filteredItems: [Item] {
+        CatalogFilter.apply(
+            to: items,
+            search: searchText,
+            category: selectedCategory,
+            status: selectedStatus
+        )
+    }
 
     private var sections: [CatalogSection<Item>] {
-        let filtered = CatalogFilter.apply(
-            to: items, search: searchText, category: selectedCategory
-        )
-        return CatalogOrganizer.sections(from: filtered, sortedBy: sortOrder)
+        CatalogOrganizer.sections(from: filteredItems, sortedBy: sortOrder)
+    }
+
+    private var pendingItems: [Item] {
+        items.filter { !$0.isArchived && $0.reviewState == .pendingReview }
     }
 
     var body: some View {
@@ -29,9 +47,10 @@ struct CatalogView: View {
                 emptyCatalog
             } else {
                 ScrollView {
+                    statusChips
                     categoryChips
                     if sections.isEmpty {
-                        ContentUnavailableView.search(text: searchText)
+                        unavailableForCurrentFilter
                             .padding(.top, 48)
                     } else {
                         grid
@@ -44,31 +63,128 @@ struct CatalogView: View {
         .searchable(text: $searchText, prompt: "Search name or brand")
         .toolbar {
             sortMenu
+            reviewMenu
             addButton
         }
-        .sheet(isPresented: $showingAddItem) {
-            AddItemView()
+        .sheet(isPresented: $showingAddItem) { AddItemView() }
+        .confirmationDialog(
+            "Delete this item?",
+            isPresented: isConfirmingDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive, action: confirmDeletion)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            if let pendingDeletion {
+                Text("“\(pendingDeletion.name)” will be removed from your catalog.")
+            }
         }
+        .confirmationDialog(
+            "Accept all pending imports?",
+            isPresented: $confirmingBulkAcceptance,
+            titleVisibility: .visible
+        ) {
+            Button("Accept \(pendingItems.count) Items", action: acceptAllPending)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This marks every pending receipt item as reviewed. Edit uncertain details individually before accepting all.")
+        }
+        .wardrobePersistenceAlert(writes)
     }
 
-    private var addButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                showingAddItem = true
-            } label: {
-                Label("Add Item", systemImage: "plus")
+    @ToolbarContentBuilder private var addButton: some ToolbarContent {
+        if allowsAddingItems {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showingAddItem = true } label: {
+                    Label("Add Item", systemImage: "plus")
+                }
+                .accessibilityIdentifier("wardrobe.addItem")
             }
         }
     }
-
-    // MARK: - Pieces
 
     private var emptyCatalog: some View {
         ContentUnavailableView {
             Label("No items yet", systemImage: "square.grid.2x2")
         } description: {
-            Text("Sync your Gmail receipts or add items to start building your catalog.")
+            if allowsAddingItems {
+                Text("Add your first piece manually or with a photo. Gmail receipt import is optional in Settings.")
+            } else {
+                Text("The fictional demo catalog is empty. Exit and reopen Demo Mode to restore its sample pieces.")
+            }
+        } actions: {
+            if allowsAddingItems {
+                Button("Add Item") { showingAddItem = true }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("wardrobe.empty.addItem")
+            }
         }
+    }
+
+    private var unavailableForCurrentFilter: some View {
+        ContentUnavailableView {
+            Label(emptyFilterTitle, systemImage: emptyFilterSymbol)
+        } description: {
+            if !searchText.trimmedRequired.isEmpty {
+                Text("No matching items in \(selectedStatus.label.lowercased()). Try another search or filter.")
+            } else {
+                Text(emptyFilterDescription)
+            }
+        } actions: {
+            Button("Show Active") {
+                searchText = ""
+                selectedCategory = nil
+                selectedStatus = .active
+            }
+        }
+    }
+
+    private var emptyFilterTitle: String {
+        switch selectedStatus {
+        case .active: "No matches"
+        case .pendingReview: "Nothing needs review"
+        case .favorites: "No favorites yet"
+        case .archived: "Archive is empty"
+        }
+    }
+
+    private var emptyFilterSymbol: String {
+        switch selectedStatus {
+        case .active: "magnifyingglass"
+        case .pendingReview: "checkmark.circle"
+        case .favorites: "star"
+        case .archived: "archivebox"
+        }
+    }
+
+    private var emptyFilterDescription: String {
+        switch selectedStatus {
+        case .active: "Try another category."
+        case .pendingReview: "All imported items have been checked."
+        case .favorites: "Mark frequently worn pieces with a star for quick access."
+        case .archived: "Archived pieces appear here and can be restored at any time."
+        }
+    }
+
+    private var statusChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(CatalogFilter.Status.allCases) { status in
+                    chip(
+                        title: status == .pendingReview && !pendingItems.isEmpty
+                            ? "\(status.label) \(pendingItems.count)"
+                            : status.label,
+                        isSelected: selectedStatus == status
+                    ) {
+                        selectedStatus = status
+                        selectedCategory = nil
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
+        }
+        .accessibilityIdentifier("catalog.statusFilters")
     }
 
     private var categoryChips: some View {
@@ -77,16 +193,23 @@ struct CatalogView: View {
                 chip(title: "All", isSelected: selectedCategory == nil) {
                     selectedCategory = nil
                 }
-                ForEach(CatalogFilter.availableCategories(in: items), id: \.self) { category in
-                    chip(title: CatalogCategoryStyle.title(category),
-                         isSelected: selectedCategory == category) {
-                        selectedCategory = (selectedCategory == category) ? nil : category
+                ForEach(CatalogFilter.availableCategories(in: itemsForSelectedStatus), id: \.self) {
+                    category in
+                    chip(
+                        title: CatalogCategoryStyle.title(category),
+                        isSelected: selectedCategory == category
+                    ) {
+                        selectedCategory = selectedCategory == category ? nil : category
                     }
                 }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
+    }
+
+    private var itemsForSelectedStatus: [Item] {
+        CatalogFilter.apply(to: items, search: "", category: nil, status: selectedStatus)
     }
 
     private func chip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -103,29 +226,13 @@ struct CatalogView: View {
     }
 
     private var grid: some View {
-        LazyVGrid(columns: columns, spacing: 16, pinnedViews: [.sectionHeaders]) {
-            ForEach(sections) { section in
-                Section {
-                    ForEach(section.items) { item in
-                        NavigationLink {
-                            ItemDetailView(item: item)
-                        } label: {
-                            CatalogCell(item: item)
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                delete(item)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
-                } header: {
-                    CatalogSectionHeader(category: section.category, count: section.items.count)
-                }
-            }
-        }
+        CatalogGrid(
+            sections: sections,
+            accountScope: accountScope,
+            onToggleFavorite: updateFavorite,
+            onToggleArchive: updateArchive,
+            onDelete: { pendingDeletion = $0 }
+        )
         .padding(.horizontal)
         .padding(.bottom)
     }
@@ -144,26 +251,137 @@ struct CatalogView: View {
         }
     }
 
-    private func delete(_ item: Item) {
-        modelContext.delete(item)
-        try? modelContext.save()
+    @ToolbarContentBuilder private var reviewMenu: some ToolbarContent {
+        if !pendingItems.isEmpty {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        selectedStatus = .pendingReview
+                        selectedCategory = nil
+                    } label: {
+                        Label("Review \(pendingItems.count) Imports", systemImage: "checklist")
+                    }
+                    Button("Accept All…") { confirmingBulkAcceptance = true }
+                } label: {
+                    Label("Review imports", systemImage: "checklist")
+                }
+                .accessibilityIdentifier("catalog.reviewMenu")
+            }
+        }
+    }
+
+    private var isConfirmingDelete: Binding<Bool> {
+        Binding(
+            get: { pendingDeletion != nil },
+            set: { if !$0 { pendingDeletion = nil } }
+        )
+    }
+
+    private func store() -> WardrobeStore {
+        WardrobeStore(modelContext: modelContext, accountScope: accountScope)
+    }
+
+    private func confirmDeletion() {
+        guard let item = pendingDeletion else { return }
+        pendingDeletion = nil
+        writes.perform(operation: .deleteItem, write: { try store().deleteItem(item) })
+    }
+
+    private func updateFavorite(_ item: Item, to value: Bool) {
+        writes.perform(operation: .updateItem, write: { try store().setFavorite(value, for: item) })
+    }
+
+    private func updateArchive(_ item: Item, to value: Bool) {
+        writes.perform(operation: .updateItem, write: { try store().setArchived(value, for: item) })
+    }
+
+    private func acceptAllPending() {
+        writes.perform(
+            operation: .updateItem,
+            write: { try store().acceptPendingItems(pendingItems, reviewedAt: .now) },
+            onSuccess: { selectedStatus = .active }
+        )
     }
 }
 
-/// Pinned section header: pluralized category title + item count, on a solid
-/// background so grid cells don't show through when it sticks.
+/// Kept outside `CatalogView` so Swift's result-builder type checker does not
+/// have to solve the entire screen, nested navigation, and context menus as one
+/// giant expression.
+private struct CatalogGrid: View {
+    let sections: [CatalogSection<Item>]
+    let accountScope: WardrobeAccountScope
+    let onToggleFavorite: (Item, Bool) -> Void
+    let onToggleArchive: (Item, Bool) -> Void
+    let onDelete: (Item) -> Void
+
+    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 12)]
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 16, pinnedViews: [.sectionHeaders]) {
+            ForEach(sections) { section in
+                Section {
+                    ForEach(section.items) { item in
+                        CatalogGridItem(
+                            item: item,
+                            accountScope: accountScope,
+                            onToggleFavorite: onToggleFavorite,
+                            onToggleArchive: onToggleArchive,
+                            onDelete: onDelete
+                        )
+                    }
+                } header: {
+                    CatalogSectionHeader(category: section.category, count: section.items.count)
+                }
+            }
+        }
+    }
+}
+
+private struct CatalogGridItem: View {
+    let item: Item
+    let accountScope: WardrobeAccountScope
+    let onToggleFavorite: (Item, Bool) -> Void
+    let onToggleArchive: (Item, Bool) -> Void
+    let onDelete: (Item) -> Void
+
+    var body: some View {
+        NavigationLink {
+            ItemDetailView(item: item, accountScope: accountScope)
+        } label: {
+            CatalogCell(item: item)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("wardrobe.item." + item.id.uuidString)
+        .contextMenu {
+            Button {
+                onToggleFavorite(item, !item.isFavorite)
+            } label: {
+                Label(favoriteTitle, systemImage: item.isFavorite ? "star.slash" : "star")
+            }
+            Button {
+                onToggleArchive(item, !item.isArchived)
+            } label: {
+                Label(archiveTitle, systemImage: item.isArchived ? "arrow.uturn.backward" : "archivebox")
+            }
+            Button(role: .destructive) { onDelete(item) } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    private var favoriteTitle: String { item.isFavorite ? "Remove Favorite" : "Favorite" }
+    private var archiveTitle: String { item.isArchived ? "Restore" : "Archive" }
+}
+
 private struct CatalogSectionHeader: View {
     let category: String
     let count: Int
 
     var body: some View {
         HStack(spacing: 8) {
-            Label(CatalogCategoryStyle.title(category),
-                  systemImage: CatalogCategoryStyle.symbol(category))
+            Label(CatalogCategoryStyle.title(category), systemImage: CatalogCategoryStyle.symbol(category))
                 .font(.headline)
-            Text("\(count)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text("\(count)").font(.subheadline).foregroundStyle(.secondary)
             Spacer()
         }
         .padding(.vertical, 6)
@@ -172,60 +390,70 @@ private struct CatalogSectionHeader: View {
     }
 }
 
-/// One grid cell: thumbnail (or category placeholder) above name + brand.
 private struct CatalogCell: View {
     let item: Item
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ItemThumbnail(item: item)
-                .frame(height: 108)
-                .frame(maxWidth: .infinity)
-                .background(Color(uiColor: .secondarySystemBackground))
-                .clipShape(.rect(cornerRadius: 12))
+            ZStack(alignment: .topTrailing) {
+                ItemThumbnail(item: item)
+                    .frame(height: 108)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(uiColor: .secondarySystemBackground))
+                    .clipShape(.rect(cornerRadius: 12))
+                if item.isFavorite {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
+                        .padding(8)
+                        .accessibilityLabel("Favorite")
+                }
+            }
 
             Text(item.name)
                 .font(.caption)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-
             if let brand = item.brand, !brand.isEmpty {
-                Text(brand)
+                Text(brand).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+            }
+            if item.reviewState == .pendingReview {
+                Label("Needs review", systemImage: "exclamationmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            } else if item.source == .email {
+                Label("Imported", systemImage: "envelope")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if item.possibleDuplicateOfItemID != nil {
+                Label("Possible duplicate", systemImage: "square.on.square")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            }
+            if item.isArchived {
+                Label("Archived", systemImage: "archivebox")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
     }
 }
 
-/// Renders, in priority order: a stored local image (Phase 4 photo capture), a
-/// remote product image from the receipt (`imageURL`, loaded via `AsyncImage`),
-/// or a category-symbol placeholder.
 struct ItemThumbnail: View {
     let item: Item
 
     var body: some View {
         if let data = item.thumbnailData ?? item.imageData, let image = UIImage(data: data) {
             Image(uiImage: image).resizable().scaledToFill()
-        } else if let urlString = item.imageURL, let url = URL(string: urlString) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case let .success(image): image.resizable().scaledToFill()
-                case .failure:            placeholder
-                case .empty:              ProgressView()
-                @unknown default:         placeholder
-                }
-            }
+        } else if let urlString = item.imageURL {
+            SafeRemoteImage(
+                urlString: urlString,
+                placeholderSystemName: CatalogCategoryStyle.symbol(item.category)
+            )
         } else {
-            placeholder
+            Image(systemName: CatalogCategoryStyle.symbol(item.category))
+                .font(.system(size: 30))
+                .foregroundStyle(.secondary)
         }
-    }
-
-    private var placeholder: some View {
-        Image(systemName: CatalogCategoryStyle.symbol(item.category))
-            .font(.system(size: 30))
-            .foregroundStyle(.secondary)
     }
 }

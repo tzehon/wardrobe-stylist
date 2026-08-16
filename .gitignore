@@ -9,13 +9,24 @@
 **/credentials*.json
 **/GoogleService-Info.plist
 ios/Secrets.xcconfig
+ios/Distribution.xcconfig
 *.p8
 *.p12
 *.mobileprovision
 
 # ── Xcode / Swift ───────────────────────────────────────
 # The .xcodeproj is generated from ios/project.yml by XcodeGen — do not commit it.
+# The sole exception is SwiftPM's resolution lock, which makes dependency builds reproducible.
 ios/*.xcodeproj
+!ios/Wardrobe.xcodeproj/
+ios/Wardrobe.xcodeproj/*
+!ios/Wardrobe.xcodeproj/project.xcworkspace/
+ios/Wardrobe.xcodeproj/project.xcworkspace/*
+!ios/Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/
+ios/Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/*
+!ios/Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+ios/Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
+!ios/Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 build/
 DerivedData/
 *.xcuserstate

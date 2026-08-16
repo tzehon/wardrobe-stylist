@@ -10,11 +10,11 @@ or stale id can never reach the app.
 """
 
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 import anthropic
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.agents import stylist
 from app.agents.stylist import StylistError
@@ -24,8 +24,12 @@ from app.schemas.recommendation import OutfitRecommendation
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+ItemReference = Annotated[str, Field(min_length=1, max_length=64)]
+
 
 class CatalogItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=256)
     category: str = Field(min_length=1, max_length=64)
@@ -34,9 +38,20 @@ class CatalogItem(BaseModel):
     material: str | None = Field(default=None, max_length=128)
 
 
+class ItemPreference(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1, max_length=64)
+    average_rating: float = Field(ge=1, le=5)
+    rating_count: int = Field(ge=1)
+
+
 class RecommendRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     items: list[CatalogItem] = Field(min_length=2, max_length=1000)
-    recently_worn_ids: list[str] = Field(default_factory=list, max_length=1000)
+    recently_worn_ids: list[ItemReference] = Field(default_factory=list, max_length=1000)
+    item_preferences: list[ItemPreference] = Field(default_factory=list, max_length=1000)
     occasion: str | None = Field(default=None, max_length=128)
 
 
@@ -80,18 +95,29 @@ def recommend_endpoint(
     _: None = Depends(require_device_token),
     client: anthropic.Anthropic = Depends(get_anthropic_client),
 ) -> RecommendResponse:
+    valid_ids = {item.id for item in req.items}
+    if any(item_id not in valid_ids for item_id in req.recently_worn_ids):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Recently worn items must reference items in the submitted catalog.",
+        )
+    if any(preference.id not in valid_ids for preference in req.item_preferences):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Item preferences must reference items in the submitted catalog.",
+        )
     try:
         result = stylist.recommend(
             client,
             items=[item.model_dump() for item in req.items],
             recently_worn_ids=req.recently_worn_ids,
+            item_preferences=[preference.model_dump() for preference in req.item_preferences],
             occasion=req.occasion,
         )
     except StylistError as exc:
         logger.warning("stylist.recommend failed: %s", exc)
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
-    valid_ids = {item.id for item in req.items}
     try:
         sanitized = _sanitize_outfit(result["tool_input"], valid_ids)
     except StylistError as exc:

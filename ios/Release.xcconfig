@@ -1,0 +1,6 @@
+#include "Config.xcconfig"
+
+// Distribution values are intentionally isolated from Debug/LAN configuration.
+// A device Release build also runs validate-public-release-settings.sh against the final
+// built Info.plist, so an absent or incomplete local file cannot produce a public archive.
+#include? "Distribution.xcconfig"

@@ -2,6 +2,30 @@ import Foundation
 import Observation
 import SwiftData
 
+/// Normalizes the optional user context to the backend's 128-code-point limit
+/// without cutting a composed character in half.
+enum StylingOccasion {
+    static let maximumLength = 128
+
+    static func limited(_ value: String) -> String {
+        var scalarCount = 0
+        let prefix = value.prefix { character in
+            let nextCount = scalarCount + character.unicodeScalars.count
+            guard nextCount <= maximumLength else { return false }
+            scalarCount = nextCount
+            return true
+        }
+        return String(prefix)
+    }
+
+    static func requestValue(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = limited(trimmed)
+        return result.isEmpty ? nil : result
+    }
+}
+
 /// Orchestrates the daily recommendation flow (Phase 5, "Aria"):
 ///
 ///   SwiftData `Item`s + recent `WearLog`s
@@ -29,10 +53,20 @@ final class OutfitRecommender {
         let occasion: String
         let colorStory: String
         let looks: [Look]
+        let generatedAt: Date
+        let isCached: Bool
+        var wornItemIDSetsToday: Set<Set<UUID>>
         var index: Int = 0
 
         var current: Look { looks[index] }
         var hasAlternates: Bool { looks.count > 1 }
+        var wasWornToday: Bool {
+            wornItemIDSetsToday.contains(Set(current.items.map(\.id)))
+        }
+
+        mutating func markCurrentWorn() {
+            wornItemIDSetsToday.insert(Set(current.items.map(\.id)))
+        }
     }
 
     enum State {
@@ -40,14 +74,22 @@ final class OutfitRecommender {
         case loading
         case loaded(Recommendation)
         case emptyCatalog
+        case consentRequired(PrivacyGateDenial)
         case failed(message: String)
     }
 
     var state: State = .idle
+    private(set) var isRequestInFlight = false
 
     private let recommendClient: RecommendClient
     private let modelContext: ModelContext
+    private let store: any WardrobeStoring
     private let now: () -> Date
+    private let privacyGate: any PrivacyGateChecking
+    private let privacySubjectID: PrivacySubjectID
+    private let accountScope: WardrobeAccountScope
+    private let dailyLookCache: any DailyLookCaching
+    private let calendar: Calendar
 
     /// An outfit needs at least this many items to be worth recommending.
     private static let minimumCatalogItems = 2
@@ -55,46 +97,159 @@ final class OutfitRecommender {
     init(
         recommendClient: RecommendClient,
         modelContext: ModelContext,
+        store: (any WardrobeStoring)? = nil,
+        privacyGate: any PrivacyGateChecking = StoredPrivacyGatekeeper(),
+        privacySubjectID: PrivacySubjectID = .deviceLocal,
+        accountScope: WardrobeAccountScope = .deviceLocal,
+        dailyLookCache: any DailyLookCaching = DisabledDailyLookCache(),
+        calendar: Calendar = .autoupdatingCurrent,
         now: @escaping () -> Date = Date.init
     ) {
         self.recommendClient = recommendClient
         self.modelContext = modelContext
+        self.store = store ?? WardrobeStore(
+            modelContext: modelContext,
+            accountScope: accountScope
+        )
+        self.privacyGate = privacyGate
+        self.privacySubjectID = privacySubjectID
+        self.accountScope = accountScope
+        self.dailyLookCache = dailyLookCache
+        self.calendar = calendar
         self.now = now
     }
 
-    /// Fetch a fresh recommendation from Aria.
-    func recommend(occasion: String? = nil) async {
-        // 1. Snapshot the catalog + wear history up front, before any await.
-        let items: [Item]
-        let recentlyWornIDs: [String]
-        do {
-            items = try modelContext.fetch(FetchDescriptor<Item>())
-            let wears = try modelContext.fetch(FetchDescriptor<WearLog>())
-            recentlyWornIDs = WearHistory.recentlyWornIDs(
-                from: wears, since: WearHistory.cutoff(from: now())
-            )
-        } catch {
-            state = .failed(message: "Couldn't read your wardrobe: \(error.localizedDescription)")
+    /// Load today's compatible cached look or fetch a fresh recommendation from
+    /// Aria. An empty occasion can restore the one look saved for this account;
+    /// a non-empty occasion always requires an exact normalized match.
+    func recommend(occasion: String? = nil, refresh: Bool = false) async {
+        guard !isRequestInFlight else { return }
+        isRequestInFlight = true
+        defer { isRequestInFlight = false }
+        let requestOccasion = StylingOccasion.requestValue(occasion)
+
+        let privacyDecision = await privacyGate.decision(
+            for: .aiStyling,
+            subjectID: privacySubjectID
+        )
+        guard !Task.isCancelled else { return }
+        guard privacyDecision.isAllowed else {
+            if case .denied(let denial) = privacyDecision {
+                state = .consentRequired(denial)
+            }
             return
         }
 
+        // 1. Snapshot the catalog + wear history up front, before any await.
+        let items: [Item]
+        let outfits: [Outfit]
+        let recentlyWornIDs: [String]
+        let itemPreferences: [RecommendItemPreference]
+        let compactCatalog: [RecommendCatalogItem]
+        do {
+            items = WardrobeAccountFilter.styleableItems(
+                from: try modelContext.fetch(FetchDescriptor<Item>()),
+                in: accountScope
+            )
+            outfits = WardrobeAccountFilter.visibleOutfits(
+                from: try modelContext.fetch(FetchDescriptor<Outfit>()),
+                in: accountScope
+            )
+            let wears = WardrobeAccountFilter.visibleWearLogs(
+                from: try modelContext.fetch(FetchDescriptor<WearLog>()),
+                in: accountScope
+            )
+            compactCatalog = CatalogCompactor.compact(items)
+            let activeItemIDs = Set(compactCatalog.map(\.id))
+            recentlyWornIDs = WearHistory.recentlyWornIDs(
+                from: wears, since: WearHistory.cutoff(from: now())
+            ).filter(activeItemIDs.contains)
+            itemPreferences = WearHistory.itemPreferences(from: wears).filter {
+                activeItemIDs.contains($0.id)
+            }
+        } catch {
+            guard !Task.isCancelled else { return }
+            state = .failed(
+                message: "We couldn’t open your wardrobe for styling. Your items are still on this device. Please try again."
+            )
+            return
+        }
+
+        guard !Task.isCancelled else { return }
         guard items.count >= Self.minimumCatalogItems else {
             state = .emptyCatalog
             return
         }
 
+        let requestDate = now()
+        let fingerprint = DailyLookCatalogFingerprint.make(from: compactCatalog)
+        if !refresh,
+           let cached = dailyLookCache.load(for: accountScope),
+           cached.isReusable(
+               at: requestDate,
+               calendar: calendar,
+               catalogFingerprint: fingerprint,
+               occasion: requestOccasion,
+               acceptsStoredOccasionWhenRequestIsEmpty: true
+           ) {
+            let cachedState = resolve(
+                cached.response,
+                catalog: items,
+                generatedAt: cached.generatedAt,
+                isCached: true,
+                wornItemIDSetsToday: wornItemIDSetsToday(among: outfits, at: requestDate)
+            )
+            guard !Task.isCancelled else { return }
+            if case .loaded = cachedState {
+                state = cachedState
+                return
+            }
+            guard !Task.isCancelled else { return }
+            dailyLookCache.remove(for: accountScope)
+        }
+
+        guard !Task.isCancelled else { return }
+        let stateBeforeLoading = state
         state = .loading
         let request = RecommendRequest(
-            items: CatalogCompactor.compact(items),
+            items: compactCatalog,
             recentlyWornIds: recentlyWornIDs,
-            occasion: occasion
+            itemPreferences: itemPreferences,
+            occasion: requestOccasion
         )
 
         do {
+            try Task.checkCancellation()
             let response = try await recommendClient.recommend(request)
-            state = resolve(response, catalog: items)
+            try Task.checkCancellation()
+            let completedAt = now()
+            let resolved = resolve(
+                response,
+                catalog: items,
+                generatedAt: completedAt,
+                isCached: false,
+                wornItemIDSetsToday: wornItemIDSetsToday(among: outfits, at: completedAt)
+            )
+            try Task.checkCancellation()
+            state = resolved
+            if case .loaded = resolved {
+                try Task.checkCancellation()
+                dailyLookCache.save(
+                    DailyLookCacheEntry(
+                        generatedAt: completedAt,
+                        catalogFingerprint: fingerprint,
+                        occasion: requestOccasion,
+                        response: response
+                    ),
+                    for: accountScope
+                )
+            }
         } catch {
-            state = .failed(message: Self.message(for: error))
+            if Task.isCancelled || error is CancellationError {
+                state = stateBeforeLoading
+            } else {
+                state = .failed(message: Self.message(for: error))
+            }
         }
     }
 
@@ -107,21 +262,22 @@ final class OutfitRecommender {
 
     /// Record the currently shown look as worn: persists an `Outfit` and a
     /// per-item `WearLog` (item + outfit) so it feeds tomorrow's anti-repeat.
-    func wearCurrent() {
-        guard case .loaded(let recommendation) = state else { return }
+    @discardableResult
+    func wearCurrent() throws -> Bool {
+        guard case .loaded(let recommendation) = state else { return false }
+        guard !recommendation.wasWornToday else { return false }
         let look = recommendation.current
-        let outfit = Outfit(
-            createdAt: now(),
+        try store.recordWear(
+            items: look.items,
             occasion: recommendation.occasion,
             rationale: look.rationale,
             colorStory: recommendation.colorStory,
-            items: look.items
+            date: now()
         )
-        modelContext.insert(outfit)
-        for item in look.items {
-            modelContext.insert(WearLog(date: now(), item: item, outfit: outfit))
-        }
-        try? modelContext.save()
+        var updated = recommendation
+        updated.markCurrentWorn()
+        state = .loaded(updated)
+        return true
     }
 
     // MARK: - Mapping
@@ -129,7 +285,13 @@ final class OutfitRecommender {
     /// Resolve Aria's id arrays back to `Item`s. The backend already guarantees
     /// every id is from the submitted catalog, but we resolve defensively and
     /// keep only looks that still have at least two items.
-    private func resolve(_ response: RecommendResponse, catalog: [Item]) -> State {
+    private func resolve(
+        _ response: RecommendResponse,
+        catalog: [Item],
+        generatedAt: Date,
+        isCached: Bool,
+        wornItemIDSetsToday: Set<Set<UUID>>
+    ) -> State {
         var byID: [String: Item] = [:]
         for item in catalog { byID[item.id.uuidString] = item }
 
@@ -147,20 +309,52 @@ final class OutfitRecommender {
         return .loaded(Recommendation(
             occasion: response.occasion,
             colorStory: response.colorStory,
-            looks: [primary] + alternates
+            looks: [primary] + alternates,
+            generatedAt: generatedAt,
+            isCached: isCached,
+            wornItemIDSetsToday: wornItemIDSetsToday
         ))
+    }
+
+    private func wornItemIDSetsToday(
+        among outfits: [Outfit],
+        at date: Date
+    ) -> Set<Set<UUID>> {
+        var result: Set<Set<UUID>> = []
+        for outfit in outfits where calendar.isDate(outfit.createdAt, inSameDayAs: date) {
+            result.insert(Set(outfit.items.map(\.id)))
+        }
+        return result
     }
 
     private static func message(for error: Error) -> String {
         switch error {
         case RecommendError.http(let status, _):
-            return "The stylist service returned an error (\(status)). Please try again."
+            switch status {
+            case 401, 403:
+                return "Styling isn’t available in this build. Please update the app and try again."
+            case 429:
+                return "Aria is receiving a lot of requests right now. Please wait a moment and try again."
+            case 500...599:
+                return "Aria is temporarily unavailable. Your wardrobe is safe on this device. Please try again."
+            default:
+                return "Aria couldn’t finish this look. Your wardrobe is safe on this device. Please try again."
+            }
         case RecommendError.decoding:
-            return "Couldn't read Aria's response. Please try again."
+            return "Aria returned a look the app couldn’t display. Please try again."
         case RecommendError.invalidResponse:
-            return "No response from the stylist service."
+            return "Aria didn’t return a usable look. Please try again."
+        case let urlError as URLError:
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:
+                return "You appear to be offline. Reconnect to style a new look. Any look saved earlier today remains stored on this device."
+            case .timedOut:
+                return "Styling took too long. Check your connection and try again."
+            default:
+                return "Aria couldn’t be reached. Check your connection and try again."
+            }
         default:
-            return error.localizedDescription
+            return "Aria couldn’t finish this look. Your wardrobe is safe on this device. Please try again."
         }
     }
 }

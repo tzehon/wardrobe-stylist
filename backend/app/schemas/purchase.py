@@ -6,9 +6,9 @@ contract test in `tests/test_purchase_schema.py` pins the JSON Schema and these
 classes against the same golden fixtures so they can't drift.
 """
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 Category = Literal[
     "top", "bottom", "dress", "outerwear", "shoe", "bag", "jewelry", "accessory"
@@ -25,11 +25,14 @@ class PurchaseItem(BaseModel):
     confidence: Confidence
     brand: str | None = None
     color: str | None = None
+    size: str | None = None
     material: str | None = None
     style_notes: str | None = None
     price: Annotated[float, Field(ge=0)] | None = None
     currency: Currency | None = None
-    image_url: str | None = None  # lenient: receipts surface odd URLs; let it through
+    # Model output remains an untrusted string here. The iOS remote-image policy
+    # performs the authoritative HTTPS/host/size validation before any fetch.
+    image_url: str | None = None
 
 
 class FashionPurchaseExtraction(BaseModel):
@@ -38,3 +41,11 @@ class FashionPurchaseExtraction(BaseModel):
     is_fashion: bool
     source_msg_id: Annotated[str, Field(min_length=1)]
     items: list[PurchaseItem]
+
+    @model_validator(mode="after")
+    def require_items_to_match_fashion_result(self) -> Self:
+        if self.is_fashion and not self.items:
+            raise ValueError("items must contain at least one item when is_fashion is true")
+        if not self.is_fashion and self.items:
+            raise ValueError("items must be empty when is_fashion is false")
+        return self

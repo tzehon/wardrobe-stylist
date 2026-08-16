@@ -35,6 +35,7 @@ VALID_FIXTURES: list[dict[str, Any]] = [
                 "category": "top",
                 "brand": "Everlane",
                 "color": "white",
+                "size": "M",
                 "material": "cotton",
                 "style_notes": "minimalist",
                 "price": 78.0,
@@ -63,6 +64,14 @@ VALID_FIXTURES: list[dict[str, Any]] = [
 ]
 
 INVALID_FIXTURES: list[dict[str, Any]] = [
+    # fashion requires at least one extracted item
+    {"is_fashion": True, "source_msg_id": "x", "items": []},
+    # non-fashion must never carry extracted items
+    {
+        "is_fashion": False,
+        "source_msg_id": "x",
+        "items": [{"name": "x", "category": "top", "confidence": "high"}],
+    },
     # category not in enum
     {
         "is_fashion": True,
@@ -94,6 +103,14 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
                 "confidence": "high",
                 "currency": "dollars",
             }
+        ],
+    },
+    # size must remain receipt text, never a number or nested object
+    {
+        "is_fashion": True,
+        "source_msg_id": "x",
+        "items": [
+            {"name": "x", "category": "top", "confidence": "high", "size": 42}
         ],
     },
     # missing required source_msg_id

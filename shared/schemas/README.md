@@ -14,6 +14,7 @@ Planned schemas (added with their phase):
 | `purchase.schema.json` | 2 | a structured purchase extracted from a receipt (`record_purchase`) |
 | `category.schema.json` | 3 | the dynamic browsable taxonomy |
 | `outfit.schema.json` | 5 | a daily outfit recommendation (`propose_outfit`) — **added** |
+| `recommend-request.schema.json` | 5+ | the compact catalog, wear IDs, rating aggregates, and optional occasion sent to `/recommend` |
 
 Keep field names and enums identical to the Swift models in
 [`ios/Wardrobe/Models/`](../../ios/Wardrobe/Models) and the backend Pydantic models in

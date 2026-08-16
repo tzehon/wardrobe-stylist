@@ -1,245 +1,205 @@
-import SwiftData
+import GoogleSignIn
 import SwiftUI
-import UIKit
 
 struct ContentView: View {
-    @State private var session = GmailSession()
-    @State private var pipeline: ReceiptPipeline?
-    @State private var pipelineConfigError: String?
-    @Query private var items: [Item]
-    @Environment(\.modelContext) private var modelContext
+    let demoMode: DemoModeController
+
+    @State private var session: GmailSession?
+    @State private var onboardingState = OnboardingState()
+    @State private var devicePrivacy = DevicePrivacySettings()
+    @State private var syncActivity = ReceiptSyncActivityController.shared
+    @State private var localDataGeneration = 0
+    @State private var showingLocalDataDeleted = false
+    @SceneStorage("com.tth.Wardrobe.selectedTab")
+    private var selectedTabRawValue = AppTab.wardrobe.rawValue
 
     var body: some View {
-        NavigationStack {
-            content.navigationTitle("Wardrobe")
-        }
-        .task { await session.restorePreviousSignIn() }
-    }
-
-    @ViewBuilder private var content: some View {
-        switch session.state {
-        case .signedOut, .failed:
-            signedOutView
-        case .signingIn:
-            ProgressView("Signing in…")
-        case .signedIn(let email):
-            signedInView(email: email)
-        }
-    }
-
-    private var signedOutView: some View {
-        VStack(spacing: 20) {
-            ContentUnavailableView {
-                Label("Connect your Gmail", systemImage: "envelope.badge")
-            } description: {
-                Text("Wardrobe reads your Gmail (read-only) to find purchase receipts.")
-            }
-            Button {
-                Task { @MainActor in
-                    if let root = topViewController() {
-                        await session.signIn(presenting: root)
-                    }
-                }
-            } label: {
-                Label("Sign in with Google", systemImage: "person.crop.circle.badge.plus")
-                    .padding(.horizontal, 24).padding(.vertical, 12)
-            }
-            .buttonStyle(.borderedProminent)
-            if case .failed(let message) = session.state {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-        }
-        .padding()
-    }
-
-    private func signedInView(email: String) -> some View {
-        ScrollView {
-            VStack(spacing: 14) {
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.green)
-                Text("Signed in (read-only)").font(.headline)
-                Text(email).foregroundStyle(.secondary)
-                NavigationLink {
-                    TodayView()
-                } label: {
-                    HStack {
-                        Label("Today's outfit", systemImage: "sparkles")
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .padding()
-                    .background(Color.accentColor.opacity(0.12))
-                    .clipShape(.rect(cornerRadius: 12))
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    CatalogView()
-                } label: {
-                    HStack {
-                        Label(
-                            "\(items.count) item\(items.count == 1 ? "" : "s") in catalog",
-                            systemImage: "square.grid.2x2"
-                        )
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
-                    }
-                    .font(.subheadline)
-                    .padding()
-                    .background(Color(uiColor: .secondarySystemBackground))
-                    .clipShape(.rect(cornerRadius: 12))
-                }
-                .buttonStyle(.plain)
-
-                Divider().padding(.vertical, 6)
-                syncSection
-                Divider().padding(.vertical, 6)
-
-                Button("Sign out") { session.signOut() }
-                    .buttonStyle(.bordered)
-                    .padding(.top, 4)
-            }
-            .padding()
-        }
-        // Ask for notification permission in context — once the user has connected
-        // Gmail there's a wardrobe to style, so the daily nudge is meaningful.
-        // Idempotent: iOS only prompts once, and re-scheduling replaces the reminder.
-        .task { try? await DailyOutfitNotifier().enableDailyReminder() }
-    }
-
-    // MARK: - Sync section
-
-    private var syncSection: some View {
-        VStack(spacing: 12) {
-            Text("Sync receipts").font(.subheadline.weight(.semibold))
-            Text("Reads your Gmail (read-only), filters for receipts on-device, sends only the minimal text to the backend.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Button {
-                Task { await runSync() }
-            } label: {
-                HStack(spacing: 8) {
-                    if isSyncing { ProgressView() }
-                    Text(syncButtonLabel)
-                }
-                .padding(.horizontal, 16).padding(.vertical, 8)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(isSyncing)
-
-            if let error = pipelineConfigError {
-                Text("❌ \(error)")
-                    .font(.footnote.monospaced())
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.leading)
-                    .padding(8)
-                    .background(Color(uiColor: .systemGray6))
-                    .clipShape(.rect(cornerRadius: 8))
-            } else if let pipeline {
-                statusView(for: pipeline.state)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func statusView(for state: ReceiptPipeline.State) -> some View {
-        switch state {
-        case .idle:
-            EmptyView()
-        case let .running(processed, total):
-            VStack(spacing: 4) {
-                ProgressView(value: total > 0 ? Double(processed) / Double(total) : 0)
-                Text(total > 0
-                     ? "Processed \(processed) of \(total)…"
-                     : "Fetching receipts…")
-                    .font(.footnote.monospaced())
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 8)
-        case let .complete(added, candidates, errors):
-            VStack(alignment: .leading, spacing: 2) {
-                Text("✅ Sync complete").font(.footnote.weight(.semibold))
-                Text("• \(candidates) likely receipt\(candidates == 1 ? "" : "s") sent to backend")
-                Text("• \(added) item\(added == 1 ? "" : "s") added to catalog")
-                if errors > 0 {
-                    Text("• \(errors) error\(errors == 1 ? "" : "s") (network / parsing) — see logs")
-                        .foregroundStyle(.orange)
-                }
-            }
-            .font(.footnote.monospaced())
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .background(Color(uiColor: .systemGray6))
-            .clipShape(.rect(cornerRadius: 8))
-        case let .failed(message):
-            Text("❌ \(message)")
-                .font(.footnote.monospaced())
-                .foregroundStyle(.red)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(8)
-                .background(Color(uiColor: .systemGray6))
-                .clipShape(.rect(cornerRadius: 8))
-        }
-    }
-
-    private var isSyncing: Bool {
-        if case .running = pipeline?.state { return true }
-        return false
-    }
-
-    private var syncButtonLabel: String {
-        switch pipeline?.state {
-        case .running:    return "Syncing…"
-        case .complete:   return "Sync again"
-        case .failed:     return "Retry sync"
-        default:          return "Sync receipts now"
-        }
-    }
-
-    /// Lazily build the pipeline on first sync — it needs a signed-in Gmail
-    /// session and a configured backend, both of which are known by this point.
-    @MainActor
-    private func runSync() async {
-        if pipeline == nil {
-            do {
-                guard let gmailClient = session.client else {
-                    pipelineConfigError = "Not signed in to Gmail."
-                    return
-                }
-                let (baseURL, deviceToken) = try BackendConfig.load()
-                pipeline = ReceiptPipeline(
-                    gmailClient: gmailClient,
-                    extractClient: ExtractClient(
-                        baseURL: baseURL,
-                        deviceToken: deviceToken
-                    ),
-                    modelContext: modelContext
+        Group {
+            if let demoSession = demoMode.session {
+                DemoModeRootView(
+                    session: demoSession,
+                    onReset: { _ = demoMode.reset() },
+                    onExit: demoMode.exit
                 )
-                pipelineConfigError = nil
-            } catch {
-                pipelineConfigError = "\(error)"
-                return
+                    .id(ObjectIdentifier(demoSession))
+            } else {
+                productionTabs
             }
         }
-        await pipeline?.sync()
+        .onOpenURL { url in
+            _ = GIDSignIn.sharedInstance.handle(url)
+        }
+        .fullScreenCover(isPresented: onboardingPresentation) {
+            OnboardingView(
+                isReplay: onboardingState.hasCompleted,
+                onComplete: completeOnboarding,
+                onEnterDemo: enterDemoFromOnboarding,
+                onDismissReplay: onboardingState.dismissReplay
+            )
+            .interactiveDismissDisabled(!onboardingState.hasCompleted)
+        }
+        .alert(
+            "Couldn’t Open Demo",
+            isPresented: demoFailurePresentation,
+            presenting: demoMode.failure
+        ) { _ in
+            Button("OK", role: .cancel) { demoMode.clearFailure() }
+        } message: { _ in
+            Text(DemoModeFailure.userMessage)
+        }
+        .alert("Local Data Deleted", isPresented: $showingLocalDataDeleted) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your local wardrobe, history, sync records, cached looks, and saved data-use choices were removed from this device. Google access was not revoked.")
+        }
     }
-}
 
-/// Best-effort lookup of the active view controller to present sign-in from. SwiftUI
-/// doesn't expose this directly, so we climb the connected-scenes/windows tree.
-@MainActor
-private func topViewController() -> UIViewController? {
-    UIApplication.shared.connectedScenes
-        .compactMap { $0 as? UIWindowScene }
-        .flatMap(\.windows)
-        .first(where: \.isKeyWindow)?
-        .rootViewController
+    private var productionTabs: some View {
+        TabView(selection: selectedTab) {
+            NavigationStack {
+                TodayView(
+                    privacySettings: devicePrivacy,
+                    accountScope: activeAccountScope,
+                    openStylingPrivacy: {
+                        selectedTab.wrappedValue = .settings
+                    }
+                )
+                .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
+            }
+            .tabItem {
+                Label(AppTab.today.title, systemImage: AppTab.today.systemImage)
+                    .accessibilityIdentifier(AppTab.today.accessibilityIdentifier)
+            }
+            .tag(AppTab.today)
+
+            NavigationStack {
+                CatalogView(accountScope: activeAccountScope)
+                    .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
+            }
+            .tabItem {
+                Label(AppTab.wardrobe.title, systemImage: AppTab.wardrobe.systemImage)
+                    .accessibilityIdentifier(AppTab.wardrobe.accessibilityIdentifier)
+            }
+            .tag(AppTab.wardrobe)
+
+            NavigationStack {
+                OutfitHistoryView(accountScope: activeAccountScope)
+                    .id("\(activeAccountScope.rawValue).\(localDataGeneration)")
+            }
+            .tabItem {
+                Label(AppTab.history.title, systemImage: AppTab.history.systemImage)
+                    .accessibilityIdentifier(AppTab.history.accessibilityIdentifier)
+            }
+            .tag(AppTab.history)
+
+            NavigationStack {
+                if let session {
+                    SettingsView(
+                        session: session,
+                        devicePrivacy: devicePrivacy,
+                        syncActivity: syncActivity,
+                        onReplayOnboarding: onboardingState.replay,
+                        onEnterDemo: enterDemoFromSettings,
+                        onVerifiedLocalDataDeletion: handleVerifiedLocalDataDeletion
+                    )
+                    .id(localDataGeneration)
+                } else {
+                    ProgressView("Opening Settings…")
+                }
+            }
+            .tabItem {
+                Label(AppTab.settings.title, systemImage: AppTab.settings.systemImage)
+                    .accessibilityIdentifier(AppTab.settings.accessibilityIdentifier)
+            }
+            .tag(AppTab.settings)
+        }
+        .task(id: onboardingState.hasCompleted) {
+            await prepareConnectedFeatures()
+            consumePendingTodayDestination()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .wardrobeNavigateToToday)) { _ in
+            consumePendingTodayDestination()
+            selectedTab.wrappedValue = .today
+        }
+    }
+
+    private var selectedTab: Binding<AppTab> {
+        Binding(
+            get: { AppTab(rawValue: selectedTabRawValue) ?? .wardrobe },
+            set: { selectedTabRawValue = $0.rawValue }
+        )
+    }
+
+    private var activeAccountScope: WardrobeAccountScope {
+        WardrobeAccountScope(activeExternalSubject: session?.privacySubjectID)
+    }
+
+    private var onboardingPresentation: Binding<Bool> {
+        Binding(
+            get: { !demoMode.isActive && onboardingState.isPresented },
+            set: { isPresented in
+                if !isPresented { onboardingState.dismissReplay() }
+            }
+        )
+    }
+
+    private var demoFailurePresentation: Binding<Bool> {
+        Binding(
+            get: { demoMode.failure != nil },
+            set: { isPresented in
+                if !isPresented { demoMode.clearFailure() }
+            }
+        )
+    }
+
+    private func completeOnboarding(destination: AppTab) {
+        selectedTab.wrappedValue = destination
+        onboardingState.complete()
+    }
+
+    private func enterDemoFromOnboarding() {
+        // Keep the real onboarding preference unchanged. First-time users return
+        // to setup after the disposable tour; returning users resume normally.
+        enterDemoWhenSyncIsQuiesced()
+    }
+
+    private func enterDemoFromSettings() {
+        enterDemoWhenSyncIsQuiesced()
+    }
+
+    private func enterDemoWhenSyncIsQuiesced() {
+        Task { @MainActor in
+            _ = await syncActivity.withQuiesced {
+                demoMode.enter()
+            }
+        }
+    }
+
+    private func consumePendingTodayDestination() {
+        guard UserDefaultsAppNavigationSignalStore().consumeTodayDestination() else { return }
+        selectedTab.wrappedValue = .today
+    }
+
+    private func handleVerifiedLocalDataDeletion() {
+        devicePrivacy = DevicePrivacySettings()
+        localDataGeneration &+= 1
+        showingLocalDataDeleted = true
+    }
+
+    private func prepareConnectedFeatures() async {
+        guard onboardingState.hasCompleted else { return }
+        guard !demoMode.isActive else { return }
+        await devicePrivacy.load()
+        await devicePrivacy.automation.reconcile()
+        guard !demoMode.isActive else { return }
+        guard session == nil else { return }
+        let madeSession = GmailSession()
+        // Publish the signed-out/restoring session before awaiting Google. This
+        // keeps all local Settings, privacy, and deletion controls available
+        // even if the SDK restore is slow or needs network recovery; only the
+        // optional Gmail section shows its bounded restoring state.
+        session = madeSession
+        await madeSession.restorePreviousSignIn()
+        guard !Task.isCancelled, !demoMode.isActive else { return }
+    }
 }

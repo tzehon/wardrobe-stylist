@@ -79,16 +79,32 @@ cp ios/Secrets.xcconfig.example ios/Secrets.xcconfig
 #                                localhost:8000      (simulator only)
 #                                your-app.fly.dev    (Fly.io deploy)
 #   BACKEND_DEVICE_TOKEN       = (the same string as DEVICE_TOKEN in backend/.env)
+#   PRIVACY_POLICY_URL         = https:/$()/your-domain.example/privacy
+#   SUPPORT_URL                = https:/$()/your-domain.example/support
 ```
 
 xcconfig values can't contain `//` (the rest of the line gets treated as a comment), so
 the backend URL is split into `BACKEND_SCHEME` and `BACKEND_HOST` and composed in
-`Info.plist` at build time. `ios/Config.xcconfig` (committed) `#include?`s your local file
+`Info.plist` at build time. `ios/Debug.xcconfig` (committed) `#include?`s your local file
 and feeds the values into `Info.plist` (`GIDClientID`, `CFBundleURLTypes`, `BackendBaseURL`,
-`BackendDeviceToken`). Now that the backend is HTTPS on Fly.io, `Info.plist` carries no App
+`BackendDeviceToken`, and the public privacy/support links). Now that the backend is HTTPS on
+Fly.io, `Info.plist` carries no App
 Transport Security exception. To point the app back at a **plain-HTTP LAN dev backend**, set
 `BACKEND_SCHEME = http` + `BACKEND_HOST = <Mac-LAN-IP>:8000` and temporarily add an
 `NSAppTransportSecurity` → `NSAllowsArbitraryLoads = YES` block to `Info.plist` (don't commit it).
+
+`PRIVACY_POLICY_URL` and `SUPPORT_URL` are optional during local development, so their Settings
+rows remain visibly unavailable until configured. An installable device **Release** archive is
+stricter: its post-build guard requires real non-placeholder HTTPS destinations, a matching
+Google client/callback scheme, and an HTTPS backend. It also refuses to archive while the legacy
+`BackendDeviceToken` key remains in the public target. That last blocker is intentional and is
+resolved only by the per-user backend identity cutover in
+[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
+
+Release builds use a separate gitignored `ios/Distribution.xcconfig`, created from
+`ios/Distribution.xcconfig.example`. They never inherit LAN hosts or test OAuth values from
+`Secrets.xcconfig`. Do not add a shared bearer to that file; public identity is completed later
+in the GCP production sequence.
 
 ### Build / run / test
 
@@ -157,15 +173,34 @@ Then point the app at the deployed backend and drop the dev-only HTTP exception:
    longer needed (and App Store review flags it).
 3. `cd ios && xcodegen generate` and rebuild.
 
-The app then talks to `https://<your-app>.fly.dev` using the same `DEVICE_TOKEN` as a Bearer.
+That `DEVICE_TOKEN` flow documents the existing local/personal development backend only. It is
+not permitted in the next always-ready TestFlight archive: complete `APP-009`, migrate the backend
+to validated per-user authorization, then remove the key from the iOS bundle and rotate/retire the
+legacy token before distribution.
 
 ## TestFlight (Phase 6 distribution)
 
-Requires an **Apple Developer Program** membership ($99/yr) and the production
-backend above (a real device can't reach your Mac's LAN IP). In Xcode: set a real
-`DEVELOPMENT_TEAM` in `Secrets.xcconfig`, bump `CURRENT_PROJECT_VERSION`, then
-**Product ▸ Archive** → **Distribute App** → **App Store Connect** → **Upload**.
-Add the build to a TestFlight internal-tester group in App Store Connect.
+Every internal beta is built as an App Store candidate. Follow the full
+[internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
+
+1. Finish the per-user backend identity cutover and remove the shared `BackendDeviceToken` from
+   the iOS bundle. A device Release archive intentionally fails until this is done.
+2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
+   `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
+3. Check App Store Connect for the highest uploaded build, then set the next unused
+   `CURRENT_PROJECT_VERSION`. Set the intended public `MARKETING_VERSION` before archiving if the
+   exact beta may be promoted.
+4. Regenerate, run the complete backend/Swift/UI/Release validation, and create a signed device
+   archive with **Product ▸ Archive**.
+5. In Organizer choose **Validate App**, then **Distribute App ▸ TestFlight & App Store ▸ Upload**.
+   Do not choose **TestFlight Internal Only**: Apple prevents that artifact from later being
+   submitted to customers.
+6. After processing, add the build only to the Internal Testing group and complete upgrade plus
+   clean-device QA. Adding it to an internal group does not submit it for App Review.
+
+Before choosing a build number or archiving, run `ios/scripts/verify-release-artifact.sh` against
+the generated Release artifact. Device Release archives also run the strict public-configuration
+guard automatically; never bypass it.
 
 ## Run all tests
 

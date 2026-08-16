@@ -75,9 +75,37 @@ struct GmailReadOnlyClientTests {
         }
         #expect(ids == ["m1", "m2", "m3"])
         #expect(URLProtocolStub.captured.count == 2)
+        let firstQuery = URLProtocolStub.captured[0].url?.query ?? ""
+        #expect(firstQuery.contains("includeSpamTrash=false"))
         // The second call must carry the page token from the first response.
         let secondQuery = URLProtocolStub.captured[1].url?.query ?? ""
         #expect(secondQuery.contains("pageToken=PT_2"))
+    }
+
+    @Test func breakingOutOfMessageStreamStopsBeforeRequestingAnotherPage() async throws {
+        let calls = Counter()
+        URLProtocolStub.install { _ in
+            let call = calls.bump()
+            if call > 0 {
+                Issue.record("The terminated stream must not fetch another page")
+                throw URLError(.cancelled)
+            }
+            return (self.httpResponse(200), Data(GmailFixtures.messageListPage1JSON.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = makeClient()
+        var ids: [String] = []
+        for try await ref in client.allMessages(query: "x") {
+            ids.append(ref.id)
+            break
+        }
+        // Give the producer an actor turn to observe stream termination.
+        await Task.yield()
+
+        #expect(ids == ["m1"])
+        #expect(calls.current() == 1)
+        #expect(URLProtocolStub.captured.count == 1)
     }
 
     @Test func http401IsSurfacedAsHttpError() async throws {
@@ -115,4 +143,5 @@ final class Counter: @unchecked Sendable {
     private let lock = NSLock()
     private var value = 0
     func bump() -> Int { lock.lock(); defer { lock.unlock() }; defer { value += 1 }; return value }
+    func current() -> Int { lock.lock(); defer { lock.unlock() }; return value }
 }

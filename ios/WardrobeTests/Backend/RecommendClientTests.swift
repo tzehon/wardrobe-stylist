@@ -45,6 +45,9 @@ struct RecommendClientTests {
                 RecommendCatalogItem(id: "c", name: "Suede Loafers", category: "shoe"),
             ],
             recentlyWornIds: ["d"],
+            itemPreferences: [
+                RecommendItemPreference(id: "a", averageRating: 4.5, ratingCount: 2),
+            ],
             occasion: "relaxed weekend"
         )
     }
@@ -69,6 +72,7 @@ struct RecommendClientTests {
         let req = try #require(URLProtocolStub.captured.first)
         #expect(req.httpMethod == "POST")
         #expect(req.url?.path == "/recommend")
+        #expect(req.timeoutInterval == 30)
         #expect(req.value(forHTTPHeaderField: "Authorization") == "Bearer abc-123")
         #expect(req.value(forHTTPHeaderField: "Content-Type") == "application/json")
 
@@ -78,6 +82,10 @@ struct RecommendClientTests {
             try JSONSerialization.jsonObject(with: body) as? [String: Any]
         )
         #expect(json["recently_worn_ids"] as? [String] == ["d"])
+        let preferences = try #require(json["item_preferences"] as? [[String: Any]])
+        #expect(preferences.first?["id"] as? String == "a")
+        #expect(preferences.first?["average_rating"] as? Double == 4.5)
+        #expect(preferences.first?["rating_count"] as? Int == 2)
         #expect(json["occasion"] as? String == "relaxed weekend")
         let items = try #require(json["items"] as? [[String: Any]])
         #expect(items.first?["id"] as? String == "a")

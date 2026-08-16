@@ -1,61 +1,31 @@
-import PhotosUI
 import SwiftData
 import SwiftUI
 
-/// Editable draft for a manually-added item. Pulled out of the view so the
-/// validation + color parsing are pure and unit-testable.
-struct ItemDraft {
-    var name = ""
-    var category = "top"
-    var brand = ""
-    var colors = ""        // comma-separated user input
-    var material = ""
-    var hasImage = false
-
-    /// A photo and a name are the minimum to save (Phase 4 is *photo* capture).
-    var canSave: Bool {
-        hasImage && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    var parsedColors: [String] {
-        Self.parseColors(colors)
-    }
-
-    static func parseColors(_ raw: String) -> [String] {
-        raw.split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
-}
-
-/// Phase 4: capture or pick a photo, fill in a few details, and save it as a
-/// `source = .photo` catalog item with a generated thumbnail.
+/// Add a local item with optional photo capture. Items without a photo are
+/// stored as manual entries and receive a category illustration in the catalog.
 struct AddItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
     @State private var draft = ItemDraft()
     @State private var image: UIImage?
-    @State private var pickerItem: PhotosPickerItem?
-    @State private var showingCamera = false
+    @State private var removesExistingImage = false
+    @State private var imageProcessingFailed = false
+    @State private var writes = WardrobeWriteCoordinator()
+    @State private var photoPicker = ItemPhotoPickerCoordinator()
 
     private static let categories = CatalogOrganizer.canonicalOrder
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Photo") { photoSection }
-                Section("Details") {
-                    TextField("Name", text: $draft.name)
-                    Picker("Category", selection: $draft.category) {
-                        ForEach(Self.categories, id: \.self) { category in
-                            Text(CatalogCategoryStyle.title(category)).tag(category)
-                        }
-                    }
-                    TextField("Brand", text: $draft.brand)
-                    TextField("Colors (comma-separated)", text: $draft.colors)
-                    TextField("Material", text: $draft.material)
-                }
+                ItemPhotoEditor(
+                    selectedImage: $image,
+                    removesExistingImage: $removesExistingImage,
+                    existingItem: nil,
+                    coordinator: photoPicker
+                )
+                ItemDetailsForm(draft: $draft, categories: Self.categories)
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -64,75 +34,50 @@ struct AddItemView: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save).disabled(!draft.canSave)
+                    Button("Save", action: save)
+                        .disabled(!draft.canSave)
+                        .accessibilityIdentifier("item.add.save")
                 }
             }
-            .sheet(isPresented: $showingCamera) {
-                CameraPicker { captured in
-                    image = captured
-                    draft.hasImage = true
-                }
-                .ignoresSafeArea()
+            .alert("Couldn’t Prepare Image", isPresented: $imageProcessingFailed) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Choose a different image and try again. Your item details are still here.")
             }
-            .onChange(of: pickerItem) { _, newValue in
-                Task { await loadPicked(newValue) }
-            }
+            .wardrobePersistenceAlert(writes)
         }
-    }
-
-    @ViewBuilder private var photoSection: some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight: 220)
-                .clipShape(.rect(cornerRadius: 12))
-        }
-        HStack(spacing: 16) {
-            if CameraPicker.isAvailable {
-                Button {
-                    showingCamera = true
-                } label: {
-                    Label("Take Photo", systemImage: "camera")
-                }
-            }
-            PhotosPicker(selection: $pickerItem, matching: .images) {
-                Label("Choose from Library", systemImage: "photo.on.rectangle")
-            }
-        }
-    }
-
-    private func loadPicked(_ item: PhotosPickerItem?) async {
-        guard let item,
-              let data = try? await item.loadTransferable(type: Data.self),
-              let loaded = UIImage(data: data) else { return }
-        image = loaded
-        draft.hasImage = true
+        .itemPhotoPicker(
+            coordinator: photoPicker,
+            selectedImage: $image,
+            removesExistingImage: $removesExistingImage
+        )
     }
 
     private func save() {
-        guard let image else { return }
-        let item = Item(
-            name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines),
-            category: draft.category,
-            brand: draft.brand.trimmedNonEmpty,
-            colors: draft.parsedColors,
-            material: draft.material.trimmedNonEmpty,
-            source: .photo,
-            imageData: ImageProcessor.imageData(from: image),
-            thumbnailData: ImageProcessor.thumbnailData(from: image)
+        guard draft.canSave else { return }
+        let imageData: Data?
+        let thumbnailData: Data?
+        if let image {
+            guard let full = ImageProcessor.imageData(from: image),
+                  let thumbnail = ImageProcessor.thumbnailData(from: image) else {
+                imageProcessingFailed = true
+                return
+            }
+            imageData = full
+            thumbnailData = thumbnail
+        } else {
+            imageData = nil
+            thumbnailData = nil
+        }
+        let input = draft.manualInput(
+            source: image == nil ? .manual : .photo,
+            imageData: imageData,
+            thumbnailData: thumbnailData
         )
-        modelContext.insert(item)
-        try? modelContext.save()
-        dismiss()
-    }
-}
-
-private extension String {
-    /// Trimmed, or `nil` when empty — for optional `Item` fields.
-    var trimmedNonEmpty: String? {
-        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
+        writes.perform(
+            operation: .addItem,
+            write: { try WardrobeStore(modelContext: modelContext).addItem(input) },
+            onSuccess: { dismiss() }
+        )
     }
 }

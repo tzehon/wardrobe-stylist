@@ -43,6 +43,9 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
 | [`docs/google-setup.md`](docs/google-setup.md) | Read-only Gmail OAuth setup (and the refresh-token gotcha) |
 | [`docs/privacy.md`](docs/privacy.md) | Privacy posture + how read-only is guaranteed |
+| [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
+| [`docs/gcp-oauth-production-sequence.md`](docs/gcp-oauth-production-sequence.md) | Deferred production sequence for Google OAuth verification and secure backend identity |
+| [`docs/app-store/`](docs/app-store/) | Draft privacy/support copy, data inventory, review notes, metadata, and screenshot narrative |
 | [`AGENTS.md`](AGENTS.md) | Durable guidance for Codex and other coding agents in this repo |
 
 ## Status

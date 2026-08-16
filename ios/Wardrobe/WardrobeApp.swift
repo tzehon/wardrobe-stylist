@@ -1,37 +1,183 @@
 import BackgroundTasks
-import GoogleSignIn
 import SwiftData
 import SwiftUI
 
 @main
 struct WardrobeApp: App {
-    let container: ModelContainer
+    @State private var storeController: PersistentStoreController
+    @State private var demoMode: DemoModeController
+#if DEBUG
+    @State private var connectedUITestExperience: ConnectedUITestExperience?
+#endif
     @Environment(\.scenePhase) private var scenePhase
 
+    private static let isReviewerDemoLaunch = DemoLaunchPolicy.isRequested(
+        arguments: ProcessInfo.processInfo.arguments
+    )
+
+#if DEBUG
+    private static let isConnectedUITestLaunch = ConnectedUITestLaunchPolicy.isRequested(
+        arguments: ProcessInfo.processInfo.arguments
+    )
+
+    private static let isLocalUITestLaunch = LocalUITestLaunchPolicy.isRequested(
+        arguments: ProcessInfo.processInfo.arguments
+    )
+#endif
+
     init() {
-        do {
-            container = try ModelContainer(for: Item.self, Outfit.self, WearLog.self)
-        } catch {
-            fatalError("Failed to create the SwiftData ModelContainer: \(error)")
+        // The Debug-only connected UI harness never installs a notification
+        // delegate or asks the OS for permission. Its notifier dependencies are
+        // in-memory fakes, and Release builds do not contain the harness.
+#if DEBUG
+        if !Self.isConnectedUITestLaunch && !Self.isLocalUITestLaunch {
+            DailyReminderNotificationRouter.shared.install()
         }
-        registerBackgroundSync()
+#else
+        DailyReminderNotificationRouter.shared.install()
+#endif
+        // A command-line reviewer Demo must be able to launch even when the
+        // user's real store is corrupt or needs migration. Defer opening the
+        // production store until the reviewer explicitly exits the isolated
+        // in-memory tour.
+        let shouldLoadProductionStore: Bool
+#if DEBUG
+        shouldLoadProductionStore = !Self.isReviewerDemoLaunch && !Self.isConnectedUITestLaunch
+#else
+        shouldLoadProductionStore = !Self.isReviewerDemoLaunch
+#endif
+        let storeController: PersistentStoreController
+#if DEBUG
+        if Self.isLocalUITestLaunch {
+            storeController = PersistentStoreController(loader: {
+                try ModelContainerFactory.makeInMemory()
+            })
+        } else {
+            storeController = PersistentStoreController(automaticallyLoad: shouldLoadProductionStore)
+        }
+#else
+        storeController = PersistentStoreController(automaticallyLoad: shouldLoadProductionStore)
+#endif
+        let demoMode = DemoModeController(
+            automaticallyEnter: Self.isReviewerDemoLaunch
+        )
+        _storeController = State(initialValue: storeController)
+        _demoMode = State(initialValue: demoMode)
+#if DEBUG
+        _connectedUITestExperience = State(initialValue: Self.isConnectedUITestLaunch
+            ? try? ConnectedUITestExperience()
+            : nil)
+#endif
+#if DEBUG
+        let shouldRegisterBackgroundSync = !Self.isReviewerDemoLaunch
+            && !Self.isConnectedUITestLaunch
+            && !Self.isLocalUITestLaunch
+#else
+        let shouldRegisterBackgroundSync = !Self.isReviewerDemoLaunch
+#endif
+        if shouldRegisterBackgroundSync {
+            Self.registerBackgroundSync(
+                storeController: storeController,
+                demoMode: demoMode
+            )
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .onOpenURL { url in
-                    // OAuth callback: route URL-scheme redirects to the GoogleSignIn SDK
-                    // so it can complete the sign-in flow.
-                    _ = GIDSignIn.sharedInstance.handle(url)
-                }
+            launchContent
         }
-        .modelContainer(container)
         .onChange(of: scenePhase) { _, phase in
-            // Schedule (or re-schedule) the next sync each time we background. The
-            // OS runs it opportunistically no sooner than the earliest-begin date.
+            // Reconcile rather than scheduling blindly. The controller silently
+            // restores a valid Google identity and checks that subject's current
+            // receipt consent + background toggle before it submits any work.
             if phase == .background {
-                try? ReceiptSyncScheduler.schedule()
+#if DEBUG
+                guard !Self.isConnectedUITestLaunch && !Self.isLocalUITestLaunch else { return }
+#endif
+                guard !demoMode.isActive else { return }
+                guard let container = storeController.container else {
+                    ReceiptSyncScheduler.cancel()
+                    return
+                }
+                Task { @MainActor in
+                    await BackgroundSyncRunner.reconcilePendingRequest(container: container)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var launchContent: some View {
+#if DEBUG
+        if Self.isConnectedUITestLaunch {
+            if let connectedUITestExperience {
+                ConnectedUITestRootView(experience: connectedUITestExperience)
+            } else {
+                ContentUnavailableView(
+                    "Isolated UI test unavailable",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("The in-memory UI-test environment could not be created.")
+                )
+            }
+        } else {
+            ordinaryLaunchContent
+        }
+#else
+        ordinaryLaunchContent
+#endif
+    }
+
+    @ViewBuilder
+    private var ordinaryLaunchContent: some View {
+        if let demoSession = demoMode.session {
+            // Intentionally outside the production model-container hierarchy.
+            // The reviewer-launch root receives only its disposable in-memory
+            // store, so exiting cannot transiently render production queries
+            // before PersistentStoreController has opened the real wardrobe.
+            DemoModeRootView(
+                session: demoSession,
+                onReset: { _ = demoMode.reset() },
+                onExit: demoMode.exit
+            )
+            .id(ObjectIdentifier(demoSession))
+        } else if Self.isReviewerDemoLaunch,
+                  !storeController.hasStartedLoading,
+                  demoMode.failure != nil {
+            ContentUnavailableView {
+                Label("Demo unavailable", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(DemoModeFailure.userMessage)
+            } actions: {
+                Button("Try Demo Again") {
+                    demoMode.clearFailure()
+                    _ = demoMode.enter()
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Continue to My Wardrobe") {
+                    demoMode.clearFailure()
+                    storeController.beginProductionStoreAfterReviewerDemo()
+                }
+                .buttonStyle(.bordered)
+            }
+        } else {
+            switch storeController.state {
+            case .loading:
+                ProgressView("Opening your wardrobe…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .task {
+                        if Self.isReviewerDemoLaunch {
+                            storeController.beginProductionStoreAfterReviewerDemo()
+                        } else {
+                            storeController.loadIfNeeded()
+                        }
+                    }
+            case .ready(let container):
+                ContentView(demoMode: demoMode)
+                    .modelContainer(container)
+            case .failed:
+                PersistentStoreErrorView(retry: storeController.retry)
             }
         }
     }
@@ -49,8 +195,10 @@ struct WardrobeApp: App {
     /// or foreground, because the launch handler only runs when the OS actually
     /// launches the background task on device. The hop onto the main actor now
     /// happens explicitly inside, via `Task { @MainActor in … }`.
-    private func registerBackgroundSync() {
-        let container = container   // captured so the @Sendable closure never touches MainActor self
+    private static func registerBackgroundSync(
+        storeController: PersistentStoreController,
+        demoMode: DemoModeController
+    ) {
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ReceiptSyncScheduler.taskIdentifier,
             using: nil
@@ -63,6 +211,17 @@ struct WardrobeApp: App {
             // and exactly one consumer touches it from here on.
             nonisolated(unsafe) let transferredTask = processingTask
             Task { @MainActor in
+                guard !demoMode.isActive else {
+                    // A task scheduled before entering Demo Mode may still be
+                    // delivered by the OS. Complete it without restoring Google
+                    // identity, reaching Gmail/backend, or scheduling another.
+                    transferredTask.setTaskCompleted(success: true)
+                    return
+                }
+                guard let container = storeController.container else {
+                    transferredTask.setTaskCompleted(success: false)
+                    return
+                }
                 await BackgroundSyncRunner.run(task: transferredTask, container: container)
             }
         }
