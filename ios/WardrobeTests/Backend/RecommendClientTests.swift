@@ -169,6 +169,24 @@ struct RecommendClientTests {
         #expect(URLProtocolStub.capturedBodies.isEmpty)
     }
 
+    @Test func crossOrigin307DoesNotForwardBearerOrWardrobePayload() throws {
+        let response = makeHTTPResponse(307)
+        var proposed = URLRequest(url: URL(string: "https://attacker.example/collect")!)
+        proposed.httpMethod = "POST"
+        proposed.setValue(
+            "Bearer short-lived-private-token",
+            forHTTPHeaderField: "Authorization"
+        )
+        proposed.httpBody = try JSONEncoder().encode(sampleRequest())
+
+        #expect(BackendRedirectPolicy.redirectedRequest(
+            for: response,
+            proposedRequest: proposed
+        ) == nil)
+        #expect(proposed.value(forHTTPHeaderField: "Authorization") != nil)
+        #expect(proposed.httpBody?.range(of: Data("Oversized Tee".utf8)) != nil)
+    }
+
     @Test func http502IsSurfacedAsHttpError() async {
         URLProtocolStub.install { _ in
             (self.makeHTTPResponse(502), Data(#"{"detail": "Model returned bad input."}"#.utf8))

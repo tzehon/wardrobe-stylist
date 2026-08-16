@@ -24,7 +24,15 @@ enum BackendConfig {
         guard !urlString.isEmpty else {
             throw LoadError.missingValue(key: "BACKEND_BASE_URL")
         }
-        guard let url = URL(string: urlString), url.scheme != nil, url.host != nil else {
+        guard let url = URL(string: urlString),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              let host = url.host,
+              !host.isEmpty,
+              url.user == nil,
+              url.password == nil,
+              url.query == nil,
+              url.fragment == nil else {
             throw LoadError.invalidURL(urlString)
         }
         return url

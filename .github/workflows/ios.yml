@@ -12,6 +12,9 @@ on:
       - "shared/**"
       - ".github/workflows/ios.yml"
 
+permissions:
+  contents: read
+
 concurrency:
   group: ios-${{ github.ref }}
   cancel-in-progress: true
@@ -20,7 +23,9 @@ jobs:
   test:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Select newest installed Xcode 26
         run: |
@@ -61,8 +66,8 @@ jobs:
         working-directory: ios
         run: xcodegen generate
 
-      - name: Test public Release configuration guard
-        run: python3 ios/scripts/tests/test_validate_public_release.py
+      - name: Test public Release configuration guards
+        run: python3 -m unittest discover -s ios/scripts/tests -p 'test_*.py'
 
       - name: Resolve pinned packages
         working-directory: ios

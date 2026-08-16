@@ -52,6 +52,13 @@ protocol AppAttestCredentialStoring: Sendable {
     func remove() async throws
 }
 
+/// Internal concurrency seam used to deterministically exercise actor
+/// reentrancy. Production has no observer and pays no suspension cost.
+protocol AppAttestSessionFlightObserving: Sendable {
+    func didJoinSessionFlight() async
+    func willFinalizeSessionFlight(createdByCaller: Bool) async
+}
+
 /// The key identifier is the only handle Apple gives the app for the private
 /// Secure Enclave key. Pending enrollment data is retained as well so a lost
 /// HTTP response can retry the same single-use challenge instead of creating
@@ -147,6 +154,11 @@ actor AppAttestAuthorization: BackendAuthorizing {
         let expiresAt: Date
     }
 
+    private struct SessionFlight: Sendable {
+        let id: UUID
+        let task: Task<AccessSession, Error>
+    }
+
     private enum Purpose: String, Encodable {
         case attestation
         case assertion
@@ -238,49 +250,102 @@ actor AppAttestAuthorization: BackendAuthorizing {
     private let service: any AppAttestServicing
     private let credentialStore: any AppAttestCredentialStoring
     private let now: @Sendable () -> Date
+    private let sessionFlightObserver: (any AppAttestSessionFlightObserving)?
     private var cachedSession: AccessSession?
-    private var sessionTask: Task<AccessSession, Error>?
+    private var sessionFlight: SessionFlight?
 
     init(
         baseURL: URL? = nil,
-        session: URLSession = .shared,
+        session: URLSession = BackendHTTPSession.shared,
         service: any AppAttestServicing = SystemAppAttestService(),
         credentialStore: any AppAttestCredentialStoring = KeychainAppAttestCredentialStore(),
-        now: @escaping @Sendable () -> Date = Date.init
+        now: @escaping @Sendable () -> Date = Date.init,
+        sessionFlightObserver: (any AppAttestSessionFlightObserving)? = nil
     ) {
         configuredBaseURL = baseURL
         self.session = session
         self.service = service
         self.credentialStore = credentialStore
         self.now = now
+        self.sessionFlightObserver = sessionFlightObserver
     }
 
     func accessToken(rejecting rejectedToken: String?) async throws -> String {
-        if let cachedSession,
-           cachedSession.token != rejectedToken,
-           cachedSession.expiresAt.timeIntervalSince(now()) > 30 {
-            return cachedSession.token
-        }
+        var rejectedReplacementAttempts = 0
+        while true {
+            if let cachedSession,
+               cachedSession.token != rejectedToken,
+               cachedSession.expiresAt.timeIntervalSince(now()) > 30 {
+                return cachedSession.token
+            }
 
-        if cachedSession?.token == rejectedToken
-            || (cachedSession?.expiresAt.timeIntervalSince(now()) ?? 0) <= 30 {
-            cachedSession = nil
-        }
+            if cachedSession?.token == rejectedToken
+                || (cachedSession?.expiresAt.timeIntervalSince(now()) ?? 0) <= 30 {
+                cachedSession = nil
+            }
 
-        if let sessionTask {
-            return try await sessionTask.value.token
-        }
+            let flight: SessionFlight
+            let createdByCaller: Bool
+            if let existing = sessionFlight {
+                flight = existing
+                createdByCaller = false
+                await sessionFlightObserver?.didJoinSessionFlight()
+            } else {
+                let made = SessionFlight(
+                    id: UUID(),
+                    task: Task { try await establishSession() }
+                )
+                sessionFlight = made
+                flight = made
+                createdByCaller = true
+            }
 
-        let task = Task { try await establishSession() }
-        sessionTask = task
-        do {
-            let established = try await task.value
-            cachedSession = established
-            sessionTask = nil
-            return established.token
-        } catch {
-            sessionTask = nil
-            throw error
+            let established: AccessSession
+            do {
+                established = try await flight.task.value
+            } catch {
+                // A late waiter must never erase a newer flight that another
+                // caller started after observing this one's failure.
+                if sessionFlight?.id == flight.id {
+                    sessionFlight = nil
+                }
+                throw error
+            }
+
+            await sessionFlightObserver?.willFinalizeSessionFlight(
+                createdByCaller: createdByCaller
+            )
+
+            // Every waiter may be first to resume. Finalize only the generation
+            // it actually awaited, so an old completion cannot overwrite a
+            // replacement refresh that is already in flight.
+            if sessionFlight?.id == flight.id {
+                cachedSession = established
+                sessionFlight = nil
+            }
+
+            if established.token == rejectedToken {
+                guard rejectedReplacementAttempts == 0 else {
+                    if cachedSession?.token == rejectedToken {
+                        cachedSession = nil
+                    }
+                    throw AppAttestAuthorizationError.invalidResponse
+                }
+                rejectedReplacementAttempts += 1
+                if cachedSession?.token == rejectedToken {
+                    cachedSession = nil
+                }
+                // The completed flight produced the exact bearer the backend
+                // rejected. Join or create the next generation instead of
+                // spending the one allowed API retry on the same credential.
+                continue
+            }
+
+            if cachedSession?.token == established.token {
+                return established.token
+            }
+            // Another caller invalidated or superseded this completion while
+            // the actor was reentrant. Re-evaluate the current cache/flight.
         }
     }
 
@@ -428,11 +493,10 @@ actor AppAttestAuthorization: BackendAuthorizing {
             try await saveCredential(credential)
             return try await assertSession(with: credential.keyID)
         }
-        try Self.validate(response)
         credential.isRegistered = true
         credential.pendingEnrollment = nil
         try await saveCredential(credential)
-        return makeAccessSession(response)
+        return try makeAccessSession(response)
     }
 
     private func assertSession(with keyID: String) async throws -> AccessSession {
@@ -473,15 +537,27 @@ actor AppAttestAuthorization: BackendAuthorizing {
                 clientData: encodedClientData.base64EncodedString()
             )
         )
-        try Self.validate(response)
-        return makeAccessSession(response)
+        return try makeAccessSession(response)
     }
 
-    private func makeAccessSession(_ response: SessionResponse) -> AccessSession {
-        AccessSession(
-            token: response.accessToken,
-            expiresAt: now().addingTimeInterval(TimeInterval(response.expiresIn))
+    private func makeAccessSession(_ response: SessionResponse) throws -> AccessSession {
+        let referenceDate = now()
+        guard Self.isCanonicalSessionToken(response.accessToken),
+              response.tokenType.caseInsensitiveCompare("Bearer") == .orderedSame,
+              (60...3_600).contains(response.expiresIn),
+              let absoluteExpiration = Self.parseUTCDate(response.expiresAt),
+              UUID(uuidString: response.installationID) != nil else {
+            throw AppAttestAuthorizationError.invalidResponse
+        }
+
+        let relativeExpiration = referenceDate.addingTimeInterval(
+            TimeInterval(response.expiresIn)
         )
+        let effectiveExpiration = min(relativeExpiration, absoluteExpiration)
+        guard effectiveExpiration.timeIntervalSince(referenceDate) > 30 else {
+            throw AppAttestAuthorizationError.invalidResponse
+        }
+        return AccessSession(token: response.accessToken, expiresAt: effectiveExpiration)
     }
 
     private func baseURL() throws -> URL {
@@ -545,16 +621,6 @@ actor AppAttestAuthorization: BackendAuthorizing {
         }
     }
 
-    private static func validate(_ response: SessionResponse) throws {
-        guard !response.accessToken.isEmpty,
-              response.tokenType.caseInsensitiveCompare("Bearer") == .orderedSame,
-              response.expiresIn > 30,
-              !response.expiresAt.isEmpty,
-              !response.installationID.isEmpty else {
-            throw AppAttestAuthorizationError.invalidResponse
-        }
-    }
-
     private static func decodeChallenge(_ value: String) -> Data? {
         var standard = value
             .replacingOccurrences(of: "-", with: "+")
@@ -572,6 +638,49 @@ actor AppAttestAuthorization: BackendAuthorizing {
             return false
         }
         return decoded.base64EncodedString() == value
+    }
+
+    private static func isCanonicalSessionToken(_ value: String) -> Bool {
+        guard value.utf8.count == 43,
+              !value.contains("="),
+              value.unicodeScalars.allSatisfy({ scalar in
+                  scalar.isASCII
+                      && (CharacterSet.alphanumerics.contains(scalar)
+                          || scalar == "-" || scalar == "_")
+              }) else {
+            return false
+        }
+        guard let decoded = decodeBase64URL(value), decoded.count == 32 else {
+            return false
+        }
+        return encodeBase64URL(decoded) == value
+    }
+
+    private static func parseUTCDate(_ value: String) -> Date? {
+        guard value.hasSuffix("Z") || value.hasSuffix("+00:00") else { return nil }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: value) { return date }
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: value)
+    }
+
+    private static func decodeBase64URL(_ value: String) -> Data? {
+        var standard = value
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        let remainder = standard.count % 4
+        if remainder != 0 {
+            standard.append(String(repeating: "=", count: 4 - remainder))
+        }
+        return Data(base64Encoded: standard)
+    }
+
+    private static func encodeBase64URL(_ value: Data) -> String {
+        value.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 
     private static func isStructurallyValid(_ credential: AppAttestCredential) -> Bool {

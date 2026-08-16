@@ -20,6 +20,13 @@ struct BackendConfigTests {
         #expect(url.absoluteString == "http://x.example")
     }
 
+    @Test func allowsHTTPSBackendPathPrefixes() throws {
+        let url = try BackendConfig.load(infoPlist: [
+            "BackendBaseURL": "https://api.example.com/wardrobe/v1",
+        ])
+        #expect(url.absoluteString == "https://api.example.com/wardrobe/v1")
+    }
+
     @Test func throwsWhenURLMissing() {
         do {
             _ = try BackendConfig.load(infoPlist: [:])
@@ -54,6 +61,31 @@ struct BackendConfigTests {
             // expected
         } catch {
             Issue.record("Wrong error: \(error)")
+        }
+    }
+
+    @Test func rejectsNonHTTPBackendScheme() {
+        #expect(throws: BackendConfig.LoadError.self) {
+            _ = try BackendConfig.load(infoPlist: [
+                "BackendBaseURL": "ftp://api.example.com/wardrobe",
+            ])
+        }
+    }
+
+    @Test func rejectsURLCredentialsQueryAndFragment() {
+        let unsafeURLs = [
+            "https://user@api.example.com/wardrobe",
+            "https://user:password@api.example.com/wardrobe",
+            "https://api.example.com/wardrobe?destination=elsewhere",
+            "https://api.example.com/wardrobe#alternate",
+        ]
+
+        for unsafeURL in unsafeURLs {
+            #expect(throws: BackendConfig.LoadError.self) {
+                _ = try BackendConfig.load(infoPlist: [
+                    "BackendBaseURL": unsafeURL,
+                ])
+            }
         }
     }
 
