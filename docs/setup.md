@@ -43,7 +43,7 @@ Layout: `ios/` (app), `backend/` (proxy), `shared/schemas/` (data contract), `do
 
 ```bash
 cd backend
-uv sync                       # creates .venv and installs deps from uv.lock
+uv sync --locked              # creates .venv exactly from uv.lock
 cp .env.example .env
 chmod 600 .env                 # keep local backend secrets owner-readable only
 uv run uvicorn app.main:app --reload --host 0.0.0.0   # 0.0.0.0 = listen on all interfaces
@@ -282,7 +282,7 @@ Run after every change (also enforced in CI):
 
 ```bash
 # Backend
-cd backend && uv run pytest && uv run ruff check . && uv run mypy app
+cd backend && uv run --locked pytest && uv run --locked pip-audit && uv run --locked bandit -r app container_entrypoint.py -q && uv run --locked ruff check . && uv run --locked mypy app
 
 # iOS
 cd ios && xcodegen generate

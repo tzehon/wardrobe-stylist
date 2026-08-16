@@ -27,7 +27,7 @@ See **[`docs/setup.md`](docs/setup.md)** for the full, step-by-step setup. TL;DR
 
 ```bash
 # Backend
-cd backend && uv sync && uv run pytest && uv run ruff check . && uv run mypy app
+cd backend && uv sync --locked && uv run --locked pytest && uv run --locked pip-audit && uv run --locked bandit -r app container_entrypoint.py -q && uv run --locked ruff check . && uv run --locked mypy app
 
 # iOS (generates Wardrobe.xcodeproj from project.yml, then runs tests)
 cd ios && xcodegen generate

@@ -12,7 +12,7 @@ A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail p
 2. **Never embed the Anthropic API key (or any secret) in the iOS app.** Secrets live only in the backend (env/Fly.io secrets). `.env`/credentials are gitignored.
 3. **Hybrid privacy.** Do Gmail fetching + candidate filtering on-device; send only minimal text/images to the backend. The backend must not persist email content.
 4. **Backend identity is anonymous and per installation.** Google sign-in exists only for optional read-only Gmail import; it is never the Wardrobe backend identity. Public backend sessions come from an Apple-certified App Attest key for one app installation, expire quickly, and are renewed with a fresh one-time assertion challenge. App Attest is not a human account and does not survive reinstall, migration, or restore. Never reintroduce a shared client bearer or an unauthenticated remote-AI fallback. If App Attest is unsupported, local wardrobe and Demo Mode keep working while remote AI fails closed with a clear recovery message.
-5. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: `uv run pytest` (+ `ruff`/`mypy`); iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
+5. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: locked `pytest` + `pip-audit` + `bandit` + `ruff` + `mypy`; iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
 
 ## Layout
 
@@ -45,8 +45,8 @@ A **personal, single-user** iOS fashion-stylist app. It reads the user's Gmail p
 
 ```bash
 # Backend
-cd backend && uv sync
-uv run pytest && uv run ruff check . && uv run mypy app
+cd backend && uv sync --locked
+uv run --locked pytest && uv run --locked pip-audit && uv run --locked bandit -r app container_entrypoint.py -q && uv run --locked ruff check . && uv run --locked mypy app
 
 # iOS
 cd ios && xcodegen generate
@@ -77,6 +77,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - **Code signing:** simulator builds use ad-hoc signing (`CODE_SIGN_IDENTITY = "-"`) so Keychain works without a team. Device builds use automatic signing; local Debug values come from `Secrets.xcconfig`, while distribution Team ID and identifiers come from the separate gitignored `Distribution.xcconfig`. Adding App Attest to the registered App ID invalidates old profiles, so inspect both archive entitlements and the embedded profile.
 - **App Transport Security:** the backend is on HTTPS (Fly.io), so `Info.plist` carries **no** ATS exception — the dev-only `NSAllowsArbitraryLoads` + `NSLocalNetworkUsageDescription` keys were removed once production went HTTPS. If you need to point the app back at a plain-HTTP LAN dev backend, re-add an `NSAppTransportSecurity` exception locally (don't commit it).
 - **Commits:** Use logically independent Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Do not add AI co-author or attribution trailers unless the user explicitly requests one.
+- **Linear Git history:** Before opening or updating any PR, fetch `origin` and rebase the feature branch onto the latest `origin/main`; do not merge `main` into a PR branch. Prefer `git pull --rebase` for pulls. If rebasing an already-published PR branch rewrites it, verify that the branch is not shared and update it with `git push --force-with-lease`—never plain `--force`.
 - **iOS target:** iOS 18 deployment, Swift 6 language mode, Swift Testing for new tests, XCTest only where needed (UI flows / `URLProtocol` stubbing).
 
 ## Code review rules

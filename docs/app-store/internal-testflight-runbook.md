@@ -54,6 +54,11 @@ an App Store release candidate from the moment it is archived. This prevents a s
   single- versus multi-machine topology, atomic counter/challenge behavior, snapshot/backup and
   restore procedure, and retention/deletion criteria. Do not enable production App Attest with an
   ephemeral or in-memory store, and never persist receipt text or wardrobe payloads there.
+- [ ] Scan the exact release container image, including OS packages, for high/critical known
+  vulnerabilities and retain the report with the image digest. The locked Python audit is already
+  enforced in CI; the local Docker Scout command is
+  `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
+  and requires an authenticated Docker Desktop/Docker ID session.
 - [ ] Before deployment, rotate the Anthropic API key and legacy `DEVICE_TOKEN`; store only the
   replacement values in their external secret managers, never in the repository or release
   evidence. Verify the old values are unusable after the cutover.
@@ -84,7 +89,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
    iOS**, inspect all uploads and choose the next unused `CURRENT_PROJECT_VERSION`. If this exact
    build may be promoted as the first public release, decide and set the intended public
    `MARKETING_VERSION` (recommended `1.0.0`) before archiving.
-3. **Regenerate and verify.** Run the backend pytest/Ruff/mypy suite, full Swift and UI suite,
+3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
    is checked after archiving. Any config, auth allowlist, or build-number change happens before
