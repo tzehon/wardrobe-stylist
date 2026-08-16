@@ -64,7 +64,11 @@ jobs:
           set -euo pipefail
           docker build --tag wardrobe-backend-ci .
           docker run --rm wardrobe-backend-ci sh -c \
-            'test "$(id -u)" = 10001 && grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status'
+            'test "$(id -u)" = 10001 && \
+             grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status && \
+             ! command -v uv >/dev/null 2>&1 && \
+             ! command -v perl >/dev/null 2>&1 && \
+             python -c "import sqlite3; sqlite3.connect(\":memory:\").execute(\"SELECT 1\")"'
 
           volume_name="wardrobe-auth-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           docker volume create "$volume_name" >/dev/null
