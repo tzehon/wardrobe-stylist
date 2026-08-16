@@ -57,14 +57,11 @@ enum BackgroundSyncRunner {
             privacyGate: StoredPrivacyGatekeeper(),
             runSync: { session, subjectID in
                 guard !Task.isCancelled else { return false }
-                guard let config = try? BackendConfig.load() else { return false }
+                guard let baseURL = try? BackendConfig.load() else { return false }
 
                 let pipeline = ReceiptPipeline(
                     gmailClient: session.gmailClient,
-                    extractClient: ExtractClient(
-                        baseURL: config.baseURL,
-                        deviceToken: config.deviceToken
-                    ),
+                    extractClient: ExtractClient(baseURL: baseURL),
                     modelContext: container.mainContext,
                     privacySubjectID: subjectID
                 )

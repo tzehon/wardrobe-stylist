@@ -207,6 +207,12 @@ final class ReceiptPipeline {
                 } catch where Task.isCancelled {
                     state = .failed(message: Self.cancellationMessage)
                     return
+                } catch let authorizationError as AppAttestAuthorizationError {
+                    // Authorization is shared by the whole import. Repeating a
+                    // deterministic unsupported/configuration failure once per
+                    // candidate only creates noise and unnecessary Gmail reads.
+                    state = .failed(message: authorizationError.localizedDescription)
+                    return
                 } catch {
                     errors += 1
                 }

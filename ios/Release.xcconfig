@@ -4,3 +4,7 @@
 // A device Release build also runs validate-public-release-settings.sh against the final
 // built Info.plist, so an absent or incomplete local file cannot produce a public archive.
 #include? "Distribution.xcconfig"
+
+// TestFlight and App Store builds use production App Attest automatically.
+// Keeping the signed entitlement explicit also makes archive inspection clear.
+APP_ATTEST_ENVIRONMENT = production

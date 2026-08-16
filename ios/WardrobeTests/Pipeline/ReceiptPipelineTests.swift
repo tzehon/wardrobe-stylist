@@ -37,6 +37,14 @@ struct ReceiptPipelineTests {
         }
     }
 
+    private struct FailingBackendAuthorization: BackendAuthorizing {
+        let error: AppAttestAuthorizationError
+
+        func accessToken(rejecting rejectedToken: String?) async throws -> String {
+            throw error
+        }
+    }
+
     private struct CancellationAfterListTransport: GmailTransport {
         let listJSON: Data
 
@@ -99,7 +107,7 @@ struct ReceiptPipelineTests {
         )
         let extractClient = ExtractClient(
             baseURL: backendURL,
-            deviceToken: "test-device-token",
+            authorization: StaticBackendAuthorization(token: "test-device-token"),
             session: session
         )
         return (gmail, extractClient)
@@ -255,6 +263,58 @@ struct ReceiptPipelineTests {
 
         #expect(pipeline.state == .failed(message: "Receipt sync was cancelled."))
         #expect(URLProtocolStub.captured.isEmpty)
+        #expect(try context.fetch(FetchDescriptor<ProcessedGmailMessage>()).isEmpty)
+    }
+
+    @Test func appAttestFailureStopsImportWithASafeLocalizedMessage() async throws {
+        let container = try Self.makeContainer()
+        let context = container.mainContext
+        let session = URLProtocolStub.makeSession()
+        let gmail = GmailReadOnlyClient(
+            transport: URLSessionGmailTransport(session: session),
+            auth: StaticTokenAuth(token: "test-token")
+        )
+        let error = AppAttestAuthorizationError.network(.notConnectedToInternet)
+        let extractClient = ExtractClient(
+            baseURL: Self.backendURL,
+            authorization: FailingBackendAuthorization(error: error),
+            session: session
+        )
+        let pipeline = ReceiptPipeline(
+            gmailClient: gmail,
+            extractClient: extractClient,
+            modelContext: context,
+            privacyGate: AllowPrivacyGate(),
+            privacySubjectID: .external("pipeline-tests")
+        )
+        let listJSON = try PipelineFixtures.messageListJSON(ids: ["auth-failure"])
+        let messageJSON = try PipelineFixtures.messageJSON(
+            id: "auth-failure",
+            sender: Self.receiptSender,
+            subject: Self.receiptSubject,
+            body: Self.receiptBody,
+            labels: ["CATEGORY_PURCHASES"]
+        )
+        URLProtocolStub.install { @Sendable request in
+            switch request.url?.host {
+            case Self.gmailHost:
+                if request.url?.path.hasSuffix("/messages") == true {
+                    return (Self.ok(for: request), listJSON)
+                }
+                return (Self.ok(for: request), messageJSON)
+            case Self.backendHost:
+                Issue.record("Authorization failure must happen before /extract")
+                throw URLError(.cancelled)
+            default:
+                throw URLError(.unsupportedURL)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        await pipeline.sync(query: "test", maxMessages: 10)
+
+        #expect(pipeline.state == .failed(message: error.localizedDescription))
+        #expect(!URLProtocolStub.captured.contains { $0.url?.host == Self.backendHost })
         #expect(try context.fetch(FetchDescriptor<ProcessedGmailMessage>()).isEmpty)
     }
 

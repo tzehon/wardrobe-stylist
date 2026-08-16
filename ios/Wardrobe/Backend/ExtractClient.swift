@@ -3,24 +3,48 @@ import Foundation
 /// Sends `/extract` requests to the Wardrobe backend over HTTP.
 ///
 /// Stateless. Single seam over `URLSession` so tests can swap a stub session
-/// (see `URLProtocolStub` in WardrobeTests). Bearer auth with the device token.
-/// Snake-case ↔ camelCase conversion runs through `JSONEncoder` /
-/// `JSONDecoder` strategies so the Swift models can stay idiomatic.
+/// (see `URLProtocolStub` in WardrobeTests). Each call gets a short-lived bearer
+/// from the per-installation App Attest authorization actor. Snake-case ↔
+/// camelCase conversion runs through JSON coding strategies.
 struct ExtractClient: Sendable {
     let baseURL: URL
-    let deviceToken: String
+    let authorization: any BackendAuthorizing
     let session: URLSession
 
-    init(baseURL: URL, deviceToken: String, session: URLSession = .shared) {
+    init(
+        baseURL: URL,
+        authorization: any BackendAuthorizing = AppAttestAuthorization.shared,
+        session: URLSession = .shared
+    ) {
         self.baseURL = baseURL
-        self.deviceToken = deviceToken
+        self.authorization = authorization
         self.session = session
     }
 
     func extract(_ payload: ExtractRequest) async throws -> ExtractResponse {
+        var rejectedToken: String?
+        for attempt in 0..<2 {
+            let token = try await authorization.accessToken(rejecting: rejectedToken)
+            try Task.checkCancellation()
+            let result = try await send(payload, token: token)
+            if case let .failure(status, _) = result, status == 401, attempt == 0 {
+                rejectedToken = token
+                continue
+            }
+            return try decode(result)
+        }
+        throw ExtractError.invalidResponse
+    }
+
+    private enum Result {
+        case success(Data)
+        case failure(status: Int, body: Data)
+    }
+
+    private func send(_ payload: ExtractRequest, token: String) async throws -> Result {
         var request = URLRequest(url: baseURL.appending(path: "extract"))
         request.httpMethod = "POST"
-        request.setValue("Bearer \(deviceToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
@@ -33,7 +57,17 @@ struct ExtractClient: Sendable {
             throw ExtractError.invalidResponse
         }
         guard (200..<300).contains(http.statusCode) else {
-            throw ExtractError.http(status: http.statusCode, body: data)
+            return .failure(status: http.statusCode, body: data)
+        }
+        return .success(data)
+    }
+
+    private func decode(_ result: Result) throws -> ExtractResponse {
+        guard case let .success(data) = result else {
+            if case let .failure(status, body) = result {
+                throw ExtractError.http(status: status, body: body)
+            }
+            throw ExtractError.invalidResponse
         }
         do {
             let decoder = JSONDecoder()

@@ -4,7 +4,7 @@ set -euo pipefail
 
 readonly DERIVED_DATA_PATH="${1:-DerivedData/ReleaseValidation}"
 readonly RESOLVED_FILE="Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
-readonly APP_PATH="${DERIVED_DATA_PATH}/Build/Products/Release-iphonesimulator/Wardrobe.app"
+readonly APP_PATH="${2:-${DERIVED_DATA_PATH}/Build/Products/Release-iphonesimulator/Wardrobe.app}"
 
 fail() {
   echo "Release verification failed: $*" >&2
@@ -51,12 +51,44 @@ readonly INFO_PLIST="${APP_PATH}/Info.plist"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "${INFO_PLIST}")" == "Wardrobe Stylist" ]] \
   || fail "CFBundleDisplayName must be Wardrobe Stylist"
 
-# A shared bearer is a public-client secret and must never be embedded in an artifact.
-# Empty local/CI substitution is tolerated here because strict device Release validation
-# separately requires the key to be removed once per-user backend identity lands.
-if device_token="$(/usr/libexec/PlistBuddy -c 'Print :BackendDeviceToken' "${INFO_PLIST}" 2>/dev/null)"; then
-  [[ -z "${device_token}" ]] || fail "built app embeds a BackendDeviceToken"
+# A shared bearer is a public-client secret and must never remain wired into an artifact,
+# including as an empty plist key.
+if /usr/libexec/PlistBuddy -c 'Print :BackendDeviceToken' "${INFO_PLIST}" >/dev/null 2>&1; then
+  fail "built app contains the obsolete BackendDeviceToken key"
 fi
+
+# Xcode strips App Attest from simulator signatures because DeviceCheck isn't available there.
+# TestFlight and App Store device products must retain the production entitlement, so inspect the
+# signed product whenever this script is pointed at an iphoneos app from an archive.
+readonly BUILT_PLATFORM="$(
+  /usr/libexec/PlistBuddy -c 'Print :DTPlatformName' "${INFO_PLIST}" 2>/dev/null
+)"
+case "${BUILT_PLATFORM}" in
+  iphoneos)
+    readonly ENTITLEMENTS_PLIST="$(/usr/bin/mktemp -t wardrobe-release-entitlements)"
+    trap '/bin/rm -f "${ENTITLEMENTS_PLIST}"' EXIT
+    /usr/bin/codesign -d --entitlements :- "${APP_PATH}" >"${ENTITLEMENTS_PLIST}" 2>/dev/null \
+      || fail "could not read the built app entitlements"
+    /usr/bin/plutil -lint "${ENTITLEMENTS_PLIST}" >/dev/null \
+      || fail "built app entitlements are invalid"
+    if ! APP_ATTEST_ENVIRONMENT="$(
+      /usr/bin/plutil -extract com.apple.developer.devicecheck.appattest-environment \
+        raw -o - "${ENTITLEMENTS_PLIST}" 2>/dev/null
+    )"; then
+      fail "device app has no App Attest environment entitlement"
+    fi
+    readonly APP_ATTEST_ENVIRONMENT
+    [[ "${APP_ATTEST_ENVIRONMENT}" == "production" ]] \
+      || fail "device app App Attest environment must be production, got ${APP_ATTEST_ENVIRONMENT}"
+    readonly APP_ATTEST_RESULT="production App Attest entitlement"
+    ;;
+  iphonesimulator)
+    readonly APP_ATTEST_RESULT="simulator artifact (signed entitlement deferred to device archive)"
+    ;;
+  *)
+    fail "unexpected built platform ${BUILT_PLATFORM:-<missing>}"
+    ;;
+esac
 
 readonly APP_PRIVACY_MANIFEST="${APP_PATH}/PrivacyInfo.xcprivacy"
 [[ -f "${APP_PRIVACY_MANIFEST}" ]] || fail "built app has no app-owned PrivacyInfo.xcprivacy"
@@ -96,4 +128,4 @@ while IFS= read -r manifest_path; do
     || fail "embedded privacy manifest is invalid: ${manifest_path#${APP_PATH}/}"
 done < <(/usr/bin/find "${APP_PATH}" -name PrivacyInfo.xcprivacy -type f -print)
 
-echo "Release artifact verified: GoogleSignIn 9.2.0, app manifest, required plist values, and ${manifest_count} SDK privacy manifest(s)."
+echo "Release artifact verified: ${APP_ATTEST_RESULT}, no shared bearer, GoogleSignIn 9.2.0, app manifest, required plist values, and ${manifest_count} SDK privacy manifest(s)."

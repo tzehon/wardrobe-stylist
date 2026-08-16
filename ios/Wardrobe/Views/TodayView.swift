@@ -403,10 +403,10 @@ struct TodayView: View {
             return
         }
         do {
-            let (baseURL, deviceToken) = try BackendConfig.load()
+            let baseURL = try BackendConfig.load()
             guard !Task.isCancelled else { return }
             let made = OutfitRecommender(
-                recommendClient: RecommendClient(baseURL: baseURL, deviceToken: deviceToken),
+                recommendClient: RecommendClient(baseURL: baseURL),
                 modelContext: modelContext,
                 privacySubjectID: .deviceLocal,
                 accountScope: accountScope,

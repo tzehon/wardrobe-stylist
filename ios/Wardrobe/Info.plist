@@ -52,8 +52,6 @@
     </array>
     <key>BackendBaseURL</key>
     <string>$(BACKEND_SCHEME)://$(BACKEND_HOST)</string>
-    <key>BackendDeviceToken</key>
-    <string>$(BACKEND_DEVICE_TOKEN)</string>
     <key>PRIVACY_POLICY_URL</key>
     <string>$(PRIVACY_POLICY_URL)</string>
     <key>SUPPORT_URL</key>

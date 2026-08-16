@@ -10,7 +10,7 @@ struct RecommendClientTests {
     private func makeClient(token: String = "test-token") -> RecommendClient {
         RecommendClient(
             baseURL: baseURL,
-            deviceToken: token,
+            authorization: StaticBackendAuthorization(token: token),
             session: URLProtocolStub.makeSession()
         )
     }
@@ -108,6 +108,67 @@ struct RecommendClientTests {
         }
     }
 
+    @Test func http401RefreshesAuthorizationAndRetriesExactlyOnce() async throws {
+        let authorization = RecommendRotatingAuthorization(
+            initialToken: "expired-token",
+            refreshedToken: "refreshed-token"
+        )
+        URLProtocolStub.install { request in
+            if request.value(forHTTPHeaderField: "Authorization") == "Bearer expired-token" {
+                return (
+                    self.makeHTTPResponse(401),
+                    Data(#"{"detail": "Expired bearer token."}"#.utf8)
+                )
+            }
+            return (self.makeHTTPResponse(200), Data(self.successBody.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = RecommendClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        let response = try await client.recommend(sampleRequest())
+
+        #expect(response.itemIds == ["a", "b", "c"])
+        #expect(URLProtocolStub.captured.map {
+            $0.value(forHTTPHeaderField: "Authorization")
+        } == ["Bearer expired-token", "Bearer refreshed-token"])
+        let rejectedTokens = await authorization.rejectedTokens
+        #expect(rejectedTokens.count == 2)
+        #expect(rejectedTokens[0] == nil)
+        #expect(rejectedTokens[1] == "expired-token")
+    }
+
+    @Test func cancellationWhileAuthorizationIsSuspendedSendsNoWardrobePayload() async {
+        let authorization = RecommendSuspendedAuthorization()
+        URLProtocolStub.install { _ in
+            Issue.record("A canceled recommendation must not send its wardrobe payload")
+            return (self.makeHTTPResponse(200), Data(self.successBody.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = RecommendClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        let task = Task {
+            try await client.recommend(sampleRequest())
+        }
+
+        await authorization.waitUntilRequested()
+        task.cancel()
+        await authorization.resume(with: "unused-token")
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+        #expect(URLProtocolStub.captured.isEmpty)
+        #expect(URLProtocolStub.capturedBodies.isEmpty)
+    }
+
     @Test func http502IsSurfacedAsHttpError() async {
         URLProtocolStub.install { _ in
             (self.makeHTTPResponse(502), Data(#"{"detail": "Model returned bad input."}"#.utf8))
@@ -151,5 +212,50 @@ struct RecommendClientTests {
         let response = try await client.recommend(sampleRequest())
         #expect(response.alternates.isEmpty)
         #expect(response.itemIds == ["a", "b"])
+    }
+}
+
+private actor RecommendRotatingAuthorization: BackendAuthorizing {
+    private let initialToken: String
+    private let refreshedToken: String
+    private(set) var rejectedTokens: [String?] = []
+
+    init(initialToken: String, refreshedToken: String) {
+        self.initialToken = initialToken
+        self.refreshedToken = refreshedToken
+    }
+
+    func accessToken(rejecting rejectedToken: String?) -> String {
+        rejectedTokens.append(rejectedToken)
+        return rejectedToken == nil ? initialToken : refreshedToken
+    }
+}
+
+private actor RecommendSuspendedAuthorization: BackendAuthorizing {
+    private var didStart = false
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+    private var tokenContinuation: CheckedContinuation<String, Error>?
+
+    func accessToken(rejecting rejectedToken: String?) async throws -> String {
+        didStart = true
+        for waiter in startWaiters {
+            waiter.resume()
+        }
+        startWaiters.removeAll()
+        return try await withCheckedThrowingContinuation { continuation in
+            tokenContinuation = continuation
+        }
+    }
+
+    func waitUntilRequested() async {
+        if didStart { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(continuation)
+        }
+    }
+
+    func resume(with token: String) {
+        tokenContinuation?.resume(returning: token)
+        tokenContinuation = nil
     }
 }

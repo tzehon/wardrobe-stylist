@@ -1,18 +1,37 @@
 import Foundation
 import Security
 
-/// Stores Gmail OAuth tokens (and a backend device token) in the iOS Keychain.
+/// Stores small credentials and identifiers in the iOS Keychain.
 ///
 /// Items are written as `kSecClassGenericPassword` with accessibility
-/// `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` — they're readable only while the device
-/// is unlocked, never sync to iCloud, and never migrate in backups.
+/// selected by the caller. Both supported policies are device-only: items never
+/// sync to iCloud and never migrate in backups.
 struct TokenStorage: Sendable {
+    enum Accessibility: Sendable {
+        case whenUnlockedThisDeviceOnly
+        case afterFirstUnlockThisDeviceOnly
+
+        fileprivate var securityValue: CFString {
+            switch self {
+            case .whenUnlockedThisDeviceOnly:
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            case .afterFirstUnlockThisDeviceOnly:
+                kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            }
+        }
+    }
+
     /// Service identifier — different services (or test instances) can coexist without
     /// stepping on each other.
     let service: String
+    let accessibility: Accessibility
 
-    init(service: String = "wardrobe.gmail") {
+    init(
+        service: String = "wardrobe.gmail",
+        accessibility: Accessibility = .whenUnlockedThisDeviceOnly
+    ) {
         self.service = service
+        self.accessibility = accessibility
     }
 
     /// Stores a value for an account, overwriting any existing entry atomically.
@@ -30,7 +49,7 @@ struct TokenStorage: Sendable {
             return
         case errSecItemNotFound:
             query[kSecValueData as String] = data
-            query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            query[kSecAttrAccessible as String] = accessibility.securityValue
             let addStatus = SecItemAdd(query as CFDictionary, nil)
             if addStatus != errSecSuccess {
                 throw TokenStorageError.osStatus(addStatus)

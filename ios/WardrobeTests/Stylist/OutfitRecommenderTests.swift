@@ -54,6 +54,14 @@ struct OutfitRecommenderTests {
         }
     }
 
+    private struct FailingBackendAuthorization: BackendAuthorizing {
+        let error: AppAttestAuthorizationError
+
+        func accessToken(rejecting rejectedToken: String?) async throws -> String {
+            throw error
+        }
+    }
+
     @MainActor
     private final class MemoryDailyLookCache: DailyLookCaching {
         var entries: [WardrobeAccountScope: DailyLookCacheEntry] = [:]
@@ -105,7 +113,7 @@ struct OutfitRecommenderTests {
         return OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
@@ -183,7 +191,7 @@ struct OutfitRecommenderTests {
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
@@ -202,6 +210,37 @@ struct OutfitRecommenderTests {
             return
         }
         #expect(denial == .stylingConsentRequired)
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func unsupportedAppAttestShowsFriendlyFailureWithoutARequest() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let error = AppAttestAuthorizationError.unsupportedDevice
+        let recommender = OutfitRecommender(
+            recommendClient: RecommendClient(
+                baseURL: Self.backendURL,
+                authorization: FailingBackendAuthorization(error: error),
+                session: URLProtocolStub.makeSession()
+            ),
+            modelContext: context,
+            privacyGate: AllowPrivacyGate()
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("Unsupported App Attest must fail before the styling request")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        await recommender.recommend()
+
+        guard case .failed(let message) = recommender.state else {
+            Issue.record("Expected friendly App Attest failure, got \(recommender.state)")
+            return
+        }
+        #expect(message == error.localizedDescription)
+        #expect(message.contains("local wardrobe and Demo Mode still work"))
         #expect(URLProtocolStub.captured.isEmpty)
     }
 
@@ -435,7 +474,7 @@ struct OutfitRecommenderTests {
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
@@ -468,7 +507,7 @@ struct OutfitRecommenderTests {
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
@@ -702,7 +741,7 @@ struct OutfitRecommenderTests {
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,
@@ -915,7 +954,7 @@ struct OutfitRecommenderTests {
         let recommender = OutfitRecommender(
             recommendClient: RecommendClient(
                 baseURL: Self.backendURL,
-                deviceToken: "test-device-token",
+                authorization: StaticBackendAuthorization(token: "test-device-token"),
                 session: URLProtocolStub.makeSession()
             ),
             modelContext: context,

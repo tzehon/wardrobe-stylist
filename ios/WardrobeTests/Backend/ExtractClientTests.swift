@@ -10,7 +10,7 @@ struct ExtractClientTests {
     private func makeClient(token: String = "test-token") -> ExtractClient {
         ExtractClient(
             baseURL: baseURL,
-            deviceToken: token,
+            authorization: StaticBackendAuthorization(token: token),
             session: URLProtocolStub.makeSession()
         )
     }
@@ -98,6 +98,77 @@ struct ExtractClientTests {
         }
     }
 
+    @Test func http401RefreshesAuthorizationAndRetriesExactlyOnce() async throws {
+        let authorization = ExtractRotatingAuthorization(
+            initialToken: "expired-token",
+            refreshedToken: "refreshed-token"
+        )
+        URLProtocolStub.install { request in
+            if request.value(forHTTPHeaderField: "Authorization") == "Bearer expired-token" {
+                return (
+                    self.makeHTTPResponse(401),
+                    Data(#"{"detail": "Expired bearer token."}"#.utf8)
+                )
+            }
+            return (self.makeHTTPResponse(200), Data(self.successBody.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = ExtractClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        let response = try await client.extract(ExtractRequest(
+            sourceMsgId: "msg-001",
+            sender: nil,
+            subject: nil,
+            snippet: "Oxford Shirt"
+        ))
+
+        #expect(response.items.first?.name == "Classic Oxford Shirt")
+        #expect(URLProtocolStub.captured.map {
+            $0.value(forHTTPHeaderField: "Authorization")
+        } == ["Bearer expired-token", "Bearer refreshed-token"])
+        let rejectedTokens = await authorization.rejectedTokens
+        #expect(rejectedTokens.count == 2)
+        #expect(rejectedTokens[0] == nil)
+        #expect(rejectedTokens[1] == "expired-token")
+    }
+
+    @Test func cancellationWhileAuthorizationIsSuspendedSendsNoReceiptPayload() async {
+        let authorization = ExtractSuspendedAuthorization()
+        URLProtocolStub.install { _ in
+            Issue.record("A canceled extraction must not send its receipt payload")
+            return (self.makeHTTPResponse(200), Data(self.successBody.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = ExtractClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        let task = Task {
+            try await client.extract(ExtractRequest(
+                sourceMsgId: "private-message",
+                sender: "orders@example.com",
+                subject: "Private receipt",
+                snippet: "Private receipt contents"
+            ))
+        }
+
+        await authorization.waitUntilRequested()
+        task.cancel()
+        await authorization.resume(with: "unused-token")
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+        #expect(URLProtocolStub.captured.isEmpty)
+        #expect(URLProtocolStub.capturedBodies.isEmpty)
+    }
+
     @Test func http502IsSurfacedAsHttpError() async {
         URLProtocolStub.install { _ in
             (self.makeHTTPResponse(502), Data(#"{"detail": "Model returned bad input."}"#.utf8))
@@ -146,5 +217,50 @@ struct ExtractClientTests {
         ))
         #expect(!response.isFashion)
         #expect(response.items.isEmpty)
+    }
+}
+
+private actor ExtractRotatingAuthorization: BackendAuthorizing {
+    private let initialToken: String
+    private let refreshedToken: String
+    private(set) var rejectedTokens: [String?] = []
+
+    init(initialToken: String, refreshedToken: String) {
+        self.initialToken = initialToken
+        self.refreshedToken = refreshedToken
+    }
+
+    func accessToken(rejecting rejectedToken: String?) -> String {
+        rejectedTokens.append(rejectedToken)
+        return rejectedToken == nil ? initialToken : refreshedToken
+    }
+}
+
+private actor ExtractSuspendedAuthorization: BackendAuthorizing {
+    private var didStart = false
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+    private var tokenContinuation: CheckedContinuation<String, Error>?
+
+    func accessToken(rejecting rejectedToken: String?) async throws -> String {
+        didStart = true
+        for waiter in startWaiters {
+            waiter.resume()
+        }
+        startWaiters.removeAll()
+        return try await withCheckedThrowingContinuation { continuation in
+            tokenContinuation = continuation
+        }
+    }
+
+    func waitUntilRequested() async {
+        if didStart { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(continuation)
+        }
+    }
+
+    func resume(with token: String) {
+        tokenContinuation?.resume(returning: token)
+        tokenContinuation = nil
     }
 }
