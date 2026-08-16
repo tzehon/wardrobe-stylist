@@ -40,12 +40,13 @@ kept “In progress.”
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest branch verification: **416 iOS tests** total (**405 Swift tests plus 11 end-to-end UI
-tests**), **139 backend tests**, Ruff, mypy, **10/10** public Release configuration tests, and
-the app-icon validation tests all passed. The readiness baseline was merged by PR #7 to `main` at
-`f2a02825fd4178478bfc130525463165f12d648c`; the APP-009 follow-up remains on
-`codex/app-009-backend-identity` and has not changed build/version metadata, deployed the backend,
-or uploaded a candidate.
+Latest branch verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
+tests**), **176 backend tests**, locked dependency audit with no known vulnerabilities, Bandit,
+Ruff, mypy, and **23/23** release-script tests covering public configuration, signed identity,
+provisioning-profile, and app-icon guards all passed. The readiness baseline was merged by PR #7
+to `main` at `f2a02825fd4178478bfc130525463165f12d648c`; the APP-009 follow-up is published
+as draft PR #8 from `codex/app-009-backend-identity` and has not changed build/version metadata,
+deployed the backend, or uploaded a candidate.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -141,7 +142,9 @@ not used because Apple prevents that artifact from being submitted to customers 
     not clear this gate.
   - Provision durable, private Fly auth storage before enabling the new flow. Record the SQLite
     volume or shared-database topology, atomicity, backup/snapshot behavior, retention/deletion
-    criteria, and restore rehearsal. Receipt text and wardrobe payloads must never enter it.
+    criteria, and restore rehearsal. Scan the exact release image (OS and language packages) for
+    high/critical known vulnerabilities and retain the report with its digest. Receipt text and
+    wardrobe payloads must never enter the auth store.
   - Use a time-bounded bridge deployment only if needed to move existing testers. Record its
     expiry, then deploy App-Attest-only auth, unset/rotate `DEVICE_TOKEN`, prove an old build is
     rejected, retain a validated App-Attest-only rollback image, and record commit/image,
@@ -176,7 +179,7 @@ not used because Apple prevents that artifact from being submitted to customers 
   network path runs without consent and no prohibited Gmail operation is representable.
 - [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
-  full pytest/Ruff/mypy plus Swift test regressions.
+  full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions.
 - [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** Replace the stale internal
   privacy note with policy-source text covering Google data, the backend, Anthropic, purposes,
   retention, consent withdrawal, deletion, Limited Use, security, contact, and changes. Add
@@ -256,7 +259,7 @@ not used because Apple prevents that artifact from being submitted to customers 
 Each logical slice gets a focused test and the complete regression suites before its commit:
 
 ```bash
-cd backend && uv run pytest && uv run ruff check . && uv run mypy app
+cd backend && uv run --locked pytest && uv run --locked pip-audit && uv run --locked bandit -r app container_entrypoint.py -q && uv run --locked ruff check . && uv run --locked mypy app
 
 cd ios && xcodegen generate
 xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \

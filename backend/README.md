@@ -9,7 +9,7 @@ and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
 ```bash
 cd backend
-uv sync                      # create .venv and install deps
+uv sync --locked             # create .venv exactly from uv.lock
 cp .env.example .env         # then fill in local-development values
 ```
 
@@ -24,9 +24,11 @@ curl localhost:8000/health
 ## Test & lint (run after every change)
 
 ```bash
-uv run pytest
-uv run ruff check .
-uv run mypy app
+uv run --locked pytest
+uv run --locked pip-audit
+uv run --locked bandit -r app container_entrypoint.py -q
+uv run --locked ruff check .
+uv run --locked mypy app
 ```
 
 ## Endpoints
