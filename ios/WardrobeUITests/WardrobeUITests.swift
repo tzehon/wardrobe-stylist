@@ -258,7 +258,10 @@ final class WardrobeUITests: XCTestCase {
 
         element(in: app, identifier: Identifier.photoLibrary).tap()
         let photoLibrary = app.navigationBars["Photos"]
-        XCTAssertTrue(photoLibrary.waitForExistence(timeout: 5))
+        // PhotosUI is a separate system process and its first cold launch can
+        // take longer on a busy CI simulator. Wait for that boundary without
+        // weakening the assertions that it remains presented and cancellable.
+        XCTAssertTrue(photoLibrary.waitForExistence(timeout: 15))
 
         RunLoop.current.run(until: Date().addingTimeInterval(1))
         XCTAssertTrue(
