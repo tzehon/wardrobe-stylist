@@ -1,5 +1,15 @@
 # Keep secrets, caches, and dev-only files out of the build context / image.
 .env
+.env.*
+*.env
+!*.env.example
+*.key
+*.p8
+*.p12
+*.mobileprovision
+client_secret*.json
+credentials*.json
+GoogleService-Info.plist
 .venv
 __pycache__/
 *.pyc

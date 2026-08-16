@@ -3,6 +3,7 @@
 
 # ── Secrets / credentials (NEVER commit) ────────────────
 .env
+.env.*
 *.env
 !*.env.example
 **/client_secret*.json

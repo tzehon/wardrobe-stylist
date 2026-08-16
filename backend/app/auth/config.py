@@ -163,13 +163,23 @@ class AuthConfiguration:
             database_path = Path(raw_path)
             if not database_path.is_absolute():
                 raise AuthConfigurationError("APP_ATTEST_DATABASE_PATH must be absolute.")
-            database_path = database_path.resolve(strict=False)
+            # Canonicalize the directory for containment checks, but preserve
+            # the final path component. Resolving the complete path would turn
+            # an existing database-file symlink into its target before
+            # ``AuthStore`` can reject that symlink with ``lstat``.
+            database_path = database_path.parent.resolve(strict=False) / database_path.name
             filesystem_root = Path(database_path.anchor).resolve(strict=False)
             if database_path.parent in {filesystem_root, Path.home().resolve(strict=False)}:
                 raise AuthConfigurationError(
                     "APP_ATTEST_DATABASE_PATH must use a dedicated private directory."
                 )
-            if database_path.parent in {Path("/tmp"), Path("/private/tmp")}:
+            # These temporary-directory literals are rejection targets, never
+            # locations used to create sensitive files. Keep the Bandit
+            # suppression on the flagged literal so it cannot mask this branch.
+            if database_path.parent in {
+                Path("/tmp"),  # nosec B108
+                Path("/private/tmp"),
+            }:
                 raise AuthConfigurationError(
                     "APP_ATTEST_DATABASE_PATH must use a dedicated private directory."
                 )

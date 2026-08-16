@@ -5,6 +5,9 @@ dropped, unsalvageable primary -> 502), schema-validation failure -> 502, auth,
 and the missing-tool-call defensive path.
 """
 
+import anthropic
+import httpx
+
 from tests.conftest import (
     FakeAnthropicClient,
     FakeResponse,
@@ -206,6 +209,57 @@ def test_recommend_502_when_model_omits_tool_call(client, fake_anthropic, auth_h
     fake_anthropic.messages.queue(FakeResponse(content=[], stop_reason="end_turn"))
     resp = client.post("/recommend", json=_request_body(), headers=auth_headers)
     assert resp.status_code == 502
+
+
+def test_recommend_redacts_anthropic_status_error(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_api_key = "PRIVATE_ANTHROPIC_KEY_VALUE"
+    private_catalog = "PRIVATE_WARDROBE_PAYLOAD_VALUE"
+    request = httpx.Request(
+        "POST",
+        "https://api.anthropic.com/v1/messages",
+        headers={"x-api-key": private_api_key},
+        content=private_catalog,
+    )
+    response = httpx.Response(
+        500,
+        headers={"request-id": "req_safe_123"},
+        request=request,
+    )
+    error = anthropic.APIStatusError(
+        f"upstream echoed {private_api_key} and {private_catalog}",
+        response=response,
+        body={"error": private_catalog},
+    )
+
+    def fail_safely(**_):
+        raise error
+
+    monkeypatch.setattr(fake_anthropic.messages, "create", fail_safely)
+    with caplog.at_level("WARNING", logger="app.anthropic_safety"):
+        api_response = client.post(
+            "/recommend",
+            json=_request_body(),
+            headers=auth_headers,
+        )
+
+    assert api_response.status_code == 502
+    assert api_response.json()["detail"] == "The AI service is temporarily unavailable."
+    log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.anthropic_safety"
+    )
+    assert "type=APIStatusError status=500 request_id=req_safe_123" in log
+    assert private_api_key not in log
+    assert private_catalog not in log
+    assert private_api_key not in api_response.text
+    assert private_catalog not in api_response.text
 
 
 def test_recommend_rejects_unauthorized(client, fake_anthropic):

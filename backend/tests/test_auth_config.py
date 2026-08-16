@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from app.auth.config import AuthConfiguration, AuthConfigurationError
+from app.auth.store import AuthStore
 from app.config import Settings
 
 NOW = datetime(2026, 8, 16, 0, 0, tzinfo=UTC)
@@ -130,6 +131,25 @@ def test_database_path_rejects_filesystem_root_parent() -> None:
             _settings(app_attest_database_path="/auth.sqlite3"),
             now=NOW,
         )
+
+
+def test_configuration_preserves_database_symlink_for_store_rejection(tmp_path) -> None:
+    parent = tmp_path / "private"
+    parent.mkdir(mode=0o700)
+    target = parent / "target.sqlite3"
+    target.touch(mode=0o600)
+    database_path = parent / "auth.sqlite3"
+    database_path.symlink_to(target)
+
+    configuration = AuthConfiguration.from_settings(
+        _settings(app_attest_database_path=str(database_path)),
+        now=NOW,
+    )
+
+    assert configuration.database_path == parent.resolve() / database_path.name
+    assert configuration.database_path.is_symlink()
+    with pytest.raises(PermissionError, match="must not be a symlink"):
+        AuthStore(configuration.database_path).initialize()
 
 
 def test_app_id_uses_confirmed_prefix_not_inferred_team_id(tmp_path) -> None:

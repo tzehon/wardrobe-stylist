@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.agents import stylist
 from app.agents.stylist import StylistError
+from app.anthropic_safety import anthropic_request_slot, raise_anthropic_http_error
 from app.auth.service import BackendIdentity
 from app.dependencies import get_anthropic_client, require_backend_identity
 from app.schemas.recommendation import OutfitRecommendation
@@ -108,13 +109,16 @@ def recommend_endpoint(
             detail="Item preferences must reference items in the submitted catalog.",
         )
     try:
-        result = stylist.recommend(
-            client,
-            items=[item.model_dump() for item in req.items],
-            recently_worn_ids=req.recently_worn_ids,
-            item_preferences=[preference.model_dump() for preference in req.item_preferences],
-            occasion=req.occasion,
-        )
+        with anthropic_request_slot():
+            result = stylist.recommend(
+                client,
+                items=[item.model_dump() for item in req.items],
+                recently_worn_ids=req.recently_worn_ids,
+                item_preferences=[preference.model_dump() for preference in req.item_preferences],
+                occasion=req.occasion,
+            )
+    except anthropic.APIError as exc:
+        raise_anthropic_http_error(exc)
     except StylistError as exc:
         logger.warning("stylist.recommend failed: %s", exc)
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc

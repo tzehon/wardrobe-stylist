@@ -365,7 +365,6 @@ def test_restored_installation_must_match_current_app_and_environment(
         purpose="attestation",
         key_id=None,
         expires_at=now + 300,
-        client_ip_hash="ip",
         now=now,
     )
     service.store.claim_challenge(
@@ -405,7 +404,6 @@ def test_restored_installation_must_match_current_app_and_environment(
         purpose="assertion",
         key_id=KEY_ID,
         expires_at=now + 300,
-        client_ip_hash="ip",
         now=now,
     )
     with pytest.raises(AuthFlowError) as assertion_rejected:
@@ -534,6 +532,124 @@ def test_challenge_rate_limit_has_retry_after(tmp_path) -> None:
     assert limited.value.status_code == 429
     assert limited.value.retry_after is not None
     assert 1 <= limited.value.retry_after <= 60
+
+
+def test_global_challenge_quota_bounds_rotating_ip_issuance(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, challenge_rate_limit_per_minute=1)
+    for address in ("192.0.2.80", "192.0.2.81"):
+        service.issue_challenge(
+            purpose="attestation",
+            key_id=None,
+            client_ip=address,
+        )
+
+    with pytest.raises(AuthFlowError) as globally_limited:
+        service.issue_challenge(
+            purpose="attestation",
+            key_id=None,
+            client_ip="192.0.2.82",
+        )
+    assert globally_limited.value.status_code == 429
+    assert globally_limited.value.retry_after is not None
+    assert 1 <= globally_limited.value.retry_after <= 60
+
+
+def test_global_registration_quota_bounds_rotating_ip_attempts(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, registration_rate_limit_per_hour=1)
+    for index, address in enumerate(("192.0.2.83", "192.0.2.84"), start=1):
+        with pytest.raises(AuthFlowError) as unknown:
+            service.register(
+                challenge_id=f"missing-registration-{index}",
+                key_id=KEY_ID,
+                attestation_object=ATTESTATION,
+                client_ip=address,
+            )
+        assert unknown.value.code == "unknown_challenge"
+
+    with pytest.raises(AuthFlowError) as globally_limited:
+        service.register(
+            challenge_id="missing-registration-3",
+            key_id=KEY_ID,
+            attestation_object=ATTESTATION,
+            client_ip="192.0.2.85",
+        )
+    assert globally_limited.value.status_code == 429
+
+
+def test_global_session_quota_bounds_rotating_ip_attempts(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, session_rate_limit_per_hour=1)
+    for address in ("192.0.2.86", "192.0.2.87"):
+        with pytest.raises(AuthFlowError) as unknown:
+            service.create_session(
+                challenge_id="00000000-0000-4000-8000-000000000000",
+                key_id=KEY_ID,
+                assertion_object=ASSERTION,
+                client_data=base64.b64encode(b"{}").decode("ascii"),
+                client_ip=address,
+            )
+        assert unknown.value.code == "unknown_app_attest_key"
+
+    with pytest.raises(AuthFlowError) as globally_limited:
+        service.create_session(
+            challenge_id="00000000-0000-4000-8000-000000000000",
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.88",
+        )
+    assert globally_limited.value.status_code == 429
+
+
+def test_global_api_attempt_quota_bounds_rotating_ips_before_bearer_lookup(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, extract_rate_limit_per_hour=1)
+    for address in ("192.0.2.89", "192.0.2.90"):
+        with pytest.raises(AuthFlowError) as invalid:
+            service.authenticate_bearer(
+                token="invalid-session-token",
+                path="/extract",
+                client_ip=address,
+            )
+        assert invalid.value.status_code == 401
+
+    with pytest.raises(AuthFlowError) as globally_limited:
+        service.authenticate_bearer(
+            token="invalid-session-token",
+            path="/extract",
+            client_ip="192.0.2.91",
+        )
+    assert globally_limited.value.status_code == 429
+
+
+def test_invalid_assertion_cannot_exhaust_an_installations_key_quota(tmp_path) -> None:
+    service, verifier, _ = _service(tmp_path, session_rate_limit_per_hour=1)
+    _enroll(service)
+
+    with pytest.raises(AuthFlowError) as invalid:
+        service.create_session(
+            challenge_id="00000000-0000-4000-8000-000000000000",
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.71",
+        )
+    assert invalid.value.code == "unknown_challenge"
+    assert verifier.assertion_calls == 0
+
+    challenge = service.issue_challenge(
+        purpose="assertion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.72",
+    )
+    renewed = service.create_session(
+        challenge_id=challenge.challenge_id,
+        key_id=KEY_ID,
+        assertion_object=ASSERTION,
+        client_data=base64.b64encode(_client_data(challenge, KEY_ID)).decode("ascii"),
+        client_ip="192.0.2.72",
+    )
+
+    assert renewed.access_token
+    assert verifier.assertion_calls == 1
 
 
 def _service(tmp_path: Path, **configuration_overrides):

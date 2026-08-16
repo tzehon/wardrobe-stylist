@@ -13,6 +13,7 @@ from fastapi import FastAPI
 
 from app.auth.runtime import initialize_auth_runtime
 from app.config import settings
+from app.http_security import MAX_REQUEST_BODY_BYTES, HTTPSecurityMiddleware
 from app.routes import auth, extract, recommend
 
 
@@ -23,12 +24,16 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="Wardrobe Stylist API", version="0.1.0", lifespan=lifespan)
+app.add_middleware(
+    HTTPSecurityMiddleware,
+    max_body_bytes=MAX_REQUEST_BODY_BYTES,
+)
 app.include_router(auth.router)
 app.include_router(extract.router)
 app.include_router(recommend.router)
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
+async def health() -> dict[str, str]:
     """Liveness check (no auth, no secrets required)."""
     return {"status": "ok", "environment": settings.environment}

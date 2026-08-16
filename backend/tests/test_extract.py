@@ -7,6 +7,9 @@ compatibility, auth, and tool-input schema-validation failure surfacing as 502.
 
 import json
 
+import anthropic
+import httpx
+
 from tests.conftest import (
     FakeAnthropicClient,
     FakeResponse,
@@ -161,6 +164,43 @@ def test_extract_rejects_wrong_bearer(client, fake_anthropic):
     assert resp.status_code == 401
 
 
+def test_extract_fails_closed_when_snippet_preprocessing_returns_none(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_receipt_text = "Private receipt content that must never reach logs or Claude"
+
+    def fail_for_snippet(text, *, source_msg_id, sender):
+        del source_msg_id, sender
+        return None if text == private_receipt_text else text
+
+    monkeypatch.setattr(
+        "app.routes.extract.extractor.redact_transport_metadata",
+        fail_for_snippet,
+    )
+    with caplog.at_level("ERROR", logger="app.routes.extract"):
+        resp = client.post(
+            "/extract",
+            json={"source_msg_id": "private-message-id", "snippet": private_receipt_text},
+            headers=auth_headers,
+        )
+
+    assert resp.status_code == 500
+    assert resp.json()["detail"] == "Receipt preprocessing failed."
+    assert fake_anthropic.messages.last_call is None
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.extract"
+    )
+    assert "preprocessing returned no content" in route_log
+    assert private_receipt_text not in route_log
+    assert "private-message-id" not in route_log
+
+
 def test_extract_502_on_invalid_tool_input(
     client, fake_anthropic, auth_headers, caplog
 ):
@@ -233,6 +273,51 @@ def test_extract_502_when_model_omits_tool_call(client, fake_anthropic, auth_hea
         headers=auth_headers,
     )
     assert resp.status_code == 502
+
+
+def test_extract_redacts_anthropic_connection_error(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_api_key = "PRIVATE_ANTHROPIC_KEY_VALUE"
+    private_receipt = "PRIVATE_RECEIPT_BODY_VALUE"
+    request = httpx.Request(
+        "POST",
+        "https://api.anthropic.com/v1/messages",
+        headers={"x-api-key": private_api_key},
+        content=private_receipt,
+    )
+    error = anthropic.APIConnectionError(
+        message=f"connection failed with {private_api_key} and {private_receipt}",
+        request=request,
+    )
+
+    def fail_safely(**_):
+        raise error
+
+    monkeypatch.setattr(fake_anthropic.messages, "create", fail_safely)
+    with caplog.at_level("WARNING", logger="app.anthropic_safety"):
+        response = client.post(
+            "/extract",
+            json={"source_msg_id": "private-message-id", "snippet": private_receipt},
+            headers=auth_headers,
+        )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "The AI service is temporarily unavailable."
+    log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.anthropic_safety"
+    )
+    assert "type=APIConnectionError status=- request_id=-" in log
+    assert private_api_key not in log
+    assert private_receipt not in log
+    assert private_api_key not in response.text
+    assert private_receipt not in response.text
 
 
 def test_extract_drops_unparseable_sender_before_model_call(

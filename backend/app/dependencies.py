@@ -16,6 +16,13 @@ from app.auth.service import AppAttestAuthService, AuthFlowError, BackendIdentit
 from app.config import settings
 
 _bearer = HTTPBearer(auto_error=False)
+_ANTHROPIC_TIMEOUT = anthropic.Timeout(
+    connect=5.0,
+    read=120.0,
+    write=120.0,
+    pool=120.0,
+)
+_ANTHROPIC_MAX_RETRIES = 1
 
 
 def require_backend_identity(
@@ -43,4 +50,8 @@ def get_anthropic_client() -> anthropic.Anthropic:
             status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="ANTHROPIC_API_KEY not configured on the backend.",
         )
-    return anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    return anthropic.Anthropic(
+        api_key=settings.anthropic_api_key,
+        timeout=_ANTHROPIC_TIMEOUT,
+        max_retries=_ANTHROPIC_MAX_RETRIES,
+    )

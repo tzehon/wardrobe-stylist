@@ -15,6 +15,17 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+# A normal single-user installation occupies only a handful of simultaneous
+# scope/subject buckets. This ceiling leaves generous room for IP churn and
+# recovery traffic while putting a small, deterministic bound on attacker-made
+# rows in the public SQLite store.
+MAX_ACTIVE_RATE_WINDOWS = 512
+# Aggregate buckets are internal, fixed-subject sentinels that must remain
+# admissible even if an attacker has already filled every ordinary IP/key slot.
+# There are currently five such scopes; eight leaves room for several future
+# scopes while preserving a deterministic 520-row active-window ceiling.
+MAX_RESERVED_GLOBAL_RATE_WINDOWS = 8
+
 
 class StoreConflictError(RuntimeError):
     def __init__(self, code: str) -> None:
@@ -76,7 +87,6 @@ CREATE TABLE IF NOT EXISTS challenges (
     state TEXT NOT NULL CHECK (state IN ('issued', 'processing', 'completed', 'failed')),
     payload_hash BLOB,
     completed_session_id TEXT,
-    client_ip_hash TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );
 
@@ -111,6 +121,7 @@ CREATE TABLE IF NOT EXISTS rate_windows (
     scope TEXT NOT NULL,
     subject_hash TEXT NOT NULL,
     window_start INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
     request_count INTEGER NOT NULL,
     PRIMARY KEY (scope, subject_hash, window_start)
 );
@@ -133,23 +144,62 @@ CREATE TABLE installations_v2 (
 )
 """
 
+_CHALLENGES_V3_SCHEMA = """
+CREATE TABLE challenges_v3 (
+    challenge_id TEXT PRIMARY KEY,
+    secret BLOB NOT NULL,
+    purpose TEXT NOT NULL CHECK (purpose IN ('attestation', 'assertion')),
+    key_id TEXT,
+    expires_at INTEGER NOT NULL,
+    state TEXT NOT NULL CHECK (state IN ('issued', 'processing', 'completed', 'failed')),
+    payload_hash BLOB,
+    completed_session_id TEXT,
+    created_at INTEGER NOT NULL
+)
+"""
+
 
 class AuthStore:
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        *,
+        max_active_rate_windows: int = MAX_ACTIVE_RATE_WINDOWS,
+        max_reserved_global_rate_windows: int = MAX_RESERVED_GLOBAL_RATE_WINDOWS,
+    ) -> None:
+        if max_active_rate_windows <= 0:
+            raise ValueError("max_active_rate_windows must be positive")
+        if max_reserved_global_rate_windows <= 0:
+            raise ValueError("max_reserved_global_rate_windows must be positive")
         self.path = path
+        self.max_active_rate_windows = max_active_rate_windows
+        self.max_reserved_global_rate_windows = max_reserved_global_rate_windows
 
     @contextmanager
     def _connection(self) -> Iterator[sqlite3.Connection]:
         self._ensure_private_directory()
-        connection = sqlite3.connect(self.path, timeout=5.0)
-        connection.row_factory = sqlite3.Row
+        guard_fd = self._open_private_database_file()
+        connection: sqlite3.Connection | None = None
         try:
+            connection = sqlite3.connect(self.path, timeout=5.0)
+            # SQLite accepts only a path, not the already-validated descriptor.
+            # Keep that descriptor open and verify the pathname still resolves
+            # to the same inode immediately after connect. The 0700 parent
+            # prevents cross-user replacement during this narrow interval.
+            guard_metadata = os.fstat(guard_fd)
+            current_metadata = self.path.lstat()
+            self._validate_private_database_file(current_metadata)
+            if not self._same_file(guard_metadata, current_metadata):
+                raise PermissionError("App Attest database changed while it was opened.")
+            connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA foreign_keys = ON")
             connection.execute("PRAGMA busy_timeout = 5000")
             connection.execute("PRAGMA synchronous = FULL")
             yield connection
         finally:
-            connection.close()
+            if connection is not None:
+                connection.close()
+            os.close(guard_fd)
 
     def _ensure_private_directory(self) -> None:
         parent = self.path.parent
@@ -167,6 +217,57 @@ class AuthStore:
         if stat.S_IMODE(metadata.st_mode) != 0o700:
             raise PermissionError("App Attest database directory permissions must be 0700.")
 
+    def _open_private_database_file(self) -> int:
+        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+        flags |= getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(self.path, flags, 0o600)
+        except FileExistsError:
+            metadata = self.path.lstat()
+            self._validate_private_database_file(metadata)
+            existing_flags = os.O_RDWR
+            existing_flags |= getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+            try:
+                descriptor = os.open(self.path, existing_flags)
+            except OSError as exc:
+                raise PermissionError("App Attest database could not be opened safely.") from exc
+            opened_metadata = os.fstat(descriptor)
+            try:
+                self._validate_private_database_file(opened_metadata)
+                if not self._same_file(metadata, opened_metadata):
+                    raise PermissionError("App Attest database changed while it was opened.")
+            except Exception:
+                os.close(descriptor)
+                raise
+            return descriptor
+        except OSError as exc:
+            raise PermissionError("App Attest database could not be created safely.") from exc
+
+        try:
+            os.fchmod(descriptor, 0o600)
+            self._validate_private_database_file(os.fstat(descriptor))
+        except Exception:
+            os.close(descriptor)
+            raise
+        return descriptor
+
+    @staticmethod
+    def _validate_private_database_file(metadata: os.stat_result) -> None:
+        if stat.S_ISLNK(metadata.st_mode):
+            raise PermissionError("App Attest database must not be a symlink.")
+        if not stat.S_ISREG(metadata.st_mode):
+            raise PermissionError("App Attest database must be a regular file.")
+        if metadata.st_uid != os.geteuid():
+            raise PermissionError("App Attest database must be owned by this process.")
+        if stat.S_IMODE(metadata.st_mode) != 0o600:
+            raise PermissionError("App Attest database permissions must be 0600.")
+        if metadata.st_nlink != 1:
+            raise PermissionError("App Attest database must not have additional hard links.")
+
+    @staticmethod
+    def _same_file(first: os.stat_result, second: os.stat_result) -> bool:
+        return first.st_dev == second.st_dev and first.st_ino == second.st_ino
+
     def initialize(self) -> None:
         with self._connection() as connection:
             connection.execute("PRAGMA journal_mode = WAL")
@@ -177,9 +278,26 @@ class AuthStore:
             }
             if columns.get("validation_category") == 1 or columns.get("bundle_version") == 1:
                 self._migrate_installations_v2(connection)
-            connection.execute("PRAGMA user_version = 2")
+            challenge_columns = {
+                str(row["name"])
+                for row in connection.execute("PRAGMA table_info(challenges)")
+            }
+            if "client_ip_hash" in challenge_columns:
+                self._migrate_challenges_v3(connection)
+            rate_columns = {
+                str(row["name"])
+                for row in connection.execute("PRAGMA table_info(rate_windows)")
+            }
+            if "expires_at" not in rate_columns:
+                self._migrate_rate_windows_v3(connection)
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS challenges_expiry_idx ON challenges(expires_at)"
+            )
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS rate_windows_expiry_idx ON rate_windows(expires_at)"
+            )
+            connection.execute("PRAGMA user_version = 3")
             connection.commit()
-        os.chmod(self.path, 0o600)
 
     @staticmethod
     def _migrate_installations_v2(connection: sqlite3.Connection) -> None:
@@ -216,6 +334,52 @@ class AuthStore:
         finally:
             connection.execute("PRAGMA foreign_keys = ON")
 
+    @staticmethod
+    def _migrate_challenges_v3(connection: sqlite3.Connection) -> None:
+        # The original schema retained a pseudonymous client-IP hash on each
+        # challenge even though admission control already lives in rate_windows
+        # and the value was never read. Rebuild atomically to preserve every
+        # in-flight challenge while dropping that unnecessary identifier.
+        connection.commit()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(_CHALLENGES_V3_SCHEMA)
+            connection.execute(
+                """
+                INSERT INTO challenges_v3(
+                    challenge_id, secret, purpose, key_id, expires_at, state,
+                    payload_hash, completed_session_id, created_at
+                )
+                SELECT challenge_id, secret, purpose, key_id, expires_at, state,
+                       payload_hash, completed_session_id, created_at
+                FROM challenges
+                """
+            )
+            connection.execute("DROP TABLE challenges")
+            connection.execute("ALTER TABLE challenges_v3 RENAME TO challenges")
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+
+    @staticmethod
+    def _migrate_rate_windows_v3(connection: sqlite3.Connection) -> None:
+        # v2 retained rate rows for a coarse day because their individual
+        # expiry was not stored. Add exact expiry so admission capacity is
+        # reclaimed as soon as a window closes. All existing non-challenge
+        # scopes are one-hour windows.
+        connection.execute(
+            "ALTER TABLE rate_windows ADD COLUMN expires_at INTEGER NOT NULL DEFAULT 0"
+        )
+        connection.execute(
+            """
+            UPDATE rate_windows
+            SET expires_at = window_start +
+                CASE WHEN scope = 'challenge' THEN 60 ELSE 3600 END
+            WHERE expires_at = 0
+            """
+        )
+
     def cleanup(self, *, now: int) -> None:
         with self._connection() as connection:
             connection.execute(
@@ -237,10 +401,10 @@ class AuthStore:
             connection.execute(
                 """
                 DELETE FROM rate_windows WHERE rowid IN (
-                    SELECT rowid FROM rate_windows WHERE window_start < ? LIMIT 1000
+                    SELECT rowid FROM rate_windows WHERE expires_at <= ? LIMIT 1000
                 )
                 """,
-                (now - 86400,),
+                (now,),
             )
             connection.commit()
 
@@ -252,10 +416,23 @@ class AuthStore:
         limit: int,
         window_seconds: int,
         now: int,
+        reserved_global_bucket: bool = False,
     ) -> None:
+        if reserved_global_bucket and not scope.endswith("-global"):
+            raise ValueError("Reserved rate buckets must use an internal global scope.")
         window_start = now - (now % window_seconds)
+        expires_at = window_start + window_seconds
         with self._connection() as connection:
             connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                DELETE FROM rate_windows WHERE rowid IN (
+                    SELECT rowid FROM rate_windows
+                    WHERE expires_at <= ? LIMIT 1000
+                )
+                """,
+                (now,),
+            )
             row = connection.execute(
                 """
                 SELECT request_count FROM rate_windows
@@ -265,16 +442,63 @@ class AuthStore:
             ).fetchone()
             count = int(row["request_count"]) if row is not None else 0
             if count >= limit:
-                connection.rollback()
+                connection.commit()
                 raise RateLimitExceeded(window_start + window_seconds - now)
+            if row is None:
+                if reserved_global_bucket:
+                    # Count the bounded internal namespace independently. This
+                    # keeps aggregate protection admissible even when a legacy
+                    # database already contains more ordinary rows than the new
+                    # cap; ordinary rows still age out on their exact expiry.
+                    active_count = int(
+                        connection.execute(
+                            """
+                            SELECT COUNT(*) FROM rate_windows
+                            WHERE expires_at > ? AND scope LIKE '%-global'
+                            """,
+                            (now,),
+                        ).fetchone()[0]
+                    )
+                    admission_limit = self.max_reserved_global_rate_windows
+                    earliest_expiry_query = """
+                        SELECT MIN(expires_at) FROM rate_windows
+                        WHERE expires_at > ? AND scope LIKE '%-global'
+                    """
+                else:
+                    active_count = int(
+                        connection.execute(
+                            "SELECT COUNT(*) FROM rate_windows WHERE expires_at > ?",
+                            (now,),
+                        ).fetchone()[0]
+                    )
+                    admission_limit = self.max_active_rate_windows
+                    earliest_expiry_query = (
+                        "SELECT MIN(expires_at) FROM rate_windows WHERE expires_at > ?"
+                    )
+                if active_count >= admission_limit:
+                    earliest_expiry = connection.execute(
+                        earliest_expiry_query,
+                        (now,),
+                    ).fetchone()[0]
+                    connection.commit()
+                    retry_after = (
+                        int(earliest_expiry) - now
+                        if earliest_expiry is not None
+                        else window_seconds
+                    )
+                    raise RateLimitExceeded(retry_after)
             connection.execute(
                 """
-                INSERT INTO rate_windows(scope, subject_hash, window_start, request_count)
-                VALUES (?, ?, ?, 1)
+                INSERT INTO rate_windows(
+                    scope, subject_hash, window_start, expires_at, request_count
+                )
+                VALUES (?, ?, ?, ?, 1)
                 ON CONFLICT(scope, subject_hash, window_start)
-                DO UPDATE SET request_count = request_count + 1
+                DO UPDATE SET
+                    request_count = request_count + 1,
+                    expires_at = excluded.expires_at
                 """,
-                (scope, subject_hash, window_start),
+                (scope, subject_hash, window_start, expires_at),
             )
             connection.commit()
 
@@ -286,7 +510,6 @@ class AuthStore:
         purpose: str,
         key_id: str | None,
         expires_at: int,
-        client_ip_hash: str,
         now: int,
     ) -> None:
         with self._connection() as connection:
@@ -294,8 +517,8 @@ class AuthStore:
                 """
                 INSERT INTO challenges(
                     challenge_id, secret, purpose, key_id, expires_at, state,
-                    client_ip_hash, created_at
-                ) VALUES (?, ?, ?, ?, ?, 'issued', ?, ?)
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, 'issued', ?)
                 """,
                 (
                     challenge_id,
@@ -303,7 +526,6 @@ class AuthStore:
                     purpose,
                     key_id,
                     expires_at,
-                    client_ip_hash,
                     now,
                 ),
             )
