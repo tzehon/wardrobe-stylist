@@ -9,7 +9,7 @@
 - Primary category: **Lifestyle** (candidate)
 - Secondary category: **Productivity** (candidate)
 - Copyright: [YEAR LEGAL OWNER]
-- Public version: [DECIDE 1.0.0 VS CURRENT 0.1.0]
+- Public version: **1.0.0**
 
 ## Description draft
 

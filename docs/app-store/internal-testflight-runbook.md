@@ -19,21 +19,21 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-16
+## Current candidate status — 2026-08-17
 
-- Candidate source: PR #7 is merged to `main` at
-  `f2a02825fd4178478bfc130525463165f12d648c`. APP-009 follow-up work is isolated on
-  `codex/app-009-backend-identity`.
-- Local version/build: `MARKETING_VERSION = 0.1.0`, `CURRENT_PROJECT_VERSION = 3`.
-- The merged candidate scope and APP-009 follow-up have not changed version metadata or uploaded
-  a new TestFlight build.
-- The next build number is unknown until the highest uploaded build is checked in App Store
-  Connect. Never infer it from the repository alone.
-- APP-009's repository implementation is complete and regression-tested on the follow-up branch,
-  but the item remains open. Apple capability/profile setup, the exact App ID prefix, durable Fly
-  auth storage, compatible backend deployment, production App Attest physical-device proof, and
-  legacy-token retirement must still be evidenced. A Release-simulator build cannot clear any of
-  those external gates.
+- Candidate source: `main` at `24f163f54545e611136b66f77b95823df9eb32eb`.
+- Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. The candidate
+  has not yet been archived or uploaded.
+- Production backend: Fly release v4 serves the App-Attest-only image
+  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`, with
+  validation category `2`, bundle-build allowlist `4`, and durable encrypted auth storage.
+- Development proof: App Attest enrollment, assertion renewal, and `/recommend` succeeded on an
+  iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build fields were
+  absent as expected and are not claimed as development evidence.
+- APP-009 remains open until the signed distribution archive/profile and production TestFlight
+  enrollment, assertion renewal, and protected API call are verified. Production distribution
+  configuration, Gmail OAuth identifiers, public pages, and retention/logging policy evidence are
+  also still open.
 
 ## One-time gates before the next internal build
 
@@ -46,26 +46,28 @@ an App Store release candidate from the moment it is archived. This prevents a s
   signed fields, enforce rate limits, remove `BackendDeviceToken`, and retire/rotate the legacy
   backend token in the client contract. iOS 18–26 still requires core App Attest. Local wardrobe
   and Demo Mode remain available when secure verification is unsupported; remote AI fails closed.
-- [ ] In Certificates, Identifiers & Profiles, confirm the exact App ID prefix for
-  `com.tth.Wardrobe`, enable App Attest, regenerate provisioning profiles, and verify the signed
-  archive and embedded profile. Complete a development/sandbox run on a physical iPhone, then a
-  production TestFlight run whose attestation reports category `2` and the exact uploaded build.
-- [ ] Provision private durable auth storage for the Fly deployment. Record its mount/database,
-  single- versus multi-machine topology, atomic counter/challenge behavior, snapshot/backup and
-  restore procedure, and retention/deletion criteria. Do not enable production App Attest with an
-  ephemeral or in-memory store, and never persist receipt text or wardrobe payloads there.
-- [ ] Scan the exact release container image, including OS packages, for high/critical known
+- [x] Enable App Attest for `com.tth.Wardrobe`, confirm App ID prefix `29NT767Y9P`, exercise
+  regenerated development signing, and retain physical-device sandbox enrollment and assertion
+  renewal evidence.
+- [ ] Inspect the signed distribution archive entitlement and embedded profile, then complete
+  production enrollment, assertion renewal, and a protected API call through TestFlight. On iOS
+  18–26, record the signed absence of category/build runtime fields without claiming allowlist
+  enforcement.
+- [x] Provision one encrypted Fly volume for the single production Machine; verify private
+  ownership/modes, SQLite integrity, restart persistence, automatic backups, a retained snapshot,
+  and an isolated restore rehearsal.
+- [ ] Finalize and evidence authentication metadata, backup/snapshot, request/IP-log retention,
+  deletion criteria, alert routing, and the support process.
+- [x] Scan the exact release container image, including OS packages, for high/critical known
   vulnerabilities and retain the report with the image digest. The locked Python audit is already
   enforced in CI; the local Docker Scout command is
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
-- [ ] Before deployment, rotate the Anthropic API key and legacy `DEVICE_TOKEN`; store only the
-  replacement values in their external secret managers, never in the repository or release
-  evidence. Verify the old values are unusable after the cutover.
-- [ ] Treat the opaque Apple receipt stored from an otherwise valid attestation as separate fraud
-  evidence, not as part of session authorization. Before trusting or redeeming it, implement and
-  evidence Apple's receipt signature/chain, App ID, freshness, and attested-public-key checks; until
-  then, do not describe the receipt itself or any risk metric as verified.
+- [x] Rotate and verify the Anthropic API key, retire `DEVICE_TOKEN`, deploy App-Attest-only auth,
+  and prove the retired credential returns `401`. No credential value is retained in evidence.
+- [x] Treat the opaque Apple receipt as untrusted fraud evidence, not session authorization. The
+  current release neither redeems nor trusts it; before any future use, implement and evidence
+  Apple's receipt signature/chain, App ID, freshness, and attested-public-key checks.
 - [ ] Complete the production-client portion of the
   [Google OAuth sequence](../gcp-oauth-production-sequence.md): production Gmail project/iOS
   client and reversed callback scheme. Google remains solely the optional read-only Gmail
