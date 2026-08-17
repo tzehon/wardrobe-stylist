@@ -18,7 +18,7 @@ import cbor2
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec, utils
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import ObjectIdentifier
 
 from app.auth.config import AppAttestEnvironment
@@ -204,12 +204,14 @@ class AppAttestVerifier:
         nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
         try:
             # Apple defines nonce as SHA256(authenticatorData ||
-            # SHA256(clientData)). It is already the digest signed by App
-            # Attest, so hashing it again would verify the wrong message.
+            # SHA256(clientData)), then signs that nonce using ECDSA-SHA256.
+            # The ECDSA algorithm therefore hashes the 32-byte nonce message;
+            # treating nonce as a prehashed digest rejects physical-device
+            # assertions even though their key, RP ID, and counter are valid.
             public_key.verify(
                 signature,
                 nonce,
-                ec.ECDSA(utils.Prehashed(hashes.SHA256())),
+                ec.ECDSA(hashes.SHA256()),
             )
         except InvalidSignature as exc:
             raise AppAttestValidationError("Invalid assertion signature.") from exc
@@ -328,7 +330,13 @@ def _parse_authenticator_data(data: bytes, *, attestation: bool) -> _Authenticat
             raise AppAttestValidationError("Invalid COSE public key.")
         cose_key = cose_key_value
     elif flags & _ATTESTED_CREDENTIAL_DATA:
-        raise AppAttestValidationError("Assertion unexpectedly contained a credential.")
+        # Physical iOS 26 App Attest assertions can set WebAuthn's AT bit while
+        # still returning the documented 37-byte assertion authenticator data
+        # with no attested-credential suffix. Treat the signed flag as opaque
+        # for assertions. Any actual suffix is still required below to decode
+        # as exactly one runtime-extension map, so credential data cannot be
+        # smuggled through this compatibility path.
+        pass
 
     extensions: dict[Any, Any] | None = None
     if flags & _EXTENSION_DATA or offset < len(data):

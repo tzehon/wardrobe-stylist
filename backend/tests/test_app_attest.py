@@ -252,7 +252,7 @@ def test_assertion_accepts_documented_and_apple_vector_uint32_forms(
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
     signature = private_key.sign(
         nonce,
-        ec.ECDSA(utils.Prehashed(hashes.SHA256())),
+        ec.ECDSA(hashes.SHA256()),
     )
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
@@ -272,7 +272,7 @@ def test_assertion_accepts_documented_and_apple_vector_uint32_forms(
     assert result.bundle_version == "7"
 
 
-def test_assertion_rejects_double_hashed_signature() -> None:
+def test_assertion_rejects_signature_that_treats_nonce_as_prehashed() -> None:
     private_key = ec.generate_private_key(ec.SECP256R1())
     public_key_der = private_key.public_key().public_bytes(
         serialization.Encoding.DER,
@@ -281,9 +281,10 @@ def test_assertion_rejects_double_hashed_signature() -> None:
     client_data = b"client-data"
     auth_data = _assertion_auth_data(category=2, counter=1)
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    # ECDSA(SHA256) hashes the already-hashed nonce again; App Attest signs the
-    # nonce digest itself, so this representation must fail.
-    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
+    # Physical App Attest uses ECDSA-SHA256 over the nonce message. Modeling
+    # nonce as an already-final digest is the synthetic-test mistake that hid
+    # the physical-device interoperability failure.
+    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
@@ -294,6 +295,73 @@ def test_assertion_rejects_double_hashed_signature() -> None:
             assertion_object=assertion,
             client_data=client_data,
             public_key_der=public_key_der,
+            previous_sign_count=0,
+        )
+
+
+@pytest.mark.parametrize("mutation", ["client-data", "authenticator-flags"])
+def test_assertion_signature_binds_exact_signed_inputs(mutation: str) -> None:
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key_der = private_key.public_key().public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    signed_client_data = b"client-data"
+    signed_auth_data = (
+        hashlib.sha256(b"TESTPREFIX.com.tth.Wardrobe").digest()
+        + b"\x40"
+        + (1).to_bytes(4, "big")
+    )
+    nonce = hashlib.sha256(
+        signed_auth_data + hashlib.sha256(signed_client_data).digest()
+    ).digest()
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
+
+    client_data = signed_client_data
+    auth_data = signed_auth_data
+    if mutation == "client-data":
+        client_data += b"!"
+    else:
+        auth_data = auth_data[:32] + b"\x00" + auth_data[33:]
+    assertion = cbor2.dumps(
+        {"signature": signature, "authenticatorData": auth_data},
+        canonical=True,
+    )
+
+    with pytest.raises(AppAttestValidationError, match="Invalid assertion signature"):
+        _assertion_verifier().verify_assertion(
+            assertion_object=assertion,
+            client_data=client_data,
+            public_key_der=public_key_der,
+            previous_sign_count=0,
+        )
+
+
+def test_assertion_rejects_signature_from_another_p256_key() -> None:
+    signing_key = ec.generate_private_key(ec.SECP256R1())
+    stored_key = ec.generate_private_key(ec.SECP256R1())
+    stored_public_key_der = stored_key.public_key().public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    client_data = b"client-data"
+    auth_data = (
+        hashlib.sha256(b"TESTPREFIX.com.tth.Wardrobe").digest()
+        + b"\x40"
+        + (1).to_bytes(4, "big")
+    )
+    nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
+    signature = signing_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
+    assertion = cbor2.dumps(
+        {"signature": signature, "authenticatorData": auth_data},
+        canonical=True,
+    )
+
+    with pytest.raises(AppAttestValidationError, match="Invalid assertion signature"):
+        _assertion_verifier().verify_assertion(
+            assertion_object=assertion,
+            client_data=client_data,
+            public_key_der=stored_public_key_der,
             previous_sign_count=0,
         )
 
@@ -309,7 +377,7 @@ def test_assertion_rejects_wrong_relying_party_id() -> None:
         1
     ).to_bytes(4, "big")
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
@@ -336,7 +404,7 @@ def test_assertion_rejects_non_monotonic_counter(counter: int, previous: int) ->
         counter
     ).to_bytes(4, "big")
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
@@ -362,7 +430,7 @@ def test_assertion_accepts_signed_absence_of_ios_27_runtime_extensions() -> None
         4, "big"
     )
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
@@ -377,6 +445,99 @@ def test_assertion_accepts_signed_absence_of_ios_27_runtime_extensions() -> None
 
     assert result.validation_category is None
     assert result.bundle_version is None
+
+
+def test_assertion_accepts_ios_26_at_flag_without_credential_suffix() -> None:
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key_der = private_key.public_key().public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    client_data = b"client-data"
+    # Captured structural shape from a physical iOS 26.6 development App
+    # Attest assertion: exactly 37 bytes, AT set, and no credential suffix.
+    auth_data = (
+        hashlib.sha256(b"TESTPREFIX.com.tth.Wardrobe").digest()
+        + b"\x40"
+        + (1).to_bytes(4, "big")
+    )
+    nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
+    assertion = cbor2.dumps(
+        {"signature": signature, "authenticatorData": auth_data},
+        canonical=True,
+    )
+
+    result = _assertion_verifier().verify_assertion(
+        assertion_object=assertion,
+        client_data=client_data,
+        public_key_der=public_key_der,
+        previous_sign_count=0,
+    )
+
+    assert result.sign_count == 1
+    assert result.validation_category is None
+    assert result.bundle_version is None
+
+
+def test_assertion_at_flag_does_not_allow_a_non_extension_suffix() -> None:
+    auth_data = (
+        hashlib.sha256(b"TESTPREFIX.com.tth.Wardrobe").digest()
+        + b"\x40"
+        + (1).to_bytes(4, "big")
+        + cbor2.dumps(["not-an-extension-map"], canonical=True)
+    )
+    assertion = cbor2.dumps(
+        {"signature": b"signature", "authenticatorData": auth_data},
+        canonical=True,
+    )
+
+    with pytest.raises(AppAttestValidationError, match="Invalid authenticator extensions"):
+        _assertion_verifier().verify_assertion(
+            assertion_object=assertion,
+            client_data=b"client-data",
+            public_key_der=b"unused",
+            previous_sign_count=0,
+        )
+
+
+def test_assertion_accepts_at_flag_with_complete_runtime_extensions() -> None:
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key_der = private_key.public_key().public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    client_data = b"client-data"
+    extension_map = cbor2.dumps(
+        {
+            "apple_validation_category_01": 2,
+            "apple_bundle_version_01": "7",
+        },
+        canonical=True,
+    )
+    auth_data = (
+        hashlib.sha256(b"TESTPREFIX.com.tth.Wardrobe").digest()
+        + b"\x40"
+        + (1).to_bytes(4, "big")
+        + extension_map
+    )
+    nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
+    assertion = cbor2.dumps(
+        {"signature": signature, "authenticatorData": auth_data},
+        canonical=True,
+    )
+
+    result = _assertion_verifier().verify_assertion(
+        assertion_object=assertion,
+        client_data=client_data,
+        public_key_der=public_key_der,
+        previous_sign_count=0,
+    )
+
+    assert result.sign_count == 1
+    assert result.validation_category == 2
+    assert result.bundle_version == "7"
 
 
 @pytest.mark.parametrize(
@@ -405,7 +566,7 @@ def test_assertion_rejects_partial_or_malformed_runtime_extensions(extensions) -
         + cbor2.dumps(extensions, canonical=True)
     )
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
@@ -447,7 +608,7 @@ def test_assertion_rejects_present_disallowed_runtime_extensions(
         bundle_version=bundle_version,
     )
     nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
-    signature = private_key.sign(nonce, ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+    signature = private_key.sign(nonce, ec.ECDSA(hashes.SHA256()))
     assertion = cbor2.dumps(
         {"signature": signature, "authenticatorData": auth_data},
         canonical=True,
