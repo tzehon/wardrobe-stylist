@@ -21,32 +21,30 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-16**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-17**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **External gate** | App Attest per-installation identity is implemented and regression-tested on `codex/app-009-backend-identity`; Apple capability/profile setup, production Fly storage/deployment, physical-device proof, and legacy retirement remain open |
-| APP-011 | **In progress** | Product display name, Debug/Release config split, HTTPS/public-link/OAuth guards are committed; final URLs, Google Gmail client IDs, Apple Team/App ID values, and compatible backend remain external work |
+| APP-009 | **External gate** | App Attest development proof, the production-only Fly cutover, durable storage/restart/snapshot/restore evidence, exact-image scan, and legacy retirement are complete; signed archive/TestFlight proof plus retention/log-policy evidence remain open |
+| APP-011 | **In progress** | Product identity, Debug/Release split, guards, compatible production backend, and build-4 allowlist are ready; `Distribution.xcconfig`, production Gmail IDs, Team ID, public URLs, and signed archive remain open |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
 | APP-014 | **Done** | Eleven deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
 | APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
-| APP-017–APP-019 | **Submission / next milestone** | Use the always-ready internal TestFlight lane: finish the binary/config gates, choose the next unused build in App Store Connect, upload through **TestFlight & App Store**, distribute only to an internal group, and retain clean-device evidence |
+| APP-017–APP-019 | **Submission / next milestone** | Candidate `1.0.0 (4)` is selected; finish binary/config gates, upload through **TestFlight & App Store**, distribute only to an internal group, and retain clean-device evidence |
 | APP-020–APP-022 | **Done** | V3 migration, pending-import confidence review, one validated add/edit/review form, favorites, archive, duplicate cues, useful filters, and individual/bulk acceptance are implemented and account-scoped |
 | APP-023 | **Done** | Today is explicit-action-only, account-scoped daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest branch verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
-tests**), **176 backend tests**, locked dependency audit with no known vulnerabilities, Bandit,
-Ruff, mypy, and **23/23** release-script tests covering public configuration, signed identity,
-provisioning-profile, and app-icon guards all passed. The readiness baseline was merged by PR #7
-to `main` at `f2a02825fd4178478bfc130525463165f12d648c`; the APP-009 follow-up is published
-as draft PR #8 from `codex/app-009-backend-identity` and has not changed build/version metadata,
-deployed the backend, or uploaded a candidate.
+Latest frozen-tree verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
+tests**), **182 backend tests**, locked dependency audit with no known vulnerabilities, Bandit,
+Ruff, mypy, and **23/23** release-script tests all passed. The current release baseline is `main` at
+`24f163f54545e611136b66f77b95823df9eb32eb`. Fly release v4 serves its exact App-Attest-only
+image `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -59,17 +57,22 @@ These items are ordered. Do not archive early and plan to repair the same binary
   attestations/assertions, persists only auth/security metadata, rejects replay, applies bounded
   quotas, and retains only a time-bounded legacy bridge for deployment migration. Google remains
   an optional Gmail connection and is not the Wardrobe backend identity.
-- [ ] **Close the external portion of APP-009 and production-client portion of APP-011.** Enable
-  the Apple capability and profiles; provision durable Fly auth state; deploy and verify the
-  production-only cutover; rotate the Anthropic key and legacy `DEVICE_TOKEN`; and populate the
-  production Google Gmail IDs, HTTPS endpoint, public links, and Team ID in the gitignored
-  distribution configuration. Retain physical-device development and TestFlight evidence.
+- [x] **Complete the APP-009 development, infrastructure, and legacy-retirement gates.** App
+  Attest is enabled with prefix `29NT767Y9P`; physical development enrollment/renewal passed;
+  production Fly is App-Attest-only on one encrypted volume; restart and snapshot restore passed;
+  and the retired shared credential returns `401`.
+- [ ] **Close the remaining APP-009 policy and production-proof gates.** Finalize auth metadata,
+  backup/snapshot, request/IP-log retention, deletion, and alert-routing policy. Then inspect the
+  signed archive/profile and retain production TestFlight enrollment, assertion renewal, and
+  protected API evidence.
+- [ ] **Complete the production-client portion of APP-011.** Populate production Gmail IDs, HTTPS
+  endpoint, public links, and Team ID in gitignored `Distribution.xcconfig`, then pass the signed
+  device-archive guards.
 - [ ] **Close the publication portion of APP-016.** Publish and verify the final privacy/support
   pages and reconcile their claims with the code, Anthropic terms, Google Limited Use, and App
   Privacy inventory.
-- [ ] **Choose candidate metadata from external truth.** Check the highest uploaded build in App
-  Store Connect, select the next unused `CURRENT_PROJECT_VERSION`, and decide whether the next
-  candidate should use public version `1.0.0` so the exact internal build can later be promoted.
+- [x] **Choose candidate metadata from external truth.** Candidate `1.0.0 (4)` is selected so the
+  exact internal binary can later be promoted.
 - [ ] **Run and upload the candidate.** Follow
   [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md): complete regression,
   signed archive, validation, normal **TestFlight & App Store** upload, processing review, internal
@@ -192,9 +195,8 @@ not used because Apple prevents that artifact from being submitted to customers 
   device class using fictional/demo data, plus optional preview video. The narrative should show
   optional Gmail consent, wardrobe building, correction/review, Today, and privacy controls—not
   only a login screen.
-- [ ] **APP-019 · Submission · Final distribution verification.** Confirm the latest App Store
-  Connect build before choosing the next build number; decide whether the public marketing
-  version is `1.0.0`; archive with the currently required Xcode/iOS SDK; validate and upload using
+- [ ] **APP-019 · Submission · Final distribution verification.** Use candidate `1.0.0 (4)`;
+  archive with the currently required Xcode/iOS SDK; validate and upload using
   **TestFlight & App Store** rather than **TestFlight Internal Only**; distribute the processed
   build to the internal group; test upgrade and clean install on a physical device; retain the
   evidence needed to promote that same binary; keep backend health available through review.
