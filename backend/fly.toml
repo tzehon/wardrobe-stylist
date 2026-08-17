@@ -12,8 +12,10 @@ primary_region = 'sin'
   AUTH_MODE = 'app_attest'
   APP_ATTEST_ENVIRONMENT = 'production'
   APP_ATTEST_DATABASE_PATH = '/data/app-attest/auth.sqlite3'
+  APP_ATTEST_APP_ID_PREFIX = '29NT767Y9P'
   APP_ATTEST_BUNDLE_ID = 'com.tth.Wardrobe'
   APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES = '2'
+  APP_ATTEST_ALLOWED_BUNDLE_VERSIONS = '4'
 
 [mounts]
   source = 'wardrobe_auth_data'

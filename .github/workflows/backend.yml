@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - "backend/**"
+      - "ios/project.yml"
       - "shared/**"
       - ".github/workflows/backend.yml"
   pull_request:
     paths:
       - "backend/**"
+      - "ios/project.yml"
       - "shared/**"
       - ".github/workflows/backend.yml"
   schedule:
