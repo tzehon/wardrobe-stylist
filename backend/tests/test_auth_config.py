@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+import yaml
 
 from app.auth.config import AuthConfiguration, AuthConfigurationError
 from app.auth.store import AuthStore
@@ -165,18 +166,33 @@ def test_app_id_uses_confirmed_prefix_not_inferred_team_id(tmp_path) -> None:
 
 
 def test_fly_auth_database_uses_dedicated_volume_directory() -> None:
+    repository_root = Path(__file__).parents[2]
     fly_config = tomllib.loads(
         (Path(__file__).parents[1] / "fly.toml").read_text(encoding="utf-8")
+    )
+    ios_project = yaml.safe_load(
+        (repository_root / "ios" / "project.yml").read_text(encoding="utf-8")
     )
     database_path = Path(fly_config["env"]["APP_ATTEST_DATABASE_PATH"]).resolve(
         strict=False
     )
     data_root = Path("/data").resolve(strict=False)
+    accepted_builds = {
+        value.strip()
+        for value in fly_config["env"]["APP_ATTEST_ALLOWED_BUNDLE_VERSIONS"].split(",")
+        if value.strip()
+    }
+    current_build = str(ios_project["settings"]["base"]["CURRENT_PROJECT_VERSION"])
 
     assert fly_config["mounts"]["destination"] == "/data"
     assert database_path.parent != data_root
     assert database_path.parent.is_relative_to(data_root)
+    assert fly_config["env"]["AUTH_MODE"] == "app_attest"
+    assert fly_config["env"]["APP_ATTEST_ENVIRONMENT"] == "production"
+    assert fly_config["env"]["APP_ATTEST_APP_ID_PREFIX"] == "29NT767Y9P"
+    assert fly_config["env"]["APP_ATTEST_BUNDLE_ID"] == "com.tth.Wardrobe"
     assert fly_config["env"]["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"] == "2"
+    assert current_build in accepted_builds
 
 
 def _settings(**overrides: object) -> Settings:
