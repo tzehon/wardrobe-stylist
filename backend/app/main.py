@@ -19,8 +19,12 @@ from app.routes import auth, extract, recommend
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    initialize_auth_runtime()
-    yield
+    auth_service = initialize_auth_runtime()
+    auth_service.start_maintenance()
+    try:
+        yield
+    finally:
+        await auth_service.stop_maintenance()
 
 
 app = FastAPI(title="Wardrobe Stylist API", version="0.1.0", lifespan=lifespan)

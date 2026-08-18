@@ -1,6 +1,7 @@
 """Privilege-drop and dedicated-volume safety checks for the production image."""
 
 import ctypes
+import json
 import os
 import stat
 from pathlib import Path
@@ -8,6 +9,35 @@ from pathlib import Path
 import pytest
 
 import container_entrypoint
+
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_production_container_pins_payload_free_uvicorn_command() -> None:
+    dockerfile = (BACKEND_ROOT / "Dockerfile").read_text(encoding="utf-8")
+    entrypoint_lines = [
+        line.removeprefix("ENTRYPOINT ")
+        for line in dockerfile.splitlines()
+        if line.startswith("ENTRYPOINT ")
+    ]
+    command_lines = [
+        line.removeprefix("CMD ")
+        for line in dockerfile.splitlines()
+        if line.startswith("CMD ")
+    ]
+
+    assert len(entrypoint_lines) == 1
+    assert json.loads(entrypoint_lines[0]) == ["python", "/app/container_entrypoint.py"]
+    assert len(command_lines) == 1
+    assert json.loads(command_lines[0]) == [
+        "/app/.venv/bin/uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080",
+        "--no-access-log",
+    ]
 
 
 def test_prepare_database_parent_creates_private_owned_directory(tmp_path: Path) -> None:

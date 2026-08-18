@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal, Self
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.auth.network import request_client_ip
@@ -17,15 +17,15 @@ router = APIRouter(prefix="/auth/app-attest", tags=["authentication"])
 class ChallengeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    purpose: Literal["attestation", "assertion"]
+    purpose: Literal["attestation", "assertion", "deletion"]
     key_id: str | None = Field(default=None, max_length=128)
 
     @model_validator(mode="after")
     def validate_key_usage(self) -> Self:
         if self.purpose == "attestation" and self.key_id is not None:
             raise ValueError("key_id must be omitted for attestation.")
-        if self.purpose == "assertion" and self.key_id is None:
-            raise ValueError("key_id is required for assertion.")
+        if self.purpose in {"assertion", "deletion"} and self.key_id is None:
+            raise ValueError(f"key_id is required for {self.purpose}.")
         return self
 
 
@@ -44,6 +44,15 @@ class RegistrationRequest(BaseModel):
 
 
 class AssertionSessionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: UUID
+    key_id: str = Field(min_length=1, max_length=128)
+    assertion_object: str = Field(min_length=1, max_length=12000)
+    client_data: str = Field(min_length=1, max_length=6000)
+
+
+class InstallationDeletionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     challenge_id: UUID
@@ -116,6 +125,30 @@ def session_endpoint(
     except AuthFlowError as exc:
         raise_auth_http_error(exc)
     return _session_response(session)
+
+
+@router.post(
+    "/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+def delete_installation_endpoint(
+    body: InstallationDeletionRequest,
+    request: Request,
+    service: AppAttestAuthService = Depends(get_auth_service),
+) -> Response:
+    """Delete only the anonymous identity proven by a fresh App Attest assertion."""
+    try:
+        service.delete_installation(
+            challenge_id=str(body.challenge_id),
+            key_id=body.key_id,
+            assertion_object=body.assertion_object,
+            client_data=body.client_data,
+            client_ip=_client_ip(request, service),
+        )
+    except AuthFlowError as exc:
+        raise_auth_http_error(exc)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def _session_response(session: AppSession) -> SessionResponse:

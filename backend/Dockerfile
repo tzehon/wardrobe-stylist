@@ -42,4 +42,6 @@ COPY container_entrypoint.py ./container_entrypoint.py
 # Fly routes public HTTPS (443) to this internal port (see fly.toml).
 EXPOSE 8080
 ENTRYPOINT ["python", "/app/container_entrypoint.py"]
-CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# APP-009 forbids application access logs because they include client/request
+# metadata. Keep diagnostics in the bounded application security/error events.
+CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]

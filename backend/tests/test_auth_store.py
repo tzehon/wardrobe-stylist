@@ -6,7 +6,31 @@ import stat
 
 import pytest
 
-from app.auth.store import AuthStore, RateLimitExceeded, StoreConflictError
+from app.auth.store import (
+    CHALLENGE_MAX_RETENTION_SECONDS,
+    INACTIVE_INSTALLATION_RETENTION_SECONDS,
+    REVOKED_INSTALLATION_RETENTION_SECONDS,
+    SESSION_MAX_RETENTION_SECONDS,
+    AuthStore,
+    InstallationWritePolicy,
+    RateLimitExceeded,
+    StoreConflictError,
+)
+
+
+def _policy(
+    installation_id: str = "installation",
+    *,
+    app_id: str = "PREFIX.bundle",
+    environment: str = "development",
+    allow_revoked: bool = False,
+) -> InstallationWritePolicy:
+    return InstallationWritePolicy(
+        installation_id=installation_id,
+        app_id=app_id,
+        attest_environment=environment,
+        allow_revoked=allow_revoked,
+    )
 
 
 def test_store_is_private_durable_and_processing_replay_fails_closed(tmp_path) -> None:
@@ -111,10 +135,18 @@ def test_v1_runtime_metadata_schema_migrates_without_losing_sessions(tmp_path) -
         foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
     assert columns["validation_category"] == 0
     assert columns["bundle_version"] == 0
-    assert user_version == 3
+    assert user_version == 4
     assert foreign_key_errors == []
 
-    installation = store.authenticate_session(token_hash=b"token-hash", now=1002)
+    installation = store.authenticate_session(
+        token_hash=b"token-hash",
+        now=1002,
+        policy=InstallationWritePolicy(
+            installation_id=None,
+            app_id="PREFIX.bundle",
+            attest_environment="development",
+        ),
+    )
     assert installation is not None
     assert installation.installation_id == "installation"
     assert installation.validation_category == 3
@@ -174,7 +206,7 @@ def test_v2_security_metadata_migrates_without_ip_hash_or_lost_challenge(tmp_pat
     assert "client_ip_hash" not in challenge_columns
     assert rate_row == (180, 1)
     assert "rate_windows_expiry_idx" in rate_indexes
-    assert user_version == 3
+    assert user_version == 4
     claim = store.claim_challenge(
         challenge_id="migrated-challenge",
         purpose="attestation",
@@ -183,6 +215,263 @@ def test_v2_security_metadata_migrates_without_ip_hash_or_lost_challenge(tmp_pat
         now=200,
     )
     assert claim.challenge.secret == b"\x01\x02"
+
+
+def test_v3_challenge_schema_migrates_to_one_time_deletion_purpose(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    path.parent.mkdir(mode=0o700)
+    with sqlite3.connect(path) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE challenges (
+                challenge_id TEXT PRIMARY KEY,
+                secret BLOB NOT NULL,
+                purpose TEXT NOT NULL CHECK (purpose IN ('attestation', 'assertion')),
+                key_id TEXT,
+                expires_at INTEGER NOT NULL,
+                state TEXT NOT NULL CHECK (
+                    state IN ('issued', 'processing', 'completed', 'failed')
+                ),
+                payload_hash BLOB,
+                completed_session_id TEXT,
+                created_at INTEGER NOT NULL
+            );
+            INSERT INTO challenges VALUES (
+                'existing', X'0102', 'assertion', 'key', 2000,
+                'issued', NULL, NULL, 1000
+            );
+            PRAGMA user_version = 3;
+            """
+        )
+    os.chmod(path, 0o600)
+
+    store = AuthStore(path)
+    store.initialize()
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            """
+            INSERT INTO installations VALUES (
+                'installation', 'key', ?, ?, 'PREFIX.bundle', 'development',
+                0, 3, '7', 1000, 1000, NULL
+            )
+            """,
+            (b"public", b"receipt"),
+        )
+        connection.commit()
+    store.issue_challenge(
+        challenge_id="delete",
+        secret=b"d" * 32,
+        purpose="deletion",
+        key_id="key",
+        expires_at=2000,
+        now=1000,
+        policy=_policy(allow_revoked=True),
+    )
+
+    existing = store.claim_challenge(
+        challenge_id="existing",
+        purpose="assertion",
+        key_id="key",
+        payload_hash=b"existing",
+        now=1001,
+        policy=_policy(),
+    )
+    deletion = store.claim_challenge(
+        challenge_id="delete",
+        purpose="deletion",
+        key_id="key",
+        payload_hash=b"deletion",
+        now=1001,
+        policy=_policy(allow_revoked=True),
+    )
+    assert existing.challenge.secret == b"\x01\x02"
+    assert deletion.challenge.purpose == "deletion"
+
+
+def test_future_schema_version_is_rejected_before_auth_schema_writes(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    path.parent.mkdir(mode=0o700)
+    with sqlite3.connect(path) as connection:
+        connection.execute("CREATE TABLE future_marker (value TEXT NOT NULL)")
+        connection.execute("PRAGMA user_version = 5")
+        connection.commit()
+    os.chmod(path, 0o600)
+
+    with pytest.raises(RuntimeError, match="newer than this backend supports"):
+        AuthStore(path).initialize()
+
+    with sqlite3.connect(path) as connection:
+        tables = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_schema WHERE type = 'table'"
+            )
+        }
+        user_version = connection.execute("PRAGMA user_version").fetchone()[0]
+    assert tables == {"future_marker"}
+    assert user_version == 5
+
+
+@pytest.mark.parametrize("drift", ["extra-table", "extra-column"])
+def test_current_schema_rejects_unexpected_auth_drift(tmp_path, drift: str) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    with sqlite3.connect(path) as connection:
+        if drift == "extra-table":
+            connection.execute("CREATE TABLE unexpected_auth_state (value TEXT)")
+        else:
+            connection.execute("ALTER TABLE sessions ADD COLUMN unexpected_value TEXT")
+        connection.commit()
+
+    with pytest.raises(RuntimeError, match="unexpected"):
+        AuthStore(path).initialize()
+
+
+@pytest.mark.parametrize(
+    "sessions_schema",
+    [
+        # Same columns and types, but deleting an installation would leave its
+        # retained sessions behind without the required cascade.
+        """
+        CREATE TABLE sessions (
+            session_id TEXT PRIMARY KEY,
+            installation_id TEXT NOT NULL,
+            token_hash BLOB NOT NULL UNIQUE,
+            expires_at INTEGER NOT NULL,
+            created_at INTEGER NOT NULL,
+            revoked_at INTEGER
+        )
+        """,
+        # Same columns and foreign key, but bearer hashes are no longer unique.
+        """
+        CREATE TABLE sessions (
+            session_id TEXT PRIMARY KEY,
+            installation_id TEXT NOT NULL
+                REFERENCES installations(installation_id) ON DELETE CASCADE,
+            token_hash BLOB NOT NULL,
+            expires_at INTEGER NOT NULL,
+            created_at INTEGER NOT NULL,
+            revoked_at INTEGER
+        )
+        """,
+        # Preserve names while weakening both declared type and nullability.
+        """
+        CREATE TABLE sessions (
+            session_id TEXT PRIMARY KEY,
+            installation_id TEXT
+                REFERENCES installations(installation_id) ON DELETE CASCADE,
+            token_hash TEXT NOT NULL UNIQUE,
+            expires_at INTEGER NOT NULL,
+            created_at INTEGER NOT NULL,
+            revoked_at INTEGER
+        )
+        """,
+    ],
+    ids=["missing-delete-cascade", "missing-token-unique", "type-and-not-null"],
+)
+def test_same_column_session_constraint_drift_is_rejected(
+    tmp_path,
+    sessions_schema: str,
+) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    AuthStore(path).initialize()
+    with sqlite3.connect(path) as connection:
+        connection.execute("DROP TABLE sessions")
+        connection.execute(sessions_schema)
+        connection.commit()
+
+    with pytest.raises(RuntimeError, match="unexpected schema|unsafe column|cascade|UNIQUE"):
+        AuthStore(path).initialize()
+
+
+@pytest.mark.parametrize(
+    "challenge_schema",
+    [
+        """
+        CREATE TABLE challenges (
+            challenge_id TEXT UNIQUE,
+            secret BLOB NOT NULL,
+            purpose TEXT NOT NULL CHECK (
+                purpose IN ('attestation', 'assertion', 'deletion')
+            ),
+            key_id TEXT,
+            expires_at INTEGER NOT NULL,
+            state TEXT NOT NULL CHECK (
+                state IN ('issued', 'processing', 'completed', 'failed')
+            ),
+            payload_hash BLOB,
+            completed_session_id TEXT,
+            created_at INTEGER NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE challenges (
+            challenge_id TEXT PRIMARY KEY,
+            secret BLOB NOT NULL,
+            purpose TEXT NOT NULL CHECK (
+                purpose IN ('attestation', 'assertion', 'deletion', 'legacy')
+            ),
+            key_id TEXT,
+            expires_at INTEGER NOT NULL,
+            state TEXT NOT NULL CHECK (
+                state IN ('issued', 'processing', 'completed', 'failed', 'reusable')
+            ),
+            payload_hash BLOB,
+            completed_session_id TEXT,
+            created_at INTEGER NOT NULL
+        )
+        """,
+    ],
+    ids=["missing-primary-key", "weakened-checks"],
+)
+def test_same_column_challenge_constraint_drift_is_rejected(
+    tmp_path,
+    challenge_schema: str,
+) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    AuthStore(path).initialize()
+    with sqlite3.connect(path) as connection:
+        connection.execute("DROP TABLE challenges")
+        connection.execute(challenge_schema)
+        connection.commit()
+
+    with pytest.raises(RuntimeError, match="unexpected schema|unsafe column"):
+        AuthStore(path).initialize()
+
+
+@pytest.mark.parametrize("object_kind", ["trigger", "view", "index"])
+def test_unreviewed_sqlite_schema_objects_are_rejected(tmp_path, object_kind: str) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    AuthStore(path).initialize()
+    with sqlite3.connect(path) as connection:
+        if object_kind == "trigger":
+            connection.execute(
+                """
+                CREATE TRIGGER copy_deleted_installation
+                AFTER DELETE ON installations
+                BEGIN
+                    INSERT OR REPLACE INTO rate_windows VALUES (
+                        'unexpected-copy', OLD.installation_id, 0, 1, 1
+                    );
+                END
+                """
+            )
+        elif object_kind == "view":
+            connection.execute(
+                """
+                CREATE VIEW retained_auth_view AS
+                SELECT installation_id, key_id FROM installations
+                """
+            )
+        else:
+            connection.execute(
+                "CREATE INDEX unexpected_auth_index ON installations(key_id)"
+            )
+        connection.commit()
+
+    with pytest.raises(RuntimeError, match="unexpected"):
+        AuthStore(path).initialize()
 
 
 def test_store_rejects_insecure_existing_database_directory_without_chmod(tmp_path) -> None:
@@ -470,6 +759,7 @@ def test_assertion_counter_update_is_compare_and_swap(tmp_path) -> None:
             key_id="key",
             expires_at=2000,
             now=1001,
+            policy=_policy(),
         )
         store.claim_challenge(
             challenge_id=challenge_id,
@@ -477,6 +767,7 @@ def test_assertion_counter_update_is_compare_and_swap(tmp_path) -> None:
             key_id="key",
             payload_hash=challenge_id.encode(),
             now=1001,
+            policy=_policy(),
         )
 
     store.complete_assertion(
@@ -490,6 +781,7 @@ def test_assertion_counter_update_is_compare_and_swap(tmp_path) -> None:
         token_hash=b"assertion-token-hash-1",
         session_expires_at=1900,
         now=1001,
+        policy=_policy(),
     )
     with pytest.raises(StoreConflictError, match="assertion_counter_replay"):
         store.complete_assertion(
@@ -503,6 +795,7 @@ def test_assertion_counter_update_is_compare_and_swap(tmp_path) -> None:
             token_hash=b"assertion-token-hash-2",
             session_expires_at=1900,
             now=1002,
+            policy=_policy(),
         )
 
 
@@ -556,6 +849,10 @@ def test_optional_runtime_metadata_upgrades_and_never_downgrades_to_null(tmp_pat
             key_id="legacy-core-key",
             expires_at=2000,
             now=1001,
+            policy=_policy(
+                "legacy-core-installation",
+                environment="production",
+            ),
         )
         store.claim_challenge(
             challenge_id=challenge_id,
@@ -563,6 +860,10 @@ def test_optional_runtime_metadata_upgrades_and_never_downgrades_to_null(tmp_pat
             key_id="legacy-core-key",
             payload_hash=challenge_id.encode(),
             now=1001,
+            policy=_policy(
+                "legacy-core-installation",
+                environment="production",
+            ),
         )
         store.complete_assertion(
             challenge_id=challenge_id,
@@ -575,6 +876,10 @@ def test_optional_runtime_metadata_upgrades_and_never_downgrades_to_null(tmp_pat
             token_hash=f"token-{new_count}".encode(),
             session_expires_at=1900,
             now=1001,
+            policy=_policy(
+                "legacy-core-installation",
+                environment="production",
+            ),
         )
 
     upgraded = store.installation_for_key("legacy-core-key")
@@ -584,7 +889,7 @@ def test_optional_runtime_metadata_upgrades_and_never_downgrades_to_null(tmp_pat
     assert upgraded.bundle_version == "7"
 
 
-def test_cleanup_is_bounded_and_preserves_active_challenge(tmp_path) -> None:
+def test_cleanup_repeats_bounded_transactions_until_drained(tmp_path) -> None:
     path = tmp_path / "private-auth" / "auth.sqlite3"
     store = AuthStore(path)
     store.initialize()
@@ -622,5 +927,304 @@ def test_cleanup_is_bounded_and_preserves_active_challenge(tmp_path) -> None:
         active_count = connection.execute(
             "SELECT COUNT(*) FROM challenges WHERE challenge_id = 'active'"
         ).fetchone()[0]
-    assert expired_count == 1
+    assert expired_count == 0
     assert active_count == 1
+
+
+def test_cleanup_enforces_hard_metadata_deadlines(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    now = 20_000
+    with sqlite3.connect(path) as connection:
+        connection.executemany(
+            """
+            INSERT INTO challenges(
+                challenge_id, secret, purpose, key_id, expires_at, state, created_at
+            ) VALUES (?, ?, 'attestation', NULL, ?, 'issued', ?)
+            """,
+            [
+                (
+                    "challenge-at-limit",
+                    b"d" * 32,
+                    now + 1000,
+                    now - CHALLENGE_MAX_RETENTION_SECONDS,
+                ),
+                (
+                    "challenge-inside-limit",
+                    b"k" * 32,
+                    now + 1000,
+                    now - CHALLENGE_MAX_RETENTION_SECONDS + 1,
+                ),
+            ],
+        )
+        connection.execute(
+            """
+            INSERT INTO installations VALUES (
+                'installation', 'key', ?, ?, 'PREFIX.bundle', 'development',
+                0, 3, '7', ?, ?, NULL
+            )
+            """,
+            (b"public", b"receipt", now, now),
+        )
+        connection.executemany(
+            """
+            INSERT INTO sessions(
+                session_id, installation_id, token_hash, expires_at, created_at, revoked_at
+            ) VALUES (?, 'installation', ?, ?, ?, NULL)
+            """,
+            [
+                (
+                    "session-at-limit",
+                    b"due-token",
+                    now + 1000,
+                    now - SESSION_MAX_RETENTION_SECONDS,
+                ),
+                (
+                    "session-inside-limit",
+                    b"kept-token",
+                    now + 1000,
+                    now - SESSION_MAX_RETENTION_SECONDS + 1,
+                ),
+            ],
+        )
+        connection.executemany(
+            """
+            INSERT INTO rate_windows VALUES ('challenge', ?, 1, ?, 1)
+            """,
+            [("rate-at-expiry", now), ("rate-before-expiry", now + 1)],
+        )
+        connection.commit()
+
+    store.cleanup(now=now)
+
+    with sqlite3.connect(path) as connection:
+        challenges = {
+            row[0] for row in connection.execute("SELECT challenge_id FROM challenges")
+        }
+        sessions = {row[0] for row in connection.execute("SELECT session_id FROM sessions")}
+        rates = {row[0] for row in connection.execute("SELECT subject_hash FROM rate_windows")}
+    assert challenges == {"challenge-inside-limit"}
+    assert sessions == {"session-inside-limit"}
+    assert rates == {"rate-before-expiry"}
+
+
+def test_scheduler_lookahead_keeps_all_purges_within_published_maxima(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    now = 30_000_000
+    cadence = 60
+    with sqlite3.connect(path) as connection:
+        connection.executemany(
+            """
+            INSERT INTO installations VALUES (
+                ?, ?, ?, ?, 'PREFIX.bundle', 'development', 0, 3, '7', ?, ?, ?
+            )
+            """,
+            [
+                (
+                    "inactive-due-next-tick",
+                    "inactive-key",
+                    b"public",
+                    b"receipt",
+                    now,
+                    now - INACTIVE_INSTALLATION_RETENTION_SECONDS + cadence,
+                    None,
+                ),
+                (
+                    "inactive-after-next-tick",
+                    "active-key",
+                    b"public",
+                    b"receipt",
+                    now,
+                    now - INACTIVE_INSTALLATION_RETENTION_SECONDS + cadence + 1,
+                    None,
+                ),
+                (
+                    "revoked-due-next-tick",
+                    "revoked-key",
+                    b"public",
+                    b"receipt",
+                    now,
+                    now,
+                    now - REVOKED_INSTALLATION_RETENTION_SECONDS + cadence,
+                ),
+                (
+                    "revoked-after-next-tick",
+                    "recent-revoked-key",
+                    b"public",
+                    b"receipt",
+                    now,
+                    now,
+                    now - REVOKED_INSTALLATION_RETENTION_SECONDS + cadence + 1,
+                ),
+            ],
+        )
+        connection.commit()
+
+    store.cleanup(now=now, deadline_lookahead_seconds=cadence)
+
+    with sqlite3.connect(path) as connection:
+        installation_ids = {
+            row[0] for row in connection.execute("SELECT installation_id FROM installations")
+        }
+    assert installation_ids == {
+        "inactive-after-next-tick",
+        "revoked-after-next-tick",
+    }
+
+
+def test_inactive_installation_backlog_drains_and_cascades_sessions(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    now = 40_000_000
+    stale_at = now - INACTIVE_INSTALLATION_RETENTION_SECONDS
+    with sqlite3.connect(path) as connection:
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.executemany(
+            """
+            INSERT INTO installations VALUES (
+                ?, ?, ?, ?, 'PREFIX.bundle', 'development', 0, 3, '7', ?, ?, NULL
+            )
+            """,
+            [
+                (
+                    f"installation-{index}",
+                    f"key-{index}",
+                    b"public",
+                    b"receipt",
+                    stale_at,
+                    stale_at,
+                )
+                for index in range(1001)
+            ],
+        )
+        connection.executemany(
+            """
+            INSERT INTO sessions VALUES (?, ?, ?, ?, ?, NULL)
+            """,
+            [
+                (
+                    f"session-{index}",
+                    f"installation-{index}",
+                    f"token-{index}".encode(),
+                    now + 1000,
+                    now,
+                )
+                for index in range(1001)
+            ],
+        )
+        connection.commit()
+
+    store.cleanup(now=now)
+
+    with sqlite3.connect(path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM installations").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM sessions").fetchone()[0] == 0
+
+
+def test_cleanup_checkpoints_and_truncates_wal(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    now = 50_000
+    wal_path = path.with_name(path.name + "-wal")
+    with sqlite3.connect(path) as writer:
+        writer.execute("PRAGMA journal_mode = WAL")
+        writer.execute(
+            """
+            INSERT INTO challenges(
+                challenge_id, secret, purpose, key_id, expires_at, state, created_at
+            ) VALUES ('stale', ?, 'attestation', NULL, 1, 'issued', 1)
+            """,
+            (b"s" * 32,),
+        )
+        writer.commit()
+        assert wal_path.exists()
+        assert wal_path.stat().st_size > 0
+
+        store.cleanup(now=now)
+
+        assert wal_path.stat().st_size == 0
+        assert writer.execute(
+            "SELECT COUNT(*) FROM challenges WHERE challenge_id = 'stale'"
+        ).fetchone()[0] == 0
+
+
+def test_installation_deletion_is_counter_cas_and_removes_only_owned_state(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    with sqlite3.connect(path) as connection:
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute(
+            """
+            INSERT INTO installations VALUES (
+                'installation', 'key', ?, ?, 'PREFIX.bundle', 'development',
+                4, 3, '7', 1000, 1000, NULL
+            )
+            """,
+            (b"public", b"receipt"),
+        )
+        connection.execute(
+            """
+            INSERT INTO sessions VALUES (
+                'session', 'installation', ?, 2000, 1000, NULL
+            )
+            """,
+            (b"token",),
+        )
+        connection.executemany(
+            """
+            INSERT INTO challenges(
+                challenge_id, secret, purpose, key_id, expires_at, state, created_at
+            ) VALUES (?, ?, ?, 'key', 2000, ?, 1000)
+            """,
+            [
+                ("deletion", b"d" * 32, "deletion", "processing"),
+                ("other-key-challenge", b"a" * 32, "assertion", "issued"),
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO rate_windows VALUES (?, ?, 1000, 2000, 1)",
+            [
+                ("session-key", "owned-key-hash"),
+                ("extract-installation", "owned-installation-hash"),
+                ("challenge", "unrelated-ip-hash"),
+                ("session-global", "unrelated-global-hash"),
+            ],
+        )
+        connection.commit()
+
+    with pytest.raises(StoreConflictError, match="assertion_counter_replay"):
+        store.complete_installation_deletion(
+            challenge_id="deletion",
+            key_id="key",
+            installation_id="installation",
+            previous_sign_count=3,
+            rate_subject_hashes=(),
+            policy=_policy(allow_revoked=True),
+        )
+
+    store.complete_installation_deletion(
+        challenge_id="deletion",
+        key_id="key",
+        installation_id="installation",
+        previous_sign_count=4,
+        rate_subject_hashes=(
+            ("session-key", "owned-key-hash"),
+            ("extract-installation", "owned-installation-hash"),
+        ),
+        policy=_policy(allow_revoked=True),
+    )
+
+    with sqlite3.connect(path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM installations").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM sessions").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM challenges").fetchone()[0] == 0
+        remaining_scopes = {
+            row[0] for row in connection.execute("SELECT scope FROM rate_windows")
+        }
+    assert remaining_scopes == {"challenge", "session-global"}

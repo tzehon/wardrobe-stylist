@@ -33,9 +33,9 @@ def get_auth_service() -> AppAttestAuthService:
     return _build_service()
 
 
-def initialize_auth_runtime() -> None:
+def initialize_auth_runtime() -> AppAttestAuthService:
     """Validate production auth and initialize the durable schema at startup."""
-    get_auth_service()
+    return get_auth_service()
 
 
 def clear_auth_runtime_cache() -> None:

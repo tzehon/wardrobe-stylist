@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import binascii
 import hashlib
@@ -10,10 +11,10 @@ import json
 import logging
 import secrets
 import uuid
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, NoReturn
 
 from cryptography import x509
 from cryptography.exceptions import UnsupportedAlgorithm
@@ -22,13 +23,15 @@ from app.auth.app_attest import AppAttestValidationError, AppAttestVerifier
 from app.auth.config import AuthConfiguration
 from app.auth.store import (
     AuthStore,
+    DeletionMaintenancePending,
     InstallationRecord,
+    InstallationWritePolicy,
     RateLimitExceeded,
     SessionRecord,
     StoreConflictError,
 )
 
-ChallengePurpose = Literal["attestation", "assertion"]
+ChallengePurpose = Literal["attestation", "assertion", "deletion"]
 logger = logging.getLogger(__name__)
 
 # One installation normally shares one public IP. A 2x aggregate allowance
@@ -37,6 +40,78 @@ logger = logging.getLogger(__name__)
 # source addresses. These constant-subject buckets are charged first.
 _GLOBAL_RATE_LIMIT_MULTIPLIER = 2
 _GLOBAL_RATE_SUBJECT = "single-user-backend"
+_DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE = 6
+_DELETION_PROOF_RATE_LIMIT_PER_HOUR = 6
+
+# A fixed, non-configurable cadence keeps production cleanup inside the policy's
+# five-minute maintenance allowance. The only Fly Machine is pinned running so
+# this loop is not suspended by idle auto-stop.
+AUTH_MAINTENANCE_INTERVAL_SECONDS = 60
+
+# Security-event fields are a closed operational vocabulary. Some callers pass
+# store conflict codes or composed quota scopes, so bounding only the format
+# string would still allow an accidental request value to reach the logs.
+_SECURITY_EVENT_NAMES = frozenset(
+    {
+        "assertion_rejected",
+        "assertion_succeeded",
+        "auth_maintenance_failed",
+        "bridge_bearer_accepted",
+        "bridge_bearer_rejected",
+        "deletion_rejected",
+        "installation_deleted",
+        "installation_rejected",
+        "rate_limit_exceeded",
+        "registration_rejected",
+        "registration_succeeded",
+    }
+)
+_SECURITY_EVENT_CODES = frozenset(
+    {
+        "-",
+        "app_attest_key_already_registered",
+        "assertion_counter_replay",
+        "bridge_expired",
+        "challenge_already_used",
+        "challenge_mismatch",
+        "configuration_mismatch",
+        "deletion_maintenance_pending",
+        "expired_challenge",
+        "invalid_app_attest_assertion",
+        "invalid_app_attestation",
+        "rate_limit_exceeded",
+        "revoked_app_attest_key",
+        "store_maintenance_failed",
+        "unknown_app_attest_key",
+        "unknown_challenge",
+    }
+)
+_SECURITY_EVENT_SCOPES = frozenset(
+    {
+        "-",
+        "challenge",
+        "challenge-global",
+        "deletion-challenge-global",
+        "deletion-challenge-ip",
+        "deletion-key",
+        "deletion-proof-global",
+        "deletion-proof-ip",
+        "extract-global",
+        "extract-installation",
+        "extract-ip",
+        "recommend-global",
+        "recommend-installation",
+        "recommend-ip",
+        "registration",
+        "registration-global",
+        "session-global",
+        "session-ip",
+        "session-key",
+    }
+)
+_SECURITY_EVENT_PATHS = frozenset({"-", "/extract", "/recommend"})
+_SECURITY_EVENT_MECHANISMS = frozenset({"-", "app_attest", "legacy"})
+_SECURITY_EVENT_LEVELS = frozenset({logging.INFO, logging.WARNING, logging.ERROR})
 
 
 class AuthFlowError(RuntimeError):
@@ -90,6 +165,7 @@ class AppAttestAuthService:
         self._now = now or (lambda: datetime.now(UTC))
         self.store: AuthStore | None = None
         self.verifier: AppAttestVerifier | None = None
+        self._maintenance_task: asyncio.Task[None] | None = None
         if configuration.app_attest_enabled:
             if configuration.database_path is None:
                 raise RuntimeError("Validated App Attest configuration had no database path.")
@@ -104,7 +180,76 @@ class AppAttestAuthService:
     def initialize(self) -> None:
         if self.store is not None:
             self.store.initialize()
-            self.store.cleanup(now=self._timestamp())
+            # Apply one cadence of lookahead at cold start; otherwise a row
+            # due seconds after startup could exceed its maximum before the
+            # first periodic tick.
+            self.store.cleanup(
+                now=self._timestamp(),
+                deadline_lookahead_seconds=AUTH_MAINTENANCE_INTERVAL_SECONDS,
+            )
+
+    def start_maintenance(
+        self,
+        *,
+        wait: Callable[[float], Awaitable[None]] = asyncio.sleep,
+    ) -> None:
+        if self.store is None:
+            return
+        if self._maintenance_task is not None and not self._maintenance_task.done():
+            return
+        self._maintenance_task = asyncio.create_task(
+            self.run_maintenance_loop(wait=wait),
+            name="app-attest-retention-maintenance",
+        )
+
+    async def stop_maintenance(self) -> None:
+        task = self._maintenance_task
+        self._maintenance_task = None
+        if task is None:
+            return
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+    async def run_maintenance_loop(
+        self,
+        *,
+        wait: Callable[[float], Awaitable[None]] = asyncio.sleep,
+    ) -> None:
+        if self.store is None:
+            return
+        while True:
+            await wait(AUTH_MAINTENANCE_INTERVAL_SECONDS)
+            try:
+                cleanup_task = asyncio.create_task(
+                    asyncio.to_thread(
+                        self.store.cleanup,
+                        now=self._timestamp(),
+                        deadline_lookahead_seconds=AUTH_MAINTENANCE_INTERVAL_SECONDS,
+                    )
+                )
+                try:
+                    await asyncio.shield(cleanup_task)
+                except asyncio.CancelledError:
+                    # Cancellation cannot stop work already executing in a
+                    # thread. Wait for the checkpoint before completing app
+                    # shutdown, then preserve cancellation for the loop.
+                    try:
+                        await cleanup_task
+                    finally:
+                        raise
+            except Exception:
+                # Maintenance retries on the next fixed tick. Keep the event
+                # bounded: exception messages and database identifiers must
+                # never enter logs.
+                _security_event(
+                    event="auth_maintenance_failed",
+                    code="store_maintenance_failed",
+                    mechanism="app_attest",
+                    level=logging.ERROR,
+                )
 
     def issue_challenge(
         self,
@@ -115,23 +260,21 @@ class AppAttestAuthService:
     ) -> Challenge:
         store = self._required_store()
         now = self._timestamp()
-        self._consume_global_rate(
-            scope="challenge",
-            per_subject_limit=self.configuration.challenge_rate_limit_per_minute,
-            window_seconds=60,
-            now=now,
-        )
-        self._consume_rate(
-            scope="challenge",
-            subject=client_ip,
-            limit=self.configuration.challenge_rate_limit_per_minute,
-            window_seconds=60,
-            now=now,
-        )
-        # Each batch is capped in AuthStore, so normal accepted traffic steadily
-        # removes expired security metadata without letting rate-limited callers
-        # force maintenance scans.
-        store.cleanup(now=now)
+        if purpose != "deletion":
+            self._consume_global_rate(
+                scope="challenge",
+                per_subject_limit=self.configuration.challenge_rate_limit_per_minute,
+                window_seconds=60,
+                now=now,
+            )
+            self._consume_rate(
+                scope="challenge",
+                subject=client_ip,
+                limit=self.configuration.challenge_rate_limit_per_minute,
+                window_seconds=60,
+                now=now,
+            )
+        challenge_policy: InstallationWritePolicy | None = None
         if purpose == "attestation":
             if key_id is not None:
                 raise _bad_request(
@@ -142,23 +285,57 @@ class AppAttestAuthService:
             if key_id is None:
                 raise _bad_request(
                     "missing_key_id",
-                    "key_id is required for an assertion challenge.",
+                    f"key_id is required for a {purpose} challenge.",
                 )
             _decode_key_id(key_id)
+            if purpose == "deletion":
+                # Shape arbitrary but well-formed key-id probes per source
+                # before reading installation state. The aggregate deletion
+                # budget is still charged only after a real row is found.
+                self._consume_rate(
+                    scope="deletion-challenge-ip",
+                    subject=client_ip,
+                    limit=_DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE,
+                    window_seconds=60,
+                    now=now,
+                    reserved_deletion_bucket=True,
+                )
             installation = store.installation_for_key(key_id)
-            self._require_active_installation(installation)
+            if purpose == "deletion":
+                scoped_installation = self._require_deletable_installation(installation)
+            else:
+                scoped_installation = self._require_active_installation(installation)
+            challenge_policy = self._installation_write_policy(
+                scoped_installation,
+                allow_revoked=purpose == "deletion",
+            )
+
+        if purpose == "deletion":
+            # Unknown random key ids cannot consume aggregate capacity
+            # reserved for an installed client that needs to delete its
+            # security metadata.
+            self._consume_global_rate(
+                scope="deletion-challenge",
+                per_subject_limit=_DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE,
+                window_seconds=60,
+                now=now,
+            )
 
         raw_challenge = secrets.token_bytes(32)
         challenge_id = str(uuid.uuid4())
         expires_at = now + self.configuration.challenge_ttl_seconds
-        store.issue_challenge(
-            challenge_id=challenge_id,
-            secret=raw_challenge,
-            purpose=purpose,
-            key_id=key_id,
-            expires_at=expires_at,
-            now=now,
-        )
+        try:
+            store.issue_challenge(
+                challenge_id=challenge_id,
+                secret=raw_challenge,
+                purpose=purpose,
+                key_id=key_id,
+                expires_at=expires_at,
+                now=now,
+                policy=challenge_policy,
+            )
+        except StoreConflictError as exc:
+            self._raise_installation_conflict(exc, deletion=purpose == "deletion")
         return Challenge(
             challenge_id=challenge_id,
             challenge=_urlsafe_encode(raw_challenge),
@@ -341,6 +518,7 @@ class AppAttestAuthService:
         )
         installation = store.installation_for_key(key_id)
         active_installation = self._require_active_installation(installation)
+        installation_policy = self._installation_write_policy(active_installation)
         assertion_bytes = _standard_base64_decode(
             assertion_object,
             field="assertion_object",
@@ -368,6 +546,7 @@ class AppAttestAuthService:
                 key_id=key_id,
                 payload_hash=payload_hash,
                 now=now,
+                policy=installation_policy,
             )
         except StoreConflictError as exc:
             _security_event(
@@ -376,7 +555,18 @@ class AppAttestAuthService:
                 mechanism="app_attest",
                 level=logging.WARNING,
             )
+            if exc.code in {
+                "unknown_app_attest_key",
+                "configuration_mismatch",
+                "revoked_app_attest_key",
+            }:
+                self._raise_installation_conflict(exc, deletion=False)
             raise _challenge_error(exc.code) from exc
+
+        if claim.installation is None:
+            raise RuntimeError("Key-bound assertion claim had no installation.")
+        active_installation = claim.installation
+        installation_policy = self._installation_write_policy(active_installation)
 
         try:
             _validate_assertion_client_data(
@@ -410,12 +600,14 @@ class AppAttestAuthService:
         # an unauthenticated caller cannot starve another installation's
         # session-renewal budget. The IP quota above still bounds bad proofs.
         try:
-            self._consume_rate(
+            self._consume_installation_rate(
                 scope="session-key",
                 subject=key_id,
                 limit=self.configuration.session_rate_limit_per_hour,
                 window_seconds=3600,
                 now=now,
+                key_id=key_id,
+                policy=installation_policy,
             )
         except AuthFlowError:
             store.fail_challenge(challenge_id)
@@ -437,6 +629,7 @@ class AppAttestAuthService:
                 token_hash=hashlib.sha256(token.encode("ascii")).digest(),
                 session_expires_at=session.expires_at,
                 now=now,
+                policy=installation_policy,
             )
         except StoreConflictError as exc:
             store.fail_challenge(challenge_id)
@@ -446,6 +639,12 @@ class AppAttestAuthService:
                 mechanism="app_attest",
                 level=logging.WARNING,
             )
+            if exc.code in {
+                "unknown_app_attest_key",
+                "configuration_mismatch",
+                "revoked_app_attest_key",
+            }:
+                self._raise_installation_conflict(exc, deletion=False)
             raise AuthFlowError(
                 status_code=409,
                 code=exc.code,
@@ -456,6 +655,195 @@ class AppAttestAuthService:
             mechanism="app_attest",
         )
         return self._session_response(stored, token)
+
+    def delete_installation(
+        self,
+        *,
+        challenge_id: str,
+        key_id: str,
+        assertion_object: str,
+        client_data: str,
+        client_ip: str,
+    ) -> None:
+        """Delete the installation proven by a fresh one-time assertion."""
+        store = self._required_store()
+        verifier = self._required_verifier()
+        now = self._timestamp()
+        _decode_key_id(key_id)
+        self._consume_rate(
+            scope="deletion-proof-ip",
+            subject=client_ip,
+            limit=_DELETION_PROOF_RATE_LIMIT_PER_HOUR,
+            window_seconds=3600,
+            now=now,
+            reserved_deletion_bucket=True,
+        )
+        installation = self._require_deletable_installation(
+            store.installation_for_key(key_id)
+        )
+        installation_policy = self._installation_write_policy(
+            installation,
+            allow_revoked=True,
+        )
+        assertion_bytes = _standard_base64_decode(
+            assertion_object,
+            field="assertion_object",
+            maximum_bytes=8192,
+        )
+        client_data_bytes = _standard_base64_decode(
+            client_data,
+            field="client_data",
+            maximum_bytes=4096,
+        )
+        payload_hash = hashlib.sha256(
+            b"deletion\x00"
+            + challenge_id.encode("ascii", errors="strict")
+            + b"\x00"
+            + key_id.encode("ascii", errors="strict")
+            + b"\x00"
+            + assertion_bytes
+            + b"\x00"
+            + client_data_bytes
+        ).digest()
+        try:
+            claim = store.claim_challenge(
+                challenge_id=challenge_id,
+                purpose="deletion",
+                key_id=key_id,
+                payload_hash=payload_hash,
+                now=now,
+                policy=installation_policy,
+            )
+        except StoreConflictError as exc:
+            _security_event(
+                event="deletion_rejected",
+                code=exc.code,
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            if exc.code in {
+                "unknown_app_attest_key",
+                "configuration_mismatch",
+                "revoked_app_attest_key",
+            }:
+                self._raise_installation_conflict(exc, deletion=True)
+            raise _challenge_error(exc.code) from exc
+
+        if claim.installation is None:
+            raise RuntimeError("Key-bound deletion claim had no installation.")
+        installation = claim.installation
+        installation_policy = self._installation_write_policy(
+            installation,
+            allow_revoked=True,
+        )
+
+        try:
+            _validate_assertion_client_data(
+                client_data_bytes,
+                purpose="deletion",
+                challenge_id=challenge_id,
+                challenge=_urlsafe_encode(claim.challenge.secret),
+                key_id=key_id,
+            )
+            verifier.verify_assertion(
+                assertion_object=assertion_bytes,
+                client_data=client_data_bytes,
+                public_key_der=installation.public_key_der,
+                previous_sign_count=installation.sign_count,
+            )
+        except (AppAttestValidationError, ValueError, UnsupportedAlgorithm) as exc:
+            store.fail_challenge(challenge_id)
+            _security_event(
+                event="deletion_rejected",
+                code="invalid_app_attest_assertion",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=401,
+                code="invalid_app_attest_assertion",
+                message="The app installation deletion could not be verified.",
+            ) from exc
+
+        # Invalid proofs consume only their source-IP budget. Aggregate and
+        # key capacity are reserved for a caller that proved current private-
+        # key possession, so distributed junk cannot starve valid deletion.
+        self._consume_global_rate(
+            scope="deletion-proof",
+            per_subject_limit=_DELETION_PROOF_RATE_LIMIT_PER_HOUR,
+            window_seconds=3600,
+            now=now,
+        )
+        try:
+            self._consume_installation_rate(
+                scope="deletion-key",
+                subject=key_id,
+                limit=_DELETION_PROOF_RATE_LIMIT_PER_HOUR,
+                window_seconds=3600,
+                now=now,
+                key_id=key_id,
+                policy=installation_policy,
+                reserved_deletion_bucket=True,
+            )
+        except AuthFlowError:
+            store.fail_challenge(challenge_id)
+            raise
+
+        rate_subject_hashes = (
+            ("session-key", self._subject_hash("session-key", key_id)),
+            ("deletion-key", self._subject_hash("deletion-key", key_id)),
+            (
+                "extract-installation",
+                self._subject_hash("extract-installation", installation.installation_id),
+            ),
+            (
+                "recommend-installation",
+                self._subject_hash("recommend-installation", installation.installation_id),
+            ),
+        )
+        try:
+            store.complete_installation_deletion(
+                challenge_id=challenge_id,
+                key_id=key_id,
+                installation_id=installation.installation_id,
+                previous_sign_count=installation.sign_count,
+                rate_subject_hashes=rate_subject_hashes,
+                policy=installation_policy,
+            )
+        except StoreConflictError as exc:
+            store.fail_challenge(challenge_id)
+            _security_event(
+                event="deletion_rejected",
+                code=exc.code,
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            if exc.code == "unknown_app_attest_key":
+                self._raise_installation_conflict(exc, deletion=True)
+            if exc.code == "configuration_mismatch":
+                self._raise_installation_conflict(exc, deletion=True)
+            raise AuthFlowError(
+                status_code=409,
+                code=exc.code,
+                message="The deletion assertion was already used.",
+            ) from exc
+        except DeletionMaintenancePending as exc:
+            _security_event(
+                event="deletion_rejected",
+                code="deletion_maintenance_pending",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=503,
+                code="deletion_maintenance_pending",
+                message="Server deletion maintenance is still completing; try again.",
+                retry_after=1,
+            ) from exc
+        _security_event(
+            event="installation_deleted",
+            mechanism="app_attest",
+        )
 
     def authenticate_bearer(
         self,
@@ -474,11 +862,18 @@ class AppAttestAuthService:
             # separately at the installation layer below.
             self._rate_limit_api_ip(path=path, client_ip=client_ip, now=now)
             token_hash = _bearer_token_hash(token)
-            installation = (
-                self.store.authenticate_session(token_hash=token_hash, now=now)
-                if token_hash is not None
-                else None
-            )
+            try:
+                installation = (
+                    self.store.authenticate_session(
+                        token_hash=token_hash,
+                        now=now,
+                        policy=self._bearer_write_policy(),
+                    )
+                    if token_hash is not None
+                    else None
+                )
+            except StoreConflictError as exc:
+                self._raise_installation_conflict(exc, deletion=False)
             if installation is not None:
                 active_installation = self._require_active_installation(installation)
                 identity = BackendIdentity(
@@ -486,7 +881,7 @@ class AppAttestAuthService:
                     mechanism="app_attest",
                 )
                 self._rate_limit_api_installation(
-                    installation_id=identity.installation_id,
+                    installation=active_installation,
                     path=path,
                     now=now,
                 )
@@ -571,7 +966,7 @@ class AppAttestAuthService:
     def _rate_limit_api_installation(
         self,
         *,
-        installation_id: str,
+        installation: InstallationRecord,
         path: str,
         now: int,
     ) -> None:
@@ -579,12 +974,14 @@ class AppAttestAuthService:
         if rate_limit is None:
             return
         scope, limit = rate_limit
-        self._consume_rate(
+        self._consume_installation_rate(
             scope=f"{scope}-installation",
-            subject=installation_id,
+            subject=installation.installation_id,
             limit=limit,
             window_seconds=3600,
             now=now,
+            installation_id=installation.installation_id,
+            policy=self._installation_write_policy(installation),
         )
 
     def _consume_rate(
@@ -596,6 +993,7 @@ class AppAttestAuthService:
         window_seconds: int,
         now: int,
         reserved_global_bucket: bool = False,
+        reserved_deletion_bucket: bool = False,
     ) -> None:
         store = self._required_store()
         try:
@@ -606,6 +1004,7 @@ class AppAttestAuthService:
                 window_seconds=window_seconds,
                 now=now,
                 reserved_global_bucket=reserved_global_bucket,
+                reserved_deletion_bucket=reserved_deletion_bucket,
             )
         except RateLimitExceeded as exc:
             _security_event(
@@ -620,6 +1019,51 @@ class AppAttestAuthService:
                 message="Too many authentication or backend requests.",
                 retry_after=exc.retry_after,
             ) from exc
+
+    def _consume_installation_rate(
+        self,
+        *,
+        scope: str,
+        subject: str,
+        limit: int,
+        window_seconds: int,
+        now: int,
+        policy: InstallationWritePolicy,
+        key_id: str | None = None,
+        installation_id: str | None = None,
+        reserved_deletion_bucket: bool = False,
+    ) -> None:
+        store = self._required_store()
+        try:
+            store.consume_installation_rate_limit(
+                scope=scope,
+                subject_hash=self._subject_hash(scope, subject),
+                limit=limit,
+                window_seconds=window_seconds,
+                now=now,
+                key_id=key_id,
+                installation_id=installation_id,
+                policy=policy,
+                reserved_deletion_bucket=reserved_deletion_bucket,
+            )
+        except RateLimitExceeded as exc:
+            _security_event(
+                event="rate_limit_exceeded",
+                code="rate_limit_exceeded",
+                scope=scope,
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=429,
+                code="rate_limit_exceeded",
+                message="Too many authentication or backend requests.",
+                retry_after=exc.retry_after,
+            ) from exc
+        except StoreConflictError as exc:
+            self._raise_installation_conflict(
+                exc,
+                deletion=policy.allow_revoked,
+            )
 
     def _consume_global_rate(
         self,
@@ -661,6 +1105,71 @@ class AppAttestAuthService:
             expires_at=datetime.fromtimestamp(session.expires_at, UTC),
             installation_id=session.installation_id,
         )
+
+    def _installation_write_policy(
+        self,
+        installation: InstallationRecord,
+        *,
+        allow_revoked: bool = False,
+    ) -> InstallationWritePolicy:
+        return InstallationWritePolicy(
+            installation_id=installation.installation_id,
+            app_id=self.configuration.app_id,
+            attest_environment=self.configuration.app_attest_environment,
+            allow_revoked=allow_revoked,
+        )
+
+    def _bearer_write_policy(self) -> InstallationWritePolicy:
+        return InstallationWritePolicy(
+            installation_id=None,
+            app_id=self.configuration.app_id,
+            attest_environment=self.configuration.app_attest_environment,
+        )
+
+    def _raise_installation_conflict(
+        self,
+        error: StoreConflictError,
+        *,
+        deletion: bool,
+    ) -> NoReturn:
+        if error.code == "unknown_app_attest_key":
+            if deletion:
+                # Preserve the deletion endpoint's idempotent privacy
+                # guarantee even when another request removed the row between
+                # the service's read and the scoped-write transaction.
+                self._require_deletable_installation(None)
+            self._require_active_installation(None)
+        if error.code == "configuration_mismatch":
+            _security_event(
+                event="deletion_rejected" if deletion else "installation_rejected",
+                code="configuration_mismatch",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            if deletion:
+                raise AuthFlowError(
+                    status_code=401,
+                    code="configuration_mismatch",
+                    message="The App Attest key does not belong to this service configuration.",
+                ) from error
+            raise AuthFlowError(
+                status_code=401,
+                code="unknown_app_attest_key",
+                message="The App Attest key is unknown; enroll this installation again.",
+            ) from error
+        if error.code == "revoked_app_attest_key":
+            _security_event(
+                event="installation_rejected",
+                code="revoked_app_attest_key",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=401,
+                code="revoked_app_attest_key",
+                message="The App Attest key was revoked; enroll a new installation.",
+            ) from error
+        raise error
 
     def _require_active_installation(
         self,
@@ -712,6 +1221,61 @@ class AppAttestAuthService:
             )
         return installation
 
+    def _require_deletable_installation(
+        self,
+        installation: InstallationRecord | None,
+    ) -> InstallationRecord:
+        if installation is None:
+            try:
+                # A previous deletion may have committed before its WAL
+                # checkpoint could complete. Do not let an idempotent retry
+                # report success until the active database maintenance is
+                # complete as required by the lifecycle policy.
+                self._required_store().checkpoint_and_truncate_wal()
+            except Exception as exc:
+                _security_event(
+                    event="deletion_rejected",
+                    code="deletion_maintenance_pending",
+                    mechanism="app_attest",
+                    level=logging.WARNING,
+                )
+                raise AuthFlowError(
+                    status_code=503,
+                    code="deletion_maintenance_pending",
+                    message="Server deletion maintenance is still completing; try again.",
+                    retry_after=1,
+                ) from exc
+            _security_event(
+                event="deletion_rejected",
+                code="unknown_app_attest_key",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=401,
+                code="unknown_app_attest_key",
+                message="The App Attest key is unknown; the server identity is absent.",
+            )
+        if (
+            installation.app_id != self.configuration.app_id
+            or installation.attest_environment
+            != self.configuration.app_attest_environment
+        ):
+            _security_event(
+                event="deletion_rejected",
+                code="configuration_mismatch",
+                mechanism="app_attest",
+                level=logging.WARNING,
+            )
+            raise AuthFlowError(
+                status_code=401,
+                code="configuration_mismatch",
+                message="The App Attest key does not belong to this service configuration.",
+            )
+        # A revoked installation may still prove possession solely to remove
+        # its retained server metadata. It remains forbidden for sessions.
+        return installation
+
     def _required_store(self) -> AuthStore:
         if self.store is None:
             raise AuthFlowError(
@@ -733,6 +1297,7 @@ class AppAttestAuthService:
 def _validate_assertion_client_data(
     data: bytes,
     *,
+    purpose: Literal["assertion", "deletion"] = "assertion",
     challenge_id: str,
     challenge: str,
     key_id: str,
@@ -751,7 +1316,7 @@ def _validate_assertion_client_data(
         raise ValueError("Invalid assertion client data.") from exc
     expected = {
         "version": 1,
-        "purpose": "assertion",
+        "purpose": purpose,
         "challenge_id": challenge_id,
         "challenge": challenge,
         "key_id": key_id,
@@ -826,9 +1391,15 @@ def _security_event(
     mechanism: str = "-",
     level: int = logging.INFO,
 ) -> None:
-    # Values passed here are bounded internal enums/scopes only. Never add
-    # request subjects, identifiers, credentials, cryptographic objects, or
-    # caller/model payloads to this event contract.
+    # Keep this defense at the final log boundary: callers that accidentally
+    # forward a store code, route, or quota scope outside the reviewed
+    # vocabulary are redacted instead of becoming an unbounded log field.
+    event = _bounded_security_value(event, _SECURITY_EVENT_NAMES)
+    code = _bounded_security_value(code, _SECURITY_EVENT_CODES)
+    scope = _bounded_security_value(scope, _SECURITY_EVENT_SCOPES)
+    path = _bounded_security_value(path, _SECURITY_EVENT_PATHS)
+    mechanism = _bounded_security_value(mechanism, _SECURITY_EVENT_MECHANISMS)
+    level = level if level in _SECURITY_EVENT_LEVELS else logging.WARNING
     logger.log(
         level,
         "auth_security_event event=%s code=%s scope=%s path=%s mechanism=%s",
@@ -838,6 +1409,10 @@ def _security_event(
         path,
         mechanism,
     )
+
+
+def _bounded_security_value(value: str, allowed: frozenset[str]) -> str:
+    return value if isinstance(value, str) and value in allowed else "-"
 
 
 def _bad_request(code: str, message: str) -> AuthFlowError:
