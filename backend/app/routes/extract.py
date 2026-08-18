@@ -70,8 +70,11 @@ def extract_endpoint(
     except anthropic.APIError as exc:
         raise_anthropic_http_error(exc)
     except ExtractorError as exc:
-        logger.warning("extractor.extract failed: %s", exc)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        logger.warning("extractor_failure code=invalid_model_response")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            detail="The AI service returned an unusable response.",
+        ) from exc
 
     tool_input = dict(result["tool_input"])
     # The source id is transport metadata and never crosses the model boundary.

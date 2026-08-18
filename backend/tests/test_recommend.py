@@ -8,6 +8,7 @@ and the missing-tool-call defensive path.
 import anthropic
 import httpx
 
+from app.agents.stylist import StylistError
 from tests.conftest import (
     FakeAnthropicClient,
     FakeResponse,
@@ -209,6 +210,86 @@ def test_recommend_502_when_model_omits_tool_call(client, fake_anthropic, auth_h
     fake_anthropic.messages.queue(FakeResponse(content=[], stop_reason="end_turn"))
     resp = client.post("/recommend", json=_request_body(), headers=auth_headers)
     assert resp.status_code == 502
+
+
+def test_recommend_redacts_private_stylist_error(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_sentinel = "PRIVATE_WARDROBE_EXCEPTION_TEXT_1357"
+
+    def fail_with_private_error(*_args, **_kwargs):
+        raise StylistError(private_sentinel)
+
+    monkeypatch.setattr(
+        "app.routes.recommend.stylist.recommend",
+        fail_with_private_error,
+    )
+    with caplog.at_level("WARNING", logger="app.routes.recommend"):
+        response = client.post(
+            "/recommend",
+            json=_request_body(),
+            headers=auth_headers,
+        )
+
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.recommend"
+    )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "The AI service returned an unusable response."
+    assert route_log == "stylist_failure code=invalid_model_response"
+    assert private_sentinel not in route_log
+    assert private_sentinel not in response.text
+
+
+def test_recommend_redacts_private_sanitization_error(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_sentinel = "PRIVATE_SANITIZATION_EXCEPTION_TEXT_8642"
+    _queue(
+        fake_anthropic,
+        {
+            "occasion": "x",
+            "color_story": "x",
+            "rationale": "x",
+            "item_ids": [A, B],
+            "alternates": [],
+        },
+    )
+
+    def fail_with_private_error(*_args, **_kwargs):
+        raise StylistError(private_sentinel)
+
+    monkeypatch.setattr(
+        "app.routes.recommend._sanitize_outfit",
+        fail_with_private_error,
+    )
+    with caplog.at_level("WARNING", logger="app.routes.recommend"):
+        response = client.post(
+            "/recommend",
+            json=_request_body(),
+            headers=auth_headers,
+        )
+
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.recommend"
+    )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "The AI service returned an unusable response."
+    assert route_log == "stylist_failure code=unsalvageable_outfit"
+    assert private_sentinel not in route_log
+    assert private_sentinel not in response.text
 
 
 def test_recommend_redacts_anthropic_status_error(

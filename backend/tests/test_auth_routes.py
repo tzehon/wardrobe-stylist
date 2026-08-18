@@ -15,6 +15,7 @@ class StubAuthService:
         self.configuration = SimpleNamespace(deployment_environment="dev")
         self.error: AuthFlowError | None = None
         self.last_client_ip: str | None = None
+        self.last_deletion: dict[str, str] | None = None
 
     def issue_challenge(self, **kwargs) -> Challenge:
         self.last_client_ip = kwargs["client_ip"]
@@ -33,6 +34,12 @@ class StubAuthService:
     def create_session(self, **kwargs) -> AppSession:
         self.last_client_ip = kwargs["client_ip"]
         return self._session()
+
+    def delete_installation(self, **kwargs) -> None:
+        self.last_client_ip = kwargs["client_ip"]
+        if self.error is not None:
+            raise self.error
+        self.last_deletion = kwargs
 
     @staticmethod
     def _session() -> AppSession:
@@ -90,12 +97,44 @@ def test_auth_endpoint_wire_contracts_and_extra_field_rejection() -> None:
         assert session.json()["access_token"] == "opaque-session"
         assert service.last_client_ip == "testclient"
 
+        deletion_challenge = client.post(
+            "/auth/app-attest/challenge",
+            json={"purpose": "deletion", "key_id": "a2V5"},
+        )
+        assert deletion_challenge.status_code == 200
+
+        deletion = client.post(
+            "/auth/app-attest/delete",
+            json={
+                "challenge_id": "11111111-1111-4111-8111-111111111111",
+                "key_id": "a2V5",
+                "assertion_object": "YXNzZXJ0aW9u",
+                "client_data": "e30=",
+            },
+        )
+        assert deletion.status_code == 204
+        assert deletion.content == b""
+        assert service.last_deletion == {
+            "challenge_id": "11111111-1111-4111-8111-111111111111",
+            "key_id": "a2V5",
+            "assertion_object": "YXNzZXJ0aW9u",
+            "client_data": "e30=",
+            "client_ip": "testclient",
+        }
+
         extra = client.post(
             "/auth/app-attest/challenge",
             json={"purpose": "attestation", "unexpected": True},
         )
         assert extra.status_code == 422
-        for response in (challenge, registration, session, extra):
+        for response in (
+            challenge,
+            registration,
+            session,
+            deletion_challenge,
+            deletion,
+            extra,
+        ):
             assert response.headers["cache-control"] == "no-store"
             assert response.headers["pragma"] == "no-cache"
     finally:
@@ -123,5 +162,35 @@ def test_auth_error_has_machine_code_and_retry_after() -> None:
             "code": "rate_limit_exceeded",
             "message": "Too many requests.",
         }
+    finally:
+        app.dependency_overrides.pop(get_auth_service, None)
+
+
+def test_deletion_requires_a_key_and_forbids_extra_fields() -> None:
+    service = StubAuthService()
+    app.dependency_overrides[get_auth_service] = lambda: service
+    client = TestClient(app)
+    try:
+        missing_key = client.post(
+            "/auth/app-attest/challenge",
+            json={"purpose": "deletion"},
+        )
+        assert missing_key.status_code == 422
+
+        extra = client.post(
+            "/auth/app-attest/delete",
+            json={
+                "challenge_id": "11111111-1111-4111-8111-111111111111",
+                "key_id": "a2V5",
+                "assertion_object": "YXNzZXJ0aW9u",
+                "client_data": "e30=",
+                "unexpected": True,
+            },
+        )
+        assert extra.status_code == 422
+        assert service.last_deletion is None
+        for response in (missing_key, extra):
+            assert response.headers["cache-control"] == "no-store"
+            assert response.headers["pragma"] == "no-cache"
     finally:
         app.dependency_overrides.pop(get_auth_service, None)

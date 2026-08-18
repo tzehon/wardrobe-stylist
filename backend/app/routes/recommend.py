@@ -120,14 +120,20 @@ def recommend_endpoint(
     except anthropic.APIError as exc:
         raise_anthropic_http_error(exc)
     except StylistError as exc:
-        logger.warning("stylist.recommend failed: %s", exc)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        logger.warning("stylist_failure code=invalid_model_response")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            detail="The AI service returned an unusable response.",
+        ) from exc
 
     try:
         sanitized = _sanitize_outfit(result["tool_input"], valid_ids)
     except StylistError as exc:
-        logger.warning("Aria returned an outfit we couldn't sanitize: %s", exc)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        logger.warning("stylist_failure code=unsalvageable_outfit")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            detail="The AI service returned an unusable response.",
+        ) from exc
 
     try:
         parsed = OutfitRecommendation.model_validate(sanitized)

@@ -236,12 +236,12 @@ class AuthConfiguration:
         for name, value in positive_limits.items():
             if value <= 0:
                 raise AuthConfigurationError(f"{name} must be positive.")
-        if not 60 <= settings.app_attest_challenge_ttl_seconds <= 900:
+        if not 60 <= settings.app_attest_challenge_ttl_seconds <= 300:
             raise AuthConfigurationError(
-                "APP_ATTEST_CHALLENGE_TTL_SECONDS must be between 60 and 900."
+                "APP_ATTEST_CHALLENGE_TTL_SECONDS must be between 60 and 300."
             )
-        if not 60 <= settings.app_session_ttl_seconds <= 3600:
-            raise AuthConfigurationError("APP_SESSION_TTL_SECONDS must be between 60 and 3600.")
+        if not 60 <= settings.app_session_ttl_seconds <= 900:
+            raise AuthConfigurationError("APP_SESSION_TTL_SECONDS must be between 60 and 900.")
 
         return cls(
             mode=mode,

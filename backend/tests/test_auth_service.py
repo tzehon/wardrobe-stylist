@@ -1,8 +1,11 @@
 """Enrollment, replay, session, bridge, and quota tests."""
 
+import asyncio
 import base64
 import hashlib
 import json
+import sqlite3
+import threading
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -13,9 +16,19 @@ from cryptography.exceptions import UnsupportedAlgorithm
 from app.auth.app_attest import AssertionResult, AttestationResult
 from app.auth.config import AuthConfiguration
 from app.auth.service import (
+    _DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE,
+    _DELETION_PROOF_RATE_LIMIT_PER_HOUR,
+    AUTH_MAINTENANCE_INTERVAL_SECONDS,
     AppAttestAuthService,
     AuthFlowError,
     _validate_assertion_client_data,
+)
+from app.auth.store import (
+    CHALLENGE_MAX_RETENTION_SECONDS,
+    CHALLENGE_POST_EXPIRY_RETENTION_SECONDS,
+    RATE_WINDOW_MAX_GRACE_SECONDS,
+    SESSION_MAX_RETENTION_SECONDS,
+    InstallationWritePolicy,
 )
 
 KEY_ID = base64.b64encode(bytes(range(32))).decode("ascii")
@@ -121,6 +134,482 @@ def test_enroll_session_authenticate_and_recover_lost_registration_response(tmp_
             client_ip="192.0.2.10",
         )
     assert assertion_replay.value.code == "challenge_already_used"
+
+
+def test_fresh_deletion_assertion_removes_installation_sessions_and_key_state(
+    tmp_path,
+) -> None:
+    service, verifier, _ = _service(tmp_path)
+    enrolled = _enroll(service)
+    service.authenticate_bearer(
+        token=enrolled.access_token,
+        path="/extract",
+        client_ip="192.0.2.10",
+    )
+    deletion = service.issue_challenge(
+        purpose="deletion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.10",
+    )
+
+    service.delete_installation(
+        challenge_id=deletion.challenge_id,
+        key_id=KEY_ID,
+        assertion_object=ASSERTION,
+        client_data=base64.b64encode(
+            _client_data(deletion, KEY_ID, purpose="deletion")
+        ).decode("ascii"),
+        client_ip="192.0.2.10",
+    )
+
+    assert verifier.assertion_calls == 1
+    assert service.store is not None
+    assert service.store.installation_for_key(KEY_ID) is None
+    with sqlite3.connect(service.store.path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM sessions").fetchone()[0] == 0
+        assert connection.execute(
+            "SELECT COUNT(*) FROM challenges WHERE key_id = ?", (KEY_ID,)
+        ).fetchone()[0] == 0
+        remaining_scopes = {
+            row[0] for row in connection.execute("SELECT DISTINCT scope FROM rate_windows")
+        }
+    assert "session-key" not in remaining_scopes
+    assert "extract-installation" not in remaining_scopes
+    assert "recommend-installation" not in remaining_scopes
+    assert any(scope.endswith("-ip") or scope.endswith("-global") for scope in remaining_scopes)
+
+    with pytest.raises(AuthFlowError) as absent:
+        service.issue_challenge(
+            purpose="deletion",
+            key_id=KEY_ID,
+            client_ip="192.0.2.10",
+        )
+    assert absent.value.code == "unknown_app_attest_key"
+
+
+def test_unknown_deletion_key_is_ip_limited_before_installation_lookup(tmp_path) -> None:
+    service, _, _ = _service(tmp_path)
+    unknown_key = base64.b64encode(b"u" * 32).decode("ascii")
+
+    for _ in range(_DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE):
+        with pytest.raises(AuthFlowError) as unknown:
+            service.issue_challenge(
+                purpose="deletion",
+                key_id=unknown_key,
+                client_ip="203.0.113.80",
+            )
+        assert unknown.value.code == "unknown_app_attest_key"
+
+    with pytest.raises(AuthFlowError) as limited:
+        service.issue_challenge(
+            purpose="deletion",
+            key_id=unknown_key,
+            client_ip="203.0.113.80",
+        )
+    assert limited.value.code == "rate_limit_exceeded"
+
+    assert service.store is not None
+    with sqlite3.connect(service.store.path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM rate_windows WHERE scope = 'deletion-challenge-global'"
+        ).fetchone()[0] == 0
+
+
+def test_challenge_write_cannot_recreate_key_state_after_competing_deletion(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, _, _ = _service(tmp_path)
+    _enroll(service)
+    assert service.store is not None
+    original_issue = service.store.issue_challenge
+
+    def delete_then_issue(**kwargs: object) -> None:
+        _commit_competing_deletion(service)
+        original_issue(**kwargs)
+
+    monkeypatch.setattr(service.store, "issue_challenge", delete_then_issue)
+
+    with pytest.raises(AuthFlowError) as rejected:
+        service.issue_challenge(
+            purpose="assertion",
+            key_id=KEY_ID,
+            client_ip="192.0.2.12",
+        )
+    assert rejected.value.code == "unknown_app_attest_key"
+    _assert_no_installation_scoped_state(service)
+
+
+def test_bearer_installation_rate_write_cannot_follow_competing_deletion(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, _, _ = _service(tmp_path)
+    enrolled = _enroll(service)
+    assert service.store is not None
+    original_consume = service.store.consume_installation_rate_limit
+
+    def delete_then_consume(**kwargs: object) -> None:
+        assert kwargs["scope"] == "extract-installation"
+        _commit_competing_deletion(service)
+        original_consume(**kwargs)
+
+    monkeypatch.setattr(
+        service.store,
+        "consume_installation_rate_limit",
+        delete_then_consume,
+    )
+
+    with pytest.raises(AuthFlowError) as rejected:
+        service.authenticate_bearer(
+            token=enrolled.access_token,
+            path="/extract",
+            client_ip="192.0.2.13",
+        )
+    assert rejected.value.code == "unknown_app_attest_key"
+    _assert_no_installation_scoped_state(service)
+
+
+def test_session_key_rate_write_cannot_follow_competing_deletion(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, verifier, _ = _service(tmp_path)
+    _enroll(service)
+    challenge = service.issue_challenge(
+        purpose="assertion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.14",
+    )
+    assert service.store is not None
+    original_consume = service.store.consume_installation_rate_limit
+
+    def delete_then_consume(**kwargs: object) -> None:
+        assert kwargs["scope"] == "session-key"
+        _commit_competing_deletion(service)
+        original_consume(**kwargs)
+
+    monkeypatch.setattr(
+        service.store,
+        "consume_installation_rate_limit",
+        delete_then_consume,
+    )
+
+    with pytest.raises(AuthFlowError) as rejected:
+        service.create_session(
+            challenge_id=challenge.challenge_id,
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(_client_data(challenge, KEY_ID)).decode("ascii"),
+            client_ip="192.0.2.14",
+        )
+    assert rejected.value.code == "unknown_app_attest_key"
+    assert verifier.assertion_calls == 1
+    _assert_no_installation_scoped_state(service)
+
+
+def test_valid_deletion_survives_exhausted_ordinary_and_invalid_proof_traffic(
+    tmp_path,
+) -> None:
+    service, _, _ = _service(
+        tmp_path,
+        challenge_rate_limit_per_minute=1,
+        session_rate_limit_per_hour=1,
+    )
+    _enroll(service)
+
+    # Exhaust the ordinary challenge aggregate budget. Enrollment consumed
+    # one slot; this key-bound challenge consumes the second (2x aggregate).
+    ordinary_assertion = service.issue_challenge(
+        purpose="assertion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.30",
+    )
+    with pytest.raises(AuthFlowError) as ordinary_challenge_limited:
+        service.issue_challenge(
+            purpose="attestation",
+            key_id=None,
+            client_ip="192.0.2.31",
+        )
+    assert ordinary_challenge_limited.value.code == "rate_limit_exceeded"
+
+    # One valid and one invalid renewal exhaust the ordinary session global
+    # budget without affecting the dedicated deletion namespaces.
+    service.create_session(
+        challenge_id=ordinary_assertion.challenge_id,
+        key_id=KEY_ID,
+        assertion_object=ASSERTION,
+        client_data=base64.b64encode(_client_data(ordinary_assertion, KEY_ID)).decode(
+            "ascii"
+        ),
+        client_ip="192.0.2.32",
+    )
+    with pytest.raises(AuthFlowError):
+        service.create_session(
+            challenge_id="00000000-0000-4000-8000-000000000000",
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.33",
+        )
+    with pytest.raises(AuthFlowError) as ordinary_session_limited:
+        service.create_session(
+            challenge_id="00000000-0000-4000-8000-000000000001",
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.34",
+        )
+    assert ordinary_session_limited.value.code == "rate_limit_exceeded"
+
+    # Well-formed unknown keys are shaped per IP but never consume the
+    # aggregate deletion-challenge budget.
+    for value in range(2, 14):
+        unknown_key = base64.b64encode(bytes([value]) * 32).decode("ascii")
+        with pytest.raises(AuthFlowError) as unknown:
+            service.issue_challenge(
+                purpose="deletion",
+                key_id=unknown_key,
+                client_ip=f"198.51.100.{value}",
+            )
+        assert unknown.value.code == "unknown_app_attest_key"
+
+    invalid_deletion = service.issue_challenge(
+        purpose="deletion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.40",
+    )
+    valid_deletion = service.issue_challenge(
+        purpose="deletion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.41",
+    )
+
+    # Invalid proof traffic exhausts only its source-IP budget; it cannot
+    # consume the proof aggregate or proven-key bucket.
+    for _ in range(_DELETION_PROOF_RATE_LIMIT_PER_HOUR):
+        with pytest.raises(AuthFlowError):
+            service.delete_installation(
+                challenge_id=invalid_deletion.challenge_id,
+                key_id=KEY_ID,
+                assertion_object=ASSERTION,
+                client_data=base64.b64encode(b"{}").decode("ascii"),
+                client_ip="192.0.2.40",
+            )
+    with pytest.raises(AuthFlowError) as invalid_proof_limited:
+        service.delete_installation(
+            challenge_id=invalid_deletion.challenge_id,
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.40",
+        )
+    assert invalid_proof_limited.value.code == "rate_limit_exceeded"
+
+    assert service.store is not None
+    with sqlite3.connect(service.store.path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM rate_windows WHERE scope = 'deletion-proof-global'"
+        ).fetchone()[0] == 0
+
+    service.delete_installation(
+        challenge_id=valid_deletion.challenge_id,
+        key_id=KEY_ID,
+        assertion_object=ASSERTION,
+        client_data=base64.b64encode(
+            _client_data(valid_deletion, KEY_ID, purpose="deletion")
+        ).decode("ascii"),
+        client_ip="192.0.2.41",
+    )
+    assert service.store.installation_for_key(KEY_ID) is None
+
+
+def test_revoked_installation_can_prove_deletion_but_not_create_session(tmp_path) -> None:
+    service, _, clock = _service(tmp_path)
+    _enroll(service)
+    assert service.store is not None
+    with sqlite3.connect(service.store.path) as connection:
+        connection.execute(
+            "UPDATE installations SET revoked_at = ? WHERE key_id = ?",
+            (int(clock.value.timestamp()), KEY_ID),
+        )
+        connection.commit()
+
+    with pytest.raises(AuthFlowError) as session_rejected:
+        service.issue_challenge(
+            purpose="assertion",
+            key_id=KEY_ID,
+            client_ip="192.0.2.20",
+        )
+    assert session_rejected.value.code == "revoked_app_attest_key"
+
+    assertion_challenge = service.issue_challenge(
+        purpose="deletion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.20",
+    )
+    service.delete_installation(
+        challenge_id=assertion_challenge.challenge_id,
+        key_id=KEY_ID,
+        assertion_object=ASSERTION,
+        client_data=base64.b64encode(
+            _client_data(assertion_challenge, KEY_ID, purpose="deletion")
+        ).decode("ascii"),
+        client_ip="192.0.2.20",
+    )
+    assert service.store.installation_for_key(KEY_ID) is None
+
+
+def test_idempotent_deletion_waits_for_wal_maintenance(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, _, _ = _service(tmp_path)
+    _enroll(service)
+    assert service.store is not None
+    deletion = service.issue_challenge(
+        purpose="deletion",
+        key_id=KEY_ID,
+        client_ip="192.0.2.21",
+    )
+    checkpoint_attempts = 0
+    original_checkpoint = service.store._checkpoint_and_truncate_wal
+
+    def checkpoint_fails_twice(connection: sqlite3.Connection) -> None:
+        nonlocal checkpoint_attempts
+        checkpoint_attempts += 1
+        if checkpoint_attempts <= 2:
+            raise RuntimeError("simulated busy checkpoint")
+        original_checkpoint(connection)
+
+    monkeypatch.setattr(
+        service.store,
+        "_checkpoint_and_truncate_wal",
+        checkpoint_fails_twice,
+    )
+
+    with pytest.raises(AuthFlowError) as first_maintenance_pending:
+        service.delete_installation(
+            challenge_id=deletion.challenge_id,
+            key_id=KEY_ID,
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(
+                _client_data(deletion, KEY_ID, purpose="deletion")
+            ).decode("ascii"),
+            client_ip="192.0.2.21",
+        )
+    assert first_maintenance_pending.value.status_code == 503
+    assert first_maintenance_pending.value.code == "deletion_maintenance_pending"
+    assert first_maintenance_pending.value.retry_after == 1
+    assert service.store.installation_for_key(KEY_ID) is None
+
+    with pytest.raises(AuthFlowError) as maintenance_pending:
+        service.issue_challenge(
+            purpose="deletion",
+            key_id=KEY_ID,
+            client_ip="192.0.2.21",
+        )
+    assert maintenance_pending.value.status_code == 503
+    assert maintenance_pending.value.code == "deletion_maintenance_pending"
+    assert maintenance_pending.value.retry_after == 1
+
+    with pytest.raises(AuthFlowError) as already_absent:
+        service.issue_challenge(
+            purpose="deletion",
+            key_id=KEY_ID,
+            client_ip="192.0.2.21",
+        )
+    assert already_absent.value.status_code == 401
+    assert already_absent.value.code == "unknown_app_attest_key"
+    assert checkpoint_attempts == 3
+
+
+def test_maintenance_loop_uses_policy_cadence_and_stops_deterministically(tmp_path) -> None:
+    service, _, clock = _service(tmp_path)
+    assert service.store is not None
+    assert (
+        service.configuration.challenge_ttl_seconds
+        + CHALLENGE_POST_EXPIRY_RETENTION_SECONDS
+        + AUTH_MAINTENANCE_INTERVAL_SECONDS
+        <= CHALLENGE_MAX_RETENTION_SECONDS
+    )
+    assert (
+        service.configuration.session_ttl_seconds + AUTH_MAINTENANCE_INTERVAL_SECONDS
+        <= SESSION_MAX_RETENTION_SECONDS
+    )
+    assert AUTH_MAINTENANCE_INTERVAL_SECONDS <= RATE_WINDOW_MAX_GRACE_SECONDS
+    with sqlite3.connect(service.store.path) as connection:
+        connection.execute(
+            """
+            INSERT INTO rate_windows VALUES ('challenge', 'expired-on-tick', 1, ?, 1)
+            """,
+            (int(clock.value.timestamp()) + AUTH_MAINTENANCE_INTERVAL_SECONDS,),
+        )
+        connection.commit()
+
+    wait_calls = 0
+
+    async def advancing_wait(seconds: float) -> None:
+        nonlocal wait_calls
+        assert seconds == AUTH_MAINTENANCE_INTERVAL_SECONDS
+        wait_calls += 1
+        if wait_calls == 2:
+            raise asyncio.CancelledError
+        clock.value += timedelta(seconds=seconds)
+
+    with pytest.raises(asyncio.CancelledError):
+        asyncio.run(service.run_maintenance_loop(wait=advancing_wait))
+    with sqlite3.connect(service.store.path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM rate_windows WHERE subject_hash = 'expired-on-tick'"
+        ).fetchone()[0] == 0
+
+    async def start_and_stop() -> None:
+        entered_wait = asyncio.Event()
+
+        async def never_finishes(_: float) -> None:
+            entered_wait.set()
+            await asyncio.Future()
+
+        service.start_maintenance(wait=never_finishes)
+        await entered_wait.wait()
+        await service.stop_maintenance()
+        assert service._maintenance_task is None
+
+    asyncio.run(start_and_stop())
+
+
+def test_maintenance_shutdown_waits_for_inflight_sqlite_work(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, _, _ = _service(tmp_path)
+    assert service.store is not None
+    started = threading.Event()
+    release = threading.Event()
+    completed = threading.Event()
+
+    def blocking_cleanup(**_: int) -> None:
+        started.set()
+        release.wait()
+        completed.set()
+
+    monkeypatch.setattr(service.store, "cleanup", blocking_cleanup)
+
+    async def run() -> None:
+        async def immediate_wait(_: float) -> None:
+            return
+
+        service.start_maintenance(wait=immediate_wait)
+        await asyncio.to_thread(started.wait)
+        stop_task = asyncio.create_task(service.stop_maintenance())
+        await asyncio.sleep(0)
+        assert not stop_task.done()
+        release.set()
+        await stop_task
+        assert completed.is_set()
+
+    asyncio.run(run())
 
 
 @pytest.mark.parametrize(
@@ -389,6 +878,7 @@ def test_restored_installation_must_match_current_app_and_environment(
         session_expires_at=now + 900,
         now=now,
     )
+    clock.value += timedelta(seconds=30)
 
     with pytest.raises(AuthFlowError) as challenge_rejected:
         service.issue_challenge(
@@ -405,6 +895,11 @@ def test_restored_installation_must_match_current_app_and_environment(
         key_id=KEY_ID,
         expires_at=now + 300,
         now=now,
+        policy=InstallationWritePolicy(
+            installation_id="restored-installation",
+            app_id=stored_app_id,
+            attest_environment=stored_environment,
+        ),
     )
     with pytest.raises(AuthFlowError) as assertion_rejected:
         service.create_session(
@@ -423,6 +918,12 @@ def test_restored_installation_must_match_current_app_and_environment(
             client_ip="192.0.2.66",
         )
     assert bearer_rejected.value.code == "unknown_app_attest_key"
+    with sqlite3.connect(service.store.path) as connection:
+        last_seen_at = connection.execute(
+            "SELECT last_seen_at FROM installations WHERE installation_id = ?",
+            ("restored-installation",),
+        ).fetchone()[0]
+    assert last_seen_at == now
 
 
 def test_unsupported_attestation_algorithm_fails_as_invalid_attestation(tmp_path) -> None:
@@ -703,11 +1204,48 @@ def _enroll(service: AppAttestAuthService):
     )
 
 
-def _client_data(challenge, key_id: str) -> bytes:
+def _commit_competing_deletion(service: AppAttestAuthService) -> None:
+    assert service.store is not None
+    with sqlite3.connect(service.store.path) as connection:
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute("BEGIN IMMEDIATE")
+        connection.execute("DELETE FROM challenges WHERE key_id = ?", (KEY_ID,))
+        connection.execute(
+            """
+            DELETE FROM rate_windows
+            WHERE scope IN (
+                'session-key', 'extract-installation', 'recommend-installation'
+            )
+            """
+        )
+        connection.execute("DELETE FROM installations WHERE key_id = ?", (KEY_ID,))
+        connection.commit()
+
+
+def _assert_no_installation_scoped_state(service: AppAttestAuthService) -> None:
+    assert service.store is not None
+    with sqlite3.connect(service.store.path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM installations").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM sessions").fetchone()[0] == 0
+        assert connection.execute(
+            "SELECT COUNT(*) FROM challenges WHERE key_id = ?",
+            (KEY_ID,),
+        ).fetchone()[0] == 0
+        assert connection.execute(
+            """
+            SELECT COUNT(*) FROM rate_windows
+            WHERE scope IN (
+                'session-key', 'extract-installation', 'recommend-installation'
+            )
+            """
+        ).fetchone()[0] == 0
+
+
+def _client_data(challenge, key_id: str, *, purpose: str = "assertion") -> bytes:
     return json.dumps(
         {
             "version": 1,
-            "purpose": "assertion",
+            "purpose": purpose,
             "challenge_id": challenge.challenge_id,
             "challenge": challenge.challenge,
             "key_id": key_id,

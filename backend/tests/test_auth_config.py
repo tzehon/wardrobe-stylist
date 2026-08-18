@@ -193,6 +193,23 @@ def test_fly_auth_database_uses_dedicated_volume_directory() -> None:
     assert fly_config["env"]["APP_ATTEST_BUNDLE_ID"] == "com.tth.Wardrobe"
     assert fly_config["env"]["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"] == "2"
     assert current_build in accepted_builds
+    assert fly_config["http_service"]["min_machines_running"] == 1
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("app_attest_challenge_ttl_seconds", 301, "between 60 and 300"),
+        ("app_session_ttl_seconds", 901, "between 60 and 900"),
+    ],
+)
+def test_auth_ttls_cannot_exceed_retention_policy(
+    field: str,
+    value: int,
+    message: str,
+) -> None:
+    with pytest.raises(AuthConfigurationError, match=message):
+        AuthConfiguration.from_settings(_settings(**{field: value}), now=NOW)
 
 
 def _settings(**overrides: object) -> Settings:

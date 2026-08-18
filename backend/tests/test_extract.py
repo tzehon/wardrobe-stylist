@@ -10,6 +10,7 @@ import json
 import anthropic
 import httpx
 
+from app.agents.extractor import ExtractorError
 from tests.conftest import (
     FakeAnthropicClient,
     FakeResponse,
@@ -273,6 +274,41 @@ def test_extract_502_when_model_omits_tool_call(client, fake_anthropic, auth_hea
         headers=auth_headers,
     )
     assert resp.status_code == 502
+
+
+def test_extract_redacts_private_extractor_error(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    monkeypatch,
+):
+    private_sentinel = "PRIVATE_RECEIPT_EXCEPTION_TEXT_2468"
+
+    def fail_with_private_error(*_args, **_kwargs):
+        raise ExtractorError(private_sentinel)
+
+    monkeypatch.setattr(
+        "app.routes.extract.extractor.extract",
+        fail_with_private_error,
+    )
+    with caplog.at_level("WARNING", logger="app.routes.extract"):
+        response = client.post(
+            "/extract",
+            json={"source_msg_id": "private-message-id", "snippet": "private receipt"},
+            headers=auth_headers,
+        )
+
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.extract"
+    )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "The AI service returned an unusable response."
+    assert route_log == "extractor_failure code=invalid_model_response"
+    assert private_sentinel not in route_log
+    assert private_sentinel not in response.text
 
 
 def test_extract_redacts_anthropic_connection_error(
