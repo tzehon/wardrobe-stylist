@@ -48,6 +48,25 @@ wear history, receipt sync history, cached images, recommendations, and related 
 device. It does not delete email or revoke Google access. Use **Settings → Connected Features →
 Disconnect Google** separately when you also want to revoke the grant.
 
+### How do I delete server authentication data?
+
+Wardrobe Stylist has no developer account and does not use your Google identity for backend access.
+Its server authentication record belongs to one anonymous App Attest installation and is separate
+from the wardrobe stored on your iPhone.
+
+Before uninstalling, open **Settings → Privacy & Data → Delete Server Security Data**. The
+app obtains a fresh App Attest proof, deletes that installation's live server identity and active
+AI sessions, then removes its local server-identity reference. It does not delete the wardrobe on
+your iPhone or disconnect Google. Remote AI creates a new anonymous identity the next time you use
+it. Verified live authentication records are removed synchronously. The approved policy requires
+encrypted rolling snapshots to expire within 14 days; verify actual expiry before publication.
+
+Reinstalling creates a new identity but does not itself prove that the old server record was
+deleted. If the original installation is no longer available, contact [PRIVACY/SUPPORT CONTACT]
+only for general guidance: support cannot safely identify an unlinked anonymous record. The
+90-day inactivity purge is the fallback for a lost installation. Never send a token, key,
+attestation object, Gmail content, or wardrobe photo to support.
+
 ### How do I revoke Google access outside the app?
 
 Use [Google Account third-party connections](https://myaccount.google.com/connections), select

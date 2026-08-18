@@ -104,8 +104,10 @@ flowchart LR
 
 The anonymous installation identifier is not a Wardrobe account and is not a Google identity. It
 survives normal app updates but is recreated after reinstall, migration, or backup restoration.
-The final retention, deletion, logging, and Fly snapshot periods remain release facts to verify;
-this architecture does not promise values that have not been confirmed.
+The approved retention, deletion, logging, and snapshot requirements live in the
+[APP-009 data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md). Its
+compliance table distinguishes verified controls from unenforced targets; architecture text must
+not turn an unchecked target into a production claim.
 
 ## Anonymous backend authorization
 
@@ -345,6 +347,14 @@ flowchart LR
   sessions, and coarse rate windows. The receipt is not trusted as fraud evidence until its
   separate Apple receipt checks are implemented. The store contains no Gmail receipt text,
   wardrobe catalog, photos, or recommendation payload.
+- Backend auth-state, logs, snapshots, deletion, and alert operations follow the
+  [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). The repository is
+  configured so the final deployment runs one-minute deadline cleanup on a minimum-one-Machine
+  topology, purges inactive/revoked installations, exposes fresh-assertion deletion in Privacy &
+  Data, performs SQLite/WAL maintenance, structurally guards persistence/log calls, and disables
+  Uvicorn access logs in the production command. APP-009 remains open until the final image and
+  desired topology are deployed and provider retention, alert/support routing, and
+  deletion/restore operations are evidenced.
 - The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
   private key stays in the Secure Enclave; the short-lived access token is memory-only.
 - Google is not an account system for Wardrobe backend access. A user can style a local/photo

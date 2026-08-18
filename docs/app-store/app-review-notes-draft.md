@@ -53,8 +53,13 @@ The app names the developer backend and Anthropic before receipt or styling data
 Receipt analysis and wardrobe styling have separate, versioned consent records. With consent
 absent or withdrawn, automated request-capture tests verify the protected network paths make zero
 Gmail/backend calls. The backend retains only the minimum anonymous App Attest authentication and
-abuse-prevention metadata; it is intended not to persist receipt or wardrobe payloads. [VERIFY
-THE SUBMITTED COMMIT, PRODUCTION LOGGING, AUTH-STORE RETENTION, AND BACKUPS.]
+abuse-prevention metadata; it is intended not to persist receipt or wardrobe payloads. Retention,
+logging, deletion, snapshots, and alerts must satisfy the
+[APP-009 lifecycle policy](app-attest-data-lifecycle-policy.md). [VERIFY THE SUBMITTED COMMIT AND
+EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.] The submitted build must also expose the
+separate **Settings → Privacy & Data → Delete Server Security Data** control, which proves the
+current anonymous installation with a fresh App Attest assertion and does not delete local data or
+disconnect Google.
 
 ## Background and notifications
 
@@ -84,6 +89,9 @@ consent and a separate toggle. iOS schedules it opportunistically, not at an exa
 - Backend authorization uses an Apple-certified key unique to this installation and a short-lived
   session. Reinstalling creates a new anonymous installation identity; it does not create or link
   a human account.
+- Server authentication-data deletion is distinct from local wardrobe deletion and Google
+  revocation. It requires a fresh App Attest assertion for the current installation, then removes
+  that live identity and its sessions before the app discards its local key reference.
 - Sign in with Apple is not presented because the Google connection is solely for the specific
   Gmail receipt-import service; the core app and backend do not require a Google or Wardrobe
   account.
@@ -99,8 +107,10 @@ consent and a separate toggle. iOS schedules it opportunistically, not at an exa
   the entitlement; and the uploaded TestFlight build completes production attestation. On iOS
   27+, confirm signed category `2` and the exact submitted bundle build; on iOS 18–26, record the
   expected absence of those runtime fields without claiming build/category enforcement.
-- [ ] Confirm durable auth storage, snapshot/backup and restore evidence, logging/retention claims,
+- [ ] Confirm durable auth storage, snapshot and restore evidence, logging/retention claims,
   rate limits, and an App-Attest-only rollback image against the deployed backend.
+- [ ] Confirm the exact submitted build's server-security-data deletion control against the final
+  deployed backend and retain only redacted success/restore evidence.
 - [ ] Confirm the migration bridge is disabled, `DEVICE_TOKEN` is unset/rotated, and an obsolete
   shared-bearer build is rejected without breaking the submitted build.
 - [ ] Attach a short screen recording only if the connected flow needs additional explanation.

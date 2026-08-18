@@ -21,17 +21,17 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-17**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-18**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **External gate** | App Attest development proof, the production-only Fly cutover, durable storage/restart/snapshot/restore evidence, exact-image scan, and legacy retirement are complete; signed archive/TestFlight proof plus retention/log-policy evidence remain open |
+| APP-009 | **External gate** | App Attest development proof, the production-only Fly cutover, durable storage/restart/snapshot/restore evidence, the current-image scan, legacy retirement, the lifecycle/logging policy, and repository enforcement are complete; a new final-image scan/deploy, external operations, and signed archive/TestFlight proof remain open |
 | APP-011 | **In progress** | Product identity, Debug/Release split, guards, compatible production backend, and build-4 allowlist are ready; `Distribution.xcconfig`, production Gmail IDs, Team ID, public URLs, and signed archive remain open |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
-| APP-014 | **Done** | Eleven deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, and verified local deletion; connected tests use deny-network fakes |
+| APP-014 | **Done** | Twelve deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, separate server-security deletion, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
 | APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
 | APP-017–APP-019 | **Submission / next milestone** | Candidate `1.0.0 (4)` is selected; finish binary/config gates, upload through **TestFlight & App Store**, distribute only to an internal group, and retain clean-device evidence |
@@ -40,11 +40,11 @@ kept “In progress.”
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest candidate-tree verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
-tests**), **182 backend tests**, locked dependency audit with no known vulnerabilities, Bandit,
-Ruff, mypy, and **23/23** release-script tests all passed. The verified versioned candidate source is
-PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`, which contains `1.0.0 (4)`.
-The final `main` archive source is not frozen; record its merged SHA before archiving or uploading.
+Latest policy-enforcement branch verification: **455 iOS tests** total (**443 Swift tests plus 12
+end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
+Bandit, Ruff, mypy, and **23/23** release-script tests all passed. Candidate `1.0.0 (4)` remains
+selected. The final `main` archive source is not frozen; record its merged SHA before archiving or
+uploading.
 Fly release v4 serves the exact App-Attest-only image
 `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
 
@@ -63,10 +63,23 @@ These items are ordered. Do not archive early and plan to repair the same binary
   Attest is enabled with prefix `29NT767Y9P`; physical development enrollment/renewal passed;
   production Fly is App-Attest-only on one encrypted volume; restart and snapshot restore passed;
   and the retired shared credential returns `401`.
-- [ ] **Close the remaining APP-009 policy and production-proof gates.** Finalize auth metadata,
-  backup/snapshot, request/IP-log retention, deletion, and alert-routing policy. Then inspect the
-  signed archive/profile and retain production TestFlight enrollment, assertion renewal, and
-  protected API evidence.
+- [x] **Adopt the APP-009 data-lifecycle and logging policy.** The approved limits, prohibited log
+  fields, deletion/restore behavior, alert requirements, verified controls, and open compliance
+  gaps are recorded in
+  [`app-attest-data-lifecycle-policy.md`](app-store/app-attest-data-lifecycle-policy.md).
+- [x] **Enforce the repository-owned APP-009 lifecycle policy.** A one-minute maintenance loop on
+  the configured minimum-one-Machine topology performs deadline cleanup, repeats bounded
+  transactions until drained, purges inactive/revoked installations at 90/30 days, and safely
+  checkpoints/truncates SQLite WAL state. A fresh App Attest assertion deletes the proven
+  installation through the new in-app server-security-data control. Structural review guardrails
+  cover the current persistence/logging boundaries, and a tested production command keeps Uvicorn
+  access logs disabled.
+- [ ] **Build, scan, and deploy the policy-enforced backend.** Retain its immutable digest and a
+  revalidated App-Attest-only rollback image. The current Fly v4 image passed its exact-image scan,
+  but the new enforcement changes require a final scan and deployment.
+- [ ] **Verify APP-009 production operations externally.** Prove Fly edge-log fields/retention,
+  seven-day sanitized application-log retention, 14-day snapshot expiry, restore-after-deletion
+  handling, alert delivery, monitored support routing, and the redacted deletion/restore rehearsal.
 - [ ] **Complete the production-client portion of APP-011.** Populate production Gmail IDs, HTTPS
   endpoint, public links, and Team ID in gitignored `Distribution.xcconfig`, then pass the signed
   device-archive guards.
@@ -77,8 +90,11 @@ These items are ordered. Do not archive early and plan to repair the same binary
   exact internal binary can later be promoted.
 - [ ] **Run and upload the candidate.** Follow
   [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md): complete regression,
-  signed archive, validation, normal **TestFlight & App Store** upload, processing review, internal
-  group assignment, upgrade/clean-device QA, and retained release evidence.
+  signed archive/profile inspection, validation, normal **TestFlight & App Store** upload,
+  processing review, and internal-group assignment.
+- [ ] **Complete APP-009 production proof and clean-device QA.** From the processed internal
+  TestFlight build, retain production enrollment, assertion renewal, and protected API evidence,
+  then finish upgrade/clean-device QA and the complete release-evidence record.
 
 Using an internal tester group does not relax the binary standard. **TestFlight Internal Only** is
 not used because Apple prevents that artifact from being submitted to customers later.
@@ -150,6 +166,11 @@ not used because Apple prevents that artifact from being submitted to customers 
     criteria, and restore rehearsal. Scan the exact release image (OS and language packages) for
     high/critical known vulnerabilities and retain the report with its digest. Receipt text and
     wardrobe payloads must never enter the auth store.
+  - Enforce and evidence the approved
+    [App Attest data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md):
+    deadline cleanup, inactive/revoked installation deletion, assertion-verified in-app deletion,
+    no application access logs, bounded sanitized security logs, 14-day snapshots,
+    restore-after-deletion handling, alert delivery, and monitored support routing.
   - Use a time-bounded bridge deployment only if needed to move existing testers. Record its
     expiry, then deploy App-Attest-only auth, unset/rotate `DEVICE_TOKEN`, prove an old build is
     rejected, retain a validated App-Attest-only rollback image, and record commit/image,

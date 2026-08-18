@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-17
+## Current candidate status — 2026-08-18
 
 - Versioned candidate source: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`,
   which contains `1.0.0 (4)`. The final `main` archive source is not frozen; record its merged SHA
@@ -32,10 +32,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Development proof: App Attest enrollment, assertion renewal, and `/recommend` succeeded on an
   iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build fields were
   absent as expected and are not claimed as development evidence.
-- APP-009 remains open until the signed distribution archive/profile and production TestFlight
-  enrollment, assertion renewal, and protected API call are verified. Production distribution
-  configuration, Gmail OAuth identifiers, public pages, and retention/logging policy evidence are
-  also still open.
+- APP-009's lifecycle/logging policy is approved in
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and its
+  repository-owned enforcement is implemented. The deployed Fly v4 image predates that change, so
+  final-image deployment and external operations evidence remain open. The signed distribution
+  archive/profile and production TestFlight enrollment, assertion renewal, protected API call, and
+  server-deletion UI proof are also still required.
 
 ## One-time gates before the next internal build
 
@@ -51,20 +53,29 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - [x] Enable App Attest for `com.tth.Wardrobe`, confirm App ID prefix `29NT767Y9P`, exercise
   regenerated development signing, and retain physical-device sandbox enrollment and assertion
   renewal evidence.
-- [ ] Inspect the signed distribution archive entitlement and embedded profile, then complete
-  production enrollment, assertion renewal, and a protected API call through TestFlight. On iOS
-  18–26, record the signed absence of category/build runtime fields without claiming allowlist
-  enforcement.
 - [x] Provision one encrypted Fly volume for the single production Machine; verify private
-  ownership/modes, SQLite integrity, restart persistence, automatic backups, a retained snapshot,
-  and an isolated restore rehearsal.
-- [ ] Finalize and evidence authentication metadata, backup/snapshot, request/IP-log retention,
-  deletion criteria, alert routing, and the support process.
-- [x] Scan the exact release container image, including OS packages, for high/critical known
-  vulnerabilities and retain the report with the image digest. The locked Python audit is already
-  enforced in CI; the local Docker Scout command is
+  ownership/modes, SQLite integrity, restart persistence, automatic daily snapshots, a retained
+  snapshot, and an isolated restore rehearsal. These snapshots are not a separate backup system.
+- [x] Adopt the APP-009
+  [data-lifecycle and logging policy](app-attest-data-lifecycle-policy.md), including exact target
+  periods, prohibited log fields, deletion/restore rules, alert requirements, and an explicit
+  current-compliance checklist.
+- [x] Enforce the repository-owned policy: a one-minute deadline-maintenance loop on a pinned
+  minimum-one-Machine topology, repeat-until-drained cleanup, 90-day inactive and 30-day revoked
+  installation purge, assertion-verified in-app deletion, SQLite secure-delete/WAL maintenance,
+  structural persistence/logging guards, and a pinned no-access-log production command are all
+  implemented and covered by focused tests.
+- [ ] After policy enforcement, build and scan the exact final `linux/amd64` container image,
+  including OS packages, for high/critical known vulnerabilities; push and re-scan its immutable
+  registry digest, then deploy only that digest. Retain it and revalidate an App-Attest-only
+  rollback image. The current Fly v4 image passed, but it predates these enforcement changes.
+  The locked Python audit is already enforced in CI; the local Docker Scout command is
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
+- [ ] Verify production operations against that final image: Fly edge-log fields/retention,
+  seven-day sanitized application-log retention, 14-day snapshot expiry,
+  restore-after-deletion handling, alert delivery, monitored support routing, and a redacted
+  deletion/restore rehearsal.
 - [x] Rotate and verify the Anthropic API key, retire `DEVICE_TOKEN`, deploy App-Attest-only auth,
   and prove the retired credential returns `401`. No credential value is retained in evidence.
 - [x] Treat the opaque Apple receipt as untrusted fraud evidence, not session authorization. The
@@ -88,7 +99,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 1. **Freeze the candidate.** Use a clean, reviewed commit. Record its hash, the backend image that
    will serve it, App Attest environment/category/build allowlist, iOS-version compatibility policy,
-   and durable auth-store version.
+   durable auth-store version, and the policy-compliance evidence linked from
+   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md).
 2. **Choose version/build from App Store Connect.** In **Apps → Wardrobe Stylist → TestFlight →
    iOS**, inspect all uploads and choose the next unused `CURRENT_PROJECT_VERSION`. If this exact
    build may be promoted as the first public release, decide and set the intended public
@@ -103,7 +115,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
    post-build check without bypasses. Before validation or upload, run
    `ios/scripts/verify-release-artifact.sh DerivedData/ReleaseValidation
    "/path/to/Wardrobe.xcarchive/Products/Applications/Wardrobe.app"`; this pass must confirm the
-   signed production App Attest entitlement and absence of the shared bearer.
+   signed production App Attest entitlement and absence of the shared bearer. Retain the archive
+   entitlement and embedded-profile inspection as the distribution half of APP-009 evidence.
 5. **Validate and upload.** In Organizer choose **Validate App**, then **Distribute App →
    TestFlight & App Store → Upload**. Upload symbols and use the intended distribution signing.
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy
@@ -115,9 +128,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
 8. **Run clean-device QA.** Test both upgrade and clean install on a physical iPhone: launch/icon,
    local onboarding, offline Demo Mode, camera and photo library, migrations, App Attest enrollment
    and session renewal, import review, Gmail disclosure/sign-in/import, styling/history,
-   reminders/background work, Settings/privacy, sign out, disconnect, deletion, account switching,
-   offline/relaunch, backend failure, and reinstall creating a new anonymous installation. Verify
-   local/demo behavior remains available when secure remote AI is unavailable.
+   reminders/background work, Settings/privacy, sign out, disconnect, local deletion, separate
+   server-security deletion, account switching, offline/relaunch, backend failure, and reinstall
+   creating a new anonymous installation. Verify
+   local/demo behavior remains available when secure remote AI is unavailable. Through the
+   processed internal TestFlight build, retain production enrollment, assertion renewal, and a
+   protected API call. On iOS 18–26, record signed runtime-field absence without claiming
+   category/build enforcement.
 9. **Retire the bridge.** If a legacy compatibility bridge was used, switch the validated backend
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
    the candidate still succeeds. A rollback must use a retained App-Attest-only image and preserve
@@ -125,10 +142,21 @@ an App Store release candidate from the moment it is archived. This prevents a s
 10. **Record evidence.** Retain the commit, archive, build/version, Xcode and SDK, test results,
    validation/upload logs, processed-build metadata, backend image/config, exact App ID prefix,
    entitlement/profile, tester OS/runtime-field presence, category/build values when supplied,
-   auth-store volume and backup/restore evidence, Apple-receipt validation/risk-metric policy,
+   auth-store volume and snapshot/restore evidence, Apple-receipt validation/risk-metric policy,
    bridge retirement, old-build rejection, and physical-device QA. Do not claim build/category
    rejection on iOS 18–26, where Apple omits those fields; the pre-App-Attest shared-token build
    must still be rejected.
+
+## Post-upload APP-009 closure
+
+Production App Attest proof is necessarily post-upload; it is not a pre-build gate.
+
+- [ ] Retain the signed archive's production App Attest entitlement and matching embedded profile.
+- [ ] From the processed internal TestFlight build, retain production enrollment, assertion
+  renewal, and a protected API call. Record the tester OS and signed runtime-field presence; do not
+  claim category/build enforcement when iOS 18–26 omits those fields.
+- [ ] Complete upgrade and clean-install QA and attach the redacted results to the final evidence
+  record.
 
 ## Promoting an internally tested build
 
