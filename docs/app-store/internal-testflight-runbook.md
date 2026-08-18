@@ -21,7 +21,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## Current candidate status — 2026-08-17
 
-- Candidate source: `main` at `24f163f54545e611136b66f77b95823df9eb32eb`.
+- Versioned candidate source: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`,
+  which contains `1.0.0 (4)`. The final `main` archive source is not frozen; record its merged SHA
+  before archiving or uploading.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. The candidate
   has not yet been archived or uploaded.
 - Production backend: Fly release v4 serves the App-Attest-only image
