@@ -210,14 +210,49 @@ Store Connect. These signed category/build fields are enforced whenever Apple su
 iOS 27+; older supported OS versions still require the complete core App Attest proof. These are
 release facts, not values to guess from this repository.
 
-Record the volume/machine topology, atomic SQLite behavior, snapshot and backup configuration,
-restore rehearsal, and retention/deletion criteria. Fly volumes are single-machine local storage;
-do not scale to multiple independent volumes without a designed shared/replicated auth store. The
+Record the volume/machine topology, atomic SQLite behavior, snapshot configuration, restore
+rehearsal, and retention/deletion criteria. Fly volume snapshots are not a separate backup system;
+if a separate backup is introduced, inventory and test it explicitly. Fly volumes are
+single-machine local storage; do not scale to multiple independent volumes without a designed
+shared/replicated auth store. The
 database may contain only App Attest public keys, opaque Apple attestation receipts, counters,
 challenges, hashed sessions, and coarse rate windows—never Gmail receipt or wardrobe payloads.
 The core certificate/key/nonce proof authorizes an installation; do not trust or redeem the separate
 Apple receipt for a fraud metric until its PKCS#7 signature/chain, App ID, creation time, and
 attested-public-key binding are independently validated with official-format evidence.
+
+Production operations must follow the approved
+[APP-009 App Attest data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md).
+The repository implements the application-owned controls:
+
+1. FastAPI starts a one-minute maintenance loop; the Fly configuration keeps at least one Machine
+   running so the deadline worker is not suspended by idle auto-stop;
+2. cleanup repeats bounded transactions until drained, purges inactive installations after 90
+   days and revoked installations after 30 days, uses SQLite secure deletion, and
+   checkpoints/truncates WAL;
+3. **Settings → Privacy & Data → Delete Server Security Data** signs a fresh one-time App
+   Attest deletion challenge; the backend synchronously removes the proven installation, related
+   challenges, sessions, and current-secret-derived key/installation rate rows before the app
+   clears its local key reference. Pre-rotation rate HMACs remain bounded by the 65-minute policy;
+   and
+4. structural review guardrails pin the auth schema, block common durable-write patterns and
+   direct auth-store use from payload modules, allowlist application log calls, and pin the
+   production `--no-access-log` command.
+
+Before treating a deployment as release-ready:
+
+1. build, scan, deploy, and retain the immutable digest for the final image containing those
+   controls;
+2. verify Fly edge fields and the approved 24-hour raw-IP, seven-day sanitized-log, and 30-day
+   alert-record limits;
+3. verify encrypted rolling snapshots expire within 14 days and that a pre-deletion snapshot cannot
+   revive deleted auth state; delete any isolated restore volume within 24 hours; and
+4. route health/5xx, snapshot age/failure, volume usage, auth-abuse, Anthropic-availability, and
+   budget alerts to a monitored owner channel, then retain a redacted successful delivery test.
+
+The policy's unchecked compliance items are release gates. A healthy `/health` response, an
+existing snapshot, or a documented target is not evidence that retention, deletion, and alerting
+are enforced.
 
 The image build is verifiable locally first: `docker build -t wb backend && docker run --rm -p 8080:8080 wb`, then `curl localhost:8080/health`.
 
@@ -242,8 +277,8 @@ re-enabling the shared bearer.
 Every internal beta is built as an App Store candidate. Follow the full
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
 
-1. Finish `APP-009`: App Attest per-installation sessions, durable Fly auth state, physical-device
-   sandbox/production verification, no `BackendDeviceToken`, and retired legacy backend auth.
+1. Finish the pre-upload `APP-009` work: build/scan/deploy the policy-enforced image and verify
+   external logging, alert, support, snapshot, and restore operations.
 2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
    `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
 3. Check App Store Connect for the highest uploaded build, then set the next unused
@@ -256,9 +291,10 @@ Every internal beta is built as an App Store candidate. Follow the full
    submitted to customers.
 6. After processing, add the build only to the Internal Testing group and complete upgrade plus
    clean-device QA, including enrollment/session renewal, tester OS/runtime-field evidence,
-   production category/build evidence on iOS 27+, reinstall identity reset, offline local/demo
-   behavior, and rejection of the pre-App-Attest shared-token build. Adding it to an internal group
-   does not submit it for App Review.
+   production category/build evidence on iOS 27+, the separate server-security-data deletion,
+   reinstall identity reset, offline local/demo behavior, and rejection of the pre-App-Attest
+   shared-token build. Retain the signed archive and production TestFlight evidence here. Adding it
+   to an internal group does not submit it for App Review.
 
 Before choosing a build number or archiving, run `ios/scripts/verify-release-artifact.sh` against
 the generated simulator Release artifact. Xcode omits App Attest from simulator signatures, so this

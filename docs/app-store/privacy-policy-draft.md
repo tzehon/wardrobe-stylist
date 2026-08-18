@@ -48,8 +48,14 @@ you consent.
 ### Technical information
 
 The backend necessarily receives network information such as IP address and request timing while
-servicing a request. [STATE THE FINAL LOG FIELDS, RETENTION, HOSTING PROVIDER, REGION, RATE-LIMIT
-DATA, CRASH/ANALYTICS TOOLS, AND WHETHER IDENTIFIERS ARE LINKED.]
+servicing a request. The developer auth database stores only keyed HMAC rate-limit subjects, not
+raw IP addresses. Application security events are designed to omit IP addresses, installation and
+key identifiers, credentials, request content, and model content.
+
+[BEFORE PUBLICATION: VERIFY THE FINAL DEPLOYED IMAGE HAS APPLICATION ACCESS LOGS DISABLED; VERIFY
+FLY EDGE FIELDS AND THE APPROVED 24-HOUR RAW-IP LIMIT; VERIFY SEVEN-DAY SANITIZED-LOG RETENTION,
+ALERT ROUTING, HOSTING REGION, CRASH/ANALYTICS TOOLS, AND LINKAGE. SEE
+`app-attest-data-lifecycle-policy.md`.]
 
 ## How information is used
 
@@ -77,23 +83,34 @@ HUMAN ACCESS, REGION, SUBPROCESSORS, AND DELETION BEFORE CLAIMING SPECIFIC PRACT
 ## Retention
 
 Wardrobe data remains on your device until you delete it or remove the app, subject to any device
-backup you control. Our backend is intended not to persist receipt text or wardrobe payloads after
-the request completes. [CONFIRM LOGGING, ERROR CAPTURE, PROVIDER RETENTION AND BACKUP WINDOWS;
-STATE EXACT PERIODS OR CRITERIA.] We retain only the minimum server-side authentication, security,
-and abuse-prevention records required to operate the public service. [DEFINE THEM.]
+backup you control. Our developer application does not persist receipt text or wardrobe payloads
+after the request completes. We retain only the minimum server-side authentication, security, and
+abuse-prevention records required to operate the public service.
+
+[BEFORE PUBLICATION: DEPLOY AND EVIDENCE THE REPOSITORY-ENFORCED SCHEDULE. CHALLENGES: 70 MINUTES
+MAXIMUM FROM ISSUE; SESSION HASHES: 20 MINUTES; RATE HASHES: WINDOW PLUS 5 MINUTES; ACTIVE
+INSTALLATIONS AND OPAQUE APPLE RECEIPTS: 90 DAYS AFTER LAST SUCCESSFUL USE; REVOKED INSTALLATIONS:
+30 DAYS; VERIFIED LIVE DELETION: 24 HOURS; ENCRYPTED SNAPSHOTS: 14 DAYS; SANITIZED SECURITY LOGS:
+7 DAYS; ALERT RECORDS: 30 DAYS. VERIFY ANTHROPIC/PROCESSOR RETENTION SEPARATELY.]
 
 ## Your choices and controls
 
 In the app you can use a local wardrobe without Gmail, decline or withdraw receipt-analysis and
 styling consent, disable background import and reminders, sign out, disconnect/revoke Gmail, and
-delete local wardrobe data. Disconnecting Gmail stops future Gmail access but does not delete mail
-or modify your Google account. Deleting the local wardrobe does not delete Gmail messages.
+delete local wardrobe data. You can separately use **Settings → Privacy & Data → Delete
+Server Security Data** to prove control with App Attest and remove this installation's live
+anonymous authentication record and sessions. That server action does not delete the wardrobe or
+disconnect Google; future remote-AI use enrolls a new anonymous identity. Disconnecting Gmail stops
+future Gmail access but does not delete mail or modify your Google account. Deleting the local
+wardrobe does not delete Gmail messages.
 
 You can also review or revoke Google access at
 [Google Account third-party connections](https://myaccount.google.com/connections).
 
 For access, correction, deletion, or privacy questions about any server-side information, contact
-[PRIVACY EMAIL]. [ADD APPLICABLE JURISDICTION-SPECIFIC RIGHTS AND RESPONSE PROCESS.]
+[PRIVACY EMAIL]. [BEFORE PUBLICATION: VERIFY THE IN-APP ASSERTION-VERIFIED SERVER-DELETION FLOW ON
+THE FINAL TESTFLIGHT BUILD, PUBLISH THE MONITORED CONTACT, AND ADD APPLICABLE
+JURISDICTION-SPECIFIC RIGHTS AND RESPONSE PROCESS.]
 
 ## Security
 

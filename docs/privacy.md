@@ -46,9 +46,36 @@ The intended public-release contract is:
 The current public-release work and remaining blockers are tracked in
 [`app-release-backlog.md`](app-release-backlog.md). Previous internal builds bundled a shared
 backend bearer that was **not a secret**. The current client removes that credential and can use
-remote AI only through anonymous, per-installation App Attest sessions. `APP-009` remains open
-until Apple provisioning, durable Fly auth state, physical-device verification, production
-cutover, and legacy retirement are evidenced.
+remote AI only through anonymous, per-installation App Attest sessions. Apple provisioning,
+durable Fly auth state, development-device verification, production cutover, and legacy retirement
+are complete. The repository now also enforces the lifecycle policy. `APP-009` remains open for
+the final image scan/deployment, external operations evidence, signed archive, and production
+TestFlight proof.
+
+## Backend authentication-data lifecycle
+
+The approved source of truth is
+[`app-attest-data-lifecycle-policy.md`](app-store/app-attest-data-lifecycle-policy.md). Its main
+limits are:
+
+- request payloads are not persisted by the developer application;
+- challenges, session hashes, and rate-window HMACs have short fixed validity and must be purged
+  within 70, 20, and at most 65 minutes respectively;
+- active anonymous installation metadata and its opaque, untrusted Apple receipt expire after 90
+  days without successful authenticated use; revoked records expire after 30 days;
+- a verified server-data deletion removes live auth state within 24 hours;
+- encrypted auth snapshots expire within 14 days;
+- application access logs must be disabled; payload-free security logs may last at most seven days;
+  and
+- unavoidable provider edge logs containing raw IP may last at most 24 hours.
+
+The repository enforces the application-owned controls with a one-minute lifecycle task on the
+minimum-one-Machine production topology, repeat-until-drained cleanup, 90/30-day installation
+purges, synchronous fresh-assertion deletion, SQLite secure-delete/WAL maintenance, structural
+persistence/logging guards, and a no-access-log container command. The final image is not yet
+deployed, so those controls are not yet production claims. Provider log-retention evidence, alert
+routing, monitored support publication, restore-after-deletion evidence, and the other unchecked
+policy items remain release blockers.
 
 ## Data inventory
 
@@ -57,8 +84,9 @@ The source-of-truth inventory is
 what originates on device, what reaches the developer backend and Anthropic, the purpose, storage
 expectation, consent gate, deletion path, and unresolved provider-contract questions.
 
-Do not publish claims such as “Anthropic never retains data,” “data is never used for training,”
-or a fixed deletion period until the production contract/configuration has been verified.
+Do not publish claims such as “Anthropic never retains data” or “data is never used for training”
+until the production contract/configuration has been verified. Do not present repository controls
+as deployed production behavior until the final image and external policy evidence are verified.
 
 ## User controls required for release
 
@@ -69,6 +97,9 @@ or a fixed deletion period until the production contract/configuration has been 
 - **Disable background import/reminders:** cancel pending work immediately.
 - **Delete local wardrobe data:** remove items, photos, outfits, wear logs, sync state, cached looks,
   and account-scoped preferences, while leaving unrelated Google data untouched.
+- **Delete server security data:** use a fresh App Attest deletion assertion to remove this
+  installation's live anonymous authentication record and sessions, without deleting the local
+  wardrobe or disconnecting Google. Future remote-AI use enrolls a new anonymous identity.
 
 Each control must report success only after its operation completes. Destructive actions require
 specific confirmation, and a failure must never be presented as deletion or revocation success.

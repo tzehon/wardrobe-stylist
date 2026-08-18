@@ -39,6 +39,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/challenge` | APP-009 | one-time enrollment/assertion challenge |
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
+| `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
 | `POST /extract` | 2 | receipt snippet → structured fashion purchase(s) (Claude Haiku, forced tool use) |
 | `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Claude Opus 4.8, forced tool use) |
 
@@ -60,12 +61,21 @@ hash of the certified P-256 public key's uncompressed X9.62 representation, and 
 the nonce-bound COSE key to equal that certified key. Runtime validation-category and
 bundle-version extensions arrive on iOS 27 and later: their signed absence is accepted for
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
-Exact operational retention periods for authentication metadata remain TBD pending the
-final policy decision; expired rows are removed opportunistically in bounded batches, not
-retained as content history.
+The approved operational limits are defined in
+[`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
+The repository is configured to enforce them, once deployed, with a one-minute maintenance loop on
+the desired minimum-one-Machine production topology: cleanup repeats bounded transactions until
+drained, removes inactive installations after 90 days and revoked installations after 30 days, and
+securely checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
+synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
+exposes that server-only control. The final image still must be built, scanned, deployed, and
+verified before these are production claims.
 
 The auth service emits bounded security events containing only an event/code/scope/path/
-mechanism tuple; log retention and alert routing remain deployment-policy evidence gates.
+mechanism tuple. The production container disables Uvicorn access logging, and structural tests
+pin the reviewed auth schema, persistence sinks, application log calls, and container command.
+Provider edge-log handling, sanitized-log retention, and alert routing remain external
+deployment-policy evidence gates.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.

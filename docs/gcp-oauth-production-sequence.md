@@ -82,22 +82,30 @@ Internal Only** artifact type.
   a Google ID token to `/extract` or `/recommend`. No Google client secret belongs in the iOS app.
   Google authorization remains an optional, one-scope Gmail grant and is independent from the
   anonymous Wardrobe backend session.
-- [ ] Complete the deferred `APP-009` App Attest cutover in parallel with this Google work:
-  confirm the exact Apple App ID prefix, enable the capability for `com.tth.Wardrobe`, regenerate
-  profiles, and verify fresh challenge/attestation/assertion flows on a physical device. The
-  backend must validate Apple trust/nonce/RP ID/key/environment/counter before issuing a
-  short-lived per-installation session. On iOS 27+, it must also validate the signed production
-  category and exact bundle build; on iOS 18–26 those runtime fields are expected to be absent.
-- [ ] Provision durable, private backend auth state before production enablement. Persist only
-  App Attest public keys, opaque Apple receipts, counters, challenges, hashed sessions, and rate
-  windows; define the Fly volume/database topology plus backup, snapshot, restore, retention, and
-  deletion behavior without persisting Gmail receipt or wardrobe payloads. Treat receipt
-  validation/risk metrics as a separate policy gate before trusting or redeeming that evidence.
-- [ ] During backend rollout the service may accept the legacy bearer only in a deliberately
-  time-bounded bridge with an explicit expiry. Before the next always-ready internal TestFlight
-  candidate closes APP-009, remove `BackendDeviceToken` from the app/archive, deploy
-  App-Attest-only auth, unset/rotate the legacy token, prove old builds fail, and retain an
-  App-Attest-only rollback image that preserves the auth store.
+- [x] Complete the repository, Apple-capability, and development-device portions of `APP-009`:
+  confirm App ID prefix `29NT767Y9P`, enable App Attest for `com.tth.Wardrobe`, regenerate signing,
+  and verify fresh development challenge/attestation/assertion flows on a physical device. The
+  backend validates Apple trust/nonce/RP ID/key/environment/counter before issuing a short-lived
+  per-installation session. On iOS 27+, it also validates the signed production category and exact
+  bundle build; on iOS 18–26 those runtime fields are expected to be absent.
+- [x] Provision durable, private production auth state containing only App Attest public keys,
+  opaque Apple receipts, counters, challenges, hashed sessions, and rate windows. The encrypted
+  Fly volume, restart persistence, snapshot, and isolated restore rehearsal are evidenced.
+- [x] Retire the migration bridge: remove `BackendDeviceToken` from client source/configuration,
+  deploy App-Attest-only auth, unset/rotate the legacy token, prove the old credential fails, and
+  retain an App-Attest-only rollback image that preserves the auth store. Verify the signed archive
+  separately after it exists.
+- [x] Enforce the repository-owned parts of the
+  [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md): one-minute deadline
+  cleanup on a minimum-one-Machine topology, inactive/revoked installation purge, fresh-assertion
+  in-app deletion, SQLite/WAL maintenance, structural persistence/logging guards, and disabled
+  Uvicorn access logs.
+- [ ] Build, scan, and deploy the policy-enforced image, then externally evidence Fly
+  volume/snapshots, provider logging, sanitized-log retention, alerting, monitored support, and
+  deletion/restore behavior. Treat receipt validation/risk metrics as a separate policy gate before
+  trusting or redeeming that evidence.
+- [ ] Inspect the signed distribution archive/profile and verify production enrollment, assertion
+  renewal, and a protected request through the processed internal TestFlight build.
 - [ ] Test the two independent boundaries separately. App Attest: clean install, update, reinstall,
   sandbox/production, assertion expiry/counter/replay, offline/server failure, unsupported service,
   and background renewal. Google: fresh/restored/expired/revoked/account-switch/offline and denied
