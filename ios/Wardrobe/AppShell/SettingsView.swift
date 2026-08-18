@@ -9,6 +9,7 @@ struct SettingsView: View {
     let onEnterDemo: () -> Void
     let onVerifiedLocalDataDeletion: @MainActor @Sendable () -> Void
     private let makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)?
+    private let serverIdentityDeletion: any ServerIdentityDeleting
 
     init(
         session: GmailSession,
@@ -17,7 +18,8 @@ struct SettingsView: View {
         onReplayOnboarding: @escaping () -> Void,
         onEnterDemo: @escaping () -> Void,
         onVerifiedLocalDataDeletion: @escaping @MainActor @Sendable () -> Void,
-        makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)? = nil
+        makeGmailPrivacySettings: (@MainActor (GoogleSignInIdentity) -> GmailPrivacySettings)? = nil,
+        serverIdentityDeletion: any ServerIdentityDeleting = AppAttestAuthorization.shared
     ) {
         self.session = session
         self.devicePrivacy = devicePrivacy
@@ -26,6 +28,7 @@ struct SettingsView: View {
         self.onEnterDemo = onEnterDemo
         self.onVerifiedLocalDataDeletion = onVerifiedLocalDataDeletion
         self.makeGmailPrivacySettings = makeGmailPrivacySettings
+        self.serverIdentityDeletion = serverIdentityDeletion
     }
 
     var body: some View {
@@ -67,6 +70,7 @@ struct SettingsView: View {
                     PrivacyAndDataSettingsView(
                         session: session,
                         syncActivity: syncActivity,
+                        serverIdentityDeletion: serverIdentityDeletion,
                         onVerifiedLocalDataDeletion: onVerifiedLocalDataDeletion
                     )
                 } label: {
@@ -246,6 +250,7 @@ private struct WardrobeToolsSettingsView: View {
 private struct PrivacyAndDataSettingsView: View {
     let session: GmailSession
     let syncActivity: ReceiptSyncActivityController
+    let serverIdentityDeletion: any ServerIdentityDeleting
     let onVerifiedLocalDataDeletion: @MainActor @Sendable () -> Void
 
     var body: some View {
@@ -276,6 +281,17 @@ private struct PrivacyAndDataSettingsView: View {
                 Text("Data on This Device")
             } footer: {
                 Text("Deleting local data does not revoke Google access. Use Disconnect Google under Connected Features for that.")
+            }
+
+            Section {
+                ServerIdentityDeletionView(
+                    deletion: serverIdentityDeletion,
+                    syncActivity: syncActivity
+                )
+            } header: {
+                Text("Data on Wardrobe’s Server")
+            } footer: {
+                Text("This removes only anonymous App Attest security metadata for this installation. It does not delete this iPhone’s wardrobe or disconnect Google. Remote AI creates a new anonymous identity the next time you use it.")
             }
         }
         .navigationTitle("Privacy & Data")

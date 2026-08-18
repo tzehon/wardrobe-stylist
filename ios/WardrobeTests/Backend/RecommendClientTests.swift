@@ -141,6 +141,37 @@ struct RecommendClientTests {
         #expect(rejectedTokens[1] == "expired-token")
     }
 
+    @Test func late401ForADeletedIdentityDoesNotResendTheWardrobePayload() async {
+        let authorization = RecommendRetiredBearerAuthorization(
+            retiredToken: "deleted-identity-token"
+        )
+        URLProtocolStub.install { _ in
+            (
+                self.makeHTTPResponse(401),
+                Data(#"{"detail": "Deleted anonymous identity."}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = RecommendClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await client.recommend(sampleRequest())
+        }
+
+        #expect(URLProtocolStub.captured.count == 1)
+        #expect(URLProtocolStub.capturedBodies.count == 1)
+        #expect(
+            URLProtocolStub.capturedBodies[0]
+                .range(of: Data("Oversized Tee".utf8)) != nil
+        )
+        #expect(await authorization.replacementTokenCount == 0)
+        #expect(await authorization.rejectedTokens == [nil, "deleted-identity-token"])
+    }
+
     @Test func cancellationWhileAuthorizationIsSuspendedSendsNoWardrobePayload() async {
         let authorization = RecommendSuspendedAuthorization()
         URLProtocolStub.install { _ in
@@ -275,5 +306,25 @@ private actor RecommendSuspendedAuthorization: BackendAuthorizing {
     func resume(with token: String) {
         tokenContinuation?.resume(returning: token)
         tokenContinuation = nil
+    }
+}
+
+private actor RecommendRetiredBearerAuthorization: BackendAuthorizing {
+    private let retiredToken: String
+    private(set) var rejectedTokens: [String?] = []
+    private(set) var replacementTokenCount = 0
+
+    init(retiredToken: String) {
+        self.retiredToken = retiredToken
+    }
+
+    func accessToken(rejecting rejectedToken: String?) throws -> String {
+        rejectedTokens.append(rejectedToken)
+        guard let rejectedToken else { return retiredToken }
+        guard rejectedToken != retiredToken else {
+            throw AppAttestAuthorizationError.retiredSession
+        }
+        replacementTokenCount += 1
+        return "unexpected-replacement-token"
     }
 }

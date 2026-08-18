@@ -38,6 +38,7 @@ final class ConnectedUITestExperience {
     let session: GmailSession
     let devicePrivacy: DevicePrivacySettings
     let syncActivity = ReceiptSyncActivityController()
+    let serverIdentityDeletion: any ServerIdentityDeleting = ConnectedUITestServerIdentityDeletion()
 
     private let privacyStore = InMemoryUITestPrivacyPreferencesStore()
     private let reminderTimeStore = InMemoryUITestReminderTimeStore()
@@ -174,7 +175,8 @@ struct ConnectedUITestRootView: View {
                         onVerifiedLocalDataDeletion: verifiedLocalDataWasDeleted,
                         makeGmailPrivacySettings: { _ in
                             experience.makeGmailPrivacySettings()
-                        }
+                        },
+                        serverIdentityDeletion: experience.serverIdentityDeletion
                     )
                     .id(localDataGeneration)
                 }
@@ -255,6 +257,12 @@ private struct DenyNetworkUITestGmailAuth: GmailAuth {
 
 private enum ConnectedUITestNetworkFailure: Error {
     case blocked
+}
+
+private actor ConnectedUITestServerIdentityDeletion: ServerIdentityDeleting {
+    func deleteServerIdentity() -> ServerIdentityDeletionResult {
+        .deleted
+    }
 }
 
 private final class ConnectedUITestNetworkGuard: @unchecked Sendable {

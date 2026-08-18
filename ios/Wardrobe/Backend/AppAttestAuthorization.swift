@@ -57,6 +57,11 @@ protocol AppAttestCredentialStoring: Sendable {
 protocol AppAttestSessionFlightObserving: Sendable {
     func didJoinSessionFlight() async
     func willFinalizeSessionFlight(createdByCaller: Bool) async
+    func willDrainSessionFlightForDeletion() async
+}
+
+extension AppAttestSessionFlightObserving {
+    func willDrainSessionFlightForDeletion() async {}
 }
 
 /// The key identifier is the only handle Apple gives the app for the private
@@ -114,6 +119,9 @@ enum AppAttestAuthorizationError: Error, Equatable, Sendable {
     case invalidResponse
     case network(URLError.Code)
     case serviceUnavailable
+    case deletionInProgress
+    case deletionConfirmationPending
+    case retiredSession
     case http(status: Int, code: String?)
     case decoding(String)
 }
@@ -133,10 +141,26 @@ extension AppAttestAuthorizationError: LocalizedError {
             "Secure verification is receiving too many requests. Please wait a moment and try again."
         case .serviceUnavailable, .http(status: 500...599, code: _):
             "Secure verification is temporarily unavailable. Your local wardrobe is safe on this device. Please try again."
+        case .deletionInProgress:
+            "Server security data is already being deleted. Please wait for it to finish."
+        case .deletionConfirmationPending:
+            "Server deletion still needs confirmation. Open Privacy & Data in Settings and retry Delete Server Security Data."
+        case .retiredSession:
+            "This AI request stopped because its anonymous server identity was deleted. Try the action again to create a new identity."
         default:
             "Wardrobe couldn’t securely verify this installation. Your local wardrobe is safe on this device. Please try again."
         }
     }
+}
+
+enum ServerIdentityDeletionResult: Equatable, Sendable {
+    case deleted
+    case alreadyAbsent
+    case noVerifiableIdentity
+}
+
+protocol ServerIdentityDeleting: Sendable {
+    func deleteServerIdentity() async throws -> ServerIdentityDeletionResult
 }
 
 /// Exchanges an Apple-certified, per-installation key for short-lived backend
@@ -146,7 +170,7 @@ extension AppAttestAuthorizationError: LocalizedError {
 /// This actor is deliberately the one shared refresh point for styling, manual
 /// receipt import, and background receipt import. Its in-flight task prevents
 /// concurrent requests from enrolling or advancing the App Attest counter twice.
-actor AppAttestAuthorization: BackendAuthorizing {
+actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
     static let shared = AppAttestAuthorization()
 
     private struct AccessSession: Sendable {
@@ -162,6 +186,7 @@ actor AppAttestAuthorization: BackendAuthorizing {
     private enum Purpose: String, Encodable {
         case attestation
         case assertion
+        case deletion
     }
 
     private struct ChallengeRequest: Encodable {
@@ -204,6 +229,13 @@ actor AppAttestAuthorization: BackendAuthorizing {
     }
 
     private struct AssertionSessionRequest: Encodable {
+        let challengeID: String
+        let keyID: String
+        let assertionObject: String
+        let clientData: String
+    }
+
+    private struct InstallationDeletionRequest: Encodable {
         let challengeID: String
         let keyID: String
         let assertionObject: String
@@ -253,6 +285,19 @@ actor AppAttestAuthorization: BackendAuthorizing {
     private let sessionFlightObserver: (any AppAttestSessionFlightObserving)?
     private var cachedSession: AccessSession?
     private var sessionFlight: SessionFlight?
+    // Keep only one-way digests for historical bearers. They live only for the
+    // current process: app termination also ends every in-flight caller that
+    // could present one. This fences a pre-deletion request even if iOS
+    // suspends its Task after receiving a 401 for an arbitrary duration.
+    private var returnedSessionDigests: Set<Data> = []
+    private var retiredSessionDigests: Set<Data> = []
+    private var identityGeneration: UInt64 = 0
+    private var deletionInProgress = false
+    // Once a signed deletion proof has been dispatched, a timeout or 503 can
+    // mean the logical DELETE committed but its maintenance confirmation was
+    // lost. Keep the credential for an idempotent retry, while blocking every
+    // new AI session until the server confirms absence.
+    private var deletionPendingConfirmation = false
 
     init(
         baseURL: URL? = nil,
@@ -271,12 +316,26 @@ actor AppAttestAuthorization: BackendAuthorizing {
     }
 
     func accessToken(rejecting rejectedToken: String?) async throws -> String {
+        let startingIdentityGeneration = identityGeneration
         var rejectedReplacementAttempts = 0
         while true {
+            guard startingIdentityGeneration == identityGeneration else {
+                throw AppAttestAuthorizationError.retiredSession
+            }
+            if let rejectedToken,
+               retiredSessionDigests.contains(Self.tokenDigest(rejectedToken)) {
+                throw AppAttestAuthorizationError.retiredSession
+            }
+            guard !deletionInProgress else {
+                throw AppAttestAuthorizationError.deletionInProgress
+            }
+            guard !deletionPendingConfirmation else {
+                throw AppAttestAuthorizationError.deletionConfirmationPending
+            }
             if let cachedSession,
                cachedSession.token != rejectedToken,
                cachedSession.expiresAt.timeIntervalSince(now()) > 30 {
-                return cachedSession.token
+                return publish(cachedSession)
             }
 
             if cachedSession?.token == rejectedToken
@@ -312,9 +371,26 @@ actor AppAttestAuthorization: BackendAuthorizing {
                 throw error
             }
 
+            // A deletion that began while this caller awaited its shared
+            // assertion owns the credential boundary now. Do not publish or
+            // return the just-created bearer; the deletion path first drains
+            // this flight, then proves against the resulting latest counter.
+            guard !deletionInProgress else {
+                if sessionFlight?.id == flight.id {
+                    sessionFlight = nil
+                }
+                throw AppAttestAuthorizationError.deletionInProgress
+            }
+
             await sessionFlightObserver?.willFinalizeSessionFlight(
                 createdByCaller: createdByCaller
             )
+            guard startingIdentityGeneration == identityGeneration else {
+                throw AppAttestAuthorizationError.retiredSession
+            }
+            guard !deletionInProgress else {
+                throw AppAttestAuthorizationError.deletionInProgress
+            }
 
             // Every waiter may be first to resume. Finalize only the generation
             // it actually awaited, so an old completion cannot overwrite a
@@ -342,11 +418,111 @@ actor AppAttestAuthorization: BackendAuthorizing {
             }
 
             if cachedSession?.token == established.token {
-                return established.token
+                return publish(established)
             }
             // Another caller invalidated or superseded this completion while
             // the actor was reentrant. Re-evaluate the current cache/flight.
         }
+    }
+
+    func deleteServerIdentity() async throws -> ServerIdentityDeletionResult {
+        guard !deletionInProgress else {
+            throw AppAttestAuthorizationError.deletionInProgress
+        }
+        deletionInProgress = true
+        defer { deletionInProgress = false }
+
+        await drainSessionFlightBeforeDeletion()
+
+        guard await service.isSupported else {
+            throw AppAttestAuthorizationError.unsupportedDevice
+        }
+
+        let credential: AppAttestCredential?
+        do {
+            credential = try await credentialStore.load()
+        } catch AppAttestAuthorizationError.invalidCredentialStorage {
+            try await finishLocalServerIdentityDeletion()
+            return .noVerifiableIdentity
+        } catch let error as AppAttestAuthorizationError {
+            throw error
+        } catch {
+            throw AppAttestAuthorizationError.invalidCredentialStorage
+        }
+        guard let credential else {
+            // A missing Keychain credential means this installation can no
+            // longer prove control of the server identity. Do not leave a
+            // memory-only bearer usable after reporting that state.
+            retireReturnedSessionsAndClearMemory()
+            deletionPendingConfirmation = false
+            return .noVerifiableIdentity
+        }
+        guard Self.isStructurallyValid(credential) else {
+            try await finishLocalServerIdentityDeletion()
+            return .noVerifiableIdentity
+        }
+
+        let challenge: ChallengeResponse
+        do {
+            challenge = try await post(
+                path: "auth/app-attest/challenge",
+                body: ChallengeRequest(purpose: .deletion, keyID: credential.keyID)
+            )
+        } catch AppAttestAuthorizationError.http(
+            status: 401,
+            code: "unknown_app_attest_key"
+        ) {
+            try await finishLocalServerIdentityDeletion()
+            return .alreadyAbsent
+        }
+        guard Self.decodeChallenge(challenge.challenge) != nil else {
+            throw AppAttestAuthorizationError.invalidChallenge
+        }
+
+        let proof: (assertion: Data, clientData: Data)
+        do {
+            proof = try await makeAssertion(
+                challenge: challenge,
+                keyID: credential.keyID,
+                purpose: .deletion
+            )
+        } catch {
+            guard Self.isAppAttestInvalidKey(error) else { throw error }
+            // Apple can no longer produce possession proof for this key. The
+            // inaccessible server row therefore falls back to inactivity
+            // expiry, while this process must stop publishing its sessions.
+            try await finishLocalServerIdentityDeletion()
+            return .noVerifiableIdentity
+        }
+        // Dispatching the possession proof is the point of no return: any
+        // response failure is ambiguous. Fence existing bearers before the
+        // request leaves this actor, retain the key for a safe retry, and do
+        // not permit re-enrollment until absence is confirmed.
+        deletionPendingConfirmation = true
+        retireReturnedSessionsAndClearMemory()
+        do {
+            try await postWithoutResponse(
+                path: "auth/app-attest/delete",
+                body: InstallationDeletionRequest(
+                    challengeID: challenge.challengeID,
+                    keyID: credential.keyID,
+                    assertionObject: proof.assertion.base64EncodedString(),
+                    clientData: proof.clientData.base64EncodedString()
+                )
+            )
+        } catch AppAttestAuthorizationError.http(
+            status: 401,
+            code: "unknown_app_attest_key"
+        ) {
+            // Retention cleanup or another proven deletion can win after this
+            // client receives its challenge. The server row is definitively
+            // absent, so apply the same local credential fence as the
+            // idempotent challenge response.
+            try await finishLocalServerIdentityDeletion()
+            return .alreadyAbsent
+        }
+        try await finishLocalServerIdentityDeletion()
+        return .deleted
     }
 
     private func establishSession() async throws -> AccessSession {
@@ -382,7 +558,20 @@ actor AppAttestAuthorization: BackendAuthorizing {
                     return try await assertSession(with: credential.keyID)
                 } catch {
                     guard Self.requiresReenrollment(after: error) else { throw error }
+                    // Deletion must prove possession of the identity that was
+                    // present when the user confirmed. A failing refresh may
+                    // normally replace a stale key, but it must not swap key A
+                    // for key B while deletion is draining this flight.
+                    guard !deletionInProgress else {
+                        throw AppAttestAuthorizationError.deletionInProgress
+                    }
                     try await removeCredential()
+                    // Keychain mutation is an actor-reentrancy boundary. If
+                    // deletion began during it, report that the original key
+                    // can no longer be proven instead of enrolling a new one.
+                    guard !deletionInProgress else {
+                        throw AppAttestAuthorizationError.deletionInProgress
+                    }
                 }
             } else {
                 do {
@@ -396,6 +585,9 @@ actor AppAttestAuthorization: BackendAuthorizing {
             }
         }
 
+        guard !deletionInProgress else {
+            throw AppAttestAuthorizationError.deletionInProgress
+        }
         return try await enroll(nil)
     }
 
@@ -508,43 +700,55 @@ actor AppAttestAuthorization: BackendAuthorizing {
             throw AppAttestAuthorizationError.invalidChallenge
         }
 
-        let clientData = AssertionClientData(
-            challenge: challenge.challenge,
-            challengeID: challenge.challengeID,
+        let proof = try await makeAssertion(
+            challenge: challenge,
             keyID: keyID,
-            purpose: Purpose.assertion.rawValue,
-            version: 1
+            purpose: .assertion
         )
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        let encodedClientData = try encoder.encode(clientData)
-        let assertion: Data
-        do {
-            assertion = try await service.generateAssertion(
-                keyID,
-                clientDataHash: Data(SHA256.hash(data: encodedClientData))
-            )
-        } catch {
-            if Self.isAppAttestInvalidKey(error) { throw error }
-            throw AppAttestAuthorizationError.serviceUnavailable
-        }
         let response: SessionResponse = try await post(
             path: "auth/app-attest/session",
             body: AssertionSessionRequest(
                 challengeID: challenge.challengeID,
                 keyID: keyID,
-                assertionObject: assertion.base64EncodedString(),
-                clientData: encodedClientData.base64EncodedString()
+                assertionObject: proof.assertion.base64EncodedString(),
+                clientData: proof.clientData.base64EncodedString()
             )
         )
         return try makeAccessSession(response)
+    }
+
+    private func makeAssertion(
+        challenge: ChallengeResponse,
+        keyID: String,
+        purpose: Purpose
+    ) async throws -> (assertion: Data, clientData: Data) {
+        let clientData = AssertionClientData(
+            challenge: challenge.challenge,
+            challengeID: challenge.challengeID,
+            keyID: keyID,
+            purpose: purpose.rawValue,
+            version: 1
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        let encodedClientData = try encoder.encode(clientData)
+        do {
+            let assertion = try await service.generateAssertion(
+                keyID,
+                clientDataHash: Data(SHA256.hash(data: encodedClientData))
+            )
+            return (assertion, encodedClientData)
+        } catch {
+            if Self.isAppAttestInvalidKey(error) { throw error }
+            throw AppAttestAuthorizationError.serviceUnavailable
+        }
     }
 
     private func makeAccessSession(_ response: SessionResponse) throws -> AccessSession {
         let referenceDate = now()
         guard Self.isCanonicalSessionToken(response.accessToken),
               response.tokenType.caseInsensitiveCompare("Bearer") == .orderedSame,
-              (60...3_600).contains(response.expiresIn),
+              (60...900).contains(response.expiresIn),
               let absoluteExpiration = Self.parseUTCDate(response.expiresAt),
               UUID(uuidString: response.installationID) != nil else {
             throw AppAttestAuthorizationError.invalidResponse
@@ -583,10 +787,68 @@ actor AppAttestAuthorization: BackendAuthorizing {
         }
     }
 
+    private func finishLocalServerIdentityDeletion() async throws {
+        // The server identity is definitively absent (or the private key is
+        // permanently unusable). Fence every bearer before touching Keychain:
+        // local cleanup failure must never make an old session publishable.
+        retireReturnedSessionsAndClearMemory()
+        try await removeCredential()
+        deletionPendingConfirmation = false
+    }
+
+    private func publish(_ session: AccessSession) -> String {
+        returnedSessionDigests.insert(Self.tokenDigest(session.token))
+        return session.token
+    }
+
+    private func retireReturnedSessionsAndClearMemory() {
+        retiredSessionDigests.formUnion(returnedSessionDigests)
+        returnedSessionDigests.removeAll()
+        cachedSession = nil
+        sessionFlight = nil
+        identityGeneration &+= 1
+    }
+
+    private static func tokenDigest(_ token: String) -> Data {
+        Data(SHA256.hash(data: Data(token.utf8)))
+    }
+
+    private func drainSessionFlightBeforeDeletion() async {
+        guard let flight = sessionFlight else { return }
+        await sessionFlightObserver?.willDrainSessionFlightForDeletion()
+        _ = await flight.task.result
+        if sessionFlight?.id == flight.id {
+            sessionFlight = nil
+        }
+    }
+
     private func post<Body: Encodable, Response: Decodable>(
         path: String,
         body: Body
     ) async throws -> Response {
+        let (data, _) = try await performPost(path: path, body: body)
+
+        do {
+            return try JSONDecoder().decode(Response.self, from: data)
+        } catch {
+            throw AppAttestAuthorizationError.decoding(String(describing: error))
+        }
+    }
+
+    private func postWithoutResponse<Body: Encodable>(
+        path: String,
+        body: Body
+    ) async throws {
+        let (data, response) = try await performPost(path: path, body: body)
+        guard response.statusCode == 204, data.isEmpty else {
+            throw AppAttestAuthorizationError.invalidResponse
+        }
+    }
+
+    private func performPost<Body: Encodable>(
+        path: String,
+        body: Body
+    ) async throws -> (Data, HTTPURLResponse) {
         var request = URLRequest(url: try baseURL().appending(path: path))
         request.httpMethod = "POST"
         request.timeoutInterval = 30
@@ -613,12 +875,7 @@ actor AppAttestAuthorization: BackendAuthorizing {
                 code: envelope?.detail?.code
             )
         }
-
-        do {
-            return try JSONDecoder().decode(Response.self, from: data)
-        } catch {
-            throw AppAttestAuthorizationError.decoding(String(describing: error))
-        }
+        return (data, response)
     }
 
     private static func decodeChallenge(_ value: String) -> Data? {

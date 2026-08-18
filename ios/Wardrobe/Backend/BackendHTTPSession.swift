@@ -15,6 +15,8 @@ enum BackendHTTPSession {
         configuration.httpCookieStorage = nil
         configuration.httpShouldSetCookies = false
         configuration.urlCredentialStorage = nil
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
         if let protocolClasses {
             configuration.protocolClasses = protocolClasses
         }

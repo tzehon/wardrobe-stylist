@@ -45,6 +45,7 @@ final class WardrobeUITests: XCTestCase {
         static let signOut = "settings.gmail.signOut"
         static let disconnect = "settings.gmail.disconnect"
         static let deleteLocalData = "settings.privacy.deleteLocalData"
+        static let deleteServerSecurityData = "settings.privacy.deleteServerSecurityData"
     }
 
     private let editedJacketName = "Moss Field Jacket Edited"
@@ -458,6 +459,50 @@ final class WardrobeUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Data on This Device"].exists)
         attachScreenshot(named: "Connected Settings - Google Disconnected")
         returnToSettingsHub(from: "Privacy & Data", in: app)
+        assertNoConnectedNetworkAttempt(in: app)
+    }
+
+    @MainActor
+    func testServerSecurityDeletionKeepsLocalDataAndGoogleConnected() throws {
+        let app = launchConnectedUITestExperience()
+        openConnectedFeatures(in: app)
+        XCTAssertTrue(app.staticTexts["2 items in your local wardrobe"].waitForExistence(timeout: 5))
+        XCTAssertTrue(scrollDownToElement(app.staticTexts["Connected (read-only)"], in: app))
+
+        returnToSettingsHub(from: "Connected Features", in: app)
+        openPrivacyAndData(in: app)
+        let delete = element(in: app, identifier: Identifier.deleteServerSecurityData)
+        XCTAssertTrue(scrollBidirectionallyToElement(delete, in: app))
+        delete.tap()
+
+        XCTAssertTrue(app.staticTexts["Delete server security data?"].waitForExistence(timeout: 2))
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "does not delete your wardrobe")
+            ).firstMatch.exists
+        )
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "disconnect Google")
+            ).firstMatch.exists
+        )
+        confirmationButton(
+            in: app,
+            label: "Delete Server Security Data",
+            excludingIdentifier: Identifier.deleteServerSecurityData
+        ).tap()
+
+        let success = element(
+            in: app,
+            identifier: "settings.privacy.deleteServerSecurityData.success"
+        )
+        XCTAssertTrue(success.waitForExistence(timeout: 5))
+
+        returnToSettingsHub(from: "Privacy & Data", in: app)
+        openConnectedFeatures(in: app)
+        XCTAssertTrue(app.staticTexts["2 items in your local wardrobe"].waitForExistence(timeout: 3))
+        XCTAssertTrue(scrollDownToElement(app.staticTexts["Connected (read-only)"], in: app))
+        returnToSettingsHub(from: "Connected Features", in: app)
         assertNoConnectedNetworkAttempt(in: app)
     }
 
