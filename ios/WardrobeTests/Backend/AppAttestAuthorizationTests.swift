@@ -103,6 +103,903 @@ struct AppAttestAuthorizationTests {
         #expect(assertionHashes == [Data(SHA256.hash(data: clientData))])
     }
 
+    @Test func deletesTheFreshlyProvenIdentityAndClearsLocalAuthorization() async throws {
+        let keyID = Self.keyID(byte: 0x71)
+        let credential = AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd1])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        let challenge = Data(repeating: 0x72, count: 32)
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"deletion-proof","challenge":"\#(Self.base64URL(challenge))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected deletion path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.deleteServerIdentity() == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+        ])
+
+        let challengeBody = try jsonBody(at: 0)
+        #expect(challengeBody["purpose"] as? String == "deletion")
+        #expect(challengeBody["key_id"] as? String == keyID)
+        let deletionBody = try jsonBody(at: 1)
+        #expect(deletionBody["key_id"] as? String == keyID)
+        #expect(deletionBody["assertion_object"] as? String == "0Q==")
+        let encodedClientData = try #require(deletionBody["client_data"] as? String)
+        let clientData = try #require(Data(base64Encoded: encodedClientData))
+        let expectedClientData = Data(
+            #"{"challenge":"\#(Self.base64URL(challenge))","challenge_id":"deletion-proof","key_id":"\#(keyID)","purpose":"deletion","version":1}"#.utf8
+        )
+        #expect(clientData == expectedClientData)
+        #expect(await service.assertionHashes == [Data(SHA256.hash(data: clientData))])
+    }
+
+    @Test func maintenancePendingDeletionPreservesCredentialButFencesAuthorization() async throws {
+        let keyID = Self.keyID(byte: 0x73)
+        let credential = AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd2])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        let token = Self.sessionToken("preserved-session")
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"transient-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: 0x74, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (
+                    Self.response(503, request: request),
+                    Data(#"{"detail":{"code":"deletion_maintenance_pending"}}"#.utf8)
+                )
+            default:
+                Issue.record("Unexpected transient-deletion path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        await #expect(throws: AppAttestAuthorizationError.http(
+            status: 503,
+            code: "deletion_maintenance_pending"
+        )) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        #expect(await store.credential == credential)
+        #expect(await store.removeCount == 0)
+        let requestsAfterDeletion = URLProtocolStub.captured.count
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await authorization.accessToken(rejecting: nil)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(await service.generatedKeyCount == 0)
+    }
+
+    @Test func lostDeletionResponsePreservesCredentialButFencesAuthorization() async throws {
+        let keyID = Self.keyID(byte: 0x74)
+        let credential = AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd3])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        let token = Self.sessionToken("lost-deletion-response")
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"lost-response-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: 0x75, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                throw URLError(.timedOut)
+            default:
+                Issue.record("Unexpected lost-response deletion path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        await #expect(throws: AppAttestAuthorizationError.network(.timedOut)) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        #expect(await store.credential == credential)
+        #expect(await store.removeCount == 0)
+        let requestsAfterDeletion = URLProtocolStub.captured.count
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await authorization.accessToken(rejecting: nil)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(await service.generatedKeyCount == 0)
+    }
+
+    @Test func successfulDeletionRetiresLate401BearerBeforeExplicitReenrollment() async throws {
+        let originalKeyID = Self.keyID(byte: 0xb1)
+        let replacementKeyID = Self.keyID(byte: 0xb2)
+        let oldToken = Self.sessionToken("pre-deletion-session")
+        let replacementToken = Self.sessionToken("post-deletion-session")
+        let service = FakeAppAttestService(
+            generatedKeyID: replacementKeyID,
+            attestation: Data([0xb3]),
+            assertion: Data([0xb4])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: originalKeyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                let index = challengeIndex
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"retirement-\#(index)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0xb5 + index), count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(oldToken)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            case "/auth/app-attest/register":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(replacementToken)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"20000000-0000-0000-0000-000000000002"}"#.utf8)
+                )
+            default:
+                Issue.record("Unexpected retired-session path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == oldToken)
+        #expect(try await authorization.deleteServerIdentity() == .deleted)
+        let requestsAfterDeletion = URLProtocolStub.captured.count
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: oldToken)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(await service.generatedKeyCount == 0)
+
+        #expect(try await authorization.accessToken(rejecting: nil) == replacementToken)
+        #expect(await service.generatedKeyCount == 1)
+        let requestsAfterExplicitReenrollment = URLProtocolStub.captured.count
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: oldToken)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterExplicitReenrollment)
+        #expect(try await authorization.accessToken(rejecting: nil) == replacementToken)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/session",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/register",
+        ])
+    }
+
+    @Test func definitiveDeletionRetiresBearerBeforeKeychainRemovalFailure() async throws {
+        let keyID = Self.keyID(byte: 0xb7)
+        let token = Self.sessionToken("remove-failure-session")
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xb8])
+        )
+        let store = FakeAppAttestCredentialStore(
+            credential: AppAttestCredential(
+                keyID: keyID,
+                isRegistered: true,
+                pendingEnrollment: nil
+            ),
+            removeError: .invalidCredentialStorage
+        )
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                defer { challengeIndex += 1 }
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"remove-failure-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: 0xb9, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected removal-failure path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        await #expect(throws: AppAttestAuthorizationError.invalidCredentialStorage) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        let requestsAfterDeletion = URLProtocolStub.captured.count
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(await service.generatedKeyCount == 0)
+        #expect(await store.credential?.keyID == keyID)
+        #expect(await store.removeCount == 1)
+    }
+
+    @Test func deletionFencesARequestThatReturnsJustAfterBearerExpiration() async throws {
+        let keyID = Self.keyID(byte: 0xc1)
+        let token = Self.sessionToken("expiry-race-session")
+        let clock = LockedTestDate(now)
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xc2])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        installDeletionRaceHandler(token: token)
+        defer { URLProtocolStub.reset() }
+
+        let authorization = AppAttestAuthorization(
+            baseURL: baseURL,
+            session: URLProtocolStub.makeSession(),
+            service: service,
+            credentialStore: store,
+            now: { clock.value }
+        )
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        clock.advance(by: 899)
+        #expect(try await authorization.deleteServerIdentity() == .deleted)
+        let requestCount = URLProtocolStub.captured.count
+
+        clock.advance(by: 2)
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        #expect(URLProtocolStub.captured.count == requestCount)
+    }
+
+    @Test func deletionJustAfterExpirationStillFencesAnInFlightBearer() async throws {
+        let keyID = Self.keyID(byte: 0xc3)
+        let token = Self.sessionToken("post-expiry-deletion")
+        let clock = LockedTestDate(now)
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xc4])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        installDeletionRaceHandler(token: token)
+        defer { URLProtocolStub.reset() }
+
+        let authorization = AppAttestAuthorization(
+            baseURL: baseURL,
+            session: URLProtocolStub.makeSession(),
+            service: service,
+            credentialStore: store,
+            now: { clock.value }
+        )
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        clock.advance(by: 901)
+        #expect(try await authorization.deleteServerIdentity() == .deleted)
+        let requestCount = URLProtocolStub.captured.count
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        #expect(URLProtocolStub.captured.count == requestCount)
+    }
+
+    @Test func retiredBearerDigestPersistsForTheRemainingProcessLifetime() async throws {
+        let originalKeyID = Self.keyID(byte: 0xc5)
+        let replacementKeyID = Self.keyID(byte: 0xc6)
+        let token = Self.sessionToken("process-lifetime-session")
+        let clock = LockedTestDate(now)
+        let service = FakeAppAttestService(
+            generatedKeyID: replacementKeyID,
+            attestation: Data([0xc7]),
+            assertion: Data([0xc8])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: originalKeyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                defer { challengeIndex += 1 }
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"grace-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0xc9 + challengeIndex), count: 32)))","expires_at":"2027-01-15T08:45:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:45:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected process-lifetime retirement path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = AppAttestAuthorization(
+            baseURL: baseURL,
+            session: URLProtocolStub.makeSession(),
+            service: service,
+            credentialStore: store,
+            now: { clock.value }
+        )
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        clock.advance(by: 901)
+        #expect(try await authorization.deleteServerIdentity() == .deleted)
+        let requestCountAfterDeletion = URLProtocolStub.captured.count
+        clock.advance(by: 7 * 24 * 60 * 60)
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        #expect(URLProtocolStub.captured.count == requestCountAfterDeletion)
+        #expect(await service.generatedKeyCount == 0)
+    }
+
+    @Test func onlyGuaranteedAbsentClearsTheCredentialWithoutAProof() async throws {
+        let credential = AppAttestCredential(
+            keyID: Self.keyID(byte: 0x75),
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd3])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        URLProtocolStub.install { request in
+            (
+                Self.response(401, request: request),
+                Data(#"{"detail":{"code":"unknown_app_attest_key"}}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.deleteServerIdentity() == .alreadyAbsent)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(await service.assertionHashes.isEmpty)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+        ])
+    }
+
+    @Test func deletionThatLosesToCleanupClearsAndFencesThePriorBearer() async throws {
+        let credential = AppAttestCredential(
+            keyID: Self.keyID(byte: 0x91),
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0x92])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        let token = Self.sessionToken("cleanup-race-session")
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                let index = challengeIndex
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"cleanup-race-\#(index)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0x93 + index), count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (
+                    Self.response(401, request: request),
+                    Data(#"{"detail":{"code":"unknown_app_attest_key"}}"#.utf8)
+                )
+            default:
+                Issue.record("Unexpected cleanup-race deletion path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+        #expect(try await authorization.deleteServerIdentity() == .alreadyAbsent)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        let requestCountAfterDeletion = URLProtocolStub.captured.count
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: token)
+        }
+        #expect(URLProtocolStub.captured.count == requestCountAfterDeletion)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/session",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+        ])
+    }
+
+    @Test func configurationMismatchDoesNotClearTheCredential() async {
+        let credential = AppAttestCredential(
+            keyID: Self.keyID(byte: 0x76),
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd4])
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        URLProtocolStub.install { request in
+            (
+                Self.response(401, request: request),
+                Data(#"{"detail":{"code":"configuration_mismatch"}}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        await #expect(throws: AppAttestAuthorizationError.http(
+            status: 401,
+            code: "configuration_mismatch"
+        )) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        #expect(await store.credential == credential)
+        #expect(await store.removeCount == 0)
+    }
+
+    @Test func permanentlyInvalidDeletionKeyFallsBackToInactivityExpiry() async throws {
+        let invalidKey = NSError(
+            domain: DCError.errorDomain,
+            code: DCError.Code.invalidKey.rawValue
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: Self.keyID(byte: 0xba),
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data(),
+            assertionError: invalidKey
+        )
+        URLProtocolStub.install { request in
+            (
+                Self.response(200, request: request),
+                Data(#"{"challenge_id":"invalid-deletion-key","challenge":"\#(Self.base64URL(Data(repeating: 0xbb, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.deleteServerIdentity() == .noVerifiableIdentity)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+        ])
+    }
+
+    @Test func missingCredentialDoesNotClaimAnInaccessibleIdentityWasDeleted() async throws {
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data()
+        )
+        let store = FakeAppAttestCredentialStore()
+        URLProtocolStub.install { _ in
+            Issue.record("A missing credential cannot authenticate a server deletion")
+            throw URLError(.badServerResponse)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.deleteServerIdentity() == .noVerifiableIdentity)
+        #expect(URLProtocolStub.captured.isEmpty)
+        #expect(await store.removeCount == 0)
+    }
+
+    @Test func malformedCredentialFallsBackToInactivityExpiryWithoutNetwork() async throws {
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data()
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: "not-a-canonical-app-attest-key",
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        URLProtocolStub.install { _ in
+            Issue.record("A malformed credential cannot authenticate a deletion")
+            throw URLError(.badServerResponse)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.deleteServerIdentity() == .noVerifiableIdentity)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func missingCredentialAlsoInvalidatesAMemoryOnlyCachedSession() async throws {
+        let originalKeyID = Self.keyID(byte: 0xa1)
+        let replacementKeyID = Self.keyID(byte: 0xa2)
+        let oldToken = Self.sessionToken("inaccessible-session")
+        let replacementToken = Self.sessionToken("replacement-session")
+        let service = FakeAppAttestService(
+            generatedKeyID: replacementKeyID,
+            attestation: Data([0xa3]),
+            assertion: Data([0xa4])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: originalKeyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                defer { challengeIndex += 1 }
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"missing-credential-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0xa5 + challengeIndex), count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(oldToken)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/register":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(replacementToken)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"20000000-0000-0000-0000-000000000002"}"#.utf8)
+                )
+            default:
+                Issue.record("Unexpected missing-credential path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == oldToken)
+        await store.discardCredentialExternally()
+        let requestsBeforeDeletion = URLProtocolStub.captured.count
+
+        #expect(try await authorization.deleteServerIdentity() == .noVerifiableIdentity)
+        #expect(URLProtocolStub.captured.count == requestsBeforeDeletion)
+        #expect(await store.removeCount == 0)
+
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await authorization.accessToken(rejecting: oldToken)
+        }
+        #expect(URLProtocolStub.captured.count == requestsBeforeDeletion)
+
+        let tokenAfterDeletion = try await authorization.accessToken(rejecting: nil)
+        #expect(tokenAfterDeletion == replacementToken)
+        #expect(tokenAfterDeletion != oldToken)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/session",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/register",
+        ])
+    }
+
+    @Test func deletionDrainsAnInFlightSessionBeforeSigningItsFreshProof() async throws {
+        let keyID = Self.keyID(byte: 0x77)
+        let assertionGate = OneShotAsyncGate()
+        let flightProbe = SessionFlightProbe()
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd5]),
+            assertionGate: assertionGate
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        let token = Self.sessionToken("drained-session")
+        let challenges = [
+            Data(repeating: 0x78, count: 32),
+            Data(repeating: 0x79, count: 32),
+        ]
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                let index = challengeIndex
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"drain-\#(index)","challenge":"\#(Self.base64URL(challenges[index]))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected drain-deletion path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(
+            service: service,
+            store: store,
+            sessionFlightObserver: flightProbe
+        )
+        let session = Task { try await authorization.accessToken(rejecting: nil) }
+        await assertionGate.waitUntilArrived()
+
+        let deletion = Task { try await authorization.deleteServerIdentity() }
+        await flightProbe.waitUntilDeletionDrain()
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+        ])
+
+        await assertionGate.release()
+        await #expect(throws: AppAttestAuthorizationError.deletionInProgress) {
+            _ = try await session.value
+        }
+        #expect(try await deletion.value == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/session",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+        ])
+        #expect(await service.assertionHashes.count == 2)
+    }
+
+    @Test func deletionPreventsInvalidKeyRefreshFromReplacingTheConfirmedIdentity() async throws {
+        let keyID = Self.keyID(byte: 0x7a)
+        let invalidKey = NSError(
+            domain: DCError.errorDomain,
+            code: DCError.Code.invalidKey.rawValue
+        )
+        let assertionGate = OneShotAsyncGate()
+        let flightProbe = SessionFlightProbe()
+        let service = FakeAppAttestService(
+            generatedKeyID: Self.keyID(byte: 0x7b),
+            attestation: Data([0x7b]),
+            assertion: Data([0x7a]),
+            assertionError: invalidKey,
+            assertionErrorOccurrences: 1,
+            assertionGate: assertionGate
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                let index = challengeIndex
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"invalid-key-race-\#(index)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0x7a + index), count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected invalid-key deletion race path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(
+            service: service,
+            store: store,
+            sessionFlightObserver: flightProbe
+        )
+        let session = Task { try await authorization.accessToken(rejecting: nil) }
+        await assertionGate.waitUntilArrived()
+
+        let deletion = Task { try await authorization.deleteServerIdentity() }
+        await flightProbe.waitUntilDeletionDrain()
+        await assertionGate.release()
+
+        await #expect(throws: AppAttestAuthorizationError.deletionInProgress) {
+            _ = try await session.value
+        }
+        #expect(try await deletion.value == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(await service.generatedKeyCount == 0)
+        #expect(await service.assertionHashes.count == 2)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+        ])
+    }
+
+    @Test func deletionPreventsRevokedRefreshFromReplacingTheConfirmedIdentity() async throws {
+        let keyID = Self.keyID(byte: 0x7c)
+        let assertionGate = OneShotAsyncGate()
+        let flightProbe = SessionFlightProbe()
+        let service = FakeAppAttestService(
+            generatedKeyID: Self.keyID(byte: 0x7d),
+            attestation: Data([0x7d]),
+            assertion: Data([0x7c]),
+            assertionGate: assertionGate
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                let index = challengeIndex
+                challengeIndex += 1
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"revoked-key-race-\#(index)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0x7c + index), count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(401, request: request),
+                    Data(#"{"detail":{"code":"revoked_app_attest_key","message":"Unavailable"}}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected revoked-key deletion race path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(
+            service: service,
+            store: store,
+            sessionFlightObserver: flightProbe
+        )
+        let session = Task { try await authorization.accessToken(rejecting: nil) }
+        await assertionGate.waitUntilArrived()
+
+        let deletion = Task { try await authorization.deleteServerIdentity() }
+        await flightProbe.waitUntilDeletionDrain()
+        await assertionGate.release()
+
+        await #expect(throws: AppAttestAuthorizationError.deletionInProgress) {
+            _ = try await session.value
+        }
+        #expect(try await deletion.value == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
+        #expect(await service.generatedKeyCount == 0)
+        #expect(await service.assertionHashes.count == 2)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/session",
+            "/auth/app-attest/challenge",
+            "/auth/app-attest/delete",
+        ])
+    }
+
     @Test func concurrentCallersShareOneAssertionAndSessionRefresh() async throws {
         let registeredKeyID = Self.keyID(byte: 0x2c)
         let service = FakeAppAttestService(
@@ -319,9 +1216,9 @@ struct AppAttestAuthorizationTests {
                 expiresAt: "2027-01-15T08:15:00Z"
             ),
             InvalidSessionCase(
-                token: Self.sessionToken("overlong-ttl"),
-                expiresIn: 3_601,
-                expiresAt: "2027-01-15T09:00:01Z"
+                token: Self.sessionToken("above-policy-ttl"),
+                expiresIn: 901,
+                expiresAt: "2027-01-15T08:15:01Z"
             ),
             InvalidSessionCase(
                 token: Self.sessionToken("malformed-date"),
@@ -379,6 +1276,28 @@ struct AppAttestAuthorizationTests {
         }
     }
 
+    @Test func acceptsTheBackendMaximum900SecondSessionTTL() async throws {
+        let token = Self.sessionToken("maximum-policy-ttl")
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0x3a])
+        )
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: Self.keyID(byte: 0x3a),
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        installAuthHandler(
+            challenges: [Data(repeating: 0x3b, count: 32)],
+            tokens: [token]
+        )
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        #expect(try await authorization.accessToken(rejecting: nil) == token)
+    }
+
     @Test func crossOrigin307DoesNotForwardAnAssertionOrClientData() async throws {
         let session = BackendHTTPSession.make()
         defer { session.invalidateAndCancel() }
@@ -387,6 +1306,8 @@ struct AppAttestAuthorizationTests {
         #expect(session.configuration.httpShouldSetCookies == false)
         #expect(session.configuration.urlCredentialStorage == nil)
         #expect(session.configuration.requestCachePolicy == .reloadIgnoringLocalCacheData)
+        #expect(session.configuration.timeoutIntervalForRequest == 30)
+        #expect(session.configuration.timeoutIntervalForResource == 60)
 
         let originalURL = baseURL.appending(path: "auth/app-attest/session")
         let response = HTTPURLResponse(
@@ -465,6 +1386,14 @@ struct AppAttestAuthorizationTests {
         #expect(
             AppAttestAuthorizationError.serviceUnavailable.localizedDescription
                 .contains("temporarily unavailable")
+        )
+        #expect(
+            AppAttestAuthorizationError.retiredSession.localizedDescription
+                .contains("identity was deleted")
+        )
+        #expect(
+            AppAttestAuthorizationError.deletionConfirmationPending.localizedDescription
+                .contains("Privacy & Data")
         )
     }
 
@@ -734,6 +1663,30 @@ struct AppAttestAuthorizationTests {
         }
     }
 
+    private func installDeletionRaceHandler(token: String) {
+        nonisolated(unsafe) var challengeIndex = 0
+        URLProtocolStub.install { request in
+            switch request.url?.path {
+            case "/auth/app-attest/challenge":
+                defer { challengeIndex += 1 }
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"challenge_id":"expiry-race-\#(challengeIndex)","challenge":"\#(Self.base64URL(Data(repeating: UInt8(0xd0 + challengeIndex), count: 32)))","expires_at":"2027-01-15T08:45:00Z"}"#.utf8)
+                )
+            case "/auth/app-attest/session":
+                return (
+                    Self.response(200, request: request),
+                    Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:45:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
+                )
+            case "/auth/app-attest/delete":
+                return (Self.response(204, request: request), nil)
+            default:
+                Issue.record("Unexpected expiry-race path")
+                return (Self.response(500, request: request), nil)
+            }
+        }
+    }
+
     private func jsonBody(at index: Int) throws -> [String: Any] {
         try #require(
             JSONSerialization.jsonObject(with: URLProtocolStub.capturedBodies[index])
@@ -775,17 +1728,39 @@ struct AppAttestAuthorizationTests {
     }
 }
 
+private final class LockedTestDate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storedValue: Date
+
+    init(_ value: Date) {
+        storedValue = value
+    }
+
+    var value: Date {
+        lock.withLock { storedValue }
+    }
+
+    func advance(by interval: TimeInterval) {
+        lock.withLock {
+            storedValue = storedValue.addingTimeInterval(interval)
+        }
+    }
+}
+
 private actor FakeAppAttestCredentialStore: AppAttestCredentialStoring {
     var credential: AppAttestCredential?
     private var loadError: AppAttestAuthorizationError?
+    private let removeError: AppAttestAuthorizationError?
     private(set) var removeCount = 0
 
     init(
         credential: AppAttestCredential? = nil,
-        loadError: AppAttestAuthorizationError? = nil
+        loadError: AppAttestAuthorizationError? = nil,
+        removeError: AppAttestAuthorizationError? = nil
     ) {
         self.credential = credential
         self.loadError = loadError
+        self.removeError = removeError
     }
 
     func load() throws -> AppAttestCredential? {
@@ -800,8 +1775,13 @@ private actor FakeAppAttestCredentialStore: AppAttestCredentialStoring {
         self.credential = credential
     }
 
-    func remove() {
+    func remove() throws {
         removeCount += 1
+        if let removeError { throw removeError }
+        credential = nil
+    }
+
+    func discardCredentialExternally() {
         credential = nil
     }
 }
@@ -812,6 +1792,7 @@ private actor FakeAppAttestService: AppAttestServicing {
     let attestation: Data
     let assertion: Data
     let assertionError: (any Error)?
+    let assertionErrorOccurrences: Int?
     let assertionDelay: Duration
     let assertionGate: OneShotAsyncGate?
     private(set) var generatedKeyCount = 0
@@ -824,6 +1805,7 @@ private actor FakeAppAttestService: AppAttestServicing {
         attestation: Data,
         assertion: Data,
         assertionError: (any Error)? = nil,
+        assertionErrorOccurrences: Int? = nil,
         assertionDelay: Duration = .zero,
         assertionGate: OneShotAsyncGate? = nil
     ) {
@@ -832,6 +1814,7 @@ private actor FakeAppAttestService: AppAttestServicing {
         self.attestation = attestation
         self.assertion = assertion
         self.assertionError = assertionError
+        self.assertionErrorOccurrences = assertionErrorOccurrences
         self.assertionDelay = assertionDelay
         self.assertionGate = assertionGate
     }
@@ -856,7 +1839,12 @@ private actor FakeAppAttestService: AppAttestServicing {
         if assertionDelay > .zero {
             try await Task.sleep(for: assertionDelay)
         }
-        if let assertionError { throw assertionError }
+        if let assertionError {
+            let shouldThrow = assertionErrorOccurrences.map {
+                assertionHashes.count <= $0
+            } ?? true
+            if shouldThrow { throw assertionError }
+        }
         return assertion
     }
 }
@@ -901,6 +1889,8 @@ private actor SessionFlightProbe: AppAttestSessionFlightObserving {
     private var firstCreatorWaiters: [CheckedContinuation<Void, Never>] = []
     private var noncreatorFinalizationWaiters: [CheckedContinuation<Void, Never>] = []
     private var firstCreatorReleaseWaiters: [CheckedContinuation<Void, Never>] = []
+    private var deletionDrainStarted = false
+    private var deletionDrainWaiters: [CheckedContinuation<Void, Never>] = []
 
     func didJoinSessionFlight() {
         hasJoined = true
@@ -938,6 +1928,13 @@ private actor SessionFlightProbe: AppAttestSessionFlightObserving {
         }
     }
 
+    func willDrainSessionFlightForDeletion() {
+        deletionDrainStarted = true
+        let waiters = deletionDrainWaiters
+        deletionDrainWaiters.removeAll()
+        waiters.forEach { $0.resume() }
+    }
+
     func waitUntilJoined() async {
         guard !hasJoined else { return }
         await withCheckedContinuation { continuation in
@@ -956,5 +1953,12 @@ private actor SessionFlightProbe: AppAttestSessionFlightObserving {
         let waiters = firstCreatorReleaseWaiters
         firstCreatorReleaseWaiters.removeAll()
         waiters.forEach { $0.resume() }
+    }
+
+    func waitUntilDeletionDrain() async {
+        guard !deletionDrainStarted else { return }
+        await withCheckedContinuation { continuation in
+            deletionDrainWaiters.append(continuation)
+        }
     }
 }

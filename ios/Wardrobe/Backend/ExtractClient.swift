@@ -44,6 +44,7 @@ struct ExtractClient: Sendable {
     private func send(_ payload: ExtractRequest, token: String) async throws -> Result {
         var request = URLRequest(url: baseURL.appending(path: "extract"))
         request.httpMethod = "POST"
+        request.timeoutInterval = 30
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")

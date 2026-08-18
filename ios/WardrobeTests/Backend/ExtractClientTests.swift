@@ -67,6 +67,7 @@ struct ExtractClientTests {
         let req = try #require(URLProtocolStub.captured.first)
         #expect(req.httpMethod == "POST")
         #expect(req.url?.path == "/extract")
+        #expect(req.timeoutInterval == 30)
         #expect(req.value(forHTTPHeaderField: "Authorization") == "Bearer abc-123")
         #expect(req.value(forHTTPHeaderField: "Content-Type") == "application/json")
 
@@ -134,6 +135,42 @@ struct ExtractClientTests {
         #expect(rejectedTokens.count == 2)
         #expect(rejectedTokens[0] == nil)
         #expect(rejectedTokens[1] == "expired-token")
+    }
+
+    @Test func late401ForADeletedIdentityDoesNotResendTheReceiptPayload() async {
+        let authorization = ExtractRetiredBearerAuthorization(
+            retiredToken: "deleted-identity-token"
+        )
+        URLProtocolStub.install { _ in
+            (
+                self.makeHTTPResponse(401),
+                Data(#"{"detail": "Deleted anonymous identity."}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let client = ExtractClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        await #expect(throws: AppAttestAuthorizationError.retiredSession) {
+            _ = try await client.extract(ExtractRequest(
+                sourceMsgId: "private-message",
+                sender: "orders@example.com",
+                subject: "Private receipt",
+                snippet: "Private receipt contents"
+            ))
+        }
+
+        #expect(URLProtocolStub.captured.count == 1)
+        #expect(URLProtocolStub.capturedBodies.count == 1)
+        #expect(
+            URLProtocolStub.capturedBodies[0]
+                .range(of: Data("Private receipt contents".utf8)) != nil
+        )
+        #expect(await authorization.replacementTokenCount == 0)
+        #expect(await authorization.rejectedTokens == [nil, "deleted-identity-token"])
     }
 
     @Test func cancellationWhileAuthorizationIsSuspendedSendsNoReceiptPayload() async {
@@ -285,5 +322,25 @@ private actor ExtractSuspendedAuthorization: BackendAuthorizing {
     func resume(with token: String) {
         tokenContinuation?.resume(returning: token)
         tokenContinuation = nil
+    }
+}
+
+private actor ExtractRetiredBearerAuthorization: BackendAuthorizing {
+    private let retiredToken: String
+    private(set) var rejectedTokens: [String?] = []
+    private(set) var replacementTokenCount = 0
+
+    init(retiredToken: String) {
+        self.retiredToken = retiredToken
+    }
+
+    func accessToken(rejecting rejectedToken: String?) throws -> String {
+        rejectedTokens.append(rejectedToken)
+        guard let rejectedToken else { return retiredToken }
+        guard rejectedToken != retiredToken else {
+            throw AppAttestAuthorizationError.retiredSession
+        }
+        replacementTokenCount += 1
+        return "unexpected-replacement-token"
     }
 }
