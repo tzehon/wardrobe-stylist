@@ -40,11 +40,13 @@ kept “In progress.”
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Pending / in progress** | JSON-LD-first minimized import, resumable per-account ledgering, and the first local insights are live; OCR routing, Gmail History execution, richer preferences/insights, backup, imagery tools, and widgets remain |
 
-Latest frozen-tree verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
+Latest candidate-tree verification: **427 iOS tests** total (**416 Swift tests plus 11 end-to-end UI
 tests**), **182 backend tests**, locked dependency audit with no known vulnerabilities, Bandit,
-Ruff, mypy, and **23/23** release-script tests all passed. The current release baseline is `main` at
-`24f163f54545e611136b66f77b95823df9eb32eb`. Fly release v4 serves its exact App-Attest-only
-image `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
+Ruff, mypy, and **23/23** release-script tests all passed. The verified versioned candidate source is
+PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`, which contains `1.0.0 (4)`.
+The final `main` archive source is not frozen; record its merged SHA before archiving or uploading.
+Fly release v4 serves the exact App-Attest-only image
+`sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
 
 ## Immediate next milestone — internal TestFlight candidate
 
