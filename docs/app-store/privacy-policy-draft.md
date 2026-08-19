@@ -60,8 +60,8 @@ prevention, security, reliability, and diagnostics. They may be associated with 
 or request, and are not used by the developer for advertising or cross-company tracking.
 
 [BEFORE PUBLICATION: DECIDE WHETHER TO REQUEST/REVIEW/SIGN FLY'S OPTIONAL DPA; THE ACCOUNT HAS NO
-ACTIVE DPA. CONFIRM SUBPROCESSORS, REGION, FINAL APP PRIVACY PUBLICATION, ALERT ROUTING, AND
-CRASH/ANALYTICS TOOLS. SEE `app-attest-data-lifecycle-policy.md`.]
+ACTIVE DPA. CONFIRM SUBPROCESSORS, REGION, FINAL APP PRIVACY PUBLICATION, AND CRASH/ANALYTICS TOOLS.
+SEE `app-attest-data-lifecycle-policy.md`.]
 
 ## How information is used
 
@@ -106,10 +106,10 @@ listing after 14 days; Fly does not disclose all-copy purge timing. Developer se
 Fly's customer-visible proxy/platform stream last seven days. Separate provider-internal
 operational/abuse-log retention is undisclosed and not customer-configurable. Those hosting records
 are separate from live authentication-record deletion and are not removed immediately by the
-in-app deletion action. Alert records will be retained for at most 30 days.
+in-app deletion action.
 
 [BEFORE PUBLICATION: VERIFY ANTHROPIC/OTHER PROCESSOR RETENTION AND COMPLETE THE SNAPSHOT-LIST,
-ALERT, RESTORE, AND PROCESSED-TESTFLIGHT EVIDENCE.]
+RESTORE, AND PROCESSED-TESTFLIGHT EVIDENCE.]
 
 ## Your choices and controls
 

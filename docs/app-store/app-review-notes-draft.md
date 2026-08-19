@@ -54,7 +54,7 @@ Receipt analysis and wardrobe styling have separate, versioned consent records. 
 absent or withdrawn, automated request-capture tests verify the protected network paths make zero
 Gmail/backend calls. The backend retains only the minimum anonymous App Attest authentication and
 abuse-prevention metadata; it is intended not to persist receipt or wardrobe payloads. Retention,
-logging, deletion, snapshots, and alerts must satisfy the
+logging, deletion, snapshots, and manual production operations must satisfy the
 [APP-009 lifecycle policy](app-attest-data-lifecycle-policy.md). [VERIFY THE SUBMITTED COMMIT AND
 EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.] The submitted build must also expose the
 separate **Settings → Privacy & Data → Delete Server Security Data** control, which proves the

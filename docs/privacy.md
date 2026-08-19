@@ -85,9 +85,13 @@ server-deletion or temporary-restore-volume deadlines.
 Fly v5 deploys the application-owned controls with a one-minute lifecycle task on the
 minimum-one-Machine production topology, repeat-until-drained cleanup, 90/30-day installation
 purges, synchronous fresh-assertion deletion, SQLite secure-delete/WAL maintenance, structural
-persistence/logging guards, and a no-access-log container command. Alert routing, monitored
-support publication, snapshot-list expiry, restore-after-deletion evidence, App Privacy
-publication, and the other unchecked policy items remain release blockers.
+persistence/logging guards, and a no-access-log container command. On 2026-08-20 the owner
+approved payload-free manual operations before archive/upload, after each backend/configuration
+change, and at least every 30 days while production remains deployed or enabled instead of adding
+an automated monitoring processor for the initial personal single-user release. Monitored support
+publication, snapshot-list expiry,
+restore-after-deletion evidence, App Privacy publication, and the other unchecked policy items
+remain release blockers.
 
 ## Data inventory
 
@@ -99,7 +103,7 @@ expectation, consent gate, deletion path, and unresolved provider-contract quest
 Do not publish claims such as “Anthropic never retains data” or “data is never used for training”
 until the production contract/configuration has been verified. Do not treat the deployed
 application controls as proof of the accepted-undisclosed provider boundary or the still-open
-alert, support, restore, processor-contract, and publication requirements.
+manual-review, support, restore, processor-contract, and publication requirements.
 
 ## User controls required for release
 
