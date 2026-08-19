@@ -7,7 +7,7 @@ struct ConfirmedServerIdentityDeletion: Sendable {
 
 struct ServerIdentityDeletionConfirmation: Equatable, Sendable {
     let title = "Delete server security data?"
-    let message = "This uses App Attest to prove control of this installation, then deletes its anonymous server identity and active AI sessions. It does not delete your wardrobe on this iPhone or disconnect Google. Remote AI will create a new anonymous identity the next time you use it. The server’s approved snapshot-retention limit is 14 days."
+    let message = "App Attest verifies this installation, then deletes its live anonymous server identity and active AI sessions. Your wardrobe and Google connection stay unchanged; future AI use creates a new identity. Hosting records are separate: Fly’s customer-visible proxy and platform stream lasts 7 days and may include request paths, request IDs, or client IP. Separate provider-internal logs may include source IP, with in-service retention undisclosed. Snapshots stop appearing from Fly’s customer listing after 14 days; Fly does not publish an all-copy deletion deadline."
     let destructiveActionTitle = "Delete Server Security Data"
 
     func confirm() -> ConfirmedServerIdentityDeletion {
@@ -18,7 +18,7 @@ struct ServerIdentityDeletionConfirmation: Equatable, Sendable {
 struct ServerIdentityDeletionFailure: Error, Equatable, LocalizedError, Sendable {
     let message: String
 
-    var errorDescription: String? { "Couldn’t Delete Server Security Data" }
+    var errorDescription: String? { "Couldn’t Delete Live Server Security Record" }
     var recoverySuggestion: String? { message }
 }
 
@@ -66,11 +66,11 @@ final class ServerIdentityDeletionController {
             state = .succeeded(result)
             return true
         case .failure(AppAttestAuthorizationError.unsupportedDevice):
-            return fail("This device cannot produce the App Attest proof required for deletion, so server data was not deleted. Any inaccessible identity expires after 90 days of inactivity.")
+            return fail("This device cannot produce the App Attest proof required for deletion, so its live server identity was not deleted. Any inaccessible live identity is removed after 90 days of inactivity. Hosting logs and snapshots follow separate retention.")
         case .failure(let error as AppAttestAuthorizationError):
             return fail(error.localizedDescription)
         case .failure:
-            return fail("Server security data could not be deleted. Please try again.")
+            return fail("The live server security record could not be deleted. Please try again.")
         }
     }
 

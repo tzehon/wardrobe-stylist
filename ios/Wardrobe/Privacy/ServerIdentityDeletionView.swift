@@ -18,18 +18,18 @@ struct ServerIdentityDeletionView: View {
             }
             .disabled(isDeleting)
             .controlSize(.large)
-            .accessibilityHint("Deletes only this installation’s anonymous server security record. Local data and Google access remain unchanged.")
+            .accessibilityHint("Deletes only this installation’s live anonymous server security record. Local data and Google access remain unchanged; hosting logs and snapshots follow separate retention.")
             .accessibilityIdentifier("settings.privacy.deleteServerSecurityData")
 
             if isDeleting {
                 HStack(spacing: 8) {
                     ProgressView()
-                    Text("Verifying this installation and deleting server data…")
+                    Text("Verifying this installation and deleting its live server security record…")
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Verifying and deleting server security data")
+                .accessibilityLabel("Verifying and deleting the live server security record")
                 .accessibilityIdentifier("settings.privacy.deleteServerSecurityData.progress")
             } else if case .succeeded(let result) = controller?.state {
                 status(for: result)
@@ -48,7 +48,7 @@ struct ServerIdentityDeletionView: View {
             Text(confirmation.message)
         }
         .alert(
-            deletionFailure?.errorDescription ?? "Couldn’t Delete Server Security Data",
+            deletionFailure?.errorDescription ?? "Couldn’t Delete Live Server Security Record",
             isPresented: failurePresentation,
             presenting: deletionFailure
         ) { _ in
@@ -62,12 +62,12 @@ struct ServerIdentityDeletionView: View {
     private func status(for result: ServerIdentityDeletionResult) -> some View {
         switch result {
         case .deleted:
-            successLabel("Server security data deleted")
+            successLabel("Live server security record deleted")
         case .alreadyAbsent:
-            successLabel("Server security data was already absent")
+            successLabel("Live server security record was already absent")
         case .noVerifiableIdentity:
             Label(
-                "This device has no server identity it can verify. Any inaccessible older identity expires after 90 days of inactivity.",
+                "This device has no live server identity it can verify. Any inaccessible older live identity is removed after 90 days of inactivity. Hosting logs and snapshots follow separate retention.",
                 systemImage: "info.circle"
             )
             .font(.footnote)

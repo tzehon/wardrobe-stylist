@@ -291,7 +291,7 @@ private struct PrivacyAndDataSettingsView: View {
             } header: {
                 Text("Data on Wardrobe’s Server")
             } footer: {
-                Text("This removes only anonymous App Attest security metadata for this installation. It does not delete this iPhone’s wardrobe or disconnect Google. Remote AI creates a new anonymous identity the next time you use it.")
+                Text("This removes only the live anonymous App Attest security record for this installation. It does not delete this iPhone’s wardrobe or disconnect Google. Remote AI creates a new anonymous identity the next time you use it. Hosting logs and snapshots follow separate retention in the Privacy Policy.")
             }
         }
         .navigationTitle("Privacy & Data")
