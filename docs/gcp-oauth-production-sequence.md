@@ -102,8 +102,8 @@ Internal Only** artifact type.
   Uvicorn access logs.
 - [x] Build, scan, and deploy the policy-enforced `linux/amd64` image by immutable digest; retain and
   revalidate an App-Attest-only rollback digest.
-- [ ] Externally evidence Fly volume/snapshot-list expiry, the owner-accepted provider logging
-  boundary, alerting, monitored support, and deletion/restore behavior. Provider-internal
+- [ ] Externally evidence Fly volume/snapshot-list expiry, the owner-accepted provider logging and
+  manual-operations boundaries, monitored support, and deletion/restore behavior. Provider-internal
   in-service retention and all-copy snapshot purge timing are explicitly accepted as undisclosed.
   Treat receipt validation/risk metrics as a separate policy gate before trusting or redeeming
   that evidence.
@@ -168,8 +168,10 @@ negative and physical-device tests; Google remains optional Gmail only.
   presence and verify category/build on iOS 27+. Then test Gmail sign-in, scope restoration,
   consent upgrade, account switch, revocation, deletion, rate limits, background opt-in/expiry,
   and minimized request capture.
-- [ ] Roll out gradually with error/auth/abuse monitoring and cost alerts. Keep privacy/support
-  pages and contacts live.
+- [ ] Roll out gradually with the approved payload-free manual review before archive/upload, after
+  backend/configuration changes, and at least every 30 days while production remains deployed or
+  enabled. Keep privacy/support pages and contacts live. Reassess automated monitoring before
+  multi-user or paid operation.
 - [ ] Submit the same verified binary/data flow to App Review with a demo path and precise review
   notes. Re-open Google and Apple disclosures before any new Gmail scope, data category,
   processor, AI use, retention change, or account-linking feature.

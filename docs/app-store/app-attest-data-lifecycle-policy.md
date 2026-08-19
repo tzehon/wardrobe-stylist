@@ -2,12 +2,14 @@
 
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
+- **Manual-operations revision approved:** 2026-08-20
 - **Release compliance:** Repository enforcement and final-image deployment complete; Fly
-  provider boundary explicitly accepted; snapshot/alert/restore/publication evidence incomplete
+  provider and manual-operations boundaries explicitly accepted; first manual review,
+  snapshot-list, deletion-specific recovery, and publication evidence incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
-authentication store, application logs, alerts, and Fly volume snapshots. It is the source of
-truth for the APP-009 retention, deletion, logging, and operations gate.
+authentication store, application logs, manual operations, and Fly volume snapshots. It is the
+source of truth for the APP-009 retention, deletion, logging, and operations gate.
 
 The limits below are requirements, not claims that every control is already enforced. The
 [compliance checklist](#compliance-and-release-evidence) distinguishes verified behavior from
@@ -44,6 +46,49 @@ logs remain disabled, developer-emitted events remain payload/identifier-free, v
 server-data deletion remains within 24 hours, and an isolated restore volume must still be
 destroyed within 24 hours. Revisit the provider boundary before any provider, logging, region,
 subprocessor, or DPA change and during the annual release/privacy review.
+
+## Owner-approved manual operations boundary
+
+On 2026-08-20 the owner chose not to add Better Stack, Grafana/Alertmanager, GitHub Actions
+polling, or another automated alert/incident service for the initial personal, single-user
+release. This supersedes automated alert routing as a pre-release APP-009 requirement; it does not
+claim that alert delivery was technically implemented or passed.
+
+The rationale is to avoid a new processor, monitoring credential, incident store, backend metrics
+surface, and another image/deployment cycle solely for a self-imposed gate. Apple's published App
+Review, App Privacy, and Support URL requirements do not state an automated infrastructure-alerting
+requirement. This is not a guarantee of App Review approval.
+
+The accepted operational tradeoff is slower detection: a backend, snapshot, abuse, Anthropic, or
+budget problem may remain unnoticed until the owner performs a check or receives a support report.
+For the initial release, the owner must perform and record a payload-free manual review:
+
+- before every archive/upload;
+- after every backend deploy or production configuration change; and
+- at least once every 30 days while production remains deployed or enabled.
+
+Each review checks the public health response, running Machine and immutable image digest, recent
+5xx state where available, auth-volume usage, newest snapshot age/status, aggregate bounded App
+Attest/rate-limit and Anthropic failure signals where available, Anthropic usage/budget state, and
+the monitored support route. Retain only the review timestamp, fixed check names,
+pass/warning/open result,
+coarse aggregate bands where available, remediation outcome, and next due date. Never backdate a
+missed review; record it as missed when discovered. Do not retain log samples, request content,
+identifiers, credentials, exact billing data, screenshots, or provider response bodies. Reconsider
+automated monitoring before multi-user distribution, paid operation, or any availability
+commitment.
+
+For this review, volume usage below 70% is `PASS`, 70–84% is `WARNING`, and 85% or more is `OPEN`
+until remediated. Snapshot state is `PASS` only when automatic snapshots remain enabled with the
+14-day listing setting, a completed snapshot is no older than 36 hours, and no failed or unknown
+snapshot state is present. Operational-event state is `PASS` only when the available aggregate
+surface shows no cluster of three 5xx/Anthropic failures or five auth rejection/rate-limit events
+within ten minutes. A current log-buffer marker scan alone cannot prove aggregate 5xx state and
+must be recorded as `OPEN` when no stronger surface is reviewed.
+
+The owner also accepts that a 30-day manual cadence is not continuous monitoring: an incident that
+begins and resolves outside Fly's available log/metric windows may permanently escape review. The
+pre-archive and post-change checks reduce that risk but do not eliminate it.
 
 This policy does not settle:
 
@@ -96,7 +141,8 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly retains the customer-visible stream for seven days, which is not configurable per app |
 | Provider-generated proxy/platform records in the customer-visible stream | Fixed seven days, including when a provider record contains client IP | Fly says these records can include paths, request IDs, and sometimes client IP; retention cannot be shortened, disabled, or configured per app |
 | Separate Fly operational/abuse-prevention logs | Fly-defined in-service retention with no disclosed or customer-enforceable numeric maximum; explicitly accepted 2026-08-19 | Fly says these records can include connection metadata such as source IP but does not publish the requested per-system fields, retention, or purge timing |
-| Payload-free alert/incident records | 30 days maximum, or 7 days after incident closure when earlier | Alert routing and retention are not configured/evidenced |
+| Fixed-field manual-review attestations | Project/release evidence lifetime | Long-lived evidence contains only timestamp, fixed check/result fields, coarse aggregate bands, remediation outcome, and next due date; it contains no log samples or identifiers |
+| Temporary incident working notes, if needed | 30 days maximum, or 7 days after incident closure when earlier | No dedicated alert/incident service is created for the initial release; working notes follow the same payload and identifier prohibitions as logs |
 
 The 70-minute challenge limit allows the five-minute usable lifetime, the existing one-hour
 post-expiry cleanup grace, and five minutes for deadline-based cleanup. Rate hashes use one-minute
@@ -155,7 +201,9 @@ Deletion quotas use capacity reserved from ordinary authentication traffic. The 
 admission guard still has a bounded 32-row deletion namespace: a distributed attacker using enough
 distinct source IPs can temporarily exhaust it for at most the hourly rate-window lifetime. This is
 an accepted availability risk for the single-user release, not an authorization bypass or data
-disclosure; rate-limit alerts must make sustained exhaustion visible.
+disclosure. Under the owner-approved manual-operations boundary, sustained exhaustion may be
+detected only during a manual aggregate review or from a support report; that slower detection is
+an accepted availability risk.
 
 Rate subjects are keyed HMACs. Rotating `APP_ATTEST_SESSION_SECRET` intentionally breaks the link
 to rate rows written with the previous secret. A verified deletion still removes the live
@@ -176,29 +224,30 @@ Restore work must use an isolated, non-serving volume/Machine without applicatio
 only aggregate table counts and integrity results, then destroy the temporary restore volume within
 24 hours. Never retain raw database copies in release evidence.
 
-## Alert routing and support operations
+## Manual operations and support
 
-Production alerts must route to a monitored owner/security channel configured outside the
-repository. At minimum, alert on:
-
-- health-check or sustained 5xx failures;
-- missing/stale snapshots or a failed snapshot-restore rehearsal;
-- auth-volume usage at warning and critical thresholds;
-- bursts of App Attest rejection or rate limiting; and
-- Anthropic availability errors and budget/cost thresholds.
-
-Alert messages must follow the same payload and identifier prohibitions as logs. Test delivery
-before the signed archive, after routing changes, and at least every 30 days while the production
-service operates. Retain only the delivery result, rule name, timestamp, and remediation outcome
-for at most 30 days, or seven days after incident closure when earlier.
+The owner performs the manual review defined above instead of operating an automated alerting
+stack for the initial single-user release. A failed check is a release blocker until remediated and
+rechecked. Future automated alerting must follow the same payload and identifier prohibitions as
+logs and requires the inventory, processor, retention, and public-disclosure review described in
+[Logging and telemetry](#logging-and-telemetry) before activation.
 
 The published support and privacy pages must name a monitored contact and response target. The
 support process must distinguish device-local deletion from server auth-metadata deletion and must
 meet the 24-hour live-deletion deadline after installation control is verified.
 
+### Manual review register
+
+This fixed-field table is the long-lived compliance attestation. It must never contain raw metric
+values, logs, screenshots, identifiers, exact billing data, or provider response bodies.
+
+| Checked at UTC | Health / Fly | Snapshot | Volume | Auth / 5xx | Anthropic | Support | Overall | Remediation / next action | Next due |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-08-19T23:34:44Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | OPEN · current-buffer markers only; aggregate 5xx unavailable | OPEN · public status page operational; console usage/spend-limit sign-in required | PASS · routing rehearsal confirmed | OPEN | Finish Fly aggregate 5xx and Anthropic console checks; no remediation applied | 2026-08-20 |
+
 ## Compliance and release evidence
 
-Verified as of 2026-08-19:
+Verified as of 2026-08-20:
 
 - [x] The auth-store schema excludes receipt/wardrobe payloads and raw IP addresses.
 - [x] Session bearers are stored only as hashes; rate subjects are stored only as keyed HMACs.
@@ -228,8 +277,7 @@ Verified as of 2026-08-19:
   reported `retention_days = 14`; neither is old enough to prove actual list disappearance.
 - [x] Fly documents approximately seven-day searchable application-log retention and no built-in
   metrics alerting. No custom log drain, Fly Log Shipper/monitoring companion app, or configured
-  alert route was found in the read-only account inventory. This does not prove alert delivery or
-  alert-record retention.
+  alert route was found in the read-only account inventory.
 - [x] A written Fly Security response received at `2026-08-19T13:19:43Z` confirms that
   provider-controlled operational/abuse logs can include source IP, the customer-visible stream
   can include platform/proxy paths, request IDs, and client IP, and no customer-enforceable hard
@@ -237,6 +285,9 @@ Verified as of 2026-08-19:
 - [x] On 2026-08-19 the owner explicitly approved continued Fly use with the provider boundary
   above. This supersedes the former 24-hour provider-log limit without weakening the separate
   24-hour live-deletion or temporary-restore-volume requirements.
+- [x] On 2026-08-20 the owner explicitly chose manual operations for the initial single-user
+  release instead of an automated alert/incident service. This records the accepted slower-detection
+  risk and supersedes the old alert-delivery gate without claiming it passed.
 
 Required before APP-009 can close:
 
@@ -261,7 +312,13 @@ Required before APP-009 can close:
 - [ ] Publish the final App Store Connect App Privacy answers from the accepted production facts:
   Device ID, Other Diagnostic Data, and Product Interaction; App Functionality; linked; not
   tracking. Reassess before submission if any processor, purpose, or data flow changes.
-- [ ] Configure the alert routes above and retain a redacted successful delivery rehearsal.
+- [ ] Complete the first manual operations review against the final deployed image. The
+  2026-08-19T23:34:44Z partial review verified public health, Fly checks, the single running
+  Machine, expected immutable image, encrypted-volume policy and usage band, a fresh 14-day
+  snapshot, absence of the selected auth/Anthropic-failure markers in the current log buffer, the
+  public status page's operational API state, and the rehearsed support route. The review remains
+  open because the buffer scan does not prove aggregate 5xx behavior and signed-in Anthropic
+  usage/spend-limit state has not yet been inspected.
 - [ ] Publish monitored privacy/support contacts and the server-deletion procedure. The public
   contact is selected as `contact@tth.dev`. Unpublished support/privacy pages are prepared in
   [`tzehon.github.io` draft PR #2](https://github.com/tzehon/tzehon.github.io/pull/2). A
@@ -280,17 +337,20 @@ superseded that requirement on 2026-08-19. Retain the later timestamped snapshot
 observation separately.
 
 Retain only redacted evidence: source SHA, immutable image digest, policy/config names, aggregate
-counts, timestamps, snapshot retention, alert rule/delivery result, and deletion/restore outcome.
+counts, timestamps, snapshot retention, manual check/remediation result, and deletion/restore outcome.
 Never retain secret values, raw identifiers, request bodies, database files, or log samples that
 contain prohibited fields.
 
-## Provider references
+## Provider and publication references
 
 - [Fly Volume snapshots](https://fly.io/docs/volumes/snapshots/)
 - [Fly app logging overview](https://fly.io/docs/monitoring/logging-overview/)
 - [Fly log search](https://fly.io/docs/monitoring/search-logs/)
 - [Fly built-in metrics and external alerting](https://fly.io/docs/monitoring/metrics/)
 - [Fly subprocessors](https://fly.io/legal/sub-processors/)
+- [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)
+- [Apple App Privacy requirements](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy)
+- [Apple Support URL requirements](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/)
 - Fly Compliance dashboard (authenticated account evidence, checked 2026-08-19): the optional
   pre-signed DPA becomes active only when the customer signs it; no active agreement or exact
   version is currently evidenced.

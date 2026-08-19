@@ -181,7 +181,8 @@ Configure the Google Cloud OAuth client now (the in-app sign-in is wired in Phas
 
 The key lives **only** on the backend — never in the app. Locally, put it in `backend/.env`;
 in production, set it as a Fly.io secret (below). Get a key at
-https://console.anthropic.com and set a monthly budget alert (personal use is ~$1–5/mo).
+https://console.anthropic.com, set an owner-approved monthly spend limit, and review current-month
+usage and cost as part of the manual production check.
 
 ## Deploy the backend (Fly.io)
 
@@ -245,17 +246,22 @@ Before treating a deployment as release-ready:
    controls;
 2. apply the owner-approved Fly boundary: fixed seven-day customer-visible logs that may contain
    path/request ID/client IP, plus undisclosed provider-internal in-service retention; publish the
-   matching App Privacy answers and evidence the 30-day alert-record limit;
+   matching App Privacy answers;
 3. observe encrypted snapshots disappear from Fly's customer listing within the configured 14
    days and prove that a pre-deletion snapshot cannot revive deleted auth state; delete any
    isolated restore volume within 24 hours. All-copy provider purge timing remains an explicitly
    accepted unknown;
-4. route health/5xx, snapshot age/failure, volume usage, auth-abuse, Anthropic-availability, and
-   budget alerts to a monitored owner channel, then retain a redacted successful delivery test.
+4. before archive/upload, after a backend or production-configuration change, and at least every
+   30 days while production remains deployed or enabled, perform the payload-free manual
+   operations review: public health, expected Machine/image, sustained 5xx behavior, volume usage,
+   newest snapshot age/status, aggregate App
+   Attest rejection/rate-limit activity, Anthropic availability/spend, and the monitored support
+   route. Retain only the timestamp, fixed check/result fields, coarse aggregate bands,
+   remediation outcome, and next due date.
 
 The policy's unchecked compliance items are release gates. A healthy `/health` response, an
-existing snapshot, or a documented target is not evidence that retention, deletion, and alerting
-are enforced.
+existing snapshot, or a documented target is not evidence that retention, deletion, and the full
+manual operations review are complete.
 
 The image build is verifiable locally first: `docker build -t wb backend && docker run --rm -p 8080:8080 wb`, then `curl localhost:8080/health`.
 
@@ -281,7 +287,7 @@ Every internal beta is built as an App Store candidate. Follow the full
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
 
 1. Confirm the candidate's policy-enforced backend digest is deployed, then finish the remaining
-   `APP-009` external logging, alert, support, snapshot, and restore operations.
+   `APP-009` external logging, manual operations, support, snapshot, and restore evidence.
 2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
    `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
 3. Check App Store Connect for the highest uploaded build, then set the next unused

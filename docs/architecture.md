@@ -347,7 +347,7 @@ flowchart LR
   sessions, and coarse rate windows. The receipt is not trusted as fraud evidence until its
   separate Apple receipt checks are implemented. The store contains no Gmail receipt text,
   wardrobe catalog, photos, or recommendation payload.
-- Backend auth-state, logs, snapshots, deletion, and alert operations follow the
+- Backend auth-state, logs, snapshots, deletion, and manual operations follow the
   [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). The repository is
   configured so the final deployment runs one-minute deadline cleanup on a minimum-one-Machine
   topology, purges inactive/revoked installations, exposes fresh-assertion deletion in Privacy &
@@ -356,8 +356,10 @@ flowchart LR
   Fly Security confirmed that its provider-controlled logs can include source IP and that a
   customer cannot enforce a hard 24-hour maximum. On 2026-08-19 the owner accepted Fly's fixed
   seven-day customer-visible stream and undisclosed provider-internal in-service retention.
-  APP-009 remains open until the remaining snapshot, alert/support, App Privacy, and
-  deletion/restore operations are evidenced.
+  On 2026-08-20 the owner approved a payload-free manual review cadence instead of an automated
+  monitoring processor for the initial personal single-user release; automated independent
+  monitoring remains optional future hardening. APP-009 remains open until the remaining snapshot,
+  manual-review, support, App Privacy, and deletion/restore operations are evidenced.
 - The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
   private key stays in the Secure Enclave; the short-lived access token is memory-only.
 - Google is not an account system for Wardrobe backend access. A user can style a local/photo

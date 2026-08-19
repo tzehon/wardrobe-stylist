@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-19
+## Current candidate status — 2026-08-20
 
 - Versioned candidate source: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`,
   which contains `1.0.0 (4)`. The final `main` archive source is not frozen; record its merged SHA
@@ -43,7 +43,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
   its temporary resources were removed within 391 seconds of volume creation. Snapshot-list
-  expiry, alerting, deletion-specific recovery, the signed distribution archive/profile, and
+  expiry, the first payload-free manual operations review, deletion-specific recovery, the signed
+  distribution archive/profile, and
   production TestFlight enrollment, assertion renewal, protected API call, and server-deletion UI
   proof are still required.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
@@ -69,8 +70,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   snapshot, and an isolated restore rehearsal. These snapshots are not a separate backup system.
 - [x] Adopt the APP-009
   [data-lifecycle and logging policy](app-attest-data-lifecycle-policy.md), including exact target
-  periods, prohibited log fields, deletion/restore rules, alert requirements, and an explicit
-  current-compliance checklist.
+  periods, prohibited log fields, deletion/restore rules, manual operations requirements, and an
+  explicit current-compliance checklist.
 - [x] Enforce the repository-owned policy: a one-minute deadline-maintenance loop on a pinned
   minimum-one-Machine topology, repeat-until-drained cleanup, 90-day inactive and 30-day revoked
   installation purge, assertion-verified in-app deletion, SQLite secure-delete/WAL maintenance,
@@ -88,8 +89,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
 - [ ] Verify production operations against that final image: retain the redacted Fly response and
-  owner decision, then prove 14-day snapshot-list disappearance, restore-after-deletion handling,
-  alert delivery, and monitored support routing. The generic isolated restore path passed on
+  owner decisions, perform the payload-free manual review, then prove 14-day snapshot-list
+  disappearance, restore-after-deletion handling, and monitored support routing. The generic
+  isolated restore path passed on
   2026-08-19 with read-only, aggregate-only evidence and immediate temporary-resource cleanup; it
   does not close deletion-specific recovery. The customer-visible log stream is accepted as seven
   days; provider-internal in-service retention and all-copy snapshot purge timing are accepted as

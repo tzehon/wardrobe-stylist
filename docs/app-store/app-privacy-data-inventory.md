@@ -41,6 +41,9 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Record Fly's provider-controlled logging facts and the explicit 2026-08-19 owner decision
   accepting a fixed seven-day customer-visible stream plus undisclosed provider-internal
   in-service retention. Preserve the old 24-hour requirement as unmet and superseded, not passed.
+- [x] Record the 2026-08-20 owner decision to use payload-free manual operations for the initial
+  personal single-user release. No monitoring processor, credential, or new backend data flow is
+  introduced by that decision.
 - [ ] Decide whether to request, review, and sign Fly's optional DPA. The account currently has no
   active DPA; do not treat Fly Security's 30-day post-service deletion and 90-day residual
   encrypted-backup summary as binding unless the exact agreement/version is executed.
@@ -58,8 +61,8 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Enforce deadline cleanup, 90-day inactivity purge, 30-day revoked-record purge, synchronous
   assertion-verified live deletion, safe SQLite/WAL maintenance, and the separate in-app server
   deletion control in the repository.
-- [ ] Against the deployed final image, rehearse deletion/restore behavior; configure/evidence
-  alert routing and publish a monitored support process.
+- [ ] Against the deployed final image, rehearse deletion/restore behavior; perform the
+  owner-approved payload-free manual operations review and publish a monitored support process.
 - [ ] Confirm unsupported App Attest, offline verification and backend failure preserve local
   wardrobe/Demo Mode while remote AI fails closed without creating an unauthenticated identifier
   or request.

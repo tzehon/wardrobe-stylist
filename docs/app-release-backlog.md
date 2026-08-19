@@ -21,14 +21,14 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-19**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-20**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **External gate** | Repository enforcement, final policy-image deployment, and an isolated read-only snapshot-restore rehearsal are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, and listing-only 14-day snapshot boundary. Snapshot-list expiry, alerting, deletion-specific recovery, and signed archive/TestFlight proof remain open |
+| APP-009 | **External gate** | Repository enforcement, final policy-image deployment, and an isolated read-only snapshot-restore rehearsal are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. The first manual review, snapshot-list expiry, deletion-specific recovery, and signed archive/TestFlight proof remain open |
 | APP-011 | **In progress** | Product identity, Debug/Release split, guards, compatible production backend, and build-4 allowlist are ready; `Distribution.xcconfig`, production Gmail IDs, Team ID, public URLs, and signed archive remain open |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
 | APP-014 | **Done** | Twelve deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, separate server-security deletion, and verified local deletion; connected tests use deny-network fakes |
@@ -68,8 +68,8 @@ These items are ordered. Do not archive early and plan to repair the same binary
   production Fly is App-Attest-only on one encrypted volume; restart and snapshot restore passed;
   and the retired shared credential returns `401`.
 - [x] **Adopt the APP-009 data-lifecycle and logging policy.** The approved limits, prohibited log
-  fields, deletion/restore behavior, alert requirements, verified controls, and open compliance
-  gaps are recorded in
+  fields, deletion/restore behavior, manual operations requirements, verified controls, and open
+  compliance gaps are recorded in
   [`app-attest-data-lifecycle-policy.md`](app-store/app-attest-data-lifecycle-policy.md).
 - [x] **Enforce the repository-owned APP-009 lifecycle policy.** A one-minute maintenance loop on
   the configured minimum-one-Machine topology performs deadline cleanup, repeats bounded
@@ -87,8 +87,9 @@ These items are ordered. Do not archive early and plan to repair the same binary
   `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
   was restored to the private registry, re-scanned, and passed an isolated v3/v4 round-trip.
 - [ ] **Verify APP-009 production operations externally.** Retain the redacted Fly response and
-  owner decision, then prove the observable 14-day snapshot-list disappearance,
-  restore-after-deletion handling, alert delivery, and monitored support routing. An isolated,
+  owner decisions, perform the payload-free manual production review, then prove the observable
+  14-day snapshot-list disappearance, restore-after-deletion handling, and monitored support
+  routing. An isolated,
   secret-free, read-only restore of the 2026-08-19 snapshot passed SQLite integrity/schema checks
   using aggregate-only evidence, and its temporary volume/app disappeared from the control plane
   within 391 seconds of volume creation; this does not yet prove deletion-specific recovery. The
@@ -167,7 +168,8 @@ not used because Apple prevents that artifact from being submitted to customers 
     evidenced.
   - Renew short-lived backend sessions with assertions over canonical client data and a fresh
     challenge. Consume challenges exactly once and advance each assertion counter atomically.
-    Apply bounded enrollment/session/API rate limits, quotas, monitoring, and negative tests.
+    Apply bounded enrollment/session/API rate limits, quotas, manual operational review, and
+    negative tests.
   - Keep local wardrobe and Demo Mode working when App Attest is unavailable or verification is
     offline; remote AI must fail closed with clear recovery. Never trust a client-declared
     unsupported state as permission to mint an unauthenticated session.
@@ -185,7 +187,7 @@ not used because Apple prevents that artifact from being submitted to customers 
     [App Attest data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md):
     deadline cleanup, inactive/revoked installation deletion, assertion-verified in-app deletion,
     no application access logs, bounded sanitized security logs, 14-day snapshot listing,
-    restore-after-deletion handling, alert delivery, and monitored support routing.
+    restore-after-deletion handling, payload-free manual operations, and monitored support routing.
   - Use a time-bounded bridge deployment only if needed to move existing testers. Record its
     expiry, then deploy App-Attest-only auth, unset/rotate `DEVICE_TOKEN`, prove an old build is
     rejected, retain a validated App-Attest-only rollback image, and record commit/image,
