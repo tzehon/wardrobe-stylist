@@ -19,25 +19,36 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-18
+## Current candidate status — 2026-08-19
 
 - Versioned candidate source: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`,
   which contains `1.0.0 (4)`. The final `main` archive source is not frozen; record its merged SHA
   before archiving or uploading.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. The candidate
   has not yet been archived or uploaded.
-- Production backend: Fly release v4 serves the App-Attest-only image
-  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`, with
-  validation category `2`, bundle-build allowlist `4`, and durable encrypted auth storage.
+- Production backend: Fly release v5 serves the policy-enforced `linux/amd64` image from source
+  `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85` at immutable digest
+  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`,
+  with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
+  `min_machines_running = 1`. Retained rollback digest
+  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
+  is App-Attest-only and registry-addressable.
 - Development proof: App Attest enrollment, assertion renewal, and `/recommend` succeeded on an
   iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build fields were
   absent as expected and are not claimed as development evidence.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and its
-  repository-owned enforcement is implemented. The deployed Fly v4 image predates that change, so
-  final-image deployment and external operations evidence remain open. The signed distribution
-  archive/profile and production TestFlight enrollment, assertion renewal, protected API call, and
-  server-deletion UI proof are also still required.
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v5 deploys
+  its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
+  customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
+  snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
+  read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
+  its temporary resources were removed within 391 seconds of volume creation. Snapshot-list
+  expiry, alerting, deletion-specific recovery, the signed distribution archive/profile, and
+  production TestFlight enrollment, assertion renewal, protected API call, and server-deletion UI
+  proof are still required.
+- Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
+  Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
+  any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
 
 ## One-time gates before the next internal build
 
@@ -65,17 +76,24 @@ an App Store release candidate from the moment it is archived. This prevents a s
   installation purge, assertion-verified in-app deletion, SQLite secure-delete/WAL maintenance,
   structural persistence/logging guards, and a pinned no-access-log production command are all
   implemented and covered by focused tests.
-- [ ] After policy enforcement, build and scan the exact final `linux/amd64` container image,
+- [x] After policy enforcement, build and scan the exact final `linux/amd64` container image,
   including OS packages, for high/critical known vulnerabilities; push and re-scan its immutable
-  registry digest, then deploy only that digest. Retain it and revalidate an App-Attest-only
-  rollback image. The current Fly v4 image passed, but it predates these enforcement changes.
-  The locked Python audit is already enforced in CI; the local Docker Scout command is
+  registry digest, then deploy only that digest. Fly v5 serves
+  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  from source `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85`; both scans covered 90
+  packages and found no critical/high vulnerability. The retained App-Attest-only rollback digest
+  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
+  was restored to the registry, re-scanned, and passed an isolated schema round-trip. The locked
+  Python audit is already enforced in CI; the local Docker Scout command is
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
-- [ ] Verify production operations against that final image: Fly edge-log fields/retention,
-  seven-day sanitized application-log retention, 14-day snapshot expiry,
-  restore-after-deletion handling, alert delivery, monitored support routing, and a redacted
-  deletion/restore rehearsal.
+- [ ] Verify production operations against that final image: retain the redacted Fly response and
+  owner decision, then prove 14-day snapshot-list disappearance, restore-after-deletion handling,
+  alert delivery, and monitored support routing. The generic isolated restore path passed on
+  2026-08-19 with read-only, aggregate-only evidence and immediate temporary-resource cleanup; it
+  does not close deletion-specific recovery. The customer-visible log stream is accepted as seven
+  days; provider-internal in-service retention and all-copy snapshot purge timing are accepted as
+  undisclosed. Do not claim the former 24-hour provider-log requirement passed.
 - [x] Rotate and verify the Anthropic API key, retire `DEVICE_TOKEN`, deploy App-Attest-only auth,
   and prove the retired credential returns `401`. No credential value is retained in evidence.
 - [x] Treat the opaque Apple receipt as untrusted fraud evidence, not session authorization. The

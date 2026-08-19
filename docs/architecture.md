@@ -352,8 +352,11 @@ flowchart LR
   configured so the final deployment runs one-minute deadline cleanup on a minimum-one-Machine
   topology, purges inactive/revoked installations, exposes fresh-assertion deletion in Privacy &
   Data, performs SQLite/WAL maintenance, structurally guards persistence/log calls, and disables
-  Uvicorn access logs in the production command. APP-009 remains open until the final image and
-  desired topology are deployed and provider retention, alert/support routing, and
+  Uvicorn access logs in the production command. Fly v5 deploys that final image and topology.
+  Fly Security confirmed that its provider-controlled logs can include source IP and that a
+  customer cannot enforce a hard 24-hour maximum. On 2026-08-19 the owner accepted Fly's fixed
+  seven-day customer-visible stream and undisclosed provider-internal in-service retention.
+  APP-009 remains open until the remaining snapshot, alert/support, App Privacy, and
   deletion/restore operations are evidenced.
 - The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
   private key stays in the Secure Enclave; the short-lived access token is memory-only.

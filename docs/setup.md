@@ -243,10 +243,13 @@ Before treating a deployment as release-ready:
 
 1. build, scan, deploy, and retain the immutable digest for the final image containing those
    controls;
-2. verify Fly edge fields and the approved 24-hour raw-IP, seven-day sanitized-log, and 30-day
-   alert-record limits;
-3. verify encrypted rolling snapshots expire within 14 days and that a pre-deletion snapshot cannot
-   revive deleted auth state; delete any isolated restore volume within 24 hours; and
+2. apply the owner-approved Fly boundary: fixed seven-day customer-visible logs that may contain
+   path/request ID/client IP, plus undisclosed provider-internal in-service retention; publish the
+   matching App Privacy answers and evidence the 30-day alert-record limit;
+3. observe encrypted snapshots disappear from Fly's customer listing within the configured 14
+   days and prove that a pre-deletion snapshot cannot revive deleted auth state; delete any
+   isolated restore volume within 24 hours. All-copy provider purge timing remains an explicitly
+   accepted unknown;
 4. route health/5xx, snapshot age/failure, volume usage, auth-abuse, Anthropic-availability, and
    budget alerts to a monitored owner channel, then retain a redacted successful delivery test.
 
@@ -277,8 +280,8 @@ re-enabling the shared bearer.
 Every internal beta is built as an App Store candidate. Follow the full
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
 
-1. Finish the pre-upload `APP-009` work: build/scan/deploy the policy-enforced image and verify
-   external logging, alert, support, snapshot, and restore operations.
+1. Confirm the candidate's policy-enforced backend digest is deployed, then finish the remaining
+   `APP-009` external logging, alert, support, snapshot, and restore operations.
 2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
    `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
 3. Check App Store Connect for the highest uploaded build, then set the next unused

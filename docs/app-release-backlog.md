@@ -21,19 +21,19 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-18**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-19**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **External gate** | App Attest development proof, the production-only Fly cutover, durable storage/restart/snapshot/restore evidence, the current-image scan, legacy retirement, the lifecycle/logging policy, and repository enforcement are complete; a new final-image scan/deploy, external operations, and signed archive/TestFlight proof remain open |
+| APP-009 | **External gate** | Repository enforcement, final policy-image deployment, and an isolated read-only snapshot-restore rehearsal are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, and listing-only 14-day snapshot boundary. Snapshot-list expiry, alerting, deletion-specific recovery, and signed archive/TestFlight proof remain open |
 | APP-011 | **In progress** | Product identity, Debug/Release split, guards, compatible production backend, and build-4 allowlist are ready; `Distribution.xcconfig`, production Gmail IDs, Team ID, public URLs, and signed archive remain open |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
 | APP-014 | **Done** | Twelve deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, separate server-security deletion, and verified local deletion; connected tests use deny-network fakes |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
-| APP-016 | **In progress** | Accurate data inventory, privacy/support/review drafts exist; final owned-domain publication, contact details, retention verification, and store answers remain |
+| APP-016 | **In progress** | Accurate data inventory and privacy/support/review drafts exist; final owned-domain publication, legal owner/effective date, processor/DPA terms, and store answers remain |
 | APP-017–APP-019 | **Submission / next milestone** | Candidate `1.0.0 (4)` is selected; finish binary/config gates, upload through **TestFlight & App Store**, distribute only to an internal group, and retain clean-device evidence |
 | APP-020–APP-022 | **Done** | V3 migration, pending-import confidence review, one validated add/edit/review form, favorites, archive, duplicate cues, useful filters, and individual/bulk acceptance are implemented and account-scoped |
 | APP-023 | **Done** | Today is explicit-action-only, account-scoped daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
@@ -45,7 +45,11 @@ end-to-end UI tests**), **237 backend tests**, locked dependency audit with no k
 Bandit, Ruff, mypy, and **23/23** release-script tests all passed. Candidate `1.0.0 (4)` remains
 selected. The final `main` archive source is not frozen; record its merged SHA before archiving or
 uploading.
-Fly release v4 serves the exact App-Attest-only image
+Fly release v5 serves the policy-enforced `linux/amd64` image from `main`
+`7b6acb83960e2cd69458489ab5f5fe0e04cd9f85` at immutable digest
+`sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`.
+Its local and registry scans found no critical/high vulnerability across 90 packages. The retained
+App-Attest-only rollback digest is
 `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
 
 ## Immediate next milestone — internal TestFlight candidate
@@ -74,12 +78,23 @@ These items are ordered. Do not archive early and plan to repair the same binary
   installation through the new in-app server-security-data control. Structural review guardrails
   cover the current persistence/logging boundaries, and a tested production command keeps Uvicorn
   access logs disabled.
-- [ ] **Build, scan, and deploy the policy-enforced backend.** Retain its immutable digest and a
-  revalidated App-Attest-only rollback image. The current Fly v4 image passed its exact-image scan,
-  but the new enforcement changes require a final scan and deployment.
-- [ ] **Verify APP-009 production operations externally.** Prove Fly edge-log fields/retention,
-  seven-day sanitized application-log retention, 14-day snapshot expiry, restore-after-deletion
-  handling, alert delivery, monitored support routing, and the redacted deletion/restore rehearsal.
+- [x] **Build, scan, and deploy the policy-enforced backend.** Fly v5 serves only immutable digest
+  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  from source `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85`. The exact `linux/amd64`
+  image passed local and registry high/critical scans across 90 packages; the live schema is v4
+  with SQLite integrity `ok`, the encrypted volume remains attached, the Machine is healthy, and
+  `min_machines_running = 1`. Rollback digest
+  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
+  was restored to the private registry, re-scanned, and passed an isolated v3/v4 round-trip.
+- [ ] **Verify APP-009 production operations externally.** Retain the redacted Fly response and
+  owner decision, then prove the observable 14-day snapshot-list disappearance,
+  restore-after-deletion handling, alert delivery, and monitored support routing. An isolated,
+  secret-free, read-only restore of the 2026-08-19 snapshot passed SQLite integrity/schema checks
+  using aggregate-only evidence, and its temporary volume/app disappeared from the control plane
+  within 391 seconds of volume creation; this does not yet prove deletion-specific recovery. The
+  accepted boundary records the customer-visible stream as seven days and provider-internal
+  retention/all-copy snapshot purge timing as undisclosed; do not substitute those accepted
+  unknowns for the remaining observable operations evidence.
 - [ ] **Complete the production-client portion of APP-011.** Populate production Gmail IDs, HTTPS
   endpoint, public links, and Team ID in gitignored `Distribution.xcconfig`, then pass the signed
   device-archive guards.
@@ -169,7 +184,7 @@ not used because Apple prevents that artifact from being submitted to customers 
   - Enforce and evidence the approved
     [App Attest data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md):
     deadline cleanup, inactive/revoked installation deletion, assertion-verified in-app deletion,
-    no application access logs, bounded sanitized security logs, 14-day snapshots,
+    no application access logs, bounded sanitized security logs, 14-day snapshot listing,
     restore-after-deletion handling, alert delivery, and monitored support routing.
   - Use a time-bounded bridge deployment only if needed to move existing testers. Record its
     expiry, then deploy App-Attest-only auth, unset/rotate `DEVICE_TOKEN`, prove an old build is
