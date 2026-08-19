@@ -4,10 +4,10 @@
 > terms and Google verification outcome, and reconcile this text with the final request-capture
 > tests and App Privacy answers before setting an effective date.
 
-**Effective date:** [DATE]  
-**Developer:** [LEGAL NAME OR ENTITY]  
-**Privacy contact:** [PRIVACY EMAIL]  
-**Product website:** [HTTPS HOMEPAGE]
+- **Effective date:** [DATE]
+- **Developer:** [LEGAL NAME OR ENTITY]
+- **Privacy contact:** `contact@tth.dev`
+- **Product website:** `https://blog.tth.dev/wardrobe/`
 
 Wardrobe Stylist helps you build a wardrobe catalog and get outfit suggestions. You can add items
 manually or from photos without connecting Google. If you choose to connect Gmail, the app uses
@@ -52,17 +52,24 @@ servicing a request. The developer auth database stores only keyed HMAC rate-lim
 raw IP addresses. Application security events are designed to omit IP addresses, installation and
 key identifiers, credentials, request content, and model content.
 
-[BEFORE PUBLICATION: VERIFY THE FINAL DEPLOYED IMAGE HAS APPLICATION ACCESS LOGS DISABLED; VERIFY
-FLY EDGE FIELDS AND THE APPROVED 24-HOUR RAW-IP LIMIT; VERIFY SEVEN-DAY SANITIZED-LOG RETENTION,
-ALERT ROUTING, HOSTING REGION, CRASH/ANALYTICS TOOLS, AND LINKAGE. SEE
-`app-attest-data-lifecycle-policy.md`.]
+Fly's customer-visible proxy/platform stream is retained for a fixed seven days and may contain
+request paths, request IDs, and client IP. Separate Fly operational/abuse-prevention logs can
+contain source IP; their in-service fields, retention, and purge timing are undisclosed and not
+customer-configurable. These records are used for app functionality, network delivery, abuse
+prevention, security, reliability, and diagnostics. They may be associated with an app installation
+or request, and are not used by the developer for advertising or cross-company tracking.
+
+[BEFORE PUBLICATION: DECIDE WHETHER TO REQUEST/REVIEW/SIGN FLY'S OPTIONAL DPA; THE ACCOUNT HAS NO
+ACTIVE DPA. CONFIRM SUBPROCESSORS, REGION, FINAL APP PRIVACY PUBLICATION, ALERT ROUTING, AND
+CRASH/ANALYTICS TOOLS. SEE `app-attest-data-lifecycle-policy.md`.]
 
 ## How information is used
 
 We use information only to provide user-facing features you request: importing wardrobe items
 from receipts, generating outfit suggestions, preventing excessive repeats, securing and
-operating the service, diagnosing failures, and complying with law. We do not use Gmail data for
-advertising, data brokerage, credit or lending decisions, or building advertising profiles.
+operating the service, diagnosing failures, and complying with law. The developer does not use
+Gmail or technical/security data for advertising, data brokerage, credit or lending decisions,
+advertising profiles, or tracking across other companies' apps and websites.
 
 We adhere to the Google API Services User Data Policy, including its Limited Use requirements.
 [KEEP THIS STATEMENT ONLY AFTER THE FINAL PROCESSOR/AI ARCHITECTURE IS ACCEPTED BY GOOGLE.]
@@ -70,7 +77,7 @@ We adhere to the Google API Services User Data Policy, including its Limited Use
 ## Processing providers and disclosures
 
 - **Google:** authentication and read-only Gmail API access when you connect Gmail.
-- **[BACKEND HOST, CURRENTLY FLY.IO]:** runs the developer-controlled API that authenticates the
+- **Fly.io:** runs the developer-controlled API that authenticates the
   app, minimizes/validates requests, and coordinates AI processing.
 - **Anthropic:** processes receipt or wardrobe payloads to return structured items and outfit
   suggestions when you explicitly use an AI feature.
@@ -87,11 +94,22 @@ backup you control. Our developer application does not persist receipt text or w
 after the request completes. We retain only the minimum server-side authentication, security, and
 abuse-prevention records required to operate the public service.
 
-[BEFORE PUBLICATION: DEPLOY AND EVIDENCE THE REPOSITORY-ENFORCED SCHEDULE. CHALLENGES: 70 MINUTES
-MAXIMUM FROM ISSUE; SESSION HASHES: 20 MINUTES; RATE HASHES: WINDOW PLUS 5 MINUTES; ACTIVE
-INSTALLATIONS AND OPAQUE APPLE RECEIPTS: 90 DAYS AFTER LAST SUCCESSFUL USE; REVOKED INSTALLATIONS:
-30 DAYS; VERIFIED LIVE DELETION: 24 HOURS; ENCRYPTED SNAPSHOTS: 14 DAYS; SANITIZED SECURITY LOGS:
-7 DAYS; ALERT RECORDS: 30 DAYS. VERIFY ANTHROPIC/PROCESSOR RETENTION SEPARATELY.]
+One-time challenges are purged no later than 70 minutes after issue; session-token hashes no later
+than 20 minutes after issue; and keyed rate-limit subjects no later than the applicable window plus
+5 minutes. Active installation metadata and opaque Apple receipts are removed after 90 days
+without successful use, and revoked installations after 30 days. A verified deletion request
+removes the installation's live authentication record and sessions synchronously, within the
+policy's 24-hour maximum.
+
+The encrypted authentication volume is configured so snapshots stop appearing from Fly's customer
+listing after 14 days; Fly does not disclose all-copy purge timing. Developer security events and
+Fly's customer-visible proxy/platform stream last seven days. Separate provider-internal
+operational/abuse-log retention is undisclosed and not customer-configurable. Those hosting records
+are separate from live authentication-record deletion and are not removed immediately by the
+in-app deletion action. Alert records will be retained for at most 30 days.
+
+[BEFORE PUBLICATION: VERIFY ANTHROPIC/OTHER PROCESSOR RETENTION AND COMPLETE THE SNAPSHOT-LIST,
+ALERT, RESTORE, AND PROCESSED-TESTFLIGHT EVIDENCE.]
 
 ## Your choices and controls
 
@@ -108,7 +126,7 @@ You can also review or revoke Google access at
 [Google Account third-party connections](https://myaccount.google.com/connections).
 
 For access, correction, deletion, or privacy questions about any server-side information, contact
-[PRIVACY EMAIL]. [BEFORE PUBLICATION: VERIFY THE IN-APP ASSERTION-VERIFIED SERVER-DELETION FLOW ON
+`contact@tth.dev`. [BEFORE PUBLICATION: VERIFY THE IN-APP ASSERTION-VERIFIED SERVER-DELETION FLOW ON
 THE FINAL TESTFLIGHT BUILD, PUBLISH THE MONITORED CONTACT, AND ADD APPLICABLE
 JURISDICTION-SPECIFIC RIGHTS AND RESPONSE PROCESS.]
 
@@ -120,7 +138,7 @@ limits, dependency review, and automated tests intended to prevent Gmail write c
 unauthorized data transmission.
 [REMOVE ANY CONTROL NOT VERIFIED IN THE FINAL PRODUCTION DEPLOYMENT.]
 
-No method of storage or transmission is completely secure. Contact [SECURITY EMAIL] if you
+No method of storage or transmission is completely secure. Contact `contact@tth.dev` if you
 believe you found a security issue.
 
 ## Children
@@ -140,7 +158,7 @@ notice before that flow resumes.
 
 ## Contact
 
-[LEGAL NAME OR ENTITY]  
-[POSTAL ADDRESS IF REQUIRED]  
-[PRIVACY EMAIL]  
-[SUPPORT URL]
+- [LEGAL NAME OR ENTITY]
+- [POSTAL ADDRESS IF REQUIRED]
+- `contact@tth.dev`
+- `https://blog.tth.dev/wardrobe/`

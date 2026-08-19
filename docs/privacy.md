@@ -48,9 +48,8 @@ The current public-release work and remaining blockers are tracked in
 backend bearer that was **not a secret**. The current client removes that credential and can use
 remote AI only through anonymous, per-installation App Attest sessions. Apple provisioning,
 durable Fly auth state, development-device verification, production cutover, and legacy retirement
-are complete. The repository now also enforces the lifecycle policy. `APP-009` remains open for
-the final image scan/deployment, external operations evidence, signed archive, and production
-TestFlight proof.
+are complete. Fly v5 now deploys the repository's lifecycle-policy enforcement. `APP-009` remains
+open for external operations evidence, the signed archive, and production TestFlight proof.
 
 ## Backend authentication-data lifecycle
 
@@ -64,18 +63,31 @@ limits are:
 - active anonymous installation metadata and its opaque, untrusted Apple receipt expire after 90
   days without successful authenticated use; revoked records expire after 30 days;
 - a verified server-data deletion removes live auth state within 24 hours;
-- encrypted auth snapshots expire within 14 days;
-- application access logs must be disabled; payload-free security logs may last at most seven days;
-  and
-- unavoidable provider edge logs containing raw IP may last at most 24 hours.
+- encrypted auth snapshots are configured to disappear from Fly's customer listing within 14
+  days, while provider all-copy purge timing remains undisclosed;
+- application access logs must be disabled and developer-emitted payload-free security events may
+  last at most seven days;
+- Fly's customer-visible proxy/platform records last seven days and may include paths, request IDs,
+  or client IP; and
+- separate provider operational/abuse logs may include source IP with no published or
+  customer-enforceable in-service maximum; the owner explicitly accepted that provider boundary
+  on 2026-08-19.
 
-The repository enforces the application-owned controls with a one-minute lifecycle task on the
+Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and
+90 days for residual encrypted backups. The account's Compliance page says that agreement becomes
+active only when the customer signs it; no active DPA or exact version is currently evidenced, and
+those periods must not be represented as active-service log or snapshot guarantees.
+
+The former 24-hour provider raw-IP maximum was not met and has been superseded for Fly-controlled
+logging by the owner-approved disclosure above. This does not change the separate 24-hour live
+server-deletion or temporary-restore-volume deadlines.
+
+Fly v5 deploys the application-owned controls with a one-minute lifecycle task on the
 minimum-one-Machine production topology, repeat-until-drained cleanup, 90/30-day installation
 purges, synchronous fresh-assertion deletion, SQLite secure-delete/WAL maintenance, structural
-persistence/logging guards, and a no-access-log container command. The final image is not yet
-deployed, so those controls are not yet production claims. Provider log-retention evidence, alert
-routing, monitored support publication, restore-after-deletion evidence, and the other unchecked
-policy items remain release blockers.
+persistence/logging guards, and a no-access-log container command. Alert routing, monitored
+support publication, snapshot-list expiry, restore-after-deletion evidence, App Privacy
+publication, and the other unchecked policy items remain release blockers.
 
 ## Data inventory
 
@@ -85,8 +97,9 @@ what originates on device, what reaches the developer backend and Anthropic, the
 expectation, consent gate, deletion path, and unresolved provider-contract questions.
 
 Do not publish claims such as “Anthropic never retains data” or “data is never used for training”
-until the production contract/configuration has been verified. Do not present repository controls
-as deployed production behavior until the final image and external policy evidence are verified.
+until the production contract/configuration has been verified. Do not treat the deployed
+application controls as proof of the accepted-undisclosed provider boundary or the still-open
+alert, support, restore, processor-contract, and publication requirements.
 
 ## User controls required for release
 

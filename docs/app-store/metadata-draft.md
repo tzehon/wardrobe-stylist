@@ -45,7 +45,7 @@ app name, category names, competitors, or other companies.
 
 ## URLs
 
-- Marketing: [HTTPS HOMEPAGE]
+- Marketing: `https://blog.tth.dev/wardrobe/`
 - Support: [HTTPS SUPPORT PAGE]
 - Privacy policy: [HTTPS PRIVACY POLICY]
 
