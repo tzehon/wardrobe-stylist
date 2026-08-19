@@ -100,10 +100,13 @@ Internal Only** artifact type.
   cleanup on a minimum-one-Machine topology, inactive/revoked installation purge, fresh-assertion
   in-app deletion, SQLite/WAL maintenance, structural persistence/logging guards, and disabled
   Uvicorn access logs.
-- [ ] Build, scan, and deploy the policy-enforced image, then externally evidence Fly
-  volume/snapshots, provider logging, sanitized-log retention, alerting, monitored support, and
-  deletion/restore behavior. Treat receipt validation/risk metrics as a separate policy gate before
-  trusting or redeeming that evidence.
+- [x] Build, scan, and deploy the policy-enforced `linux/amd64` image by immutable digest; retain and
+  revalidate an App-Attest-only rollback digest.
+- [ ] Externally evidence Fly volume/snapshot-list expiry, the owner-accepted provider logging
+  boundary, alerting, monitored support, and deletion/restore behavior. Provider-internal
+  in-service retention and all-copy snapshot purge timing are explicitly accepted as undisclosed.
+  Treat receipt validation/risk metrics as a separate policy gate before trusting or redeeming
+  that evidence.
 - [ ] Inspect the signed distribution archive/profile and verify production enrollment, assertion
   renewal, and a protected request through the processed internal TestFlight build.
 - [ ] Test the two independent boundaries separately. App Attest: clean install, update, reinstall,

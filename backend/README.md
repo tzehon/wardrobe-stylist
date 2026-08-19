@@ -63,19 +63,23 @@ bundle-version extensions arrive on iOS 27 and later: their signed absence is ac
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
 The approved operational limits are defined in
 [`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
-The repository is configured to enforce them, once deployed, with a one-minute maintenance loop on
-the desired minimum-one-Machine production topology: cleanup repeats bounded transactions until
+Fly release v5 deploys the repository enforcement with a one-minute maintenance loop on the
+minimum-one-Machine production topology: cleanup repeats bounded transactions until
 drained, removes inactive installations after 90 days and revoked installations after 30 days, and
 securely checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
-exposes that server-only control. The final image still must be built, scanned, deployed, and
-verified before these are production claims.
+exposes that server-only control. The exact deployed digest and scan evidence are recorded in the
+internal-TestFlight runbook; external retention, alerting, support, and restore evidence remain
+release gates.
 
 The auth service emits bounded security events containing only an event/code/scope/path/
 mechanism tuple. The production container disables Uvicorn access logging, and structural tests
 pin the reviewed auth schema, persistence sinks, application log calls, and container command.
-Provider edge-log handling, sanitized-log retention, and alert routing remain external
-deployment-policy evidence gates.
+Fly Security confirmed that provider-controlled logs can include source IP and that customers
+cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner explicitly accepted
+Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
+retention. Snapshot-list expiry, final App Privacy publication, and alert routing remain release
+gates.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.
