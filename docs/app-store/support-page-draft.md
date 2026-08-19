@@ -5,9 +5,9 @@
 
 ## Get help
 
-Contact: [SUPPORT EMAIL OR FORM]  
-Expected response time: [BUSINESS-DAY TARGET]  
-App version/build: available at the bottom of Wardrobe Stylist → Settings
+- Contact: `contact@tth.dev`
+- Expected response time: within two business days
+- App version/build: available at the bottom of Wardrobe Stylist → Settings
 
 When reporting a problem, include the app version, iOS version, device model, what you expected,
 and what happened. Do not email receipt contents, OAuth tokens, backend credentials, or private
@@ -58,11 +58,14 @@ Before uninstalling, open **Settings → Privacy & Data → Delete Server Securi
 app obtains a fresh App Attest proof, deletes that installation's live server identity and active
 AI sessions, then removes its local server-identity reference. It does not delete the wardrobe on
 your iPhone or disconnect Google. Remote AI creates a new anonymous identity the next time you use
-it. Verified live authentication records are removed synchronously. The approved policy requires
-encrypted rolling snapshots to expire within 14 days; verify actual expiry before publication.
+it. Verified live authentication records are removed synchronously. The auth volume is configured
+for rolling 14-day snapshots, and Fly says each snapshot then disappears from the customer
+listing, but all-copy purge timing is undisclosed. Fly's customer-visible proxy/platform stream
+lasts seven days, and separate provider-internal log retention is undisclosed. These hosting
+records are separate and are not removed immediately by the in-app deletion action.
 
 Reinstalling creates a new identity but does not itself prove that the old server record was
-deleted. If the original installation is no longer available, contact [PRIVACY/SUPPORT CONTACT]
+deleted. If the original installation is no longer available, contact `contact@tth.dev`
 only for general guidance: support cannot safely identify an unlinked anonymous record. The
 90-day inactivity purge is the fallback for a lost installation. Never send a token, key,
 attestation object, Gmail content, or wardrobe photo to support.
@@ -79,8 +82,8 @@ item, or delete it instead. [RECONCILE WITH THE FINAL IMPORT-REVIEW LABELS BEFOR
 
 ## Privacy and safety
 
-- [Privacy policy]
-- [Google data-use disclosure / Limited Use statement]
-- [Delete-data instructions]
-- [Security contact]
+- [Privacy policy](https://blog.tth.dev/wardrobe/privacy/)
+- [Google data-use disclosure / Limited Use statement](https://blog.tth.dev/wardrobe/privacy/#google-and-gmail-information)
+- [Delete-data instructions](https://blog.tth.dev/wardrobe/#how-do-i-delete-my-local-wardrobe)
+- Security contact: `contact@tth.dev`
 - [Service status page, if provided]
