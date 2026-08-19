@@ -478,12 +478,30 @@ final class WardrobeUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Delete server security data?"].waitForExistence(timeout: 2))
         XCTAssertTrue(
             app.staticTexts.matching(
-                NSPredicate(format: "label CONTAINS %@", "does not delete your wardrobe")
+                NSPredicate(format: "label CONTAINS %@", "wardrobe and Google connection stay unchanged")
             ).firstMatch.exists
         )
         XCTAssertTrue(
             app.staticTexts.matching(
-                NSPredicate(format: "label CONTAINS %@", "disconnect Google")
+                NSPredicate(format: "label CONTAINS %@", "customer-visible proxy and platform stream lasts 7 days")
+            ).firstMatch.exists
+        )
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "provider-internal logs may include source IP")
+            ).firstMatch.exists
+        )
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(
+                    format: "label CONTAINS %@",
+                    "Snapshots stop appearing from Fly’s customer listing after 14 days"
+                )
+            ).firstMatch.exists
+        )
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "does not publish an all-copy deletion deadline")
             ).firstMatch.exists
         )
         confirmationButton(
@@ -497,6 +515,7 @@ final class WardrobeUITests: XCTestCase {
             identifier: "settings.privacy.deleteServerSecurityData.success"
         )
         XCTAssertTrue(success.waitForExistence(timeout: 5))
+        XCTAssertTrue(success.label.contains("Live server security record deleted"))
 
         returnToSettingsHub(from: "Privacy & Data", in: app)
         openConnectedFeatures(in: app)

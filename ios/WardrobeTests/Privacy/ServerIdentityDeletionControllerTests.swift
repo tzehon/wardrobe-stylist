@@ -9,11 +9,10 @@ struct ServerIdentityDeletionControllerTests {
 
         #expect(confirmation.title == "Delete server security data?")
         #expect(confirmation.destructiveActionTitle == "Delete Server Security Data")
-        #expect(confirmation.message.contains("App Attest"))
-        #expect(confirmation.message.contains("does not delete your wardrobe"))
-        #expect(confirmation.message.contains("does not") && confirmation.message.contains("disconnect Google"))
-        #expect(confirmation.message.contains("new anonymous identity"))
-        #expect(confirmation.message.contains("14 days"))
+        #expect(
+            confirmation.message
+                == "App Attest verifies this installation, then deletes its live anonymous server identity and active AI sessions. Your wardrobe and Google connection stay unchanged; future AI use creates a new identity. Hosting records are separate: Fly’s customer-visible proxy and platform stream lasts 7 days and may include request paths, request IDs, or client IP. Separate provider-internal logs may include source IP, with in-service retention undisclosed. Snapshots stop appearing from Fly’s customer listing after 14 days; Fly does not publish an all-copy deletion deadline."
+        )
     }
 
     @MainActor
@@ -68,7 +67,7 @@ struct ServerIdentityDeletionControllerTests {
             Issue.record("Expected a safe deletion failure")
             return
         }
-        #expect(failure.errorDescription == "Couldn’t Delete Server Security Data")
+        #expect(failure.errorDescription == "Couldn’t Delete Live Server Security Record")
         #expect(failure.recoverySuggestion?.contains("offline") == true)
         #expect(!failure.recoverySuggestion!.contains("NSURLError"))
     }
@@ -94,6 +93,8 @@ struct ServerIdentityDeletionControllerTests {
         }
         #expect(failure.recoverySuggestion?.contains("was not deleted") == true)
         #expect(failure.recoverySuggestion?.contains("90 days") == true)
+        #expect(failure.recoverySuggestion?.contains("live identity") == true)
+        #expect(failure.recoverySuggestion?.contains("Hosting logs and snapshots") == true)
     }
 
     @MainActor
