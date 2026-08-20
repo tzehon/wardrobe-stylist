@@ -28,7 +28,7 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010, APP-012 | **Done** | Local-first shell; versioned consent; complete Privacy & Data controls; default-off reminder/background work; restored-scope validation; transactional persistence; V2 account isolation; minimized/deduplicated receipt import; bounded remote images; pinned SDK/privacy manifests |
-| APP-009 | **External gate** | Repository enforcement, final policy-image deployment, and an isolated read-only snapshot-restore rehearsal are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. The first manual review, snapshot-list expiry, deletion-specific recovery, and signed archive/TestFlight proof remain open |
+| APP-009 | **External gate** | Repository enforcement, final policy-image deployment, an isolated read-only snapshot-restore rehearsal, and the first payload-free manual operations review are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. Snapshot-list expiry, deletion-specific recovery, and signed archive/TestFlight proof remain open |
 | APP-011 | **In progress** | Product identity, Debug/Release split, guards, compatible production backend, and build-4 allowlist are ready; `Distribution.xcconfig`, production Gmail IDs, Team ID, public URLs, and signed archive remain open |
 | APP-013 | **Done** | Reviewer launch and in-app entry use a labeled, disposable, offline seven-item tour with a synthetic pending import and worn look; reviewer launch does not open or migrate the production store; reset/exit preserve real data |
 | APP-014 | **Done** | Twelve deterministic UI flows cover local onboarding, offline demo/edit/delete/reset, pending-import review, History, the simplified Settings hub, disclosures, reminder time, sign-out, disconnect, separate server-security deletion, and verified local deletion; connected tests use deny-network fakes |
@@ -87,9 +87,9 @@ These items are ordered. Do not archive early and plan to repair the same binary
   `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
   was restored to the private registry, re-scanned, and passed an isolated v3/v4 round-trip.
 - [ ] **Verify APP-009 production operations externally.** Retain the redacted Fly response and
-  owner decisions, perform the payload-free manual production review, then prove the observable
-  14-day snapshot-list disappearance, restore-after-deletion handling, and monitored support
-  routing. An isolated,
+  owner decisions, keep the payload-free manual production review current, then prove the
+  observable 14-day snapshot-list disappearance, restore-after-deletion handling, and monitored
+  support routing. The first manual review passed at `2026-08-20T00:15:07Z`. An isolated,
   secret-free, read-only restore of the 2026-08-19 snapshot passed SQLite integrity/schema checks
   using aggregate-only evidence, and its temporary volume/app disappeared from the control plane
   within 391 seconds of volume creation; this does not yet prove deletion-specific recovery. The

@@ -61,8 +61,9 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Enforce deadline cleanup, 90-day inactivity purge, 30-day revoked-record purge, synchronous
   assertion-verified live deletion, safe SQLite/WAL maintenance, and the separate in-app server
   deletion control in the repository.
-- [ ] Against the deployed final image, rehearse deletion/restore behavior; perform the
-  owner-approved payload-free manual operations review and publish a monitored support process.
+- [x] Against the deployed final image, complete the first owner-approved payload-free manual
+  operations review.
+- [ ] Rehearse deletion/restore behavior and publish a monitored support process.
 - [ ] Confirm unsupported App Attest, offline verification and backend failure preserve local
   wardrobe/Demo Mode while remote AI fails closed without creating an unauthenticated identifier
   or request.

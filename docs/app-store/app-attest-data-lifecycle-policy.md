@@ -4,7 +4,7 @@
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
 - **Release compliance:** Repository enforcement and final-image deployment complete; Fly
-  provider and manual-operations boundaries explicitly accepted; first manual review,
+  provider and manual-operations boundaries explicitly accepted; first manual review complete;
   snapshot-list, deletion-specific recovery, and publication evidence incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
@@ -85,6 +85,13 @@ snapshot state is present. Operational-event state is `PASS` only when the avail
 surface shows no cluster of three 5xx/Anthropic failures or five auth rejection/rate-limit events
 within ten minutes. A current log-buffer marker scan alone cannot prove aggregate 5xx state and
 must be recorded as `OPEN` when no stronger surface is reviewed.
+
+Anthropic state is `PASS` only when its public status is operational, a configured monthly limit
+exists, signed-in month-to-date spend is below 80% of that limit, visible cost is attributed only
+to the expected Wardrobe model/key series, and no rate-limit saturation warning is visible. Spend
+from 80% to below 100% is `WARNING`. Spend at or above 100%, no configured limit, an unexpected
+model/key series, a visible saturation warning, or a non-operational public status is `OPEN` until
+reviewed or remediated.
 
 The owner also accepts that a 30-day manual cadence is not continuous monitoring: an incident that
 begins and resolves outside Fly's available log/metric windows may permanently escape review. The
@@ -244,6 +251,7 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | Checked at UTC | Health / Fly | Snapshot | Volume | Auth / 5xx | Anthropic | Support | Overall | Remediation / next action | Next due |
 |---|---|---|---|---|---|---|---|---|---|
 | 2026-08-19T23:34:44Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | OPEN · current-buffer markers only; aggregate 5xx unavailable | OPEN · public status page operational; console usage/spend-limit sign-in required | PASS · routing rehearsal confirmed | OPEN | Finish Fly aggregate 5xx and Anthropic console checks; no remediation applied | 2026-08-20 |
+| 2026-08-20T00:15:07Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 7d HTTP view: 200/401/405 only, no 5xx series; selected-event bursts below threshold | PASS · public status operational · <80% of configured limit · expected models/keys | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-19 |
 
 ## Compliance and release evidence
 
@@ -312,13 +320,18 @@ Required before APP-009 can close:
 - [ ] Publish the final App Store Connect App Privacy answers from the accepted production facts:
   Device ID, Other Diagnostic Data, and Product Interaction; App Functionality; linked; not
   tracking. Reassess before submission if any processor, purpose, or data flow changes.
-- [ ] Complete the first manual operations review against the final deployed image. The
-  2026-08-19T23:34:44Z partial review verified public health, Fly checks, the single running
-  Machine, expected immutable image, encrypted-volume policy and usage band, a fresh 14-day
-  snapshot, absence of the selected auth/Anthropic-failure markers in the current log buffer, the
-  public status page's operational API state, and the rehearsed support route. The review remains
-  open because the buffer scan does not prove aggregate 5xx behavior and signed-in Anthropic
-  usage/spend-limit state has not yet been inspected.
+- [x] Complete the first manual operations review against the final deployed image. The
+  `2026-08-20T00:15:07Z` review reconfirmed the public production health response, passing Fly
+  check, single running Machine, expected immutable image, encrypted-volume policy and
+  below-warning usage band, and a completed 14-day snapshot newer than 36 hours. Fly's
+  last-seven-days aggregate HTTP view showed only 200, 401, and 405 series and no 5xx series, and
+  the available bounded auth/Anthropic-failure event view remained below the policy burst
+  thresholds. The signed-in Anthropic console showed month-to-date usage below 80% of the
+  configured limit, only the expected Wardrobe model/key series, and no visible rate-limit
+  saturation warning; the refreshed public status was operational. The monitored support route
+  had already passed its payload-free delivery rehearsal. No raw metric value, log sample,
+  screenshot, identifier, exact billing amount, credential, or provider response body is retained
+  as evidence. Repeat the review before archive/upload and no later than 2026-09-19.
 - [ ] Publish monitored privacy/support contacts and the server-deletion procedure. The public
   contact is selected as `contact@tth.dev`. Unpublished support/privacy pages are prepared in
   [`tzehon.github.io` draft PR #2](https://github.com/tzehon/tzehon.github.io/pull/2). A
