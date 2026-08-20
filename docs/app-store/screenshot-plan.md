@@ -1,7 +1,7 @@
 # App Store screenshot plan
 
-Use only fictional Demo Mode content. Never capture a real Gmail account, receipt, email address,
-order identifier, personal wardrobe photo, OAuth token, backend host credential, or debug overlay.
+Use only fictional Demo Mode content. Never capture a real person's wardrobe photo, email address,
+token, backend host credential, account identifier, or debug overlay.
 
 Apple currently accepts one to ten screenshots per supported device size and localization in PNG
 or JPEG format, without transparency. For iPhone, capture an accepted 6.9-inch portrait size for
@@ -15,10 +15,10 @@ Connect can scale it for smaller displays. Re-check the dimensions immediately b
 |---:|---|---|---|
 | 1 | **Your wardrobe, without an account** | Demo Wardrobe, populated grid, fictional banner visible | No search keyboard, alert, or clipped cards |
 | 2 | **Make every piece yours** | Fictional item edit/review form with useful details | No private photo; Save enabled only for valid data |
-| 3 | **Review imports before they join** | Pending imported-item review using a synthetic receipt item | No real retailer order data or mailbox identity |
+| 3 | **Keep useful details close** | Fictional item detail/edit screen with category, color, and notes | No real photo or personal purchase data |
 | 4 | **A thoughtful look for today** | Demo Today recommendation and rationale | Offline label visible; no loading/error state |
 | 5 | **Remember what worked** | Demo History with a fictional worn look | Date/time locale is intentional and consistent |
-| 6 | **Connected features stay optional** | Simplified Settings hub, Privacy & Data, or Demo Settings controls | Clearly show local use and optional Google/AI choices |
+| 6 | **AI styling stays optional** | Simplified Settings hub, Privacy & Data, or Demo Settings controls | Clearly show local use, consent, and separate deletion controls |
 
 The first three frames should communicate the core value even when seen alone. Prefer native app
 UI with minimal, truthful framing text; do not imply weather, calendar, cloud backup, or other

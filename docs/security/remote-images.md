@@ -1,9 +1,15 @@
-# Remote product image policy
+# Historical remote product image policy
 
-Receipt HTML and extraction responses are untrusted. `Item.imageURL` is stored as source data, but
-the app must never hand that string directly to `AsyncImage`, `URLSession`, or a web view.
+> **Historical/deferred — not public-v1 behavior.** The approved Gmail-free v1 creates wardrobe
+> items from manual entry or user-selected photos and contains no receipt extraction or remote
+> product-image loader. This document records the defense-in-depth policy used by the removed
+> receipt-import implementation. Reintroducing any remote-image source requires a separately
+> approved product, privacy, security, and release review.
 
-All product-image requests go through `RemoteImagePolicy.production` and `RemoteImageLoader`:
+In the earlier implementation, receipt HTML and extraction responses were untrusted.
+`Item.imageURL` was stored as source data, but the app never handed that string directly to
+`AsyncImage`, `URLSession`, or a web view. All product-image requests went through
+`RemoteImagePolicy.production` and `RemoteImageLoader`:
 
 - URLs must be canonical HTTPS URLs without credentials, fragments, alternate ports, address
   literals, local names, control characters, or internationalized-domain lookalikes.
@@ -16,7 +22,8 @@ All product-image requests go through `RemoteImagePolicy.production` and `Remote
 - Decoded thumbnails use a memory-only cache capped by item count and decoded-byte cost. Failed or
   rejected loads show an accessible category placeholder.
 
-To add a host, first capture evidence from a real retailer receipt, confirm that the domain is
-owned or controlled by the retailer or its image CDN, review redirect behaviour, and add hostile
-boundary tests. Do not add a host merely because model output contains it. The allowlist is
-intentionally expected to omit some retailers; a placeholder is the safe default.
+If this capability is separately approved for a future release, adding a host first requires
+evidence from a real retailer source, confirmation that the domain is owned or controlled by the
+retailer or its image CDN, review of redirect behaviour, and hostile-boundary tests. Never add a
+host merely because model output contains it. An intentionally incomplete allowlist and a local
+placeholder remain the safe defaults.

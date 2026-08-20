@@ -1,7 +1,7 @@
 # Wardrobe backend (FastAPI)
 
-Thin proxy that holds the Anthropic API key and calls Claude. It never persists email
-content or wardrobe payloads. It does persist narrowly scoped App Attest authentication
+Thin proxy that holds the Anthropic API key and calls Claude. It never persists wardrobe
+payloads. It does persist narrowly scoped App Attest authentication
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
@@ -40,7 +40,6 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /extract` | 2 | receipt snippet → structured fashion purchase(s) (Claude Haiku, forced tool use) |
 | `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Claude Opus 4.8, forced tool use) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
@@ -71,8 +70,8 @@ synchronously removes the proven installation and its sessions, and the iOS Priv
 exposes that server-only control. The exact deployed digest and scan evidence are recorded in the
 internal-TestFlight runbook. The owner-approved payload-free manual operations review replaces
 automated alert delivery for this personal single-user release. The first manual review passed on
-2026-08-20; support publication, snapshot-list expiry, and deletion-specific recovery remain
-release gates.
+2026-08-20; republishing the Gmail-free public-page copy, snapshot-list expiry, and
+deletion-specific recovery remain release gates.
 
 The auth service emits bounded security events containing only an event/code/scope/path/
 mechanism tuple. The production container disables Uvicorn access logging, and structural tests
@@ -82,8 +81,8 @@ cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner e
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
 flow. The first manual review passed on 2026-08-20. Snapshot-list expiry, final App Privacy
-publication, monitored support, and deletion-specific recovery remain release gates; the manual
-review must remain current under the approved cadence.
+publication, Gmail-free public-page verification, and deletion-specific recovery remain release
+gates; the manual review must remain current under the approved cadence.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.

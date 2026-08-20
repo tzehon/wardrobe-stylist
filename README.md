@@ -1,20 +1,27 @@
 # Wardrobe Stylist
 
-A **personal, privacy-first** iOS app that learns what you own — primarily by reading purchase receipts in your **Gmail** (inbox, archived, Spam, Trash), and from **photos you take** — then acts as a **fashion stylist**: it recommends a complete daily outfit (clothing + bag + jewelry) that is stylish, matches your style, and avoids repeating recent looks. You can browse your collection by **dynamically generated categories**.
+A **personal, privacy-first** iOS app for cataloging clothing manually or from photos, browsing a
+local wardrobe, and optionally asking **Aria** for a non-repeating daily outfit. Public v1 does not
+connect to Google, read Gmail, import receipts, or require an account.
 
 > Working title — "Wardrobe" (app) with stylist agent persona "Aria". Single-user / personal use.
 
 ## Non-negotiable constraints
 
-- 🔒 **Gmail is strictly READ-ONLY.** The app can never send, modify, label, trash, draft, or delete mail. This is enforced *structurally* (only read endpoints are reachable) **and** by an automated guard test (`GmailReadOnlyGuardTests`). See [`docs/privacy.md`](docs/privacy.md).
-- 🕵️ **Hybrid privacy.** Gmail is fetched and filtered **on-device**; only minimal relevant text (and a few item images) is sent to the cloud AI.
+- 🔒 **Local-first catalog.** Wardrobe items, selected photos, outfits, and wear history stay on
+  the device. There is no developer-operated wardrobe sync in v1.
+- 🕵️ **Optional, minimized AI.** Styling happens only after an explicit action and consent. The app
+  sends compact text attributes and recent-wear summaries—not wardrobe photos—to the backend and
+  Anthropic; the developer application does not persist the request or response payload.
+- 🛡️ **Anonymous backend access.** Apple App Attest authorizes one installation without a human
+  account. Local wardrobe and Demo Mode remain available when connected AI is unavailable.
 - ✅ **Tests at every stage.** Every feature ships with tests, run before moving on; CI runs them on every push.
 
 ## Repository layout
 
 ```
 wardrobe-stylist/
-├─ ios/         SwiftUI + SwiftData app (on-device Gmail, photos, catalog, stylist UI)
+├─ ios/         SwiftUI + SwiftData app (photos, local catalog, stylist UI)
 ├─ backend/     Python FastAPI proxy that holds the Anthropic key and calls Claude
 ├─ shared/      JSON Schemas shared by iOS + backend (the data contract)
 ├─ docs/        Setup + architecture docs (start here)
@@ -39,15 +46,23 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 
 | Doc | What |
 |---|---|
-| [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, Google OAuth, Anthropic key, Fly.io) |
+| [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, App Attest, Anthropic key, Fly.io) |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
-| [`docs/google-setup.md`](docs/google-setup.md) | Read-only Gmail OAuth setup (and the refresh-token gotcha) |
-| [`docs/privacy.md`](docs/privacy.md) | Privacy posture + how read-only is guaranteed |
+| [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
+| [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
 | [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
-| [`docs/gcp-oauth-production-sequence.md`](docs/gcp-oauth-production-sequence.md) | Deferred production sequence for Google OAuth verification and secure backend identity |
+| [`docs/gcp-oauth-production-sequence.md`](docs/gcp-oauth-production-sequence.md) | Historical/deferred Google OAuth production sequence; not a v1 release gate |
 | [`docs/app-store/`](docs/app-store/) | Draft privacy/support copy, data inventory, review notes, metadata, and screenshot narrative |
 | [`AGENTS.md`](AGENTS.md) | Durable guidance for Codex and other coding agents in this repo |
 
 ## Status
 
-Built in phases (MVP = Gmail → browsable catalog). See the plan and `docs/` for the roadmap.
+The approved public-v1 cut is manual/photo cataloging, browse/edit/history, local reminders,
+offline Demo Mode, and optional AI styling protected by App Attest. The earlier read-only Gmail/
+receipt-import subsystem has been removed from active v1 source and is deferred to a separately
+reviewed future release.
+
+Build `1.0.0 (4)` is a fresh-install-only transition from TestFlight builds 1–3. Before uninstalling
+an older build, complete **Disconnect Google** and **Delete Server Security Data**, then uninstall
+and install build 4. The owner explicitly accepted losing the old local wardrobe and re-adding
+items; do not install build 4 over an older build.

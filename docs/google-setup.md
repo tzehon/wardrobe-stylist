@@ -1,8 +1,12 @@
 # Google / Gmail read-only OAuth setup
 
-This app reads your Gmail **read-only** to find purchase receipts. This guide configures the
-Google Cloud side. Because it's a **personal, single-user** app, you avoid Google's costly
-restricted-scope security assessment (CASA) entirely.
+> **Historical/deferred — not public-v1 setup.** The approved public v1 does not include Google
+> Sign-In, Gmail access, or receipt import. Keep this document only as a record of the earlier
+> read-only implementation. Do not create production credentials or treat any step below as an
+> App Store/TestFlight gate unless Gmail is separately approved for a later release.
+
+Earlier internal builds read Gmail **read-only** to find purchase receipts. This guide records the
+removed design's Google Cloud configuration; it is not a current setup instruction.
 
 > Google reorganized this flow in late 2024 — the old "OAuth consent screen" page is now
 > split across **Branding / Audience / Data access / Clients** under the new
@@ -40,8 +44,8 @@ below in one wizard. Otherwise edit each section directly:
   that one row. It will appear under **Restricted scopes** — that's expected.
 - **Do not add** any other Gmail scope. Anything with `modify`, `send`, `compose`,
   `insert`, `labels`, `settings.basic`, etc. is a write scope and violates this repo's
-  read-only invariant (see [`AGENTS.md`](../AGENTS.md) and
-  [`GmailScope.swift`](../ios/Wardrobe/Gmail/GmailScope.swift)).
+  historical read-only invariant (see [`AGENTS.md`](../AGENTS.md); the removed v1 source path was
+  `ios/Wardrobe/Gmail/GmailScope.swift`).
 - Save. The scope list on **Data access** should show exactly one entry: `gmail.readonly`.
 
 ### 2d. (Skip) Verification centre
@@ -84,13 +88,15 @@ app you'll:
 
 ## 5. What the app does with this
 
-- Requests exactly `gmail.readonly` at sign-in
-  ([`GmailScope`](../ios/Wardrobe/Gmail/GmailScope.swift)).
+- Requested exactly `gmail.readonly` at sign-in through the former
+  `ios/Wardrobe/Gmail/GmailScope.swift`.
 - Calls only read endpoints — `messages.list` (with `includeSpamTrash=true` to cover Spam &
   Trash; archived mail is included by default), `messages.get`, `attachments.get`,
-  `history.list`, etc. — all via [`GmailReadEndpoint`](../ios/Wardrobe/Gmail/GmailReadEndpoint.swift).
+  `history.list`, etc. — all through the former
+  `ios/Wardrobe/Gmail/GmailReadEndpoint.swift`.
 - Stores OAuth tokens in the iOS **Keychain**, device-only.
-- See [`privacy.md`](privacy.md) for how read-only is guaranteed and tested.
+- See [`privacy.md`](privacy.md) for the current Gmail-free privacy architecture and historical
+  context.
 
 ## Notes & limits
 

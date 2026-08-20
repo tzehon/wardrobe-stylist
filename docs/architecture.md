@@ -1,117 +1,107 @@
 # Architecture
 
-Wardrobe Stylist is a **local-first, privacy-first** personal app. Almost everything
-happens on the iPhone; a thin, content-stateless backend holds the Anthropic API key, calls
-Claude, and persists only minimum App Attest authentication/security metadata. This document
-explains the components, the data flows, and how the
-**read-only Gmail** and **hybrid-privacy** guarantees are realized.
+Wardrobe Stylist is a **local-first, privacy-first** personal app. Public v1 builds a wardrobe from
+manual entries and user-selected photos, keeps the catalog on the iPhone, and offers optional AI
+outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
+minimum App Attest authentication/security metadata needed to authorize remote requests.
+
+Public v1 does not connect to Google, read Gmail, import purchase receipts, or require a human
+account. The earlier read-only Gmail/receipt-import implementation remains only in Git history and
+explicitly historical setup documents; it is not part of the active v1 architecture.
 
 - [System overview](#system-overview)
-- [Privacy & trust boundaries](#privacy--trust-boundaries)
+- [Privacy and trust boundaries](#privacy-and-trust-boundaries)
 - [Anonymous backend authorization](#anonymous-backend-authorization)
-- [Receipt extraction pipeline](#receipt-extraction-pipeline-gmail--catalog)
+- [Manual and photo catalog](#manual-and-photo-catalog)
 - [Daily recommendation flow](#daily-recommendation-flow)
 - [Data model](#data-model)
-- [Read-only Gmail guarantee](#read-only-gmail-guarantee)
 - [Tech stack](#tech-stack)
 - [Deployment topology](#deployment-topology)
+- [Build 4 clean-install transition](#build-4-clean-install-transition)
+- [Historical Gmail implementation](#historical-gmail-implementation)
 
 ## System overview
 
-The **iPhone** does the real work, **Google** provides optional OAuth + read-only Gmail,
-**Apple App Attest** certifies a genuine app installation, and a content-stateless backend proxies
-minimized requests to the **Anthropic API**. Google does not identify the app to the backend.
+The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
+installation for optional connected styling. The developer backend proxies a minimized request to
+the **Anthropic API** and keeps no wardrobe or model payload after request processing.
 
 ```mermaid
 flowchart TB
-    subgraph Device["iPhone — on-device (privacy boundary)"]
-        UI["SwiftUI app<br/>catalog · Today · capture"]
-        Store[("SwiftData<br/>Item · Outfit · WearLog<br/>images on disk")]
-        Gmail["GmailReadOnlyClient<br/>read-only endpoints only"]
-        Filter["Candidate filter<br/>schema.org · Vision OCR"]
-        VisionML["Vision<br/>cutout · color · feature-print"]
-        Keychain[["Keychain<br/>OAuth tokens · App Attest key ID"]]
+    subgraph Device["iPhone — local privacy boundary"]
+        UI["SwiftUI app<br/>catalog · Today · capture · history"]
+        Store[("SwiftData<br/>Item · Outfit · WearLog<br/>photos on disk")]
+        Capture["Camera / PhotosPicker<br/>manual item form"]
+        Compact["CatalogCompactor<br/>text attributes only"]
+        Keychain[["Keychain / Secure Enclave<br/>App Attest key ID/private key"]]
+        Capture --> Store
         UI --- Store
-        Gmail --> Filter
-        Filter --> Store
-        VisionML --> Store
-        Gmail -. tokens .- Keychain
-    end
-
-    subgraph Google["Google"]
-        OAuth["OAuth<br/>scope: gmail.readonly"]
-        GmailAPI["Gmail REST API<br/>read endpoints"]
+        Store --> Compact
     end
 
     subgraph Cloud["Backend on Fly.io — content-stateless"]
-        API["FastAPI<br/>/auth · /extract · /recommend"]
-        AuthDB[("Durable auth state<br/>public key · receipt · counter<br/>challenges · session hashes")]
-        Key[["ANTHROPIC_API_KEY<br/>secret, never on device"]]
-        API -. reads .- Key
+        API["FastAPI<br/>/auth · /recommend"]
+        AuthDB[("Durable auth state<br/>public key · Apple receipt · counters<br/>challenges · session hashes")]
+        Key[["ANTHROPIC_API_KEY<br/>never on device"]]
         API <--> AuthDB
+        API -. reads .- Key
     end
 
     Apple["Apple App Attest<br/>key certification"]
-    Anthropic["Anthropic API<br/>Haiku · Sonnet · Opus"]
+    Anthropic["Anthropic Claude<br/>Aria styling"]
 
-    Gmail <-->|GET only| GmailAPI
-    Gmail -. OAuth .-> OAuth
-    Keychain <-->|attestation/assertion| Apple
-    Filter -->|minimal text + few images<br/>short-lived installation session| API
+    Keychain <-->|"attestation / assertion"| Apple
+    Compact -->|"compact attributes + recent-wear summaries<br/>short-lived installation session"| API
     API --> Anthropic
+    Anthropic --> API --> UI
 ```
 
-**Key idea:** raw email never leaves the phone. On-device filtering reduces a mailbox to a
-few candidate receipts, and only **minimal extracted text** (plus the occasional product
-image) is sent to the backend. The backend keeps no receipt or wardrobe payloads; its durable
-store contains only anonymous authentication/security metadata.
-
-## Privacy & trust boundaries
+## Privacy and trust boundaries
 
 ```mermaid
 flowchart LR
     subgraph OnDevice["Stays on device"]
         direction TB
-        Mail["Full email bodies"]
-        Imgs["Item photos"]
-        Cat["Catalog + wear history"]
-        Tok["OAuth tokens + App Attest private key<br/>(Keychain / Secure Enclave)"]
+        Photos["Wardrobe photos"]
+        Catalog["Catalog + outfits + wear history"]
+        Purchase["Purchase details, when manually entered"]
+        PrivateKey["App Attest private key"]
     end
 
-    subgraph Leaves["Leaves device (minimized)"]
+    subgraph Leaves["Leaves device only for requested styling"]
         direction TB
-        Snip["Minimal receipt snippets"]
-        Few["A few product/item images"]
-        Attrs["Item attributes (ids, colors, categories)"]
-        Auth["App Attest key ID, receipt/assertions,<br/>anonymous installation session"]
+        Attrs["Item IDs + compact text attributes"]
+        Recent["Recent item IDs + bounded rating summaries"]
+        Occasion["Optional occasion"]
+        Proof["App Attest key ID / receipt / assertions<br/>anonymous short-lived session"]
     end
 
-    OnDevice -->|on-device filtering / proof| Leaves
-    Leaves -->|HTTPS + short-lived Bearer| Backend["Backend<br/>payloads transient"]
+    OnDevice -->|"compaction / proof"| Leaves
+    Leaves -->|"HTTPS"| Backend["Backend<br/>payloads transient"]
     Backend --> AuthStore[("Durable auth/security metadata only")]
-    Backend --> LLM["Claude (Anthropic)"]
+    Backend --> LLM["Anthropic"]
 ```
 
 | Data | Where it lives | Leaves device? |
 |---|---|---|
-| Full email bodies | Phone (transient, during sync) | ❌ never |
-| Gmail OAuth tokens | Keychain; sent only to Google APIs | ❌ never sent to Wardrobe backend |
-| App Attest private key | Secure Enclave | ❌ never extractable |
-| App Attest key ID, opaque Apple receipt, counters and session metadata | Keychain + backend auth store | ✅ security/authorization only; receipt trust/risk assessment remains a separate gate |
-| Catalog, images, wear history | SwiftData + on-disk | ❌ never (optional iCloud later) |
-| Minimal receipt snippets | sent to backend → Claude | ✅ minimized |
-| Item attributes for styling | sent to backend → Claude | ✅ ids + attributes |
+| Catalog, photos, outfits, wear history | SwiftData + on-disk storage | No, except minimized styling fields below |
+| Wardrobe photos | Device-local catalog | No in v1 styling |
+| Purchase date/price/currency, if entered | Device-local catalog | No in v1 styling |
+| App Attest private key | Secure Enclave | Never extractable |
+| App Attest key ID, opaque Apple attestation receipt, counters and session metadata | Keychain + backend auth store | Yes, security/authorization only |
+| Compact item attributes and recent-wear summaries | Backend → Anthropic for a requested suggestion | Yes, request lifetime only in the developer application |
+| Optional occasion | Backend → Anthropic for that request | Yes |
 
-The anonymous installation identifier is not a Wardrobe account and is not a Google identity. It
-survives normal app updates but is recreated after reinstall, migration, or backup restoration.
-The approved retention, deletion, logging, and snapshot requirements live in the
+The anonymous installation identifier is not a Wardrobe, Apple, or Google account. It survives
+normal app updates but is recreated after reinstall, migration, or restore. The approved retention,
+deletion, logging, and snapshot requirements live in the
 [APP-009 data lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md). Its
-compliance table distinguishes verified controls from unenforced targets; architecture text must
-not turn an unchecked target into a production claim.
+compliance table distinguishes verified controls from open external evidence; architecture text
+must not turn an unchecked target into a production claim.
 
 ## Anonymous backend authorization
 
-Remote AI uses App Attest-backed, short-lived sessions without presenting a login screen:
+Remote AI uses App Attest-backed, short-lived sessions without a login screen:
 
 ```mermaid
 sequenceDiagram
@@ -123,105 +113,53 @@ sequenceDiagram
     App->>API: Request one-time attestation challenge
     App->>Apple: Generate key; attest SHA256(challenge)
     Apple-->>App: Attestation object
-    App->>API: key ID + attestation object
+    App->>API: Key ID + attestation object
     API->>API: Verify Apple chain, nonce, RP ID,<br/>environment and counter; iOS 27+ category/build
     API->>DB: Store public key + receipt + installation metadata
-    API-->>App: Short-lived Bearer session
+    API-->>App: Short-lived bearer session
     Note over App,API: Later, after expiry
     App->>API: Request assertion challenge
     App->>Apple: Sign canonical client data
-    App->>API: assertion + exact client data
+    App->>API: Assertion + exact client data
     API->>DB: Atomically consume challenge and advance counter
-    API-->>App: New short-lived Bearer session
+    API-->>App: New short-lived bearer session
 ```
 
-The production verifier always requires the exact registered App ID prefix + bundle ID, App Attest
+The production verifier requires the exact registered App ID prefix + bundle ID, App Attest
 environment, key binding, nonce/signature, and monotonic counter. On iOS 27+, Apple appends signed
-validation-category and bundle-version extensions; when present, both are required and must match
-the configured distribution categories (`2` TestFlight, `4` App Store) and explicit build
-allowlist. Their signed absence is accepted for supported iOS 18–26 clients because removing them
-from an iOS 27+ proof would invalidate the nonce or signature. Challenges are randomized, expiring,
-purpose-bound, and single-use; the assertion counter advances atomically. Enrollment, session
-renewal, `/extract`, and `/recommend` are rate-limited by coarse, minimized security identifiers.
+validation-category and bundle-version extensions; when present, both must match the configured
+distribution categories (`2` TestFlight, `4` App Store) and explicit build allowlist. Their signed
+absence is accepted for supported iOS 18–26 clients. Challenges are randomized, expiring,
+purpose-bound, and single-use; counters advance atomically.
 
 App Attest is a physical-device boundary. Simulator tests use an injected fake. If
 `DCAppAttestService.isSupported` is false—or secure verification is offline—the app keeps the
 local wardrobe and offline Demo Mode usable but does not mint an unauthenticated remote-AI
-session. Google can still be connected or disconnected solely for optional Gmail receipt access.
+session.
 
-## Receipt extraction pipeline (Gmail → catalog)
+## Manual and photo catalog
 
-A tiered pipeline: deterministic and free on-device first, Claude only for the long tail.
-See the design rationale in the plan — dedicated receipt parsers are the wrong tool for
-*HTML order emails* and *fashion attributes*.
+Users add an item manually, photograph a garment, or choose a photo with `PhotosPicker`, then
+complete a bounded details form. `ImageProcessor` downscales the selected image and thumbnail for
+device-local storage. The catalog UI reads SwiftData directly; no backend is involved.
 
-```mermaid
-flowchart TD
-    A["New email (on-device)"] --> B{"Tier 0:<br/>likely purchase?"}
-    B -- no --> X["Ignore — stays on device"]
-    B -- yes --> C{"Tier 1:<br/>schema.org JSON-LD<br/>or microdata present?"}
-    C -- found --> D["Deterministic fields:<br/>item · brand · price · image URL"]
-    C -- none --> E["Strip HTML to minimal snippet<br/>Vision OCR for PDF/image attachments"]
-    D --> F{"Need fashion<br/>attributes?"}
-    E --> G["Tier 2: POST /extract<br/>Claude Haiku · record_purchase tool"]
-    F -- yes --> G
-    F -- no --> H["Create Item (source = email)"]
-    G --> I{"Validate vs schema<br/>+ confidence"}
-    I -- high --> H
-    I -- low --> J["Queue for 1-tap confirm"]
-    J --> H
-    H --> K[("Catalog (SwiftData)")]
-```
+- **Dynamic categories** derive sections from the stored items.
+- **Browse** supports search, category filters, recent/name/brand sorting, favorites, archive, and
+  deliberate deletion.
+- **Images** prefer local photo data and otherwise show a category placeholder.
+- **Detail/edit** exposes the item's user-entered attributes and validation errors.
+- **History** stores accepted outfits and wear logs locally for anti-repeat behavior.
 
-### Dedup
+See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
+[`ios/Wardrobe/Views/`](../ios/Wardrobe/Views), and
+[`ios/Wardrobe/Models/`](../ios/Wardrobe/Models).
 
-Ingestion dedups **catalog-wide** on a normalized `brand + name + category`
-identity (scoped to email-sourced items), not per-email. One order often arrives
-across several emails — an order confirmation *and* a dispatch email, sometimes
-via a fulfiller like Global-e — each listing the same product; identity dedup
-collapses them into a single catalog entry and keeps re-syncs idempotent. A sweep
-at the start of each sync also heals any duplicates already in the store.
+## Daily recommendation flow
 
-## Catalog browse (Phase 3)
-
-The catalog UI reads the SwiftData store the pipeline populates — no backend
-involved. Grouping, filtering, and sorting live in pure, unit-tested helpers
-(`CatalogOrganizer`, `CatalogFilter`) so the SwiftUI views stay thin.
-
-- **Dynamic categories** — sections are derived from the data; known fashion
-  categories sort in a canonical order, unknown/blank ones (`uncategorized`)
-  after, alphabetically.
-- **Browse** — `CatalogView` shows an adaptive grid grouped by category with
-  pinned headers; `.searchable` (name/brand), category filter chips, and a sort
-  menu (recent / name / brand). Items are deletable via context menu and from the
-  detail view (with confirmation).
-- **Images** — `ItemThumbnail` renders a local image (Phase 4 photo capture) →
-  the receipt's `imageURL` via `AsyncImage` → a category-symbol placeholder.
-- **Detail** — `ItemDetailView`: brand, color swatches, material, purchase date,
-  and source.
-
-See [`ios/Wardrobe/Views/`](../ios/Wardrobe/Views).
-
-## Manual photo capture (Phase 4)
-
-Add items that never came from a receipt — photograph a garment (camera) or pick
-one from the library (`PhotosPicker`), fill in a short form, and save it as a
-`source = .photo` `Item`. `ImageProcessor` (pure UIKit) downscales to a bounded
-full image + thumbnail stored on the item, so the same `ItemThumbnail` that
-renders email items shows the real photo. Camera capture is device-only and
-declares `NSCameraUsageDescription`; library picking needs no permission key.
-Vision subject-lift / feature-print are intentionally out of scope here.
-
-See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture).
-
-## Daily recommendation flow (Phase 5)
-
-The stylist agent **"Aria"** proposes one wearable, non-repeating outfit from the
-user's own catalog. v1 is a **single Claude Opus 4.8 call** with a forced
-`propose_outfit` tool (the cached styling rubric is the stable prefix; the
-per-request catalog rides in the user message) — no subagents and no weather
-yet. The app sends only a **compact, text-only** snapshot (item ids + attributes,
-no images) plus the ids worn in the last ~14 days; the backend does not persist that payload.
+The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
+Public v1 uses one Claude Opus 4.8 call with a forced `propose_outfit` tool. The app sends only a
+compact, text-only snapshot—item IDs and selected attributes, not images—plus recent-worn IDs,
+bounded rating summaries, and an optional occasion. The backend does not persist that payload.
 
 ```mermaid
 sequenceDiagram
@@ -230,32 +168,24 @@ sequenceDiagram
     participant API as FastAPI /recommend
     participant Aria as Claude Opus 4.8 — Aria
 
-    User->>App: Open "Today"
-    App->>App: Compact catalog + recent-worn ids (WearLog)
-    App->>API: POST /recommend (short-lived installation session)
+    User->>App: Request a suggestion in Today
+    App->>App: Compact catalog + recent-worn summaries
+    App->>API: POST /recommend (short-lived App Attest session)
     API->>Aria: propose_outfit (forced tool · cached rubric)
-    Aria-->>API: outfit + alternates + rationale (structured)
-    API->>API: Guard — drop any id not in the submitted catalog
-    API-->>App: Outfit + alternates + rationale
-    App->>App: Resolve ids → Items; render look
-    User->>App: "Wear this"
-    App->>App: Persist Outfit + per-item WearLog (feeds anti-repeat)
+    Aria-->>API: Outfit + alternates + rationale
+    API->>API: Reject any ID absent from submitted catalog
+    API-->>App: Validated suggestion
+    App->>App: Resolve IDs to local items; render look
+    User->>App: Wear this
+    App->>App: Persist Outfit + WearLog
 ```
 
-On-device, `CatalogCompactor` builds the payload, `WearHistory` derives the
-recent-worn ids, and `OutfitRecommender` resolves Aria's returned ids back to
-`Item`s. "Show me another" cycles the returned alternates without a new call.
-The server-side guard (`/recommend`) rejects any id Aria didn't receive, so a
-hallucinated or stale id can never reach the app. **Weather (WeatherKit) and a
-multi-subagent composer are deferred** — the request struct leaves room for a
-weather field without a breaking change.
-
-See [`ios/Wardrobe/Stylist/`](../ios/Wardrobe/Stylist) and
-[`backend/app/agents/stylist.py`](../backend/app/agents/stylist.py).
+On device, `CatalogCompactor` builds the request, `WearHistory` derives recent-worn data, and
+`OutfitRecommender` resolves returned IDs back to `Item`s. “Show me another” cycles returned
+alternates without another network call. Weather, calendar context, and multi-agent composition
+are deferred.
 
 ## Data model
-
-SwiftData models (optionals and collections noted in prose to keep the diagram readable).
 
 ```mermaid
 classDiagram
@@ -267,7 +197,7 @@ classDiagram
         String colors
         ItemSource source
         Date purchaseDate
-        Data featurePrint
+        Data image
     }
     class Outfit {
         UUID id
@@ -286,29 +216,9 @@ classDiagram
     WearLog "many" --> "one" Outfit : outfit
 ```
 
-- `Item.source` is `email | photo | manual`. `brand`, `subcategory`, `material`,
-  `styleNotes`, `purchaseDate`, `sourceMsgId`, `imageURL`, image data, and
-  `featurePrint` are optional. `imageURL` is the product image from the receipt,
-  loaded on demand in the catalog (local image data, when present, takes priority).
-- `colors` is `[String]`; images use `@Attribute(.externalStorage)`.
-- `featurePrint` is an archived `VNFeaturePrintObservation` used for visual
-  similarity/dedup (compare via `computeDistance(_:to:)`, not as a plain vector).
-
-See [`ios/Wardrobe/Models/`](../ios/Wardrobe/Models).
-
-## Read-only Gmail guarantee
-
-Two independent layers (see [`docs/privacy.md`](privacy.md) and the guard test):
-
-1. **Structural.** All Gmail traffic is expressed through
-   [`GmailReadEndpoint`](../ios/Wardrobe/Gmail/GmailReadEndpoint.swift) — an enum whose
-   every case is an HTTP **GET** to a read path. There is no case for any mutating
-   operation, so a write request is *unrepresentable*. The only OAuth scope requested is
-   `gmail.readonly` ([`GmailScope`](../ios/Wardrobe/Gmail/GmailScope.swift)).
-2. **Test backstop.**
-   [`GmailReadOnlyGuardTests`](../ios/WardrobeTests/GmailReadOnlyGuardTests.swift) asserts
-   the scope set, that every endpoint is a GET on the allowlist, and scans the Gmail source
-   directory for any mutating HTTP method or write path fragment. CI keeps it green.
+The v1 schema contains only device-local `Item`, `Outfit`, and `WearLog` models; `ItemSource` is
+`manual | photo`. Build 4 intentionally does not link the earlier Gmail/account-owned schemas into
+the target and does not perform an in-place migration from builds 1–3.
 
 ## Tech stack
 
@@ -316,53 +226,62 @@ Two independent layers (see [`docs/privacy.md`](privacy.md) and the guard test):
 |---|---|
 | iOS UI | SwiftUI (iOS 18 deployment target) |
 | Persistence | SwiftData; images via `.externalStorage` |
-| Gmail auth | GoogleSignIn-iOS (scope `gmail.readonly`), tokens in Keychain |
-| Gmail API | URLSession → read-only REST endpoints |
 | Backend auth | DeviceCheck App Attest + short-lived anonymous installation sessions |
-| On-device ML | Vision (subject lift, color, feature-print), Vision OCR |
-| Context | WeatherKit, EventKit |
-| Backend | FastAPI + Anthropic SDK (uv, ruff, mypy, pytest) |
-| AI | Claude Haiku 4.5 (extraction) / Opus 4.8 (stylist "Aria"); tool use + prompt caching |
-| Tests | Swift Testing, swift-snapshot-testing, pytest |
-| CI | GitHub Actions (+ Xcode Cloud for TestFlight) |
+| Capture | UIKit camera bridge + PhotosPicker |
+| On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
+| Backend | FastAPI + Anthropic SDK (uv, Ruff, mypy, pytest) |
+| AI | Claude Opus 4.8 stylist “Aria”; tool use + prompt caching |
+| Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
+| CI | GitHub Actions |
 
 ## Deployment topology
 
 ```mermaid
 flowchart LR
-    Dev["Developer Mac<br/>Xcode · uv"] -->|TestFlight / device| Phone["iPhone (the app)"]
-    Dev -->|fly deploy| Fly["Fly.io<br/>FastAPI"]
-    Phone <-->|HTTPS short-lived session| Fly
-    Fly -->|HTTPS| Anthropic["Anthropic API"]
-    Phone <-->|HTTPS OAuth + GET| Google["Google / Gmail"]
-    Phone <-->|attest key / sign assertions| Apple["Apple App Attest"]
-    Fly <--> AuthDB[("Private durable auth volume/database")]
+    Dev["Developer Mac<br/>Xcode · uv"] -->|"TestFlight / device"| Phone["iPhone"]
+    Dev -->|"fly deploy"| Fly["Fly.io<br/>FastAPI"]
+    Phone <-->|"HTTPS short-lived session"| Fly
+    Fly -->|"HTTPS"| Anthropic["Anthropic API"]
+    Phone <-->|"attest key / sign assertions"| Apple["Apple App Attest"]
+    Fly <--> AuthDB[("Private durable auth volume")]
 ```
 
-- The backend stores `ANTHROPIC_API_KEY` and its App Attest session-signing secret as Fly.io
-  secrets. `DEVICE_TOKEN` is allowed only during a recorded, time-bounded migration bridge and is
-  unset/rotated before APP-009 closes.
+- Fly secrets hold `ANTHROPIC_API_KEY` and the App Attest session-signing secret. A shared
+  `DEVICE_TOKEN` is not an acceptable public-client credential or rollback mechanism.
 - The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
   anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived
-  sessions, and coarse rate windows. The receipt is not trusted as fraud evidence until its
-  separate Apple receipt checks are implemented. The store contains no Gmail receipt text,
-  wardrobe catalog, photos, or recommendation payload.
-- Backend auth-state, logs, snapshots, deletion, and manual operations follow the
-  [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). The repository is
-  configured so the final deployment runs one-minute deadline cleanup on a minimum-one-Machine
-  topology, purges inactive/revoked installations, exposes fresh-assertion deletion in Privacy &
-  Data, performs SQLite/WAL maintenance, structurally guards persistence/log calls, and disables
-  Uvicorn access logs in the production command. Fly v5 deploys that final image and topology.
-  Fly Security confirmed that its provider-controlled logs can include source IP and that a
-  customer cannot enforce a hard 24-hour maximum. On 2026-08-19 the owner accepted Fly's fixed
-  seven-day customer-visible stream and undisclosed provider-internal in-service retention.
-  On 2026-08-20 the owner approved a payload-free manual review cadence instead of an automated
-  monitoring processor for the initial personal single-user release; automated independent
-  monitoring remains optional future hardening. The first review passed on 2026-08-20. APP-009
-  remains open until the remaining snapshot, support, App Privacy, and deletion/restore operations
-  are evidenced, and the manual review must remain current under the approved cadence.
-- The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
-  private key stays in the Secure Enclave; the short-lived access token is memory-only.
-- Google is not an account system for Wardrobe backend access. A user can style a local/photo
-  wardrobe without Google as long as the installation can establish its anonymous App Attest
-  session.
+  sessions, and coarse rate windows. It contains no wardrobe, prompt, or recommendation payload.
+- Backend auth state, logs, snapshots, deletion, and manual operations follow the
+  [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). Fly's fixed seven-day
+  customer-visible stream and undisclosed provider-internal in-service retention are accepted and
+  publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
+- Public v1 has no Google OAuth dependency or Gmail network route.
+
+## Build 4 clean-install transition
+
+Build `1.0.0 (4)` is intentionally fresh-install-only. The owner approved discarding the local
+wardrobe from TestFlight builds 1–3 and adding items again. Never install build 4 over an earlier
+build.
+
+On the earlier build, complete this sequence in order:
+
+1. **Disconnect Google** and wait for the app to report success.
+2. **Delete Server Security Data** and wait for the fresh App Attest deletion to report success.
+3. Uninstall Wardrobe Stylist. This deletes the earlier device-local wardrobe.
+4. Install build 4 as a clean app and enroll its new anonymous App Attest installation.
+
+The first two actions cannot be recovered after uninstall because the Gmail-free app no longer has
+the Google client and App Attest reinstall creates a different anonymous installation. Release QA
+must retain the successful pre-uninstall checks and must not claim upgrade or migration support.
+
+## Historical Gmail implementation
+
+Earlier internal builds implemented optional, GET-only Gmail receipt import, on-device candidate
+filtering, `/extract`, and background receipt sync. Those product paths, schemas, dependencies,
+configuration values, and backend route are removed from active v1 source.
+
+The historical design remains subject to a strict no-write rule until removed. Reintroducing it in
+a later release would require a fresh product/privacy review, Google restricted-scope work as
+applicable, updated public pages and App Privacy answers, archive checks, and a new TestFlight
+candidate. See [`google-setup.md`](google-setup.md) and
+[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) for historical context only.

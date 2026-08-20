@@ -21,21 +21,32 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## Current candidate status — 2026-08-20
 
-- Versioned candidate source: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`,
-  which contains `1.0.0 (4)`. The final `main` archive source is not frozen; record its merged SHA
-  before archiving or uploading.
+- Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
+  contains `1.0.0 (4)`. The final Gmail-free source is not frozen; record its merged SHA before
+  archiving or uploading.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. The candidate
-  has not yet been archived or uploaded.
-- Production backend: Fly release v5 serves the policy-enforced `linux/amd64` image from source
+  has not been archived or uploaded. Live App Store Connect inspection confirms build 3 is the
+  highest upload, so build 4 remains unused and selected unless that external fact changes.
+- Current production backend: Fly release v5 serves the pre-APP-036 policy-enforced `linux/amd64`
+  image from source
   `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85` at immutable digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`,
   with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
   `min_machines_running = 1`. Retained rollback digest
   `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
-  is App-Attest-only and registry-addressable.
-- Development proof: App Attest enrollment, assertion renewal, and `/recommend` succeeded on an
-  iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build fields were
-  absent as expected and are not claimed as development evidence.
+  is App-Attest-only and registry-addressable. This image still exposes `/extract`; the tested
+  Gmail-free replacement has not been built, scanned, pushed, or deployed from a merged source.
+- Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
+  succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
+  fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
+  the earlier run is a baseline, not candidate evidence.
+- Current Gmail-free repository proof: 202 locked backend tests and all dependency/security/type
+  gates passed; 209 unique iOS tests passed (200 Swift tests plus all 9 UI flows); 24/24 release-
+  script tests passed; and a clean Release simulator artifact for `1.0.0 (4)` passed public-config,
+  plist, dependency, and removed-capability verification. No Google/Gmail/OAuth, `/extract`, or
+  receipt-background capability was found in shipped source/configuration, generated project,
+  executable, or app bundle. This is unmerged simulator evidence, not a signed archive or
+  production cutover.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v5 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -88,33 +99,63 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Python audit is already enforced in CI; the local Docker Scout command is
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
-- [ ] Verify production operations against that final image: retain the redacted Fly response and
-  owner decisions, keep the payload-free manual review current, then prove 14-day snapshot-list
-  disappearance, restore-after-deletion handling, and monitored support routing. The first review
-  passed at `2026-08-20T00:15:07Z`. The generic
-  isolated restore path passed on
-  2026-08-19 with read-only, aggregate-only evidence and immediate temporary-resource cleanup; it
-  does not close deletion-specific recovery. The customer-visible log stream is accepted as seven
-  days; provider-internal in-service retention and all-copy snapshot purge timing are accepted as
-  undisclosed. Do not claim the former 24-hour provider-log requirement passed.
 - [x] Rotate and verify the Anthropic API key, retire `DEVICE_TOKEN`, deploy App-Attest-only auth,
   and prove the retired credential returns `401`. No credential value is retained in evidence.
 - [x] Treat the opaque Apple receipt as untrusted fraud evidence, not session authorization. The
   current release neither redeems nor trusts it; before any future use, implement and evidence
   Apple's receipt signature/chain, App ID, freshness, and attested-public-key checks.
-- [ ] Complete the production-client portion of the
-  [Google OAuth sequence](../gcp-oauth-production-sequence.md): production Gmail project/iOS
-  client and reversed callback scheme. Google remains solely the optional read-only Gmail
-  connection; no Google server audience or stable Google subject authorizes Wardrobe's backend.
-  Full restricted-scope approval/CASA may still be in progress for internal testing, but it must
-  be approved before public App Store availability.
-- [ ] Publish accurate privacy-policy and support pages on the final owned HTTPS domain and verify
-  both while signed out.
-- [ ] Create gitignored `ios/Distribution.xcconfig` from
-  `ios/Distribution.xcconfig.example` with the production Google IDs, HTTPS backend host, public
-  privacy/support URLs, and Apple Developer Team ID.
+- [x] Complete the repository and simulator-artifact portion of `APP-036`: Google Sign-In, Google
+  client/callback configuration, Gmail/receipt-import UI and network paths, active `/extract`
+  route/client capability, and receipt background scheduling are absent; build 4 uses the approved
+  fresh local-only schema; Demo Mode and in-app disclosures are Gmail-free; and Release/artifact
+  checks fail if a removed capability returns. Intentional negative guards and legacy-rate cleanup
+  remain. The historical Google OAuth sequence is deferred and is not a public-v1 gate.
+- [x] Create gitignored `ios/Distribution.xcconfig` from
+  `ios/Distribution.xcconfig.example` with the HTTPS backend host, public privacy/support URLs, and
+  Apple Developer Team ID. It contains no Google client identifiers or callback scheme; resolved
+  Release settings and the simulator artifact passed the public configuration guard. The signed
+  archive/profile proof remains a separate per-build step.
+- [ ] Freeze and publish the Gmail-free source: review the combined diff, rebase onto current
+  `origin/main`, publish a reviewable PR, merge it, fast-forward local `main`, and record the exact
+  merged SHA. Do not build or deploy the replacement image from an unmerged working tree.
+- [ ] Complete the pre-upload `APP-036` cutover: on the old build, complete **Disconnect Google**
+  and **Delete Server Security Data**, wait for both successes, and uninstall. Build, scan, push,
+  and deploy the exact merged-source immutable `linux/amd64` backend image; prove `/extract` is
+  retired and repeat the payload-free manual review. Install build 4 only after TestFlight
+  processing, never over builds 1–3.
+- [ ] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
+  HTTPS domain and verify all three while signed out. The earlier Gmail-capable publication is
+  retained as history: `tzehon.github.io` PR #3 merged as
+  `7e919ef373782c22cc1500a31ed475ebfd75373c`; its Pages deployment succeeded, and anonymous HTTPS
+  requests returned `200` for `https://blog.tth.dev/wardrobe/` and
+  `https://blog.tth.dev/wardrobe/privacy/` at `2026-08-20T13:22:35Z`. PR #4 merged as
+  `ff27bbe3ed2d2c4e7d3041313c0745df7f09fe44`; its Pages deployment also succeeded, and an anonymous
+  HTTPS request returned `200` for `https://blog.tth.dev/wardrobe/terms/` at
+  `2026-08-20T13:52:35Z`. The three rendered pages linked to each other as intended. Local
+  Gmail-free revisions are prepared but must not be treated as published until a later Pages
+  deployment and signed-out verification succeed.
 - [ ] Complete or explicitly defer the remaining App Store Connect record/media work in
   `APP-016` through `APP-018`. Deferral does not permit binary/configuration shortcuts.
+
+## Mandatory clean-uninstall transition for build 4
+
+Build `1.0.0 (4)` is fresh-install-only and must never be installed over TestFlight builds 1–3.
+The owner explicitly accepted losing the earlier local wardrobe and adding items again.
+
+On the older build, in this order:
+
+1. Complete **Settings → Connected Features → Disconnect Google** and wait for success.
+2. Complete **Settings → Privacy & Data → Delete Server Security Data** and wait for success.
+3. Uninstall Wardrobe Stylist. This deletes the old device-local wardrobe.
+4. Install build 4 as a clean app and enroll its new anonymous App Attest installation.
+
+Complete steps 1–3 before the backend cutover. Complete step 4 only after build 4 has processed in
+TestFlight; the numbered list defines one transition, not a requirement to install an unprocessed
+build.
+
+Do not uninstall first. The Gmail-free app cannot revoke the old Google grant, and a reinstall
+creates a different App Attest identity that cannot delete the prior live server record. Retain
+redacted success evidence for steps 1–2; do not claim upgrade or migration support.
 
 ## Per-build release-candidate loop
 
@@ -122,10 +163,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
    will serve it, App Attest environment/category/build allowlist, iOS-version compatibility policy,
    durable auth-store version, and the policy-compliance evidence linked from
    [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md).
-2. **Choose version/build from App Store Connect.** In **Apps → Wardrobe Stylist → TestFlight →
-   iOS**, inspect all uploads and choose the next unused `CURRENT_PROJECT_VERSION`. If this exact
-   build may be promoted as the first public release, decide and set the intended public
-   `MARKETING_VERSION` (recommended `1.0.0`) before archiving.
+2. **Confirm version/build from App Store Connect.** Live inspection currently shows build 3 as
+   the highest upload, so the selected candidate remains `1.0.0 (4)`. Recheck immediately before
+   archiving. If build 4 has appeared, stop and select the next unused integer; otherwise preserve
+   build 4 and do not increment it merely because APP-036 changed unuploaded local source.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -136,8 +177,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
    post-build check without bypasses. Before validation or upload, run
    `ios/scripts/verify-release-artifact.sh DerivedData/ReleaseValidation
    "/path/to/Wardrobe.xcarchive/Products/Applications/Wardrobe.app"`; this pass must confirm the
-   signed production App Attest entitlement and absence of the shared bearer. Retain the archive
-   entitlement and embedded-profile inspection as the distribution half of APP-009 evidence.
+   signed production App Attest entitlement; absence of the shared bearer, Google/GoogleSignIn/
+   AppAuth/GTM bundles, Google client identifiers/callback scheme, Gmail permission/host/client
+   paths, `/extract` client path, and receipt background-task identifier; and correct public URLs.
+   Retain the archive entitlement and embedded-profile inspection as APP-009/APP-036 evidence.
 5. **Validate and upload.** In Organizer choose **Validate App**, then **Distribute App →
    TestFlight & App Store → Upload**. Upload symbols and use the intended distribution signing.
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy
@@ -146,12 +189,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
 7. **Distribute internally.** Add the processed build only to the chosen Internal Testing group,
    enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
    gate is desired.
-8. **Run clean-device QA.** Test both upgrade and clean install on a physical iPhone: launch/icon,
-   local onboarding, offline Demo Mode, camera and photo library, migrations, App Attest enrollment
-   and session renewal, import review, Gmail disclosure/sign-in/import, styling/history,
-   reminders/background work, Settings/privacy, sign out, disconnect, local deletion, separate
-   server-security deletion, account switching, offline/relaunch, backend failure, and reinstall
-   creating a new anonymous installation. Verify
+8. **Run transition and fresh-install QA.** First complete the mandatory pre-uninstall sequence on
+   the older build; never install build 4 over it. Then test a clean build-4 install on a physical
+   iPhone: launch/icon, local onboarding, offline Demo Mode, manual add, camera/photo library,
+   catalog edit/delete, App Attest enrollment/session renewal, styling consent/withdrawal,
+   Today/History, local reminders, Settings/privacy, local deletion, separate server-security
+   deletion, offline/relaunch, backend failure, and reinstall creating a new anonymous
+   installation. Confirm no Google/Gmail/receipt-import UI or request exists. Verify
    local/demo behavior remains available when secure remote AI is unavailable. Through the
    processed internal TestFlight build, retain production enrollment, assertion renewal, and a
    protected API call. On iOS 18–26, record signed runtime-field absence without claiming
@@ -164,7 +208,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
    validation/upload logs, processed-build metadata, backend image/config, exact App ID prefix,
    entitlement/profile, tester OS/runtime-field presence, category/build values when supplied,
    auth-store volume and snapshot/restore evidence, Apple-receipt validation/risk-metric policy,
-   bridge retirement, old-build rejection, and physical-device QA. Do not claim build/category
+   APP-036 artifact-absence output, pre-uninstall disconnect/server-deletion success, clean-install
+   proof, bridge retirement, old-build rejection,
+   and physical-device QA. Do not claim build/category
    rejection on iOS 18–26, where Apple omits those fields; the pre-App-Attest shared-token build
    must still be rejected.
 
@@ -176,19 +222,27 @@ Production App Attest proof is necessarily post-upload; it is not a pre-build ga
 - [ ] From the processed internal TestFlight build, retain production enrollment, assertion
   renewal, and a protected API call. Record the tester OS and signed runtime-field presence; do not
   claim category/build enforcement when iOS 18–26 omits those fields.
-- [ ] Complete upgrade and clean-install QA and attach the redacted results to the final evidence
-  record.
+- [ ] Retain the completed pre-uninstall cleanup evidence, install processed build 4 cleanly, and
+  complete fresh-install QA. The cleanup itself occurs before backend cutover and upload; this
+  post-upload step validates the replacement.
+- [ ] Finish the remaining observable operations evidence: eligible 14-day snapshot-list
+  disappearance and deletion-specific recovery. The generic isolated restore-path rehearsal does
+  not prove that a deleted production identity cannot return.
+- [ ] After processed build 4 and its replacement backend are proven, obtain a separate final
+  owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
+  touch unrelated Google Cloud or Search Console resources.
 
 ## Promoting an internally tested build
 
 When the build is approved for public release, do not rebuild unless something changed:
 
-- Finish `APP-016` through `APP-018`, Google restricted-scope verification/CASA, agreements,
-  pricing/availability, privacy answers, screenshots, review contact, and review notes.
+- Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
+  screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not
+  a public-v1 gate.
 - Select the already-tested build on the matching App Store version.
 - Re-check the binary, live backend and auth store, App Attest compatibility policy plus iOS 27+
-  build/category allowlist, public URLs, Gmail OAuth project, disclosures, and metadata against the
-  retained evidence.
+  build/category allowlist, public URLs, Gmail-free archive evidence, disclosures, and metadata
+  against the retained evidence.
 - Choose **Add for Review**, inspect the complete submission, then **Submit for Review**.
 
 If code, resources, configuration, backend contract, disclosures, or version metadata changes,
@@ -199,10 +253,12 @@ increment the build number and repeat the full loop. Never "patch" an uploaded c
 > Verify the new Wardrobe Stylist icon, add an item with both Camera and Photo Library, and confirm
 > each picker remains open until completion or cancellation. Review the simplified Settings hub
 > and its Connected Features, Wardrobe & Demo, Privacy & Data, and Help & Support destinations.
-> Confirm existing wardrobe data survives the upgrade, then exercise Gmail import review,
-> styling/history, reminders, sign out, disconnect, and verified local deletion. On a clean
-> physical install, confirm secure installation verification completes without a Wardrobe or
-> Google sign-in, and that local/demo features remain usable during an offline backend failure.
+> On builds 1–3, complete Disconnect Google and Delete Server Security Data, then uninstall; never
+> install build 4 over the older app. On the clean build-4 install, exercise manual/photo cataloging,
+> styling/history, reminders, styling-consent withdrawal, verified local deletion, and separate
+> server-security deletion. On a clean physical install, confirm there is no Google/Gmail or login
+> path, secure installation verification completes anonymously, and local/demo features remain
+> usable during an offline backend failure.
 
 ## Official Apple references
 
