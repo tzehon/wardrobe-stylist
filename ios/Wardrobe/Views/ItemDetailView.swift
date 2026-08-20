@@ -36,8 +36,6 @@ struct ItemDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 hero
-                if item.reviewState == .pendingReview { importedDraftNotice }
-
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.name).font(.title2.weight(.semibold))
@@ -69,7 +67,7 @@ struct ItemDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(item.reviewState == .pendingReview ? "Review" : "Edit") {
+                Button("Edit") {
                     showingEdit = true
                 }
                 .accessibilityIdentifier("item.detail.edit")
@@ -126,32 +124,6 @@ struct ItemDetailView: View {
             .clipShape(.rect(cornerRadius: 16))
     }
 
-    private var importedDraftNotice: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Needs your review").font(.headline)
-                if let confidence = item.extractionConfidence {
-                    Text("Extraction confidence: \(confidence.label)")
-                        .font(.subheadline.weight(.medium))
-                }
-                Text("Check every detail before this item can be used in outfit recommendations.")
-                    .font(.footnote).foregroundStyle(.secondary)
-                if item.possibleDuplicateOfItemID != nil {
-                    Label("A similar imported item is already in this wardrobe.", systemImage: "square.on.square")
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(.orange)
-                }
-                Button("Review and accept") { showingEdit = true }
-                    .font(.subheadline.weight(.semibold))
-                    .accessibilityIdentifier("item.detail.reviewImport")
-            }
-        }
-        .padding(14)
-        .background(Color.orange.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 14))
-    }
-
     private var colorsRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Colors").font(.subheadline.weight(.semibold))
@@ -171,10 +143,6 @@ struct ItemDetailView: View {
             if let price = purchasePriceLabel { rowDivider; AttributeRow(label: "Price", value: price) }
             rowDivider
             AttributeRow(label: "Source", value: sourceLabel)
-            if item.source == .email, let confidence = item.extractionConfidence {
-                rowDivider
-                AttributeRow(label: "Extraction confidence", value: confidence.label)
-            }
             rowDivider
             AttributeRow(label: "Status", value: statusLabel)
         }
@@ -193,12 +161,11 @@ struct ItemDetailView: View {
 
     private var statusLabel: String {
         if item.isArchived { return "Archived" }
-        return item.reviewState == .pendingReview ? "Needs review" : "Active"
+        return "Active"
     }
 
     private var sourceLabel: String {
         switch item.source {
-        case .email: "Email receipt"
         case .photo: "Photo"
         case .manual: "Added manually"
         }

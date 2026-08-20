@@ -355,70 +355,6 @@ struct OutfitRecommenderTests {
         #expect(URLProtocolStub.captured.count == 2)
     }
 
-    @Test func cacheRemainsAccountIsolatedAtTheRecommenderBoundary() async throws {
-        let container = try Self.makeContainer()
-        let context = ModelContext(container)
-        let accountA = WardrobeAccountScope.external(.external("account-a"))
-        let accountB = WardrobeAccountScope.external(.external("account-b"))
-        let manual = Item(id: Self.idA, name: "Shared tee", category: "top", source: .manual)
-        let trousers = Item(id: Self.idB, name: "Shared trouser", category: "bottom", source: .manual)
-        let shoes = Item(id: Self.idC, name: "Shared loafer", category: "shoe", source: .manual)
-        context.insert(manual)
-        context.insert(trousers)
-        context.insert(shoes)
-        try context.save()
-        let cache = MemoryDailyLookCache()
-        let accountABody = Self.body(itemIds: [Self.idA, Self.idB])
-        let accountBBody = Self.body(itemIds: [Self.idA, Self.idC])
-        URLProtocolStub.install { request in
-            let body = URLProtocolStub.captured.count == 1 ? accountABody : accountBBody
-            return (Self.ok(for: request), Data(body.utf8))
-        }
-        defer { URLProtocolStub.reset() }
-
-        await Self.makeRecommender(
-            context,
-            dailyLookCache: cache,
-            accountScope: accountA
-        ).recommend()
-        let otherAccount = Self.makeRecommender(
-            context,
-            dailyLookCache: cache,
-            accountScope: accountB
-        )
-        await otherAccount.recommend()
-
-        guard case .loaded(let recommendation) = otherAccount.state else {
-            Issue.record("Expected recommendation for account B")
-            return
-        }
-        #expect(!recommendation.isCached)
-        #expect(recommendation.current.items.map(\.id) == [Self.idA, Self.idC])
-        #expect(URLProtocolStub.captured.count == 2)
-        #expect(cache.entries[accountA]?.response.itemIds == [
-            Self.idA.uuidString,
-            Self.idB.uuidString,
-        ])
-        #expect(cache.entries[accountB]?.response.itemIds == [
-            Self.idA.uuidString,
-            Self.idC.uuidString,
-        ])
-
-        let restoredA = Self.makeRecommender(
-            context,
-            dailyLookCache: cache,
-            accountScope: accountA
-        )
-        await restoredA.recommend()
-        guard case .loaded(let cachedA) = restoredA.state else {
-            Issue.record("Expected account A cache")
-            return
-        }
-        #expect(cachedA.isCached)
-        #expect(cachedA.current.items.map(\.id) == [Self.idA, Self.idB])
-        #expect(URLProtocolStub.captured.count == 2)
-    }
-
     @Test func invalidResolvableCacheIsRemovedBeforeNetworkFallback() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
@@ -694,93 +630,11 @@ struct OutfitRecommenderTests {
         #expect(URLProtocolStub.captured.count == 2)
     }
 
-    @Test func recommendationPayloadContainsOnlySharedAndActiveAccountData() async throws {
-        let container = try Self.makeContainer()
-        let context = ModelContext(container)
-        let subjectA = PrivacySubjectID.external("account-a")
-        let scopeA = WardrobeAccountScope.external(subjectA)
-        let scopeB = WardrobeAccountScope.external(.external("account-b"))
-        let manualID = UUID(uuidString: "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA")!
-        let importedAID = UUID(uuidString: "BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB")!
-        let importedBID = UUID(uuidString: "CCCCCCCC-CCCC-4CCC-8CCC-CCCCCCCCCCCC")!
-        let manual = Item(id: manualID, name: "Manual tee", category: "top", source: .manual)
-        let importedA = Item(
-            id: importedAID,
-            name: "Account A trousers",
-            category: "bottom",
-            source: .email,
-            accountSubjectKey: scopeA.rawValue
-        )
-        let importedB = Item(
-            id: importedBID,
-            name: "Account B shoes",
-            category: "shoe",
-            source: .email,
-            accountSubjectKey: scopeB.rawValue
-        )
-        context.insert(manual)
-        context.insert(importedA)
-        context.insert(importedB)
-        context.insert(WearLog(
-            date: Date(timeIntervalSince1970: 1_699_999_000),
-            item: importedA,
-            feedback: 5,
-            accountSubjectKey: scopeA.rawValue
-        ))
-        context.insert(WearLog(
-            date: Date(timeIntervalSince1970: 1_699_999_500),
-            item: importedB,
-            feedback: 1,
-            accountSubjectKey: scopeB.rawValue
-        ))
-        try context.save()
-
-        let responseBody = Self.body(itemIds: [manualID, importedAID])
-        URLProtocolStub.install { request in (Self.ok(for: request), Data(responseBody.utf8)) }
-        defer { URLProtocolStub.reset() }
-        let recommender = OutfitRecommender(
-            recommendClient: RecommendClient(
-                baseURL: Self.backendURL,
-                authorization: StaticBackendAuthorization(token: "test-device-token"),
-                session: URLProtocolStub.makeSession()
-            ),
-            modelContext: context,
-            privacyGate: AllowPrivacyGate(),
-            accountScope: scopeA,
-            now: { Date(timeIntervalSince1970: 1_700_000_000) }
-        )
-
-        await recommender.recommend()
-
-        guard case .loaded(let recommendation) = recommender.state else {
-            Issue.record("Expected an active-account recommendation")
-            return
-        }
-        #expect(Set(recommendation.current.items.map(\.id)) == [manualID, importedAID])
-        #expect(!recommendation.current.items.map(\.id).contains(importedBID))
-        #expect(URLProtocolStub.captured.count == 1)
-        let body = try #require(URLProtocolStub.capturedBodies.first)
-        let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
-        let preferences = try #require(json["item_preferences"] as? [[String: Any]])
-        #expect(preferences.count == 1)
-        #expect(preferences.first?["id"] as? String == importedAID.uuidString)
-        #expect(preferences.first?["average_rating"] as? Double == 5)
-        #expect(preferences.first?["rating_count"] as? Int == 1)
-    }
-
-    @Test func recommendationExcludesPendingAndArchivedItemsFromStylingBoundary() async throws {
+    @Test func recommendationExcludesArchivedItemsFromStylingBoundary() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
         let acceptedA = Item(id: Self.idA, name: "Accepted tee", category: "top", source: .manual)
         let acceptedB = Item(id: Self.idB, name: "Accepted trouser", category: "bottom", source: .manual)
-        let pending = Item(
-            id: Self.idC,
-            name: "Pending import",
-            category: "shoe",
-            source: .email,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
-            reviewState: .pendingReview
-        )
         let archivedID = UUID(uuidString: "44444444-4444-4444-8444-444444444444")!
         let archived = Item(
             id: archivedID,
@@ -789,20 +643,13 @@ struct OutfitRecommenderTests {
             source: .manual,
             isArchived: true
         )
-        for item in [acceptedA, acceptedB, pending, archived] {
+        for item in [acceptedA, acceptedB, archived] {
             context.insert(item)
         }
         context.insert(WearLog(
             date: Date(timeIntervalSince1970: 1_699_999_000),
-            item: pending,
-            feedback: 1,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
-        ))
-        context.insert(WearLog(
-            date: Date(timeIntervalSince1970: 1_699_999_000),
             item: archived,
-            feedback: 1,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
+            feedback: 1
         ))
         try context.save()
 
@@ -823,17 +670,16 @@ struct OutfitRecommenderTests {
         #expect((json["item_preferences"] as? [[String: Any]])?.isEmpty == true)
     }
 
-    @Test func pendingAndArchivedItemsCannotSatisfyMinimumStylingCatalog() async throws {
+    @Test func archivedItemsCannotSatisfyMinimumStylingCatalog() async throws {
         let container = try Self.makeContainer()
         let context = ModelContext(container)
         context.insert(Item(id: Self.idA, name: "Accepted tee", category: "top", source: .manual))
         context.insert(Item(
             id: Self.idB,
-            name: "Pending import",
+            name: "Archived trouser",
             category: "bottom",
-            source: .email,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
-            reviewState: .pendingReview
+            source: .manual,
+            isArchived: true
         ))
         context.insert(Item(
             id: Self.idC,
@@ -931,14 +777,10 @@ struct OutfitRecommenderTests {
         #expect(outfits.count == 1)
         #expect(outfits.first?.occasion == "relaxed weekend")
         #expect(outfits.first?.items.count == 2)
-        #expect(outfits.first?.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue)
 
         let wears = try context.fetch(FetchDescriptor<WearLog>())
         #expect(wears.count == 2)  // one per item
         #expect(Set(wears.compactMap { $0.item?.id }) == [Self.idA, Self.idB])
-        #expect(wears.allSatisfy {
-            $0.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue
-        })
     }
 
     @Test func wearCurrentPropagatesFailureSoUISuccessCanRemainFalse() async throws {

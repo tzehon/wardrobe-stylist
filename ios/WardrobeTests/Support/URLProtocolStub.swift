@@ -1,7 +1,7 @@
 import Foundation
 
 /// Test-only URLProtocol that intercepts every request issued by an attached URLSession
-/// and answers it with a handler closure. Lets us drive `GmailReadOnlyClient` from
+/// and answers it with a handler closure. Lets us drive backend clients from
 /// hand-rolled fixtures without ever touching the network.
 final class URLProtocolStub: URLProtocol, @unchecked Sendable {
     /// Per-test handler — set by `install(_:)`, cleared by `reset()`.

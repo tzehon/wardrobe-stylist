@@ -1,9 +1,8 @@
 import SwiftData
 import SwiftUI
 
-/// Account-scoped catalog with explicit import-review, favorite, and archive
-/// states. Archived items stay recoverable but never enter styling; pending
-/// imports stay visible and can be accepted individually or as one batch.
+/// Device-local catalog with explicit favorite and archive states. Archived
+/// items stay recoverable but never enter styling.
 struct CatalogView: View {
     let accountScope: WardrobeAccountScope
     var allowsAddingItems = true
@@ -17,7 +16,6 @@ struct CatalogView: View {
     @State private var sortOrder: CatalogSortOrder = .recent
     @State private var showingAddItem = false
     @State private var pendingDeletion: Item?
-    @State private var confirmingBulkAcceptance = false
     @State private var writes = WardrobeWriteCoordinator()
 
     private var items: [Item] {
@@ -35,10 +33,6 @@ struct CatalogView: View {
 
     private var sections: [CatalogSection<Item>] {
         CatalogOrganizer.sections(from: filteredItems, sortedBy: sortOrder)
-    }
-
-    private var pendingItems: [Item] {
-        items.filter { !$0.isArchived && $0.reviewState == .pendingReview }
     }
 
     var body: some View {
@@ -63,7 +57,6 @@ struct CatalogView: View {
         .searchable(text: $searchText, prompt: "Search name or brand")
         .toolbar {
             sortMenu
-            reviewMenu
             addButton
         }
         .sheet(isPresented: $showingAddItem) { AddItemView() }
@@ -78,16 +71,6 @@ struct CatalogView: View {
             if let pendingDeletion {
                 Text("“\(pendingDeletion.name)” will be removed from your catalog.")
             }
-        }
-        .confirmationDialog(
-            "Accept all pending imports?",
-            isPresented: $confirmingBulkAcceptance,
-            titleVisibility: .visible
-        ) {
-            Button("Accept \(pendingItems.count) Items", action: acceptAllPending)
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This marks every pending receipt item as reviewed. Edit uncertain details individually before accepting all.")
         }
         .wardrobePersistenceAlert(writes)
     }
@@ -108,7 +91,7 @@ struct CatalogView: View {
             Label("No items yet", systemImage: "square.grid.2x2")
         } description: {
             if allowsAddingItems {
-                Text("Add your first piece manually or with a photo. Gmail receipt import is optional in Settings.")
+                Text("Add your first piece manually or with a photo.")
             } else {
                 Text("The fictional demo catalog is empty. Exit and reopen Demo Mode to restore its sample pieces.")
             }
@@ -142,7 +125,6 @@ struct CatalogView: View {
     private var emptyFilterTitle: String {
         switch selectedStatus {
         case .active: "No matches"
-        case .pendingReview: "Nothing needs review"
         case .favorites: "No favorites yet"
         case .archived: "Archive is empty"
         }
@@ -151,7 +133,6 @@ struct CatalogView: View {
     private var emptyFilterSymbol: String {
         switch selectedStatus {
         case .active: "magnifyingglass"
-        case .pendingReview: "checkmark.circle"
         case .favorites: "star"
         case .archived: "archivebox"
         }
@@ -160,7 +141,6 @@ struct CatalogView: View {
     private var emptyFilterDescription: String {
         switch selectedStatus {
         case .active: "Try another category."
-        case .pendingReview: "All imported items have been checked."
         case .favorites: "Mark frequently worn pieces with a star for quick access."
         case .archived: "Archived pieces appear here and can be restored at any time."
         }
@@ -171,9 +151,7 @@ struct CatalogView: View {
             HStack(spacing: 8) {
                 ForEach(CatalogFilter.Status.allCases) { status in
                     chip(
-                        title: status == .pendingReview && !pendingItems.isEmpty
-                            ? "\(status.label) \(pendingItems.count)"
-                            : status.label,
+                        title: status.label,
                         isSelected: selectedStatus == status
                     ) {
                         selectedStatus = status
@@ -251,25 +229,6 @@ struct CatalogView: View {
         }
     }
 
-    @ToolbarContentBuilder private var reviewMenu: some ToolbarContent {
-        if !pendingItems.isEmpty {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        selectedStatus = .pendingReview
-                        selectedCategory = nil
-                    } label: {
-                        Label("Review \(pendingItems.count) Imports", systemImage: "checklist")
-                    }
-                    Button("Accept All…") { confirmingBulkAcceptance = true }
-                } label: {
-                    Label("Review imports", systemImage: "checklist")
-                }
-                .accessibilityIdentifier("catalog.reviewMenu")
-            }
-        }
-    }
-
     private var isConfirmingDelete: Binding<Bool> {
         Binding(
             get: { pendingDeletion != nil },
@@ -295,13 +254,6 @@ struct CatalogView: View {
         writes.perform(operation: .updateItem, write: { try store().setArchived(value, for: item) })
     }
 
-    private func acceptAllPending() {
-        writes.perform(
-            operation: .updateItem,
-            write: { try store().acceptPendingItems(pendingItems, reviewedAt: .now) },
-            onSuccess: { selectedStatus = .active }
-        )
-    }
 }
 
 /// Kept outside `CatalogView` so Swift's result-builder type checker does not
@@ -416,15 +368,6 @@ private struct CatalogCell: View {
             if let brand = item.brand, !brand.isEmpty {
                 Text(brand).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
             }
-            if item.reviewState == .pendingReview {
-                Label("Needs review", systemImage: "exclamationmark.circle.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.orange)
-            } else if item.source == .email {
-                Label("Imported", systemImage: "envelope")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
             if item.possibleDuplicateOfItemID != nil {
                 Label("Possible duplicate", systemImage: "square.on.square")
                     .font(.caption2)
@@ -445,11 +388,6 @@ struct ItemThumbnail: View {
     var body: some View {
         if let data = item.thumbnailData ?? item.imageData, let image = UIImage(data: data) {
             Image(uiImage: image).resizable().scaledToFill()
-        } else if let urlString = item.imageURL {
-            SafeRemoteImage(
-                urlString: urlString,
-                placeholderSystemName: CatalogCategoryStyle.symbol(item.category)
-            )
         } else {
             Image(systemName: CatalogCategoryStyle.symbol(item.category))
                 .font(.system(size: 30))

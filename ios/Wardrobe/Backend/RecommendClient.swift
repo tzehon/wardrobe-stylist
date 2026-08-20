@@ -6,7 +6,7 @@ import Foundation
 /// (see `URLProtocolStub` in WardrobeTests). Each call gets a short-lived bearer
 /// from the per-installation App Attest authorization actor.
 /// Snake-case ↔ camelCase conversion runs through `JSONEncoder` / `JSONDecoder`
-/// strategies so the Swift models can stay idiomatic. Mirrors `ExtractClient`.
+/// strategies so the Swift models can stay idiomatic.
 struct RecommendClient: Sendable {
     let baseURL: URL
     let authorization: any BackendAuthorizing

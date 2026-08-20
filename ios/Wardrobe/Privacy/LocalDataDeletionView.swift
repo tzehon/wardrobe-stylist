@@ -1,17 +1,12 @@
 import SwiftData
 import SwiftUI
 
-/// Settings control for the distinct local-only deletion action. It deliberately
-/// does not sign out or revoke Google; those remain separate account controls.
 struct LocalDataDeletionView: View {
-    let activeExternalSubject: PrivacySubjectID?
-    let syncActivity: ReceiptSyncActivityController
     let onVerifiedDeletion: @MainActor @Sendable () -> Void
 
     @Environment(\.modelContext) private var modelContext
     @State private var showingConfirmation = false
     @State private var coordinator: LocalDataDeletionCoordinator?
-    @State private var localFailure: LocalDataDeletionFailure?
 
     private let confirmation = LocalDataDeletionConfirmation()
 
@@ -22,7 +17,7 @@ struct LocalDataDeletionView: View {
             }
             .disabled(isDeleting)
             .controlSize(.large)
-            .accessibilityHint("Permanently removes app data stored on this device. Google access remains connected.")
+            .accessibilityHint("Permanently removes app data stored on this device.")
             .accessibilityIdentifier("settings.privacy.deleteLocalData")
 
             if isDeleting {
@@ -32,18 +27,11 @@ struct LocalDataDeletionView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Deleting and verifying local data")
                 .accessibilityIdentifier("settings.privacy.deleteLocalData.progress")
             } else if case .succeeded = coordinator?.state {
-                Label {
-                    Text("Local data deleted")
-                } icon: {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                }
+                Label("Local data deleted", systemImage: "checkmark.circle.fill")
                     .font(.footnote)
-                    .accessibilityLabel("Success: Local data deleted")
+                    .foregroundStyle(.green)
                     .accessibilityIdentifier("settings.privacy.deleteLocalData.success")
             }
         }
@@ -70,12 +58,9 @@ struct LocalDataDeletionView: View {
         }
     }
 
-    private var isDeleting: Bool {
-        coordinator?.state == .deleting
-    }
+    private var isDeleting: Bool { coordinator?.state == .deleting }
 
     private var deletionFailure: LocalDataDeletionFailure? {
-        if let localFailure { return localFailure }
         guard case .failed(let failure) = coordinator?.state else { return nil }
         return failure
     }
@@ -84,10 +69,7 @@ struct LocalDataDeletionView: View {
         Binding(
             get: { deletionFailure != nil },
             set: { isPresented in
-                if !isPresented {
-                    localFailure = nil
-                    coordinator?.resetResult()
-                }
+                if !isPresented { coordinator?.resetResult() }
             }
         )
     }
@@ -96,19 +78,8 @@ struct LocalDataDeletionView: View {
     private func deleteConfirmed() async {
         let madeCoordinator = coordinator ?? LocalDataDeletionCoordinator(modelContext: modelContext)
         coordinator = madeCoordinator
-        let result = await syncActivity.withQuiesced {
-            await madeCoordinator.delete(
-                scope: .all(activeExternalSubject: activeExternalSubject),
-                confirmedBy: confirmation.confirm()
-            )
+        if await madeCoordinator.delete(confirmedBy: confirmation.confirm()) {
+            onVerifiedDeletion()
         }
-        guard let result else {
-            localFailure = LocalDataDeletionFailure(
-                stage: .syncDidNotStop,
-                diagnostic: "Another privacy or data operation already owns the no-sync window"
-            )
-            return
-        }
-        if result { onVerifiedDeletion() }
     }
 }

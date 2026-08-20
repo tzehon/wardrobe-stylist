@@ -3,23 +3,19 @@ import SwiftData
 
 /// The single construction point for Wardrobe's SwiftData container.
 ///
-/// Production and tests both use the same versioned schema and migration plan;
-/// tests may supply an in-memory or temporary on-disk configuration.
+/// Production and tests both use the fresh device-local schema; tests may
+/// supply an in-memory or temporary on-disk configuration.
 enum ModelContainerFactory {
-    static let schema = Schema(versionedSchema: WardrobeSchemaV3.self)
+    static let schema = Schema(versionedSchema: WardrobeSchema.self)
 
     static func make(
         configurations: [ModelConfiguration] = []
     ) throws -> ModelContainer {
         if configurations.isEmpty {
-            return try ModelContainer(
-                for: schema,
-                migrationPlan: WardrobeMigrationPlan.self
-            )
+            return try ModelContainer(for: schema)
         }
         return try ModelContainer(
             for: schema,
-            migrationPlan: WardrobeMigrationPlan.self,
             configurations: configurations
         )
     }

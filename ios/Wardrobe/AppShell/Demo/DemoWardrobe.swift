@@ -2,8 +2,7 @@ import Foundation
 import SwiftData
 
 /// Fixed fictional content for App Review and product exploration. The data is
-/// deliberately local-only: no source message identifiers, account ownership,
-/// image URLs, or other fields can trigger a connected feature.
+/// deliberately local-only and cannot trigger a connected feature.
 enum DemoWardrobe {
     struct ItemDefinition: Equatable, Sendable {
         let id: UUID
@@ -89,10 +88,10 @@ enum DemoWardrobe {
             name: "Dusk Wrap Dress",
             category: "dress",
             subcategory: "wrap dress",
-            brand: "Example Receipt Shop",
+            brand: "Example Studio",
             colors: ["#4C405E"],
             material: "linen blend",
-            styleNotes: "Fictional imported item waiting for your review."
+            styleNotes: "Soft wrap silhouette for warm evenings."
         ),
     ]
 
@@ -121,8 +120,7 @@ enum DemoWardrobe {
         }
 
         var seededItems: [UUID: Item] = [:]
-        for (index, definition) in items.enumerated() {
-            let isPendingImport = index == items.indices.last
+        for definition in items {
             let item = Item(
                 id: definition.id,
                 name: definition.name,
@@ -132,19 +130,7 @@ enum DemoWardrobe {
                 colors: definition.colors,
                 material: definition.material,
                 styleNotes: definition.styleNotes,
-                source: isPendingImport ? .email : .manual,
-                purchaseDate: isPendingImport
-                    ? Date(timeIntervalSince1970: 1_704_067_200)
-                    : nil,
-                purchasePrice: isPendingImport ? 149 : nil,
-                purchaseCurrency: isPendingImport ? "USD" : nil,
-                sourceMsgId: nil,
-                imageURL: nil,
-                accountSubjectKey: isPendingImport
-                    ? WardrobeAccountScope.deviceLocal.rawValue
-                    : nil,
-                extractionConfidence: isPendingImport ? .medium : nil,
-                reviewState: isPendingImport ? .pendingReview : .accepted,
+                source: .manual,
                 imageData: nil,
                 thumbnailData: nil,
                 featurePrint: nil
@@ -161,7 +147,6 @@ enum DemoWardrobe {
             occasion: recentLook.occasion,
             rationale: recentLook.rationale,
             colorStory: recentLook.colorStory,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
             items: wornItems
         )
         modelContext.insert(outfit)
@@ -169,8 +154,7 @@ enum DemoWardrobe {
             modelContext.insert(WearLog(
                 date: wornAt,
                 item: item,
-                outfit: outfit,
-                accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue
+                outfit: outfit
             ))
         }
         try modelContext.save()

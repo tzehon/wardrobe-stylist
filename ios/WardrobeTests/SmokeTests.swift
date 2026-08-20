@@ -23,15 +23,4 @@ struct SmokeTests {
         #expect(fetched.first?.name == "Navy linen shirt")
         #expect(fetched.first?.category == "top")
     }
-
-    @Test func gmailEndpointBuildsExpectedURL() {
-        let endpoint = GmailReadEndpoint.listMessages(
-            query: "subject:receipt", includeSpamTrash: true, pageToken: nil
-        )
-        let url = endpoint.url
-        #expect(url.absoluteString.hasPrefix(
-            "https://gmail.googleapis.com/gmail/v1/users/me/messages"
-        ))
-        #expect(url.absoluteString.contains("includeSpamTrash=true"))
-    }
 }

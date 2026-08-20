@@ -5,30 +5,21 @@ import Foundation
 struct PrivacyDisclosure: Equatable, Sendable {
     let title: String
     let summary: String
+    let overview: String
     let dataShared: [String]
     let destination: String
     let result: String
 
-    static let receiptAnalysis = Self(
-        title: "Receipt analysis",
-        summary: "When you start an import, Wardrobe reads likely purchase messages through Google's read-only Gmail API and filters candidates on this device.",
-        dataShared: [
-            "A validated sender domain, sanitized subject, and either structured product fields or a limited, redacted product-text excerpt",
-            "A Gmail message identifier reaches only the developer backend for response correlation and is removed before Anthropic processing",
-            "No Gmail write, delete, send, label, or settings access"
-        ],
-        destination: "The minimized fields are sent over an encrypted connection to the developer-operated Wardrobe backend, which removes the Gmail identifier and uses Anthropic Claude to extract clothing details. Full sender addresses and raw message bodies are not sent to Anthropic.",
-        result: "Extracted wardrobe items are saved in your local catalog. You choose when a manual import starts."
-    )
-
     static let wardrobeStyling = Self(
         title: "AI styling",
         summary: "When you ask for a look, Wardrobe creates a compact text description of your catalog and recent wear history.",
+        overview: "If you allow styling and ask for a look, a compact text catalog, recent item identifiers, per-item average rating and rating count, and any occasion or context you enter are sent to the developer-operated backend and Anthropic Claude. Free-text feedback, outfit rationales, rating dates, and wardrobe photos are not included in styling requests.",
         dataShared: [
             "Item identifiers, names, categories, brands, colors, and materials",
             "Recently worn item identifiers",
             "Per-item rating summaries: average rating and rating count",
-            "Wardrobe photos and Gmail messages are not included in styling requests"
+            "Any occasion or context you enter for the requested look",
+            "Wardrobe photos are not included in styling requests"
         ],
         destination: "Those details are sent over an encrypted connection to the developer-operated Wardrobe backend, which uses Anthropic Claude to propose a look. Free-text feedback, outfit rationales, and rating dates are not sent.",
         result: "The recommendation returns to this device. A request is sent only after you tap a styling action."

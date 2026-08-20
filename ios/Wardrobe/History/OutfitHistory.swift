@@ -1,7 +1,7 @@
 import Foundation
 
 /// Presentation-ready history grouped by the day a look was recorded. Keeping
-/// organization pure makes ordering, account isolation, and empty-item edge
+/// organization pure makes ordering and empty-item edge
 /// cases independently testable from SwiftUI/SwiftData.
 struct OutfitHistoryDay: Identifiable {
     let date: Date
@@ -61,7 +61,7 @@ enum WardrobeInsights {
         in accountScope: WardrobeAccountScope
     ) -> WardrobeInsightsSnapshot {
         let activeItems = WardrobeAccountFilter.visibleItems(from: items, in: accountScope)
-            .filter { !$0.isArchived && $0.reviewState == .accepted }
+            .filter { !$0.isArchived }
         let activeIDs = Set(activeItems.map(\.id))
         let visibleWears = WardrobeAccountFilter.visibleWearLogs(
             from: wearLogs,

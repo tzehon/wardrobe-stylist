@@ -2,8 +2,6 @@
 // These are identifiers/endpoints, not a place for a shared client secret. Backend sessions are
 // established at runtime with a per-installation App Attest key.
 
-GOOGLE_CLIENT_ID = 123456789012-productionclient.apps.googleusercontent.com
-GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.123456789012-productionclient
 BACKEND_SCHEME = https
 BACKEND_HOST = api.your-domain.example
 PRIVACY_POLICY_URL = https:/$()/your-domain.example/privacy

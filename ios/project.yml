@@ -19,10 +19,6 @@ settings:
     "CODE_SIGN_STYLE[sdk=iphonesimulator*]": "Manual"
     "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
     CODE_SIGN_STYLE: Automatic
-packages:
-  GoogleSignIn:
-    url: https://github.com/google/GoogleSignIn-iOS
-    exactVersion: "9.2.0"
 targets:
   Wardrobe:
     type: application
@@ -42,11 +38,6 @@ targets:
         # CFBundleIconName + the icon files into the built Info.plist (required by
         # App Store / TestFlight upload validation).
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-    dependencies:
-      - package: GoogleSignIn
-        product: GoogleSignIn
-      - package: GoogleSignIn
-        product: GoogleSignInSwift
     postBuildScripts:
       - name: Validate public Release configuration
         script: |

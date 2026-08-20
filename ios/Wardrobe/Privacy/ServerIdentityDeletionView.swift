@@ -1,10 +1,7 @@
 import SwiftUI
 
-/// A server-only privacy control. Local wardrobe deletion and Google revocation
-/// intentionally remain separate Settings actions with separate confirmation.
 struct ServerIdentityDeletionView: View {
     let deletion: any ServerIdentityDeleting
-    let syncActivity: ReceiptSyncActivityController
 
     @State private var showingConfirmation = false
     @State private var controller: ServerIdentityDeletionController?
@@ -18,7 +15,7 @@ struct ServerIdentityDeletionView: View {
             }
             .disabled(isDeleting)
             .controlSize(.large)
-            .accessibilityHint("Deletes only this installation’s live anonymous server security record. Local data and Google access remain unchanged; hosting logs and snapshots follow separate retention.")
+            .accessibilityHint("Deletes only this installation’s live anonymous server security record. Local data stays unchanged; hosting records follow separate retention.")
             .accessibilityIdentifier("settings.privacy.deleteServerSecurityData")
 
             if isDeleting {
@@ -28,8 +25,6 @@ struct ServerIdentityDeletionView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Verifying and deleting the live server security record")
                 .accessibilityIdentifier("settings.privacy.deleteServerSecurityData.progress")
             } else if case .succeeded(let result) = controller?.state {
                 status(for: result)
@@ -67,7 +62,7 @@ struct ServerIdentityDeletionView: View {
             successLabel("Live server security record was already absent")
         case .noVerifiableIdentity:
             Label(
-                "This device has no live server identity it can verify. Any inaccessible older live identity is removed after 90 days of inactivity. Hosting logs and snapshots follow separate retention.",
+                "This device has no live server identity it can verify. Any inaccessible older live identity is removed after 90 days of inactivity. Hosting records follow separate retention.",
                 systemImage: "info.circle"
             )
             .font(.footnote)
@@ -77,20 +72,13 @@ struct ServerIdentityDeletionView: View {
     }
 
     private func successLabel(_ text: String) -> some View {
-        Label {
-            Text(text)
-        } icon: {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-        }
-        .font(.footnote)
-        .accessibilityLabel("Success: \(text)")
-        .accessibilityIdentifier("settings.privacy.deleteServerSecurityData.success")
+        Label(text, systemImage: "checkmark.circle.fill")
+            .font(.footnote)
+            .foregroundStyle(.green)
+            .accessibilityIdentifier("settings.privacy.deleteServerSecurityData.success")
     }
 
-    private var isDeleting: Bool {
-        controller?.state == .deleting
-    }
+    private var isDeleting: Bool { controller?.state == .deleting }
 
     private var deletionFailure: ServerIdentityDeletionFailure? {
         guard case .failed(let failure) = controller?.state else { return nil }
@@ -101,19 +89,14 @@ struct ServerIdentityDeletionView: View {
         Binding(
             get: { deletionFailure != nil },
             set: { isPresented in
-                if !isPresented {
-                    controller?.resetResult()
-                }
+                if !isPresented { controller?.resetResult() }
             }
         )
     }
 
     @MainActor
     private func deleteConfirmed() async {
-        let madeController = controller ?? ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: syncActivity
-        )
+        let madeController = controller ?? ServerIdentityDeletionController(deletion: deletion)
         controller = madeController
         _ = await madeController.delete(confirmedBy: confirmation.confirm())
     }

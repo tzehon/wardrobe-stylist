@@ -3,7 +3,6 @@ import Observation
 
 enum PrivacyControlsFailure: Error, Equatable, Sendable {
     case preferencesUnavailable
-    case receiptConsentRequired
     case stylingConsentRequired
     case saveFailed
 
@@ -11,8 +10,6 @@ enum PrivacyControlsFailure: Error, Equatable, Sendable {
         switch self {
         case .preferencesUnavailable:
             "Your privacy choices couldn’t be loaded. Protected features remain off."
-        case .receiptConsentRequired:
-            "Review and allow receipt analysis before enabling background import."
         case .stylingConsentRequired:
             "Review and allow AI styling before enabling reminders."
         case .saveFailed:
@@ -21,9 +18,6 @@ enum PrivacyControlsFailure: Error, Equatable, Sendable {
     }
 }
 
-/// Main-actor state for one privacy subject. It owns only persisted choices;
-/// notification/background side effects are coordinated separately so a toggle
-/// can compensate safely if scheduling fails.
 @MainActor
 @Observable
 final class PrivacyControls {
@@ -74,22 +68,6 @@ final class PrivacyControls {
         }
     }
 
-    func grantReceiptAnalysis() async throws {
-        try await update { preferences in
-            preferences.receiptAnalysisConsent = PrivacyConsentGrant(
-                noticeVersion: requiredNotices.receiptAnalysis,
-                grantedAt: now()
-            )
-        }
-    }
-
-    func withdrawReceiptAnalysis() async throws {
-        try await update { preferences in
-            preferences.receiptAnalysisConsent = nil
-            preferences.backgroundReceiptSyncEnabled = false
-        }
-    }
-
     func grantWardrobeStyling() async throws {
         try await update { preferences in
             preferences.wardrobeStylingConsent = PrivacyConsentGrant(
@@ -106,36 +84,14 @@ final class PrivacyControls {
         }
     }
 
-    /// Persists the preference only. The automation coordinator must schedule
-    /// first and call this with true only after scheduling succeeds.
-    func setBackgroundReceiptSyncEnabled(_ isEnabled: Bool) async throws {
-        try await update { preferences in
-            if isEnabled,
-               preferences.receiptAnalysisConsent?.noticeVersion != requiredNotices.receiptAnalysis {
-                throw PrivacyControlsFailure.receiptConsentRequired
-            }
-            preferences.backgroundReceiptSyncEnabled = isEnabled
-        }
-    }
-
-    /// Persists the preference only. Notification authorization/scheduling is
-    /// handled before this is set true; disabling is persisted before removal.
     func setDailyReminderEnabled(_ isEnabled: Bool) async throws {
         try await update { preferences in
             if isEnabled,
-               preferences.wardrobeStylingConsent?.noticeVersion != requiredNotices.wardrobeStyling {
+               preferences.wardrobeStylingConsent?.noticeVersion
+                    != requiredNotices.wardrobeStyling {
                 throw PrivacyControlsFailure.stylingConsentRequired
             }
             preferences.dailyReminderEnabled = isEnabled
-        }
-    }
-
-    /// Persists both automation switches in one write. Sign-out and privacy
-    /// reconciliation use this before removing their pending system work.
-    func disableAutomations() async throws {
-        try await update { preferences in
-            preferences.backgroundReceiptSyncEnabled = false
-            preferences.dailyReminderEnabled = false
         }
     }
 
@@ -165,8 +121,6 @@ final class PrivacyControls {
         } catch let failure as PrivacyControlsFailure {
             throw failure
         } catch {
-            // Keep the last known persisted state rather than showing an
-            // optimistic choice that failed to save.
             state = .loaded(current)
             throw PrivacyControlsFailure.saveFailed
         }

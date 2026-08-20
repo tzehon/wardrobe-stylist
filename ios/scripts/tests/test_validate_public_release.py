@@ -18,7 +18,6 @@ SPEC.loader.exec_module(MODULE)
 
 
 def valid_info() -> dict[str, Any]:
-    client_id = "123456789012-realclient.apps.googleusercontent.com"
     return {
         "CFBundleDisplayName": "Wardrobe Stylist",
         "CFBundleIdentifier": "com.tth.Wardrobe",
@@ -27,14 +26,6 @@ def valid_info() -> dict[str, Any]:
             "UIImageName": "LaunchMark",
             "UIImageRespectsSafeAreaInsets": True,
         },
-        "GIDClientID": client_id,
-        "CFBundleURLTypes": [
-            {
-                "CFBundleURLSchemes": [
-                    "com.googleusercontent.apps.123456789012-realclient"
-                ]
-            }
-        ],
         "BackendBaseURL": "https://api.wardrobestylist.app",
         "PRIVACY_POLICY_URL": "https://wardrobestylist.app/privacy",
         "SUPPORT_URL": "https://wardrobestylist.app/support",
@@ -111,18 +102,24 @@ class PublicReleaseValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "public hostname"):
             MODULE.validate(info)
 
-    def test_rejects_mismatched_callback_scheme(self) -> None:
+    def test_rejects_legacy_client_identifier(self) -> None:
         info = valid_info()
-        info["CFBundleURLTypes"][0]["CFBundleURLSchemes"] = [
-            "com.googleusercontent.apps.another-client"
-        ]
-        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "does not match"):
+        info["GIDClientID"] = "legacy-client"
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "must be absent"):
             MODULE.validate(info)
 
-    def test_rejects_unresolved_client_id(self) -> None:
+    def test_rejects_legacy_callback_scheme(self) -> None:
         info = valid_info()
-        info["GIDClientID"] = "$(GOOGLE_CLIENT_ID)"
-        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "placeholder"):
+        info["CFBundleURLTypes"] = [
+            {"CFBundleURLSchemes": ["com.googleusercontent.apps.legacy-client"]}
+        ]
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "must be absent"):
+            MODULE.validate(info)
+
+    def test_rejects_background_task_identifiers(self) -> None:
+        info = valid_info()
+        info["BGTaskSchedulerPermittedIdentifiers"] = ["com.tth.Wardrobe.legacySync"]
+        with self.assertRaisesRegex(MODULE.ReleaseConfigurationError, "must be absent"):
             MODULE.validate(info)
 
     def test_rejects_shared_bearer_even_when_empty(self) -> None:

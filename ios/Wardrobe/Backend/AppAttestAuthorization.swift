@@ -167,9 +167,9 @@ protocol ServerIdentityDeleting: Sendable {
 /// sessions. The access token is memory-only; after relaunch or expiry, the app
 /// signs a fresh one-time server challenge with the attested Secure Enclave key.
 ///
-/// This actor is deliberately the one shared refresh point for styling, manual
-/// receipt import, and background receipt import. Its in-flight task prevents
-/// concurrent requests from enrolling or advancing the App Attest counter twice.
+/// This actor is deliberately the one shared refresh point for styling. Its
+/// in-flight task prevents concurrent requests from enrolling or advancing the
+/// App Attest counter twice.
 actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
     static let shared = AppAttestAuthorization()
 

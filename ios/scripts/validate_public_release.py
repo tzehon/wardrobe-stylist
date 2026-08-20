@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import ipaddress
 import plistlib
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -16,9 +15,6 @@ class ReleaseConfigurationError(ValueError):
     """Raised when a built public Release configuration is incomplete or unsafe."""
 
 
-_CLIENT_ID_PATTERN = re.compile(
-    r"^(?P<prefix>[0-9]+-[A-Za-z0-9_-]+)\.apps\.googleusercontent\.com$"
-)
 _PLACEHOLDER_FRAGMENTS = (
     "example.com",
     "example.net",
@@ -83,22 +79,6 @@ def _public_https_url(
     return raw_value
 
 
-def _first_url_scheme(info: dict[str, Any]) -> str:
-    url_types = info.get("CFBundleURLTypes")
-    if not isinstance(url_types, list) or not url_types:
-        raise ReleaseConfigurationError("CFBundleURLTypes is missing")
-    first = url_types[0]
-    if not isinstance(first, dict):
-        raise ReleaseConfigurationError("CFBundleURLTypes is malformed")
-    schemes = first.get("CFBundleURLSchemes")
-    if not isinstance(schemes, list) or len(schemes) != 1:
-        raise ReleaseConfigurationError("exactly one Google callback URL scheme is required")
-    scheme = schemes[0]
-    if not isinstance(scheme, str) or not scheme.strip():
-        raise ReleaseConfigurationError("Google callback URL scheme is missing")
-    return scheme.strip()
-
-
 def validate(info: dict[str, Any]) -> None:
     """Validate the final built Info.plist, not source configuration files."""
     if info.get("CFBundleDisplayName") != "Wardrobe Stylist":
@@ -134,14 +114,25 @@ def validate(info: dict[str, Any]) -> None:
             "UILaunchScreen must keep LaunchMark inside safe-area insets"
         )
 
-    client_id = _required_string(info, "GIDClientID")
-    match = _CLIENT_ID_PATTERN.fullmatch(client_id)
-    if match is None:
-        raise ReleaseConfigurationError("GIDClientID is not a production Google iOS client ID")
-    expected_scheme = f"com.googleusercontent.apps.{match.group('prefix')}"
-    if _first_url_scheme(info) != expected_scheme:
+    if "GIDClientID" in info:
+        raise ReleaseConfigurationError("GIDClientID must be absent from this release")
+    for url_type in info.get("CFBundleURLTypes", []):
+        if not isinstance(url_type, dict):
+            raise ReleaseConfigurationError("CFBundleURLTypes is malformed")
+        schemes = url_type.get("CFBundleURLSchemes", [])
+        if not isinstance(schemes, list):
+            raise ReleaseConfigurationError("CFBundleURLSchemes is malformed")
+        if any(
+            isinstance(scheme, str) and "googleusercontent" in scheme.lower()
+            for scheme in schemes
+        ):
+            raise ReleaseConfigurationError(
+                "legacy provider callback URL schemes must be absent from this release"
+            )
+
+    if "BGTaskSchedulerPermittedIdentifiers" in info:
         raise ReleaseConfigurationError(
-            "Google callback URL scheme does not match the reversed GIDClientID"
+            "BGTaskSchedulerPermittedIdentifiers must be absent from this release"
         )
 
     _public_https_url(info, "BackendBaseURL", forbid_query_fragment=True)

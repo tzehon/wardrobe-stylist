@@ -6,7 +6,7 @@ import SwiftData
 /// The demo container exists only while `isActive` is true. It is never the
 /// app's production container, is never stored on disk, and is discarded in
 /// full on exit. All demo views receive this controller instead of constructing
-/// Gmail, backend, notification, or background-sync dependencies.
+/// backend or notification dependencies.
 @MainActor
 @Observable
 final class DemoModeController {
@@ -98,10 +98,7 @@ enum DemoLaunchPolicy {
 }
 
 enum DemoConnectedCapability: String, CaseIterable, Sendable {
-    case googleSignIn
-    case gmailImport
     case backendStyling
-    case backgroundSync
     case notifications
 }
 
