@@ -53,7 +53,7 @@ def test_cached_bridge_keeps_app_attest_available_after_legacy_cutoff(
         with pytest.raises(AuthFlowError) as expired:
             service.authenticate_bearer(
                 token="temporary-legacy-token-value-32-bytes",
-                path="/extract",
+                path="/recommend",
                 client_ip="192.0.2.81",
             )
         assert expired.value.code == "invalid_or_expired_session"
@@ -101,7 +101,7 @@ def test_expired_production_bridge_cold_start_keeps_app_attest_available(tmp_pat
     with pytest.raises(AuthFlowError) as rejected:
         service.authenticate_bearer(
             token=legacy_token,
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.91",
         )
     assert rejected.value.status_code == 401

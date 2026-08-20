@@ -88,7 +88,7 @@ def test_enroll_session_authenticate_and_recover_lost_registration_response(tmp_
 
     identity = service.authenticate_bearer(
         token=enrolled.access_token,
-        path="/extract",
+        path="/recommend",
         client_ip="192.0.2.10",
     )
     assert identity.installation_id == enrolled.installation_id
@@ -143,7 +143,7 @@ def test_fresh_deletion_assertion_removes_installation_sessions_and_key_state(
     enrolled = _enroll(service)
     service.authenticate_bearer(
         token=enrolled.access_token,
-        path="/extract",
+        path="/recommend",
         client_ip="192.0.2.10",
     )
     deletion = service.issue_challenge(
@@ -174,7 +174,6 @@ def test_fresh_deletion_assertion_removes_installation_sessions_and_key_state(
             row[0] for row in connection.execute("SELECT DISTINCT scope FROM rate_windows")
         }
     assert "session-key" not in remaining_scopes
-    assert "extract-installation" not in remaining_scopes
     assert "recommend-installation" not in remaining_scopes
     assert any(scope.endswith("-ip") or scope.endswith("-global") for scope in remaining_scopes)
 
@@ -250,7 +249,7 @@ def test_bearer_installation_rate_write_cannot_follow_competing_deletion(
     original_consume = service.store.consume_installation_rate_limit
 
     def delete_then_consume(**kwargs: object) -> None:
-        assert kwargs["scope"] == "extract-installation"
+        assert kwargs["scope"] == "recommend-installation"
         _commit_competing_deletion(service)
         original_consume(**kwargs)
 
@@ -263,7 +262,7 @@ def test_bearer_installation_rate_write_cannot_follow_competing_deletion(
     with pytest.raises(AuthFlowError) as rejected:
         service.authenticate_bearer(
             token=enrolled.access_token,
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.13",
         )
     assert rejected.value.code == "unknown_app_attest_key"
@@ -694,19 +693,19 @@ def test_session_expires_without_server_restart(tmp_path) -> None:
     with pytest.raises(AuthFlowError) as expired:
         service.authenticate_bearer(
             token=session.access_token,
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.40",
         )
     assert expired.value.code == "invalid_or_expired_session"
 
 
 def test_invalid_bearer_exhausts_endpoint_ip_quota_with_retry_after(tmp_path) -> None:
-    service, _, _ = _service(tmp_path, extract_rate_limit_per_hour=1)
+    service, _, _ = _service(tmp_path, recommend_rate_limit_per_hour=1)
 
     with pytest.raises(AuthFlowError) as invalid:
         service.authenticate_bearer(
             token="invalid-session-token",
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.41",
         )
     assert invalid.value.status_code == 401
@@ -714,7 +713,7 @@ def test_invalid_bearer_exhausts_endpoint_ip_quota_with_retry_after(tmp_path) ->
     with pytest.raises(AuthFlowError) as limited:
         service.authenticate_bearer(
             token="another-invalid-session-token",
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.41",
         )
     assert limited.value.status_code == 429
@@ -748,7 +747,7 @@ def test_app_session_is_limited_by_ip_and_installation(tmp_path) -> None:
     assert installation_limited.value.status_code == 429
 
 
-def test_legacy_bridge_is_ip_limited_and_expires_at_runtime(tmp_path) -> None:
+def test_legacy_bridge_is_ip_limited(tmp_path) -> None:
     clock = Clock(datetime(2026, 8, 16, tzinfo=UTC))
     config = _configuration(
         tmp_path,
@@ -763,7 +762,7 @@ def test_legacy_bridge_is_ip_limited_and_expires_at_runtime(tmp_path) -> None:
         verifier=FakeVerifier(),
     )
     service.initialize()
-    app_session = _enroll(service)
+    _enroll(service)
 
     identity = service.authenticate_bearer(
         token="temporary-legacy-token",
@@ -779,17 +778,34 @@ def test_legacy_bridge_is_ip_limited_and_expires_at_runtime(tmp_path) -> None:
         )
     assert limited.value.status_code == 429
 
+
+def test_legacy_bridge_expires_at_runtime_without_disabling_app_attest(tmp_path) -> None:
+    clock = Clock(datetime(2026, 8, 16, tzinfo=UTC))
+    config = _configuration(
+        tmp_path,
+        mode="bridge",
+        legacy_bridge_expires_at=clock.value + timedelta(minutes=5),
+    )
+    service = AppAttestAuthService(
+        configuration=config,
+        legacy_device_token="temporary-legacy-token",
+        now=clock,
+        verifier=FakeVerifier(),
+    )
+    service.initialize()
+    app_session = _enroll(service)
+
     clock.value += timedelta(minutes=6)
     app_identity = service.authenticate_bearer(
         token=app_session.access_token,
-        path="/extract",
+        path="/recommend",
         client_ip="192.0.2.62",
     )
     assert app_identity.mechanism == "app_attest"
     with pytest.raises(AuthFlowError) as expired:
         service.authenticate_bearer(
             token="temporary-legacy-token",
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.61",
         )
     assert expired.value.code == "invalid_or_expired_session"
@@ -812,7 +828,7 @@ def test_legacy_bridge_rejects_non_ascii_bearer_without_type_error(tmp_path) -> 
     with pytest.raises(AuthFlowError) as rejected:
         service.authenticate_bearer(
             token="not-the-token-雪",
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.63",
         )
     assert rejected.value.code == "invalid_or_expired_session"
@@ -914,7 +930,7 @@ def test_restored_installation_must_match_current_app_and_environment(
     with pytest.raises(AuthFlowError) as bearer_rejected:
         service.authenticate_bearer(
             token=bearer,
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.66",
         )
     assert bearer_rejected.value.code == "unknown_app_attest_key"
@@ -1102,12 +1118,12 @@ def test_global_session_quota_bounds_rotating_ip_attempts(tmp_path) -> None:
 
 
 def test_global_api_attempt_quota_bounds_rotating_ips_before_bearer_lookup(tmp_path) -> None:
-    service, _, _ = _service(tmp_path, extract_rate_limit_per_hour=1)
+    service, _, _ = _service(tmp_path, recommend_rate_limit_per_hour=1)
     for address in ("192.0.2.89", "192.0.2.90"):
         with pytest.raises(AuthFlowError) as invalid:
             service.authenticate_bearer(
                 token="invalid-session-token",
-                path="/extract",
+                path="/recommend",
                 client_ip=address,
             )
         assert invalid.value.status_code == 401
@@ -1115,7 +1131,7 @@ def test_global_api_attempt_quota_bounds_rotating_ips_before_bearer_lookup(tmp_p
     with pytest.raises(AuthFlowError) as globally_limited:
         service.authenticate_bearer(
             token="invalid-session-token",
-            path="/extract",
+            path="/recommend",
             client_ip="192.0.2.91",
         )
     assert globally_limited.value.status_code == 429
@@ -1183,7 +1199,6 @@ def _configuration(tmp_path: Path, **overrides) -> AuthConfiguration:
         "challenge_rate_limit_per_minute": 30,
         "registration_rate_limit_per_hour": 5,
         "session_rate_limit_per_hour": 60,
-        "extract_rate_limit_per_hour": 120,
         "recommend_rate_limit_per_hour": 30,
     }
     values.update(overrides)
@@ -1214,7 +1229,7 @@ def _commit_competing_deletion(service: AppAttestAuthService) -> None:
             """
             DELETE FROM rate_windows
             WHERE scope IN (
-                'session-key', 'extract-installation', 'recommend-installation'
+                'session-key', 'recommend-installation'
             )
             """
         )
@@ -1235,7 +1250,7 @@ def _assert_no_installation_scoped_state(service: AppAttestAuthService) -> None:
             """
             SELECT COUNT(*) FROM rate_windows
             WHERE scope IN (
-                'session-key', 'extract-installation', 'recommend-installation'
+                'session-key', 'recommend-installation'
             )
             """
         ).fetchone()[0] == 0

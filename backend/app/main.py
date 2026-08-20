@@ -2,7 +2,7 @@
 
 The backend exists solely to keep the Anthropic API key off the device and to
 let us iterate on prompts/agent logic without app rebuilds. It never persists
-email or wardrobe content. It does durably retain the minimum App Attest
+wardrobe content. It does durably retain the minimum App Attest
 authentication/security metadata required for replay-safe anonymous sessions.
 """
 
@@ -14,7 +14,7 @@ from fastapi import FastAPI
 from app.auth.runtime import initialize_auth_runtime
 from app.config import settings
 from app.http_security import MAX_REQUEST_BODY_BYTES, HTTPSecurityMiddleware
-from app.routes import auth, extract, recommend
+from app.routes import auth, recommend
 
 
 @asynccontextmanager
@@ -33,7 +33,6 @@ app.add_middleware(
     max_body_bytes=MAX_REQUEST_BODY_BYTES,
 )
 app.include_router(auth.router)
-app.include_router(extract.router)
 app.include_router(recommend.router)
 
 

@@ -288,6 +288,38 @@ def test_v3_challenge_schema_migrates_to_one_time_deletion_purpose(tmp_path) -> 
     assert deletion.challenge.purpose == "deletion"
 
 
+def test_initialize_purges_only_retired_extraction_rate_scopes(tmp_path) -> None:
+    path = tmp_path / "private-auth" / "auth.sqlite3"
+    store = AuthStore(path)
+    store.initialize()
+    with sqlite3.connect(path) as connection:
+        connection.executemany(
+            "INSERT INTO rate_windows VALUES (?, ?, 1000, 2000, 1)",
+            [
+                ("extract-global", "retired-global"),
+                ("extract-ip", "retired-ip"),
+                ("extract-installation", "retired-installation"),
+                ("recommend-installation", "active-installation"),
+                ("challenge", "active-challenge"),
+            ],
+        )
+        connection.commit()
+
+    AuthStore(path).initialize()
+
+    with sqlite3.connect(path) as connection:
+        remaining = {
+            (str(row[0]), str(row[1]))
+            for row in connection.execute(
+                "SELECT scope, subject_hash FROM rate_windows"
+            )
+        }
+    assert remaining == {
+        ("recommend-installation", "active-installation"),
+        ("challenge", "active-challenge"),
+    }
+
+
 def test_future_schema_version_is_rejected_before_auth_schema_writes(tmp_path) -> None:
     path = tmp_path / "private-auth" / "auth.sqlite3"
     path.parent.mkdir(mode=0o700)
@@ -1191,7 +1223,7 @@ def test_installation_deletion_is_counter_cas_and_removes_only_owned_state(tmp_p
             "INSERT INTO rate_windows VALUES (?, ?, 1000, 2000, 1)",
             [
                 ("session-key", "owned-key-hash"),
-                ("extract-installation", "owned-installation-hash"),
+                ("recommend-installation", "owned-installation-hash"),
                 ("challenge", "unrelated-ip-hash"),
                 ("session-global", "unrelated-global-hash"),
             ],
@@ -1215,7 +1247,7 @@ def test_installation_deletion_is_counter_cas_and_removes_only_owned_state(tmp_p
         previous_sign_count=4,
         rate_subject_hashes=(
             ("session-key", "owned-key-hash"),
-            ("extract-installation", "owned-installation-hash"),
+            ("recommend-installation", "owned-installation-hash"),
         ),
         policy=_policy(allow_revoked=True),
     )

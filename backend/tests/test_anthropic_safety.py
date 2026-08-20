@@ -57,32 +57,18 @@ def test_anthropic_request_slot_releases_permit_after_exception(
     slots.release()
 
 
-@pytest.mark.parametrize(
-    ("path", "request_body"),
-    [
-        (
-            "/extract",
-            {
-                "source_msg_id": "PRIVATE_SATURATION_MESSAGE_ID",
-                "snippet": "PRIVATE_SATURATION_RECEIPT_PAYLOAD",
-            },
-        ),
-        ("/recommend", _request_body(occasion="PRIVATE_SATURATION_OCCASION")),
-    ],
-)
 def test_anthropic_saturation_fails_fast_without_forwarding_private_payload(
     client,
     fake_anthropic,
     auth_headers,
     caplog: pytest.LogCaptureFixture,
     monkeypatch: pytest.MonkeyPatch,
-    path: str,
-    request_body: dict,
 ) -> None:
     monkeypatch.setattr(anthropic_safety, "_ANTHROPIC_SLOTS", _AlwaysSaturated())
+    request_body = _request_body(occasion="PRIVATE_SATURATION_OCCASION")
 
     with caplog.at_level("WARNING", logger="app.anthropic_safety"):
-        response = client.post(path, json=request_body, headers=auth_headers)
+        response = client.post("/recommend", json=request_body, headers=auth_headers)
 
     assert response.status_code == 503
     assert response.json() == {"detail": "The AI service is busy; try again shortly."}
