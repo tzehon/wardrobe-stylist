@@ -1,55 +1,54 @@
-# Privacy architecture and the read-only Gmail guarantee
+# Privacy architecture for the Gmail-free v1 candidate
 
-This document describes the implementation in this repository. It is not the hosted public
-privacy policy; the publication-ready source is
+This document describes the approved public-v1 architecture. It is not the hosted public privacy
+policy; the publication source is
 [`app-store/privacy-policy-draft.md`](app-store/privacy-policy-draft.md).
 
-## Read-only Gmail — enforced two ways
+The earlier read-only Gmail and purchase-receipt import subsystem remains only in Git history and
+explicitly historical setup documents. It is not reachable, configured, bundled, or described as
+a feature in public v1.
 
-**1. Structural: Gmail writes are not representable.**
-
-All Gmail traffic is expressed through
-[`GmailReadEndpoint`](../ios/Wardrobe/Gmail/GmailReadEndpoint.swift). Every case is an HTTP
-`GET` against an allowlisted read endpoint. There are no cases for sending, drafting, labeling,
-modifying, trashing, or deleting mail. The app requests exactly one Workspace scope:
-`https://www.googleapis.com/auth/gmail.readonly`.
-
-**2. Test backstop: CI rejects write capability.**
-
-[`GmailReadOnlyGuardTests`](../ios/WardrobeTests/GmailReadOnlyGuardTests.swift) verifies the exact
-scope, HTTP method, read endpoint allowlist, and Gmail source directory. Any mutating method,
-scope, or path makes the test suite fail.
-
-## Actual data flow
+## Public-v1 data flow
 
 ```mermaid
 flowchart LR
-    Gmail["Gmail messages"] -->|"read-only fetch"| Device["On-device receipt filtering"]
-    Device -->|"selected receipt fields/text"| API["Developer backend"]
-    API -->|"ephemeral extraction request"| Claude["Anthropic Claude"]
     Photos["User-selected photos"] --> Catalog["Local SwiftData wardrobe"]
-    Catalog -->|"compact item attributes + recent-worn IDs"| API
-    API -->|"styling request"| Claude
-    Claude --> API --> Device
+    Manual["Manual item details"] --> Catalog
+    Catalog -->|"compact text attributes + recent-wear summaries"| API["Developer backend"]
+    AppAttest["Apple App Attest proof"] --> API
+    API -->|"ephemeral styling request"| Claude["Anthropic Claude"]
+    Claude --> API --> Device["Outfit suggestion on device"]
 ```
 
-The intended public-release contract is:
+The release contract is:
 
-- Gmail access is optional; the local photo/manual wardrobe works without Google authorization.
-- Candidate detection and deterministic extraction run on device before cloud fallback.
-- Cloud receipt processing and AI styling require separate, versioned, revocable consent.
-- Background receipt import and daily reminders are separate opt-ins, off by default.
-- The backend must not persist receipt content or wardrobe payloads beyond request processing.
-- The app stores catalog, photos, outfits, and wear history locally unless the user later chooses
-  an explicitly documented backup/sync feature.
+- manual and photo cataloging, browse/edit/history, local reminders, and Demo Mode do not require
+  Google, a Wardrobe account, or the developer backend;
+- Google Sign-In, Gmail permissions, receipt import, and receipt background sync are absent from
+  the signed public-v1 archive;
+- AI styling is optional, explicit-action-only, and protected by a short-lived anonymous App
+  Attest session;
+- styling sends compact text attributes, recent item IDs, bounded per-item rating summaries, and
+  an optional occasion; it does not send wardrobe photos, purchase metadata, wear dates, or free-
+  text feedback;
+- the developer application does not persist wardrobe, prompt, or model-response payloads after
+  request processing; and
+- catalog data, selected photos, outfits, and wear history remain on device unless a future
+  backup/sync feature is separately designed, disclosed, and enabled.
 
-The current public-release work and remaining blockers are tracked in
-[`app-release-backlog.md`](app-release-backlog.md). Previous internal builds bundled a shared
-backend bearer that was **not a secret**. The current client removes that credential and can use
-remote AI only through anonymous, per-installation App Attest sessions. Apple provisioning,
-durable Fly auth state, development-device verification, production cutover, and legacy retirement
-are complete. Fly v5 now deploys the repository's lifecycle-policy enforcement. `APP-009` remains
-open for external operations evidence, the signed archive, and production TestFlight proof.
+The current release work and remaining blockers are tracked in
+[`app-release-backlog.md`](app-release-backlog.md).
+
+## Anonymous backend authorization
+
+Remote AI uses App Attest rather than a human login. One installation enrolls an Apple-certified
+key and receives short-lived sessions renewed with fresh, one-time assertion challenges. The
+private key stays in the Secure Enclave. The anonymous installation identifier is not a Wardrobe,
+Google, or Apple user account and is recreated after reinstall, migration, or restore.
+
+If App Attest is unsupported or secure verification is unavailable, the app fails closed for
+remote AI while keeping the local wardrobe and offline Demo Mode usable. There is no shared client
+bearer and no unauthenticated remote-AI fallback.
 
 ## Backend authentication-data lifecycle
 
@@ -57,41 +56,33 @@ The approved source of truth is
 [`app-attest-data-lifecycle-policy.md`](app-store/app-attest-data-lifecycle-policy.md). Its main
 limits are:
 
-- request payloads are not persisted by the developer application;
+- request and response payloads are not persisted by the developer application;
 - challenges, session hashes, and rate-window HMACs have short fixed validity and must be purged
   within 70, 20, and at most 65 minutes respectively;
-- active anonymous installation metadata and its opaque, untrusted Apple receipt expire after 90
-  days without successful authenticated use; revoked records expire after 30 days;
-- a verified server-data deletion removes live auth state within 24 hours;
+- active anonymous installation metadata and its opaque, untrusted Apple attestation receipt
+  expire after 90 days without successful authenticated use; revoked records expire after 30 days;
+- a verified server-data deletion removes live authentication state synchronously, within the
+  policy's 24-hour maximum;
 - encrypted auth snapshots are configured to disappear from Fly's customer listing within 14
   days, while provider all-copy purge timing remains undisclosed;
-- application access logs must be disabled and developer-emitted payload-free security events may
+- application access logs are disabled and developer-emitted payload-free security events may
   last at most seven days;
-- Fly's customer-visible proxy/platform records last seven days and may include paths, request IDs,
-  or client IP; and
-- separate provider operational/abuse logs may include source IP with no published or
-  customer-enforceable in-service maximum; the owner explicitly accepted that provider boundary
-  on 2026-08-19.
+- Fly's customer-visible proxy/platform records last seven days and may include paths, request
+  IDs, or client IP; and
+- separate provider operational/abuse logs may include source IP with no published or customer-
+  enforceable in-service maximum; the owner accepted that provider boundary on 2026-08-19.
 
 Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and
 90 days for residual encrypted backups. The account's Compliance page says that agreement becomes
 active only when the customer signs it; no active DPA or exact version is currently evidenced, and
 those periods must not be represented as active-service log or snapshot guarantees.
 
-The former 24-hour provider raw-IP maximum was not met and has been superseded for Fly-controlled
-logging by the owner-approved disclosure above. This does not change the separate 24-hour live
-server-deletion or temporary-restore-volume deadlines.
-
-Fly v5 deploys the application-owned controls with a one-minute lifecycle task on the
-minimum-one-Machine production topology, repeat-until-drained cleanup, 90/30-day installation
-purges, synchronous fresh-assertion deletion, SQLite secure-delete/WAL maintenance, structural
-persistence/logging guards, and a no-access-log container command. On 2026-08-20 the owner
-approved payload-free manual operations before archive/upload, after each backend/configuration
-change, and at least every 30 days while production remains deployed or enabled instead of adding
-an automated monitoring processor for the initial personal single-user release. Monitored support
-publication, snapshot-list expiry,
-restore-after-deletion evidence, App Privacy publication, and the other unchecked policy items
-remain release blockers.
+The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenance, persistence
+guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
+owner approved payload-free manual operations before archive/upload, after each backend or
+production-configuration change, and at least every 30 days while production remains deployed or
+enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, archive,
+and processed-TestFlight evidence remain release gates.
 
 ## Data inventory
 
@@ -101,41 +92,51 @@ what originates on device, what reaches the developer backend and Anthropic, the
 expectation, consent gate, deletion path, and unresolved provider-contract questions.
 
 Do not publish claims such as “Anthropic never retains data” or “data is never used for training”
-until the production contract/configuration has been verified. Do not treat the deployed
-application controls as proof of the accepted-undisclosed provider boundary or the still-open
-support, restore, processor-contract, and publication requirements. The first manual review passed
-on 2026-08-20, but it must remain current under the approved cadence.
+until the production contract/configuration has been verified. Do not turn a repository control or
+accepted provider unknown into a stronger production guarantee.
 
 ## User controls required for release
 
-- **Sign out:** end the local Google session without deleting the wardrobe.
-- **Disconnect Gmail:** revoke the Google authorization grant and stop Gmail access.
-- **Withdraw receipt-analysis consent:** stop foreground/background receipt transmission.
 - **Withdraw styling consent:** stop wardrobe-attribute transmission for recommendations.
-- **Disable background import/reminders:** cancel pending work immediately.
-- **Delete local wardrobe data:** remove items, photos, outfits, wear logs, sync state, cached looks,
-  and account-scoped preferences, while leaving unrelated Google data untouched.
+- **Disable reminders:** cancel pending local notifications.
+- **Delete local wardrobe data:** remove items, photos, outfits, wear logs, cached looks, and
+  related device preferences without changing the separate server record.
 - **Delete server security data:** use a fresh App Attest deletion assertion to remove this
-  installation's live anonymous authentication record and sessions, without deleting the local
-  wardrobe or disconnecting Google. Future remote-AI use enrolls a new anonymous identity.
+  installation's live anonymous authentication record and sessions without deleting the local
+  wardrobe. Future remote-AI use enrolls a new anonymous identity.
 
 Each control must report success only after its operation completes. Destructive actions require
-specific confirmation, and a failure must never be presented as deletion or revocation success.
+specific confirmation, and a failure must never be presented as deletion success.
+
+## Build 4 privacy transition
+
+Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the device-local wardrobe
+from TestFlight builds 1–3 and adding items again. Before uninstalling an older build, complete
+**Disconnect Google**, then **Delete Server Security Data**, and wait for each to report success.
+Only then uninstall the app and install build 4 cleanly. Do not install build 4 over an older build
+or claim an in-place migration.
+
+The ordering matters: uninstall removes local data and the old Google client, while reinstall
+creates a different anonymous App Attest identity that cannot prove control of the prior live
+server record.
 
 ## Secrets and release boundaries
 
 - The Anthropic API key lives only in backend environment/Fly secrets.
-- OAuth access/refresh tokens are managed by Google Sign In and platform credential storage.
 - A public iOS app cannot keep a shared backend credential secret, whether it is in `Info.plist`,
-  source, an asset, or Keychain. The production identity cutover is specified in
-  [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md).
-- Release artifacts are checked for the pinned Google Sign In version, app and SDK privacy
-  manifests, launch metadata, version fields, encryption declaration, HTTPS backend and public
-  links, matching OAuth callback configuration, and absence of the legacy shared backend bearer.
+  source, an asset, or Keychain.
+- Release artifacts must prove the production backend and public links are HTTPS, the App Attest
+  entitlement/profile matches the registered App ID, the app and integrated SDK privacy manifests
+  are present, and the legacy shared bearer is absent.
+- The Gmail-free v1 archive must additionally prove that Google Sign-In frameworks, Google client
+  identifiers/callback schemes, Gmail permissions/hosts, receipt-import client paths, and receipt
+  background-task identifiers are absent.
 
-## Policy constraints
+## Deferred historical Gmail work
 
-Google Workspace Limited Use applies to raw and derived Gmail data. Apple requires clear
-disclosure and permission before personal data is shared with third-party AI. Neither an App
-Store privacy label nor a Google CASA assessment replaces the in-app disclosure, data
-minimization, revocation/deletion controls, or processor-contract requirements.
+[`google-setup.md`](google-setup.md) and
+[`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) record the removed read-only
+Gmail design. They are not public-v1 setup steps or release gates. Reintroducing Gmail later would
+require a new product decision, implementation/privacy review, accurate public pages and App
+Privacy answers, Google restricted-scope verification as applicable, a new candidate build, and
+complete regression evidence.

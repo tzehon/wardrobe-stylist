@@ -1,164 +1,146 @@
-# Wardrobe Stylist privacy policy — publication draft
+# Wardrobe Stylist privacy policy — publication source
 
-> **Do not publish yet.** Replace every bracketed value, confirm the production Anthropic/backend
-> terms and Google verification outcome, and reconcile this text with the final request-capture
-> tests and App Privacy answers before setting an effective date.
+> Source for the Gmail-free candidate's next public-page revision. Reconcile it with the exact
+> submitted build, final request-capture tests, current linked provider terms, and App Privacy
+> answers before republishing. The current live page still describes the earlier Gmail-capable
+> build until this revision is deliberately published.
 
-- **Effective date:** [DATE]
-- **Developer:** [LEGAL NAME OR ENTITY]
+- **Effective date:** 20 August 2026
+- **Developer:** Tan Tze Hon
+- **Initial App Store availability:** Singapore
 - **Privacy contact:** `contact@tth.dev`
-- **Product website:** `https://blog.tth.dev/wardrobe/`
+- **Product/support website:** `https://blog.tth.dev/wardrobe/`
+- **Terms:** `https://blog.tth.dev/wardrobe/terms/`
 
 Wardrobe Stylist helps you build a wardrobe catalog and get outfit suggestions. You can add items
-manually or from photos without connecting Google. If you choose to connect Gmail, the app uses
-read-only access to look for purchase receipts. Gmail connection, AI processing, background
-receipt import, and reminders are optional.
+manually or from photos without an account. Cataloging, history, local reminders, and Demo Mode
+work without connected AI.
 
-## Information the app handles
+## Information stored on your device
 
-### Information stored on your device
+The app stores wardrobe item details, photos you choose or capture, purchase details you enter,
+cached outfit suggestions, wear history, feature preferences, styling-consent records, and local
+notification settings on your device. The developer does not operate cloud sync for this data.
+Apple-managed device backups may retain or restore some app data according to your device and
+backup settings.
 
-The app stores wardrobe item details, photos you choose or capture, purchase details you approve,
-outfit recommendations cached for use, wear history, feature preferences, consent records, and
-sync state on your device. [CONFIRM WHETHER ICLOUD/BACKUP EXCLUSION OR INCLUSION APPLIES.]
+## Wardrobe information used for optional AI styling
 
-### Google and Gmail information
+If you consent and request an outfit suggestion, the app may send compact wardrobe attributes—
+such as an internal item ID, name, category, brand, colors, and material—plus recent-wear item IDs,
+bounded per-item rating summaries, and an occasion you provide to the developer backend and
+Anthropic.
 
-If you connect Gmail, the app requests only the
-`https://www.googleapis.com/auth/gmail.readonly` scope. This allows the app to read Gmail but not
-send, modify, label, trash, or delete messages. On-device code searches for likely purchase
-receipts and extracts deterministic structured fields where possible.
+Wardrobe photos, purchase date/price/currency, wear dates, rating free text, and other local files
+are not included in public-v1 styling requests. The app does not send a styling request merely
+because you open a tab.
 
-For a receipt that needs cloud analysis, the app sends our backend a validated sender domain, a
-sanitized subject, and either bounded structured product fields or selected, redacted product
-lines. The current compatibility envelope also sends a Gmail message identifier to our backend
-for response correlation; the backend removes that identifier before sending the minimized
-product context to Anthropic. Full sender addresses and raw message bodies are not sent to
-Anthropic. [VERIFY FINAL REQUEST CAPTURE, BACKEND LOGGING, AND PROVIDER FIELDS BEFORE PUBLICATION.]
+## Technical and security information
 
-### Wardrobe information used for AI styling
-
-If you consent to AI styling, the app may send compact wardrobe attributes—such as internal item
-ID, name, category, brand, colors and material—plus recent-wear identifiers, bounded per-item
-rating summaries (item ID, average 1–5 rating and rating count), and an occasion you provide to
-our backend and Anthropic. Rating free text, wear dates, wardrobe photos, and purchase metadata
-are not included in styling requests unless this policy and the in-app disclosure are updated and
-you consent.
-
-### Technical information
+Remote AI is authorized by Apple App Attest rather than a human login. Anonymous App Attest
+security metadata can include key and challenge IDs, one-time challenge secrets, a verified public
+key, an anonymous installation ID, assertion counter, App ID and environment, optional Apple-
+signed validation-category and app-build values, an opaque Apple attestation receipt, session IDs
+and one-way bearer-token hashes, and bounded rate-window scopes, counts, timestamps, and keyed HMAC
+subject hashes. App Attest identifies one app installation and is recreated after reinstall,
+migration, or restore. The private key remains in the Secure Enclave and raw bearer tokens are not
+stored by the backend.
 
 The backend necessarily receives network information such as IP address and request timing while
-servicing a request. The developer auth database stores only keyed HMAC rate-limit subjects, not
-raw IP addresses. Application security events are designed to omit IP addresses, installation and
-key identifiers, credentials, request content, and model content.
+servicing a request. The developer authentication database stores keyed HMAC rate-limit subjects
+rather than raw IP addresses. Application security events are designed to omit IP addresses,
+installation/key identifiers, credentials, request content, and model content.
 
-Fly's customer-visible proxy/platform stream is retained for a fixed seven days and may contain
-request paths, request IDs, and client IP. Separate Fly operational/abuse-prevention logs can
-contain source IP; their in-service fields, retention, and purge timing are undisclosed and not
-customer-configurable. These records are used for app functionality, network delivery, abuse
-prevention, security, reliability, and diagnostics. They may be associated with an app installation
-or request, and are not used by the developer for advertising or cross-company tracking.
-
-[BEFORE PUBLICATION: DECIDE WHETHER TO REQUEST/REVIEW/SIGN FLY'S OPTIONAL DPA; THE ACCOUNT HAS NO
-ACTIVE DPA. CONFIRM SUBPROCESSORS, REGION, FINAL APP PRIVACY PUBLICATION, AND CRASH/ANALYTICS TOOLS.
-SEE `app-attest-data-lifecycle-policy.md`.]
+Fly.io has confirmed that its customer-visible proxy/platform error records can include paths,
+request IDs, and sometimes client IP, and that separate provider operational or abuse-prevention
+logs can contain source IP. The customer-visible stream lasts seven days and cannot be shortened
+per app; separate provider-internal in-service retention is undisclosed and not customer-
+configurable. These retained technical records support app functionality, network delivery, abuse
+prevention, security, reliability, and diagnostics. They may be associated with an installation or
+request and are not used by the developer for advertising or cross-company tracking.
 
 ## How information is used
 
-We use information only to provide user-facing features you request: importing wardrobe items
-from receipts, generating outfit suggestions, preventing excessive repeats, securing and
-operating the service, diagnosing failures, and complying with law. The developer does not use
-Gmail or technical/security data for advertising, data brokerage, credit or lending decisions,
-advertising profiles, or tracking across other companies' apps and websites.
+The developer uses information only to provide features you request: storing local wardrobe
+details, generating outfit suggestions, preventing excessive repeats, securing and operating the
+service, diagnosing failures, and complying with law. The developer does not use wardrobe or
+technical/security data for advertising, data brokerage, credit or lending decisions, advertising
+profiles, or tracking across other companies' apps and websites.
 
-We adhere to the Google API Services User Data Policy, including its Limited Use requirements.
-[KEEP THIS STATEMENT ONLY AFTER THE FINAL PROCESSOR/AI ARCHITECTURE IS ACCEPTED BY GOOGLE.]
+## Processing providers
 
-## Processing providers and disclosures
-
-- **Google:** authentication and read-only Gmail API access when you connect Gmail.
-- **Fly.io:** runs the developer-controlled API that authenticates the
-  app, minimizes/validates requests, and coordinates AI processing.
-- **Anthropic:** processes receipt or wardrobe payloads to return structured items and outfit
-  suggestions when you explicitly use an AI feature.
-- **Apple:** provides the operating system, notifications, optional platform backup behavior, and
+- **[Fly.io](https://fly.io/legal/privacy-policy/):** hosts the developer-controlled backend and
+  encrypted authentication volume.
+- **[Anthropic](https://www.anthropic.com/legal/privacy):** processes minimized wardrobe inputs to return outfit suggestions when you
+  explicitly use AI styling.
+- **[Apple](https://www.apple.com/legal/privacy/):** provides iOS, local notifications, optional device-backup behavior, App Attest, and
   App Store distribution.
+- **[GitHub Pages](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement):** hosts the public support, privacy, and Terms pages and necessarily processes
+  website-request network data when someone visits them.
 
-[ADD EVERY PRODUCTION PROCESSOR AND LINK ITS POLICY. CONFIRM CONTRACTUAL RETENTION, TRAINING,
-HUMAN ACCESS, REGION, SUBPROCESSORS, AND DELETION BEFORE CLAIMING SPECIFIC PRACTICES.]
+These providers may process information outside Singapore under their linked privacy policies and
+service terms. Do not infer stronger retention, model-improvement, human-access, subprocessor,
+regional, or deletion guarantees than those verified for the production configuration.
 
 ## Retention
 
-Wardrobe data remains on your device until you delete it or remove the app, subject to any device
-backup you control. Our developer application does not persist receipt text or wardrobe payloads
-after the request completes. We retain only the minimum server-side authentication, security, and
-abuse-prevention records required to operate the public service.
+Local wardrobe data remains on the device until you delete it or remove the app, subject to Apple-
+managed backup settings. The developer application does not persist wardrobe, prompt, or model-
+response payloads after request processing. It retains only minimum authentication, security, and
+abuse-prevention records required to operate remote AI.
 
-One-time challenges are purged no later than 70 minutes after issue; session-token hashes no later
-than 20 minutes after issue; and keyed rate-limit subjects no later than the applicable window plus
-5 minutes. Active installation metadata and opaque Apple receipts are removed after 90 days
-without successful use, and revoked installations after 30 days. A verified deletion request
-removes the installation's live authentication record and sessions synchronously, within the
-policy's 24-hour maximum.
+The implemented live-store limits are:
 
-The encrypted authentication volume is configured so snapshots stop appearing from Fly's customer
-listing after 14 days; Fly does not disclose all-copy purge timing. Developer security events and
-Fly's customer-visible proxy/platform stream last seven days. Separate provider-internal
-operational/abuse-log retention is undisclosed and not customer-configurable. Those hosting records
-are separate from live authentication-record deletion and are not removed immediately by the
-in-app deletion action.
+- one-time challenges are valid for 5 minutes and purged no later than 70 minutes after issue;
+- session-token hashes are valid for 15 minutes and purged no later than 20 minutes after issue;
+- keyed rate-limit subjects are purged no later than the applicable window plus 5 minutes;
+- active installation metadata is removed after 90 days without successful authenticated use;
+- revoked installation metadata is removed after 30 days; and
+- an App-Attest-verified deletion request synchronously removes that installation's live security
+  record and sessions, within the policy's 24-hour maximum.
 
-[BEFORE PUBLICATION: VERIFY ANTHROPIC/OTHER PROCESSOR RETENTION AND COMPLETE THE SNAPSHOT-LIST,
-RESTORE, AND PROCESSED-TESTFLIGHT EVIDENCE.]
+The authentication volume is encrypted and configured for rolling 14-day snapshots. Fly.io says a
+snapshot then disappears from the customer listing but does not disclose all-copy purge timing.
+Fly.io's customer-visible log stream lasts seven days; its separate provider operational/abuse-log
+in-service retention is undisclosed and has no customer-enforceable hard maximum. Hosting records
+are separate from the live server record and are not removed immediately by the in-app deletion
+action.
 
 ## Your choices and controls
 
-In the app you can use a local wardrobe without Gmail, decline or withdraw receipt-analysis and
-styling consent, disable background import and reminders, sign out, disconnect/revoke Gmail, and
-delete local wardrobe data. You can separately use **Settings → Privacy & Data → Delete
-Server Security Data** to prove control with App Attest and remove this installation's live
-anonymous authentication record and sessions. That server action does not delete the wardrobe or
-disconnect Google; future remote-AI use enrolls a new anonymous identity. Disconnecting Gmail stops
-future Gmail access but does not delete mail or modify your Google account. Deleting the local
-wardrobe does not delete Gmail messages.
+You can use the local wardrobe without remote AI, decline or withdraw styling consent, disable
+local reminders, and delete local wardrobe data. You can separately use **Settings → Privacy &
+Data → Delete Server Security Data** to prove installation control with App Attest and delete that
+installation's live anonymous server record and sessions. That action does not delete the local
+wardrobe; future remote-AI use enrolls a new anonymous identity.
 
-You can also review or revoke Google access at
-[Google Account third-party connections](https://myaccount.google.com/connections).
-
-For access, correction, deletion, or privacy questions about any server-side information, contact
-`contact@tth.dev`. [BEFORE PUBLICATION: VERIFY THE IN-APP ASSERTION-VERIFIED SERVER-DELETION FLOW ON
-THE FINAL TESTFLIGHT BUILD, PUBLISH THE MONITORED CONTACT, AND ADD APPLICABLE
-JURISDICTION-SPECIFIC RIGHTS AND RESPONSE PROCESS.]
+For privacy, access, correction, deletion, or security questions, email `contact@tth.dev`. Never
+send credentials, App Attest material, or private wardrobe photos.
 
 ## Security
 
-We use HTTPS in transit, platform-provided credential storage, least-privilege read-only Gmail
-scope, schema validation, anonymous per-installation App Attest backend authorization, rate
-limits, dependency review, and automated tests intended to prevent Gmail write capability and
-unauthorized data transmission.
-[REMOVE ANY CONTROL NOT VERIFIED IN THE FINAL PRODUCTION DEPLOYMENT.]
-
-No method of storage or transmission is completely secure. Contact `contact@tth.dev` if you
-believe you found a security issue.
+Security measures include HTTPS in transit, platform credential storage, anonymous App Attest
+backend authorization, schema validation, rate limits, dependency review, minimized request
+fields, and automated regression checks. No method of storage or transmission is completely
+secure.
 
 ## Children
 
-Wardrobe Stylist is not directed to children under [APPLICABLE AGE]. [RECONCILE WITH FINAL APP
-STORE AGE RATING AND TARGET MARKETS.]
+Wardrobe Stylist is not directed to children.
 
-## International transfers
+## International processing
 
-[DESCRIBE THE DEVELOPER, HOSTING AND ANTHROPIC LOCATIONS, TRANSFER MECHANISM, AND TARGET MARKETS.]
+The app is initially offered in Singapore. The providers listed above may process data in other
+locations under their linked terms and privacy policies.
 
-## Changes to this policy
+## Changes
 
-We will update this policy when data practices or providers change and show the effective date.
-When a material change affects an optional AI data flow, the app will require consent to the new
-notice before that flow resumes.
+Material changes will be reflected by updating the effective date. When a material change affects
+optional AI data processing, the app will require consent to the updated notice before that flow
+resumes.
 
 ## Contact
 
-- [LEGAL NAME OR ENTITY]
-- [POSTAL ADDRESS IF REQUIRED]
+- Tan Tze Hon
 - `contact@tth.dev`
 - `https://blog.tth.dev/wardrobe/`

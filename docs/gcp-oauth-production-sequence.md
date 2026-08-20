@@ -1,15 +1,19 @@
 # Recommended production sequence — Google Cloud OAuth and Gmail
 
-This is intentionally deferred until the app-side readiness branch is complete. The current
-single-user TestFlight configuration is not suitable for a generally available App Store app:
-`gmail.readonly` is a **restricted** scope and receipt data crosses a developer-controlled
-backend. Backend authorization is now a separate Apple decision: Wardrobe uses anonymous,
-per-installation App Attest sessions, while Google remains solely the optional Gmail connection.
+> **Historical/deferred — not a public-v1 release gate.** The approved public v1 is Gmail-free and
+> does not ship Google Sign-In, Gmail scopes, receipt import, or Google client configuration. This
+> sequence is retained only for a possible later release, which would require a new product,
+> privacy, verification, security-assessment, and distribution decision before work resumes.
+
+The removed design used the restricted `gmail.readonly` scope and sent minimized receipt data
+through a developer-controlled backend. This sequence records the work a separately approved
+future reintroduction would require. Backend authorization remains anonymous, per-installation App
+Attest rather than Google identity.
 
 Do these steps in order. Do not flip the existing project to production first and try to make the
 code match afterward.
 
-The next internal TestFlight build also follows the public-candidate standard in
+Any future Gmail-capable TestFlight build would also follow the public-candidate standard in
 [`app-store/internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md). Internal
 describes the tester group only; it does not authorize a shared bearer, placeholder release
 configuration, an incomplete App Attest deployment, or Apple's non-promotable **TestFlight

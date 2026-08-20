@@ -3,9 +3,11 @@
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
-- **Release compliance:** Repository enforcement and final-image deployment complete; Fly
+- **Release compliance:** Repository enforcement and policy-image v5 deployment complete; Fly
   provider and manual-operations boundaries explicitly accepted; first manual review complete;
-  snapshot-list, deletion-specific recovery, and publication evidence incomplete
+  monitored public support/privacy/Terms routes live. The Gmail-free candidate changes the backend,
+  so its exact replacement image build/scan/deploy and APP-016 page republish remain open;
+  snapshot-list and deletion-specific recovery evidence is also incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -100,7 +102,8 @@ pre-archive and post-change checks reduce that risk but do not eliminate it.
 This policy does not settle:
 
 - local iPhone data, which is covered by the app's Privacy & Data controls;
-- Google/Gmail retention, which is controlled by Google and the user's Google account; or
+- any separately approved future Google/Gmail access or retention; public v1 contains no such
+  capability; or
 - Anthropic request retention, training, human-access, and deletion terms, which remain APP-016
   provider-contract gates.
 
@@ -122,8 +125,8 @@ Apple receipt checks are implemented and evidenced.
 
 The auth database must never contain Gmail message or purchase-receipt content, wardrobe data,
 photos, model prompts or responses, OAuth credentials, raw bearer tokens, App Attest private keys,
-or raw IP addresses. Receipt and wardrobe request payloads may exist in process memory only for the
-request being served and must not be written to application logs or durable application storage.
+or raw IP addresses. Wardrobe request payloads may exist in process memory only for the request
+being served and must not be written to application logs or durable application storage.
 Provider processing remains subject to the separate processor-contract gate.
 
 ## Required retention schedule
@@ -135,7 +138,7 @@ snapshot when that snapshot leaves the customer-visible listing.
 
 | Data | Approved limit / accepted provider boundary | Current repository/production truth |
 |---|---|---|
-| Receipt and wardrobe request payloads | Request lifetime only; no application persistence | Current routes do not persist payloads. Review guardrails pin the exact auth schema, block common file/database persistence patterns and direct auth-store use from payload modules, and allowlist current application log calls. Anthropic/provider terms remain separate evidence |
+| Wardrobe request payloads | Request lifetime only; no application persistence | Current routes do not persist payloads. Review guardrails pin the exact auth schema, block common file/database persistence patterns and direct auth-store use from payload modules, and allowlist current application log calls. Anthropic/provider terms remain separate evidence |
 | App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v5 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
 | Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v5 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
 | Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v5's one-minute maintenance loop |
@@ -306,6 +309,10 @@ Required before APP-009 can close:
   `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
   was restored to the registry, re-scanned, and passed an isolated v3/v4 database round-trip with
   SQLite integrity `ok`.
+- [ ] After the Gmail-free source is reviewed and merged, build and scan its exact `linux/amd64`
+  image, push and re-scan the immutable registry digest, deploy only that digest, and repeat the
+  payload-free post-deploy manual review. Production v5 still exposes the retired `/extract`
+  surface; local source removal alone is not production-retirement evidence.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
@@ -320,7 +327,7 @@ Required before APP-009 can close:
 - [ ] Publish the final App Store Connect App Privacy answers from the accepted production facts:
   Device ID, Other Diagnostic Data, and Product Interaction; App Functionality; linked; not
   tracking. Reassess before submission if any processor, purpose, or data flow changes.
-- [x] Complete the first manual operations review against the final deployed image. The
+- [x] Complete the first manual operations review against the pre-APP-036 policy-v5 image. The
   `2026-08-20T00:15:07Z` review reconfirmed the public production health response, passing Fly
   check, single running Machine, expected immutable image, encrypted-volume policy and
   below-warning usage band, and a completed 14-day snapshot newer than 36 hours. Fly's
@@ -332,13 +339,26 @@ Required before APP-009 can close:
   had already passed its payload-free delivery rehearsal. No raw metric value, log sample,
   screenshot, identifier, exact billing amount, credential, or provider response body is retained
   as evidence. Repeat the review before archive/upload and no later than 2026-09-19.
-- [ ] Publish monitored privacy/support contacts and the server-deletion procedure. The public
-  contact is selected as `contact@tth.dev`. Unpublished support/privacy pages are prepared in
-  [`tzehon.github.io` draft PR #2](https://github.com/tzehon/tzehon.github.io/pull/2). A
-  payload-free inbound-routing rehearsal sent at `2026-08-19T13:20:04Z` was confirmed delivered
+- [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
+  [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
+  `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
+  Pages deployment completed successfully. Anonymous HTTPS requests at
+  `2026-08-20T13:22:35Z` returned `200` for
+  [`/wardrobe/`](https://blog.tth.dev/wardrobe/) and
+  [`/wardrobe/privacy/`](https://blog.tth.dev/wardrobe/privacy/). The rendered pages identify
+  `contact@tth.dev`, the two-business-day response target, the live server-deletion procedure,
+  and the accepted separate hosting-log/snapshot boundaries, with no draft/publication markers.
+  Public Terms [`PR #4`](https://github.com/tzehon/tzehon.github.io/pull/4) then merged as
+  `ff27bbe3ed2d2c4e7d3041313c0745df7f09fe44` at `2026-08-20T13:50:53Z`; the matching Pages
+  deployment succeeded, and an anonymous HTTPS request returned `200` for
+  [`/wardrobe/terms/`](https://blog.tth.dev/wardrobe/terms/) at `2026-08-20T13:52:35Z`.
+  Support and privacy link to Terms, and Terms links back to both pages.
+  A payload-free inbound-routing rehearsal sent at `2026-08-19T13:20:04Z` was confirmed delivered
   by the owner on 2026-08-19; no message body, mailbox contents, or identifiers are retained as
-  release evidence. Removal of the pages' `published: false` guards remains pending. The approved
-  public response target is within two business days.
+  release evidence.
+  This check remains valid for monitored routing and the server-deletion procedure. The later
+  APP-036 Gmail-free product decision reopens the candidate-copy publication gate under APP-016;
+  locally edited pages are not publication evidence until deployed and verified signed out.
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.

@@ -1,78 +1,82 @@
 # App Review notes — draft
 
-> Reconcile these notes with the exact submitted build. Remove every TODO before submission.
+> Reconcile these notes with the exact submitted Gmail-free build. Remove every TODO and
+> placeholder before submission.
 
 ## Product summary
 
-Wardrobe Stylist is a local-first wardrobe catalog and optional AI styling app. A reviewer can
-explore the local/demo wardrobe without Google. Gmail connection is optional and strictly
-read-only; it imports clothing purchase information from likely receipts. The app has no
-Wardrobe account or login. When a reviewer explicitly uses remote AI, Apple App Attest verifies
-that installation and the backend issues a short-lived anonymous session; Google is not used to
-authorize styling or the developer backend.
+Wardrobe Stylist is a local-first wardrobe catalog and optional AI styling app. Users add items
+manually or from photos, browse and edit the catalog, record worn looks, and can ask Aria for an
+outfit suggestion. Public v1 does not connect to Google, read email, import receipts, or require a
+Wardrobe account or login.
+
+When a user explicitly requests remote AI styling, Apple App Attest verifies that installation and
+the backend issues a short-lived anonymous session. Local catalog, history, reminders, and Demo
+Mode do not require the backend.
 
 ## Reviewer path without personal data
 
 1. Launch the app.
-2. Choose **Try the offline demo**. Its indigo banner says **Demo Mode · Fictional Data** and
+2. Choose **Try the offline demo**. Its banner says **Demo Mode · Fictional Data** and
    **Offline · Changes are discarded**.
-3. Open **Wardrobe** to browse, search, review the pending fictional import, edit, and delete
-   fictional items.
-4. Open **Today** to view the bundled recommendation. This path does not construct a Gmail or AI
-   network client.
+3. Open **Wardrobe** to browse, search, edit, and delete fictional manual/photo items.
+4. Open **Today** to view the bundled recommendation. This path does not construct an AI network
+   client.
 5. Open **History** to inspect a fictional previously worn look and its pieces.
-6. Open **Settings** to confirm connected features are unavailable in Demo Mode, reset the
-   disposable data, or exit the tour.
+6. Open **Settings** to reset the disposable data or exit the tour.
 
-No Google credentials are required for this path. Demo data is held in a dedicated in-memory
-store and discarded on reset or exit; it does not open the production wardrobe merely by
-launching the tour. The same deterministic path is covered by the app's UI-test launch argument
-`--wardrobe-demo`, but reviewers should use the visible first-run button above.
+No credentials or review account are required. Demo data uses a dedicated in-memory store and is
+discarded on reset or exit; entering the tour does not open or modify the production wardrobe. The
+same deterministic path is covered by `--wardrobe-demo`, but reviewers should use the visible
+first-run button.
 
 App Attest is not required for this offline reviewer path. If secure installation verification,
-the network, or the backend is unavailable, the app keeps local wardrobe and Demo Mode usable and
-fails closed only for remote AI with a recovery message; it does not mint an unauthenticated
-fallback session.
+the network, or the backend is unavailable, local wardrobe and Demo Mode remain usable and only
+remote AI fails closed with a recovery message. The app does not mint an unauthenticated fallback
+session.
 
-## Gmail test path
+## Optional AI styling path
 
-1. Open **Settings → Connected Features → Receipt Import → Connect Gmail**.
-2. Read and affirm the disclosure immediately before the Google authorization screen.
-3. The app requests only `https://www.googleapis.com/auth/gmail.readonly`.
-4. Tap **Sync Receipts**, then review and correct pending imported items before accepting them.
-5. Disconnect Gmail in **Settings → Connected Features**; the grant is revoked and background
-   work is cancelled.
+1. Add at least [MINIMUM ITEM COUNT] fictional items manually or from photos, or use the provided
+   App Review fixture [VERIFY EXACT SUBMITTED PATH].
+2. Open **Today** and request a suggestion.
+3. Read and accept the styling disclosure immediately before the first transmission.
+4. Optionally enter a short occasion and request the look.
+5. Confirm the suggestion resolves only to items already in the local catalog; use **Wear this**
+   to add it to local History.
 
-Test account: [APP STORE CONNECT REVIEW CREDENTIAL FIELD ONLY]  
-Representative receipt subject: [FICTIONAL TEST SUBJECT]  
-Expected item/result: [EXPECTED RESULT]
+No login is required. If App Review needs a deterministic connected path, describe the exact
+submitted fixture here; never provide personal data or a shared backend credential.
 
 ## Third-party AI disclosure
 
-The app names the developer backend and Anthropic before receipt or styling data is transmitted.
-Receipt analysis and wardrobe styling have separate, versioned consent records. With consent
-absent or withdrawn, automated request-capture tests verify the protected network paths make zero
-Gmail/backend calls. The backend retains only the minimum anonymous App Attest authentication and
-abuse-prevention metadata; it is intended not to persist receipt or wardrobe payloads. Retention,
-logging, deletion, snapshots, and manual production operations must satisfy the
+Before styling data is transmitted, the app identifies the developer backend and Anthropic and
+describes the compact text fields and purpose. With styling consent absent or withdrawn,
+request-capture tests verify `/recommend` is not called. Wardrobe photos, purchase metadata, wear
+dates, and feedback free text are not included in v1 styling requests.
+
+The developer application does not persist wardrobe, prompt, or model-response payloads. The
+backend retains only minimum anonymous App Attest authentication and abuse-prevention metadata.
+Retention, logging, deletion, snapshots, and manual production operations follow the
 [APP-009 lifecycle policy](app-attest-data-lifecycle-policy.md). [VERIFY THE SUBMITTED COMMIT AND
-EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.] The submitted build must also expose the
-separate **Settings → Privacy & Data → Delete Server Security Data** control, which proves the
-current anonymous installation with a fresh App Attest assertion and does not delete local data or
-disconnect Google.
+EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.]
 
-## Background and notifications
+The submitted build exposes **Settings → Privacy & Data → Delete Server Security Data**. It uses a
+fresh App Attest assertion to delete the current installation's live anonymous server record and
+sessions. This is separate from deleting the local wardrobe.
 
-Both are off by default. Permission is requested only after the reviewer explicitly enables a
-reminder. Background receipt import also requires an active Gmail connection, current receipt
-consent and a separate toggle. iOS schedules it opportunistically, not at an exact time.
+## Reminders and background behavior
+
+Daily reminders are local notifications, off by default, and requested only after the user enables
+them. The notification does not claim that an outfit was generated in the background; opening it
+routes to Today. Public v1 has no Gmail or receipt background task.
 
 ## Backend availability
 
 - Production API: [HTTPS HOST]
 - Health URL: [HEALTH URL]
 - Review-window minimum instances: [VALUE]
-- Status/support: [URL]
+- Support: `https://blog.tth.dev/wardrobe/`
 - App Attest environment and tester OS/runtime fields:
   [PRODUCTION / OS VERSION / EXTENSIONS PRESENT OR EXPECTED ABSENT]
 - iOS 27+ App Attest category/build allowlist:
@@ -81,40 +85,41 @@ consent and a separate toggle. iOS schedules it opportunistically, not at an exa
 
 ## Non-obvious implementation assurances
 
-- Gmail operations are structurally limited to allowlisted HTTP GET endpoints and guarded by an
-  automated source scan/scope test.
+- The signed public-v1 archive contains no Google Sign-In SDK/client configuration, Gmail scope or
+  route, receipt-import client path, or receipt background task. [MUST BE TRUE.]
 - The server rejects recommendation item IDs not present in the submitted catalog.
-- Receipt and wardrobe payloads are schema-validated.
+- Styling requests and responses are schema-validated.
 - The public client contains no Anthropic key or shared backend bearer. [MUST BE TRUE.]
 - Backend authorization uses an Apple-certified key unique to this installation and a short-lived
   session. Reinstalling creates a new anonymous installation identity; it does not create or link
   a human account.
-- Server authentication-data deletion is distinct from local wardrobe deletion and Google
-  revocation. It requires a fresh App Attest assertion for the current installation, then removes
-  that live identity and its sessions before the app discards its local key reference.
-- Sign in with Apple is not presented because the Google connection is solely for the specific
-  Gmail receipt-import service; the core app and backend do not require a Google or Wardrobe
-  account.
+- Server authentication-data deletion is distinct from local wardrobe deletion. It requires a
+  fresh App Attest assertion, removes the current live identity and sessions, and then clears the
+  app's local server-identity reference.
+- Sign in with Apple is not presented because the app has no human account or login. App Attest is
+  installation security, not an account system.
 
 ## Build-specific checks before pasting these notes
 
-- [ ] Replace the backend, health, contact, and Gmail-test-account placeholders below.
-- [ ] Confirm Demo Mode labels and reviewer steps against the exact uploaded build.
-- [ ] Confirm the selected review account can complete Google authorization without unavailable
-  employee-only steps and that any verification warning has been resolved.
+- [ ] Replace every backend, health, fixture, and contact placeholder.
+- [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
+- [ ] Confirm the archive has no Google/Gmail/receipt-import capability and no login screen.
+- [ ] Confirm build 4 is distributed only as a clean install. Builds 1–3 must first complete
+  Disconnect Google and Delete Server Security Data, then be uninstalled; the owner accepted the
+  resulting local wardrobe reset. Do not claim in-place migration support.
 - [ ] Confirm the production API is healthy throughout the review window.
 - [ ] Confirm App Attest is enabled for the exact App ID and prefix; the archive/profile contain
-  the entitlement; and the uploaded TestFlight build completes production attestation. On iOS
-  27+, confirm signed category `2` and the exact submitted bundle build; on iOS 18–26, record the
-  expected absence of those runtime fields without claiming build/category enforcement.
-- [ ] Confirm durable auth storage, snapshot and restore evidence, logging/retention claims,
-  rate limits, and an App-Attest-only rollback image against the deployed backend.
-- [ ] Confirm the exact submitted build's server-security-data deletion control against the final
-  deployed backend and retain only redacted success/restore evidence.
-- [ ] Confirm the migration bridge is disabled, `DEVICE_TOKEN` is unset/rotated, and an obsolete
-  shared-bearer build is rejected without breaking the submitted build.
-- [ ] Attach a short screen recording only if the connected flow needs additional explanation.
-- [ ] Re-run the public Release configuration and request-capture guards against the archive.
+  the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
+  the intended signed category/build. On iOS 18–26, record the expected field absence without
+  claiming category/build enforcement.
+- [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
+  limits, and an App-Attest-only rollback image against the deployed backend.
+- [ ] Confirm server-security-data deletion against the final backend and retain only redacted
+  success/restore evidence.
+- [ ] Confirm the obsolete shared-bearer build is rejected without breaking the submitted build.
+- [ ] Attach a short screen recording only if the optional styling path needs clarification.
+- [ ] Re-run public Release configuration, request-capture, privacy-manifest, and artifact-absence
+  guards against the archive.
 
 ## Contact
 

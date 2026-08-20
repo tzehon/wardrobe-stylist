@@ -1,89 +1,70 @@
-# Wardrobe Stylist support page — publication draft
+# Wardrobe Stylist support page — publication source
 
-> Replace bracketed values and publish on the same stable HTTPS domain as the product homepage and
-> privacy policy. The in-app Help screen should expose the same information.
+> Source for the Gmail-free candidate's next public-page revision. Reconcile all Settings labels
+> with the exact submitted build before republishing at `https://blog.tth.dev/wardrobe/`.
 
 ## Get help
 
 - Contact: `contact@tth.dev`
 - Expected response time: within two business days
+- Initial App Store availability: Singapore
 - App version/build: available at the bottom of Wardrobe Stylist → Settings
 
 When reporting a problem, include the app version, iOS version, device model, what you expected,
-and what happened. Do not email receipt contents, OAuth tokens, backend credentials, or private
-wardrobe photos.
+and what happened. Do not email backend credentials, App Attest material, or private wardrobe
+photos.
 
 ## Common questions
 
-### Do I need Gmail?
+### Do I need an account?
 
-No. Manual/photo wardrobe features work locally without Google. Gmail is an optional read-only
-receipt importer.
+No. Manual and photo cataloging, browse/edit/history, local reminders, and Demo Mode work without
+an account.
 
-### Can Wardrobe Stylist modify my email?
+### What information is sent for AI styling?
 
-No. It requests only Gmail's `gmail.readonly` scope and contains no Gmail write endpoint.
+Only when you request a suggestion and consent, the app may send compact text attributes for
+catalog items, recent-wear item IDs, bounded rating summaries, and an occasion you provide to the
+developer backend and Anthropic. Public v1 does not send wardrobe photos, purchase metadata, wear
+dates, or rating free text for styling. The developer application does not persist the wardrobe,
+prompt, or model-response payload after request processing.
 
-### Why does the app ask about AI processing?
+### Can I use the app if AI styling is unavailable?
 
-Receipt extraction and outfit recommendations can send minimized data to the developer backend
-and Anthropic. The app asks separately before each type of AI processing and keeps those features
-off until you consent.
+Yes. Manual/photo cataloging, browse/edit/history, local reminders, and offline Demo Mode stay
+available. Remote AI fails closed if App Attest, the network, or the backend is unavailable; the
+app does not create an unauthenticated fallback session.
 
-### What is the difference between Sign out and Disconnect Gmail?
+### How do I stop reminders?
 
-Sign out ends the local session. Disconnect revokes Wardrobe Stylist's Google authorization so it
-cannot access Gmail again unless you reconnect. Neither action changes or deletes Gmail messages.
+Open **Settings → Connected Features** and turn reminders off. Reminders are local notifications
+and can also be controlled in iOS Settings. No outfit is generated in the background.
 
-### How do I stop background receipt import or reminders?
-
-Open **Settings → Connected Features** and turn the corresponding control off. Background import
-is opportunistic—iOS does not guarantee an exact schedule. Reminders are local notifications and
-can also be controlled in iOS Settings.
-
-### How do I delete my wardrobe?
+### How do I delete my local wardrobe?
 
 Open **Settings → Privacy & Data → Delete Local Data**. This removes local items, photos, outfits,
-wear history, receipt sync history, cached images, recommendations, and related choices from this
-device. It does not delete email or revoke Google access. Use **Settings → Connected Features →
-Disconnect Google** separately when you also want to revoke the grant.
+wear history, cached suggestions, and related choices from this device. It does not delete the
+separate anonymous server-security record; use the control below for that record.
 
-### How do I delete server authentication data?
+### How do I delete server security data?
 
-Wardrobe Stylist has no developer account and does not use your Google identity for backend access.
-Its server authentication record belongs to one anonymous App Attest installation and is separate
-from the wardrobe stored on your iPhone.
+Wardrobe Stylist does not create a human account. Its server-security record belongs to one
+anonymous App Attest installation and is separate from the wardrobe stored on the iPhone.
 
-Before uninstalling, open **Settings → Privacy & Data → Delete Server Security Data**. The
-app obtains a fresh App Attest proof, deletes that installation's live server identity and active
-AI sessions, then removes its local server-identity reference. It does not delete the wardrobe on
-your iPhone or disconnect Google. Remote AI creates a new anonymous identity the next time you use
-it. Verified live authentication records are removed synchronously. The auth volume is configured
-for rolling 14-day snapshots, and Fly says each snapshot then disappears from the customer
-listing, but all-copy purge timing is undisclosed. Fly's customer-visible proxy/platform stream
-lasts seven days, and separate provider-internal log retention is undisclosed. These hosting
-records are separate and are not removed immediately by the in-app deletion action.
+Before uninstalling, open **Settings → Privacy & Data → Delete Server Security Data**. The app uses
+a fresh App Attest proof to delete that installation's live server identity and active AI
+sessions. This action does not delete the local wardrobe. Remote AI creates a new anonymous
+identity the next time you use it.
 
-Reinstalling creates a new identity but does not itself prove that the old server record was
-deleted. If the original installation is no longer available, contact `contact@tth.dev`
-only for general guidance: support cannot safely identify an unlinked anonymous record. The
-90-day inactivity purge is the fallback for a lost installation. Never send a token, key,
-attestation object, Gmail content, or wardrobe photo to support.
+Reinstalling creates a new identity but does not prove the old record was deleted. If the original
+installation is unavailable, email `contact@tth.dev` for general guidance. Support cannot safely
+identify an unlinked anonymous record and will never ask for a token, key, attestation object, or
+wardrobe photo. The server's inactivity policy removes an unused live installation after 90 days.
+Hosting logs and encrypted snapshots are separate from the live server identity, are not removed
+immediately by the in-app action, and follow the retention described in the privacy policy.
 
-### How do I revoke Google access outside the app?
+## Privacy and terms
 
-Use [Google Account third-party connections](https://myaccount.google.com/connections), select
-Wardrobe Stylist, and remove access.
-
-### Why did a receipt import miss or mislabel an item?
-
-Automated extraction can be wrong. Open the pending-import review queue to correct or accept an
-item, or delete it instead. [RECONCILE WITH THE FINAL IMPORT-REVIEW LABELS BEFORE PUBLICATION.]
-
-## Privacy and safety
-
-- [Privacy policy](https://blog.tth.dev/wardrobe/privacy/)
-- [Google data-use disclosure / Limited Use statement](https://blog.tth.dev/wardrobe/privacy/#google-and-gmail-information)
-- [Delete-data instructions](https://blog.tth.dev/wardrobe/#how-do-i-delete-my-local-wardrobe)
+- Privacy policy: `https://blog.tth.dev/wardrobe/privacy/`
+- Terms of Service: `https://blog.tth.dev/wardrobe/terms/`
 - Security contact: `contact@tth.dev`
-- [Service status page, if provided]

@@ -17,12 +17,14 @@ later be promoted to customers.
   and EU Digital Services Act trader status.
 - [ ] Confirm all Apple agreements, tax, banking, and any account compliance review are current.
 - [ ] Decide the final bundle ID and immutable SKU before creating the App Store Connect record.
-- [ ] Complete the separate production Google OAuth sequence and its security/verification gates.
+- [ ] Confirm the approved public-v1 scope is Gmail-free and no Google OAuth verification,
+  restricted-scope, or review-account dependency remains in the candidate.
 
 ## 2. Public pages and truthful data declarations
 
-- [ ] Publish the homepage, support page, privacy policy, and deletion/help instructions on the
-  same stable owned HTTPS domain; remove every bracketed placeholder from the drafts.
+- [ ] Republish the homepage, support page, privacy policy, Terms, and deletion/help instructions
+  on the same stable owned HTTPS domain with Gmail/receipt-import language removed; remove every
+  bracketed placeholder from the publication sources.
 - [ ] Verify each public URL on a signed-out browser and configure the exact values in Release.
 - [ ] Reconcile the policy, in-app disclosures, request captures, backend/host logs, provider
   contract, and [`app-privacy-data-inventory.md`](app-privacy-data-inventory.md).
@@ -41,9 +43,9 @@ later be promoted to customers.
   region-specific declarations shown by App Store Connect.
 - [ ] Upload one to ten current screenshots per required device class and localization using
   [`screenshot-plan.md`](screenshot-plan.md). Preview scaling and ordering.
-- [ ] Enter the review contact, optional connected-feature test account, and exact instructions from
-  [`app-review-notes-draft.md`](app-review-notes-draft.md). Apple requires complete contact details
-  and a working demo account where sign-in is needed.
+- [ ] Enter the review contact and exact no-login reviewer instructions from
+  [`app-review-notes-draft.md`](app-review-notes-draft.md). Confirm App Review needs no Google,
+  Wardrobe, or shared test account.
 
 Apple's current field matrix is the source of truth for which properties are required, localizable,
 or editable: [Required, localizable, and editable properties](https://developer.apple.com/help/app-store-connect/reference/app-information/required-localizable-and-editable-properties).
@@ -55,8 +57,9 @@ or editable: [Required, localizable, and editable properties](https://developer.
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
 - [ ] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
-- [ ] Confirm Gmail remains GET-only with only `gmail.readonly`, no Anthropic/shared backend secret
-  exists in the app, and every production endpoint/link is HTTPS and non-placeholder.
+- [ ] Confirm the archive contains no Google Sign-In SDK/client configuration, Gmail permission or
+  route, `/extract` client path, receipt-import UI/background task, Anthropic/shared backend
+  secret, non-HTTPS production endpoint, or placeholder public link.
 - [ ] Build with an accepted production Xcode/SDK. As of 28 April 2026, Apple requires uploads to
   use the iOS 26 SDK or later: [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
 - [ ] Confirm the launch-screen key remains present. Uploads built with the iOS 27 SDK or later are
@@ -66,15 +69,21 @@ or editable: [Required, localizable, and editable properties](https://developer.
 - [ ] Distribute from Organizer using **TestFlight & App Store**. Do not use **TestFlight Internal
   Only**, and do not bypass the device-Release public configuration guard.
 - [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
-  Demo Mode, photo/camera, Gmail consent/import/review, styling, reminders, background expiry,
-  sign out, disconnect, deletion, account switching, and relaunch.
+  Demo Mode, manual add, photo library/camera, catalog edit/delete, styling consent and withdrawal,
+  Today/History, reminders, local deletion, separate server-security deletion, backend failure,
+  reinstall identity reset, and relaunch. Confirm no Google/Gmail UI or network path exists.
+- [ ] Never install build 4 over builds 1–3. On the older build, complete **Disconnect Google** and
+  **Delete Server Security Data**, wait for both to succeed, then uninstall (deleting the accepted
+  old local wardrobe) and install build 4 cleanly. Retain redacted transition evidence; do not
+  claim upgrade or migration support.
 
 ## 5. Upload, review, and release
 
 - [ ] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
 - [ ] Select the processed build and re-check its device requirements and displayed metadata.
 - [ ] For the internal QA phase, add the processed build only to the intended Internal Testing
-  group, enter truthful What to Test notes, and retain upgrade plus clean-device evidence.
+  group, enter truthful What to Test notes, and retain the pre-uninstall cleanup plus fresh-install
+  evidence.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
