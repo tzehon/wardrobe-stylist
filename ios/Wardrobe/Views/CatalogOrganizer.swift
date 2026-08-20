@@ -8,7 +8,6 @@ protocol CatalogCategorizable {
     var name: String { get }
     var brand: String? { get }
     var purchaseDate: Date? { get }
-    var reviewState: ItemReviewState { get }
     var isFavorite: Bool { get }
     var isArchived: Bool { get }
 }
@@ -50,8 +49,8 @@ enum CatalogSortOrder: String, CaseIterable, Identifiable, Sendable {
 /// Pure, deterministic grouping of catalog items into ordered category sections.
 ///
 /// "Dynamic categories": sections are derived from the data, so any category the
-/// extractor emits shows up automatically. Known fashion categories sort in a
-/// stable canonical order; anything else (a new/unexpected category, or blank →
+/// user enters shows up automatically. Known fashion categories sort in a
+/// stable canonical order; anything else (a new category, or blank →
 /// `uncategorized`) sorts after them, alphabetically.
 enum CatalogOrganizer {
 
@@ -132,7 +131,6 @@ enum CatalogFilter {
 
     enum Status: String, CaseIterable, Identifiable, Sendable {
         case active
-        case pendingReview
         case favorites
         case archived
 
@@ -141,7 +139,6 @@ enum CatalogFilter {
         var label: String {
             switch self {
             case .active: "Active"
-            case .pendingReview: "Needs Review"
             case .favorites: "Favorites"
             case .archived: "Archived"
             }
@@ -158,8 +155,6 @@ enum CatalogFilter {
             switch status {
             case .active:
                 !item.isArchived
-            case .pendingReview:
-                !item.isArchived && item.reviewState == .pendingReview
             case .favorites:
                 !item.isArchived && item.isFavorite
             case .archived:

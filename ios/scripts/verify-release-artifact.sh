@@ -4,7 +4,6 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DERIVED_DATA_PATH="${1:-DerivedData/ReleaseValidation}"
-readonly RESOLVED_FILE="Wardrobe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 readonly APP_PATH="${2:-${DERIVED_DATA_PATH}/Build/Products/Release-iphonesimulator/Wardrobe.app}"
 
 fail() {
@@ -12,30 +11,9 @@ fail() {
   exit 1
 }
 
-[[ -f "${RESOLVED_FILE}" ]] || fail "missing ${RESOLVED_FILE}"
 [[ -d "${APP_PATH}" ]] || fail "missing Release app at ${APP_PATH}"
 /usr/bin/codesign --verify --deep --strict "${APP_PATH}" >/dev/null 2>&1 \
   || fail "built app code signature is invalid"
-
-/usr/bin/python3 - "${RESOLVED_FILE}" <<'PY'
-import json
-import sys
-
-path = sys.argv[1]
-with open(path, encoding="utf-8") as handle:
-    resolved = json.load(handle)
-
-pins = resolved.get("pins", resolved.get("object", {}).get("pins", []))
-google = next(
-    (pin for pin in pins if pin.get("identity", pin.get("package", "")).lower() == "googlesignin-ios"),
-    None,
-)
-if google is None:
-    raise SystemExit("GoogleSignIn-iOS is not present in Package.resolved")
-version = google.get("state", {}).get("version")
-if version != "9.2.0":
-    raise SystemExit(f"GoogleSignIn-iOS must resolve to 9.2.0, got {version!r}")
-PY
 
 readonly INFO_PLIST="${APP_PATH}/Info.plist"
 [[ -f "${INFO_PLIST}" ]] || fail "built app has no Info.plist"
@@ -64,6 +42,24 @@ fi
 # including as an empty plist key.
 if /usr/libexec/PlistBuddy -c 'Print :BackendDeviceToken' "${INFO_PLIST}" >/dev/null 2>&1; then
   fail "built app contains the obsolete BackendDeviceToken key"
+fi
+if /usr/libexec/PlistBuddy -c 'Print :GIDClientID' "${INFO_PLIST}" >/dev/null 2>&1; then
+  fail "built app contains a legacy provider client identifier"
+fi
+if /usr/libexec/PlistBuddy -c 'Print :BGTaskSchedulerPermittedIdentifiers' "${INFO_PLIST}" >/dev/null 2>&1; then
+  fail "built app contains background task identifiers"
+fi
+if /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes' "${INFO_PLIST}" >/dev/null 2>&1; then
+  fail "built app contains background execution modes"
+fi
+
+readonly APP_EXECUTABLE="${APP_PATH}/Wardrobe"
+[[ -f "${APP_EXECUTABLE}" ]] || fail "built app executable is missing"
+if /usr/bin/strings "${APP_EXECUTABLE}" | /usr/bin/grep -F '/extract' >/dev/null; then
+  fail "built app contains the removed extraction route"
+fi
+if /usr/bin/strings "${APP_EXECUTABLE}" | /usr/bin/grep -F 'gmail.readonly' >/dev/null; then
+  fail "built app contains the removed mail authorization scope"
 fi
 
 # Xcode strips App Attest from simulator signatures because DeviceCheck isn't available there.
@@ -110,7 +106,7 @@ readonly APP_PRIVACY_MANIFEST="${APP_PATH}/PrivacyInfo.xcprivacy"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :NSPrivacyAccessedAPITypes:0:NSPrivacyAccessedAPITypeReasons:0' "${APP_PRIVACY_MANIFEST}")" == "CA92.1" ]] \
   || fail "app privacy manifest does not declare UserDefaults reason CA92.1"
 
-readonly -a REQUIRED_SDK_BUNDLES=(
+readonly -a FORBIDDEN_SDK_BUNDLES=(
   "GoogleSignIn_GoogleSignIn.bundle"
   "GoogleSignIn_GoogleSignInSwift.bundle"
   "AppAuth_AppAuth.bundle"
@@ -123,15 +119,9 @@ readonly -a REQUIRED_SDK_BUNDLES=(
   "GTMSessionFetcher_GTMSessionFetcherCore.bundle"
 )
 
-manifest_count=0
-for bundle_name in "${REQUIRED_SDK_BUNDLES[@]}"; do
+for bundle_name in "${FORBIDDEN_SDK_BUNDLES[@]}"; do
   bundle_path="${APP_PATH}/${bundle_name}"
-  [[ -d "${bundle_path}" ]] || fail "required SDK resource bundle is missing: ${bundle_name}"
-  manifest_path="${bundle_path}/PrivacyInfo.xcprivacy"
-  [[ -f "${manifest_path}" ]] || fail "${bundle_name} is embedded without PrivacyInfo.xcprivacy"
-  /usr/bin/plutil -lint "${manifest_path}" >/dev/null \
-    || fail "${bundle_name} has an invalid PrivacyInfo.xcprivacy"
-  manifest_count=$((manifest_count + 1))
+  [[ ! -e "${bundle_path}" ]] || fail "removed SDK resource bundle is still embedded: ${bundle_name}"
 done
 
 while IFS= read -r manifest_path; do
@@ -139,4 +129,4 @@ while IFS= read -r manifest_path; do
     || fail "embedded privacy manifest is invalid: ${manifest_path#${APP_PATH}/}"
 done < <(/usr/bin/find "${APP_PATH}" -name PrivacyInfo.xcprivacy -type f -print)
 
-echo "Release artifact verified: ${APP_ATTEST_RESULT}, no shared bearer, GoogleSignIn 9.2.0, app manifest, required plist values, and ${manifest_count} SDK privacy manifest(s)."
+echo "Release artifact verified: ${APP_ATTEST_RESULT}, no shared bearer, no legacy provider/extraction artifacts, app manifest, and required plist values."

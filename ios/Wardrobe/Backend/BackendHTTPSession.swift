@@ -4,7 +4,7 @@ import Foundation
 /// out of the app-wide cookie, credential, and URL caches. Backend API paths are
 /// fixed; a redirect is therefore a configuration or security failure, never a
 /// navigation instruction the client should follow with an assertion, bearer,
-/// receipt snippet, or wardrobe catalog attached.
+/// or wardrobe catalog attached.
 enum BackendHTTPSession {
     static let shared = make()
 

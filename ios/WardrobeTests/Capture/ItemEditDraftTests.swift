@@ -84,7 +84,7 @@ struct ItemEditDraftTests {
             size: "M",
             material: "linen",
             styleNotes: "Relaxed",
-            source: .email,
+            source: .photo,
             purchaseDate: purchaseDate,
             purchasePrice: 129.5,
             purchaseCurrency: "SGD"

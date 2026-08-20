@@ -69,7 +69,7 @@ struct OnboardingView: View {
                 .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
 
-            Text("Add pieces yourself and browse them anytime. Gmail import and AI styling are optional features you can choose later.")
+            Text("Add pieces yourself and browse them anytime. AI styling is optional and available whenever you choose it.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -83,7 +83,7 @@ struct OnboardingView: View {
         VStack(spacing: 12) {
             benefit(
                 title: "Start locally",
-                detail: "Your wardrobe works without a Google account.",
+                detail: "Your wardrobe stays on this device and needs no account.",
                 symbol: "iphone",
                 accessibilityIdentifier: "onboarding.benefit.local"
             )
@@ -95,7 +95,7 @@ struct OnboardingView: View {
             )
             benefit(
                 title: "Choose connected features",
-                detail: "Review data use before enabling Gmail import or AI styling.",
+                detail: "Review data use before enabling AI styling or reminders.",
                 symbol: "hand.raised",
                 accessibilityIdentifier: "onboarding.benefit.connected"
             )
@@ -148,13 +148,13 @@ struct OnboardingView: View {
             sampleChoice
             demoChoice
 
-            Button("Set up Gmail import") {
+            Button("Set up AI styling") {
                 onComplete(.settings)
             }
             .font(.subheadline)
             .frame(minHeight: 44)
-            .accessibilityHint("Opens Settings. Gmail import is optional.")
-            .accessibilityIdentifier("onboarding.openGmailSettings")
+            .accessibilityHint("Opens Settings. AI styling is optional.")
+            .accessibilityIdentifier("onboarding.openStylingSettings")
 
             Label("Local browsing and manual item capture never require an account.", systemImage: "lock.shield")
                 .font(.footnote)
@@ -198,7 +198,7 @@ struct OnboardingView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .accessibilityHint("Opens a fictional, disposable wardrobe without Google sign-in or network features.")
+            .accessibilityHint("Opens a fictional, disposable wardrobe without network features.")
             .accessibilityIdentifier("onboarding.enterDemo")
 
             Text("Demo uses fictional data and discards every change when you exit.")

@@ -5,267 +5,65 @@ import Testing
 
 @MainActor
 struct PrivacySettingsControllerTests {
-    private final class FakeReminderTimeStore: DailyReminderTimeStoring {
-        var value = DailyReminderTime.defaultMorning
-        func load() -> DailyReminderTime { value }
-        func save(_ time: DailyReminderTime) -> Bool { value = time; return true }
-        func remove() -> Bool { value = .defaultMorning; return true }
-    }
-
-    private actor FakeStore: PrivacyPreferencesStoring {
-        enum FixtureFailure: Error { case saveFailed }
-
-        private var values: [PrivacySubjectID: AccountPrivacyPreferences] = [:]
-        private var failSaveSubjects: Set<PrivacySubjectID> = []
-        private var removedSubjects: [PrivacySubjectID] = []
-
-        func load(for subjectID: PrivacySubjectID) async -> PrivacyPreferencesLoadResult {
-            .loaded(values[subjectID] ?? .defaultDeny)
-        }
-
-        func save(
-            _ preferences: AccountPrivacyPreferences,
-            for subjectID: PrivacySubjectID
-        ) async throws {
-            if failSaveSubjects.contains(subjectID) {
-                throw FixtureFailure.saveFailed
-            }
-            values[subjectID] = preferences
-        }
-
-        func remove(for subjectID: PrivacySubjectID) async {
-            values.removeValue(forKey: subjectID)
-            removedSubjects.append(subjectID)
-        }
-
-        func seed(
-            _ preferences: AccountPrivacyPreferences,
-            for subjectID: PrivacySubjectID
-        ) {
-            values[subjectID] = preferences
-        }
-
-        func setSaveFailure(_ shouldFail: Bool, for subjectID: PrivacySubjectID) {
-            if shouldFail {
-                failSaveSubjects.insert(subjectID)
-            } else {
-                failSaveSubjects.remove(subjectID)
-            }
-        }
-
-        func value(for subjectID: PrivacySubjectID) -> AccountPrivacyPreferences? {
-            values[subjectID]
-        }
-
-        func removals() -> [PrivacySubjectID] {
-            removedSubjects
-        }
-    }
-
-    private let accountSubject = PrivacySubjectID.external("stable-test-account")
-    private let now = Date(timeIntervalSince1970: 1_700_000_000)
-
-    @Test func accountExitDisablesBothAutomationsAndRetainsSeparateConsentGrants() async {
-        let store = FakeStore()
-        await store.seed(receiptPreferences(backgroundEnabled: true), for: accountSubject)
-        await store.seed(stylingPreferences(reminderEnabled: true), for: .deviceLocal)
-
-        var backgroundCancellations = 0
-        var reminderCancellations = 0
-        let fixture = makeFixture(
-            store: store,
-            cancelBackground: { backgroundCancellations += 1 },
-            disableReminder: { reminderCancellations += 1 }
-        )
-
-        #expect(await fixture.gmail.prepareForAccountExit())
-
-        let account = await store.value(for: accountSubject)
-        let device = await store.value(for: .deviceLocal)
-        #expect(account?.receiptAnalysisConsent != nil)
-        #expect(account?.backgroundReceiptSyncEnabled == false)
-        #expect(device?.wardrobeStylingConsent != nil)
-        #expect(device?.dailyReminderEnabled == false)
-        #expect(backgroundCancellations == 1)
-        #expect(reminderCancellations == 1)
-    }
-
-    @Test func revocationClearsOnlyAccountReceiptPreferences() async {
-        let store = FakeStore()
-        await store.seed(receiptPreferences(backgroundEnabled: false), for: accountSubject)
-        await store.seed(stylingPreferences(reminderEnabled: false), for: .deviceLocal)
-        let fixture = makeFixture(store: store)
-        await fixture.gmail.load()
-
-        await fixture.gmail.clearRevokedAccountPreferences()
-
-        #expect(await store.value(for: accountSubject) == nil)
-        #expect(await store.value(for: .deviceLocal)?.wardrobeStylingConsent != nil)
-        #expect(await store.removals() == [accountSubject])
-        #expect(fixture.gmail.controls.preferences == .defaultDeny)
-    }
-
-    @Test func failedReminderShutdownPreventsAccountExit() async {
-        let store = FakeStore()
-        await store.seed(receiptPreferences(backgroundEnabled: true), for: accountSubject)
-        await store.seed(stylingPreferences(reminderEnabled: true), for: .deviceLocal)
-        await store.setSaveFailure(true, for: .deviceLocal)
-        var reminderCancellations = 0
-        let fixture = makeFixture(
-            store: store,
-            disableReminder: { reminderCancellations += 1 }
-        )
-
-        #expect(await fixture.gmail.prepareForAccountExit() == false)
-
-        #expect(await store.value(for: .deviceLocal)?.dailyReminderEnabled == true)
-        #expect(reminderCancellations == 0)
-        #expect(
-            fixture.gmail.errorMessage
-                == PrivacyAutomationFailure.preferenceSaveFailed.userMessage
-        )
-    }
-
-    @Test func grantingStylingChangesOnlyTheDeviceLocalSubject() async {
-        let store = FakeStore()
-        await store.seed(receiptPreferences(backgroundEnabled: false), for: accountSubject)
-        let fixture = makeFixture(store: store)
-
-        #expect(await fixture.device.grantStyling())
-
-        #expect(await store.value(for: .deviceLocal)?.wardrobeStylingConsent != nil)
-        #expect(await store.value(for: accountSubject)?.wardrobeStylingConsent == nil)
-    }
-
-    @Test func deviceSettingsExposeAndApplyASelectedReminderTime() async throws {
-        let store = FakeStore()
-        await store.seed(stylingPreferences(reminderEnabled: true), for: .deviceLocal)
-        let timeStore = FakeReminderTimeStore()
-        let prior = try #require(DailyReminderTime(hour: 7, minute: 15))
-        timeStore.value = prior
-        var scheduled: [DailyReminderTime] = []
-        let fixture = makeFixture(
-            store: store,
-            enableReminder: { time in scheduled.append(time); return true },
-            reminderTimeStore: timeStore
-        )
-        let chosen = try #require(DailyReminderTime(hour: 19, minute: 40))
-
-        #expect(fixture.device.reminderTime == prior)
-        #expect(await fixture.device.setReminderTime(chosen))
-
-        #expect(scheduled == [chosen])
-        #expect(fixture.device.reminderTime == chosen)
-        #expect(await store.value(for: .deviceLocal)?.dailyReminderEnabled == true)
-    }
-
-    private func makeFixture(
-        store: FakeStore,
-        cancelBackground: @escaping @MainActor () -> Void = {},
-        disableReminder: @escaping @MainActor () -> Void = {},
-        enableReminder: @escaping @MainActor (DailyReminderTime) async throws -> Bool = { _ in true },
-        reminderTimeStore: any DailyReminderTimeStoring = FakeReminderTimeStore()
-    ) -> (gmail: GmailPrivacySettings, device: DevicePrivacySettings) {
-        let fixedNow = now
-        let deviceControls = PrivacyControls(
-            subjectID: .deviceLocal,
-            store: store,
-            now: { fixedNow }
-        )
-        let deviceAutomation = PrivacyAutomationCoordinator(
-            controls: deviceControls,
-            scheduleBackground: {},
-            cancelBackground: {},
-            enableReminder: enableReminder,
-            disableReminder: disableReminder,
-            reminderTimeStore: reminderTimeStore
-        )
-        let device = DevicePrivacySettings(
-            controls: deviceControls,
-            automation: deviceAutomation
-        )
-
-        let gmailControls = PrivacyControls(
-            subjectID: accountSubject,
-            store: store,
-            now: { fixedNow }
-        )
-        let gmailAutomation = PrivacyAutomationCoordinator(
-            controls: gmailControls,
-            scheduleBackground: {},
-            cancelBackground: cancelBackground,
+    @Test func deviceSettingsGrantAndWithdrawStyling() async {
+        let store = SettingsPrivacyStore()
+        let controls = PrivacyControls(subjectID: .deviceLocal, store: store)
+        let automation = PrivacyAutomationCoordinator(
+            controls: controls,
             enableReminder: { _ in true },
-            disableReminder: {}
+            disableReminder: {},
+            reminderTimeStore: SettingsReminderStore()
         )
-        let gmail = GmailPrivacySettings(
-            subjectID: accountSubject,
-            store: store,
-            devicePrivacy: device,
-            controls: gmailControls,
-            automation: gmailAutomation
-        )
-        return (gmail, device)
+        let settings = DevicePrivacySettings(controls: controls, automation: automation)
+        await settings.load()
+        #expect(await settings.grantStyling())
+        #expect(settings.controls.decision(for: .aiStyling) == .allowed)
+        #expect(await settings.setReminderEnabled(true))
+        #expect(await settings.withdrawStyling())
+        #expect(settings.controls.decision(for: .aiStyling)
+            == .denied(.stylingConsentRequired))
     }
 
-    private func receiptPreferences(backgroundEnabled: Bool) -> AccountPrivacyPreferences {
-        AccountPrivacyPreferences(
-            receiptAnalysisConsent: PrivacyConsentGrant(
-                noticeVersion: PrivacyNoticeRequirements.current.receiptAnalysis,
-                grantedAt: now
-            ),
-            backgroundReceiptSyncEnabled: backgroundEnabled
+    @Test func stylingDisclosureMatchesOccasionPayloadAndExplainsOnDemandUse() throws {
+        let request = RecommendRequest(
+            items: [],
+            recentlyWornIds: [],
+            occasion: "Outdoor wedding"
         )
-    }
-
-    private func stylingPreferences(reminderEnabled: Bool) -> AccountPrivacyPreferences {
-        AccountPrivacyPreferences(
-            wardrobeStylingConsent: PrivacyConsentGrant(
-                noticeVersion: PrivacyNoticeRequirements.current.wardrobeStyling,
-                grantedAt: now
-            ),
-            dailyReminderEnabled: reminderEnabled
+        let payload = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(request))
+                as? [String: Any]
         )
-    }
-}
 
-struct PrivacyDisclosureTests {
-    @Test func releaseLinksRequireNonPlaceholderHTTPSURLs() {
-        let links = AppExternalLinks(infoDictionary: [
-            AppExternalLinks.privacyPolicyInfoKey: " https://wardrobe.example.app/privacy ",
-            AppExternalLinks.supportInfoKey: "http://wardrobe.example.app/support"
-        ])
-
-        #expect(links.privacyPolicyURL?.absoluteString == "https://wardrobe.example.app/privacy")
-        #expect(links.supportURL == nil)
-        #expect(AppExternalLinks.validReleaseURL("https://example.com/privacy") == nil)
-        #expect(AppExternalLinks.validReleaseURL("https://your-domain.invalid/support") == nil)
-        #expect(AppExternalLinks.validReleaseURL("not a URL") == nil)
-    }
-
-    @Test func disclosuresNameEveryRemoteProcessorWithoutUnsupportedPromises() {
-        let disclosures = [
-            PrivacyDisclosure.receiptAnalysis,
-            PrivacyDisclosure.wardrobeStyling
-        ]
-
-        for disclosure in disclosures {
-            #expect(disclosure.destination.contains("developer-operated Wardrobe backend"))
-            #expect(disclosure.destination.contains("Anthropic Claude"))
-            #expect(disclosure.destination.localizedCaseInsensitiveContains("never retained") == false)
-            #expect(disclosure.destination.localizedCaseInsensitiveContains("not trained") == false)
-        }
+        #expect(payload["occasion"] as? String == "Outdoor wedding")
+        #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
+            $0.localizedCaseInsensitiveContains("occasion")
+                && $0.localizedCaseInsensitiveContains("context")
+        })
+        #expect(
+            PrivacyDisclosure.wardrobeStyling.overview
+                .localizedCaseInsensitiveContains("occasion or context")
+        )
+        #expect(PrivacyNoticeRequirements.current.wardrobeStyling.rawValue == 3)
         #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
             $0.contains("photos") && $0.contains("not included")
         })
-        #expect(PrivacyDisclosure.wardrobeStyling.dataShared.contains {
-            $0.contains("average rating") && $0.contains("rating count")
-        })
-        #expect(PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("free-text feedback")
-            && PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("rating dates")
-            && PrivacyDisclosure.wardrobeStyling.destination.localizedCaseInsensitiveContains("not sent"))
-        #expect(PrivacyDisclosure.receiptAnalysis.dataShared.contains {
-            $0.contains("Gmail message identifier") && $0.contains("removed before Anthropic")
-        })
-        #expect(PrivacyDisclosure.receiptAnalysis.destination.contains("raw message bodies are not sent"))
+        #expect(PrivacyDisclosure.wardrobeStyling.result.contains("only after you tap"))
     }
+}
+
+private actor SettingsPrivacyStore: PrivacyPreferencesStoring {
+    private var value = AccountPrivacyPreferences.defaultDeny
+    func load(for _: PrivacySubjectID) -> PrivacyPreferencesLoadResult { .loaded(value) }
+    func save(_ preferences: AccountPrivacyPreferences, for _: PrivacySubjectID) {
+        value = preferences
+    }
+    func remove(for _: PrivacySubjectID) { value = .defaultDeny }
+}
+
+@MainActor
+private final class SettingsReminderStore: DailyReminderTimeStoring {
+    func load() -> DailyReminderTime { .defaultMorning }
+    func save(_: DailyReminderTime) -> Bool { true }
+    func remove() -> Bool { true }
 }

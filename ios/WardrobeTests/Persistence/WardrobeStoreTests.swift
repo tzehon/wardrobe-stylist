@@ -12,7 +12,7 @@ struct WardrobeStoreTests {
 
     private struct Fixture {
         // SwiftData's context does not retain its container. Keep both alive for
-        // the full test or any insert traps in the framework.
+        // the full test or inserts can trap inside the framework.
         let container: ModelContainer
         let context: ModelContext
     }
@@ -80,40 +80,35 @@ struct WardrobeStoreTests {
             purchaseDate: Date(timeIntervalSince1970: 1_700_000_000),
             purchasePrice: 129.5,
             purchaseCurrency: "SGD",
-            imageUpdate: .unchanged,
-            acceptPendingReview: false
+            imageUpdate: .unchanged
         )
     }
 
     @Test func addCommitsBeforeReportingSuccess() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
 
-        let item = try WardrobeStore(modelContext: context).addItem(itemInput())
+        let item = try WardrobeStore(modelContext: fixture.context).addItem(itemInput())
 
-        let fetched = try context.fetch(FetchDescriptor<Item>())
-        #expect(fetched.map(\.id) == [item.id])
-        #expect(!context.hasChanges)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).map(\.id) == [item.id])
+        #expect(!fixture.context.hasChanges)
     }
 
-    @Test func failedAddRollsBackTheInsertedItem() throws {
+    @Test func failedAddRollsBackTheInsertedItemAndCanRetry() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
         let input = itemInput()
 
         let error = try capturePersistenceError {
-            try failingStore(context).addItem(input)
+            try failingStore(fixture.context).addItem(input)
         }
 
-        let verification = ModelContext(fixture.container)
         #expect(error.operation == .addItem)
         #expect(error.diagnostic.contains("saveFailed"))
         #expect(!error.message.contains(error.diagnostic))
-        #expect(try verification.fetch(FetchDescriptor<Item>()).isEmpty)
-        #expect(!context.hasChanges)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).isEmpty)
+        #expect(!fixture.context.hasChanges)
 
-        let retried = try WardrobeStore(modelContext: context).addItem(input)
-        #expect(try verification.fetch(FetchDescriptor<Item>()).map(\.id) == [retried.id])
+        let retried = try WardrobeStore(modelContext: fixture.context).addItem(input)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).map(\.id) == [retried.id])
     }
 
     @Test func updateCommitsEveryEditableField() throws {
@@ -180,43 +175,6 @@ struct WardrobeStoreTests {
         #expect(foreignItem.name == "Navy shirt")
     }
 
-    @Test func pendingImportCanBeCorrectedAndAcceptedAtomically() throws {
-        let fixture = try makeFixture()
-        let item = Item(
-            name: "Extracted shirt",
-            category: "top",
-            source: .email,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
-            extractionConfidence: .low,
-            reviewState: .pendingReview
-        )
-        fixture.context.insert(item)
-        try fixture.context.save()
-        let reviewedAtFloor = Date.now
-        var input = updateInput()
-        input = ItemUpdateInput(
-            name: input.name,
-            category: input.category,
-            subcategory: input.subcategory,
-            brand: input.brand,
-            colors: input.colors,
-            material: input.material,
-            styleNotes: input.styleNotes,
-            size: input.size,
-            purchaseDate: input.purchaseDate,
-            purchasePrice: input.purchasePrice,
-            purchaseCurrency: input.purchaseCurrency,
-            imageUpdate: .unchanged,
-            acceptPendingReview: true
-        )
-
-        try WardrobeStore(modelContext: fixture.context).updateItem(item, with: input)
-
-        #expect(item.reviewState == .accepted)
-        #expect(try #require(item.reviewedAt) >= reviewedAtFloor)
-        #expect(item.extractionConfidence == .low)
-    }
-
     @Test func updatePreservesReplacesAndExplicitlyRemovesImages() throws {
         let fixture = try makeFixture()
         let originalImage = Data([0x01])
@@ -224,7 +182,6 @@ struct WardrobeStoreTests {
         let item = Item(
             name: "Image item",
             category: "top",
-            imageURL: "https://example.com/original.jpg",
             imageData: originalImage,
             thumbnailData: originalThumbnail,
             featurePrint: Data([0x03])
@@ -235,7 +192,6 @@ struct WardrobeStoreTests {
         try WardrobeStore(modelContext: fixture.context).updateItem(item, with: updateInput())
         #expect(item.imageData == originalImage)
         #expect(item.thumbnailData == originalThumbnail)
-        #expect(item.imageURL == "https://example.com/original.jpg")
         #expect(item.featurePrint == Data([0x03]))
 
         let replacement = ItemUpdateInput(
@@ -250,13 +206,11 @@ struct WardrobeStoreTests {
             purchaseDate: nil,
             purchasePrice: nil,
             purchaseCurrency: nil,
-            imageUpdate: .replace(imageData: Data([0x10]), thumbnailData: Data([0x11])),
-            acceptPendingReview: false
+            imageUpdate: .replace(imageData: Data([0x10]), thumbnailData: Data([0x11]))
         )
         try WardrobeStore(modelContext: fixture.context).updateItem(item, with: replacement)
         #expect(item.imageData == Data([0x10]))
         #expect(item.thumbnailData == Data([0x11]))
-        #expect(item.imageURL == nil)
         #expect(item.featurePrint == nil)
 
         let removal = ItemUpdateInput(
@@ -271,67 +225,50 @@ struct WardrobeStoreTests {
             purchaseDate: nil,
             purchasePrice: nil,
             purchaseCurrency: nil,
-            imageUpdate: .remove,
-            acceptPendingReview: false
+            imageUpdate: .remove
         )
         try WardrobeStore(modelContext: fixture.context).updateItem(item, with: removal)
         #expect(item.imageData == nil)
         #expect(item.thumbnailData == nil)
-        #expect(item.imageURL == nil)
+        #expect(item.featurePrint == nil)
     }
 
-    @Test func bulkAcceptanceOnlyTouchesVisiblePendingItems() throws {
+    @Test func favoriteAndArchiveAreTransactional() throws {
         let fixture = try makeFixture()
-        let reviewedAt = Date(timeIntervalSince1970: 1_700_000_123)
-        let pendingA = Item(name: "A", category: "top", reviewState: .pendingReview)
-        let pendingB = Item(name: "B", category: "bag", reviewState: .pendingReview)
-        let accepted = Item(name: "Accepted", category: "shoe", reviewedAt: .distantPast)
-        for item in [pendingA, pendingB, accepted] { fixture.context.insert(item) }
-        try fixture.context.save()
+        let item = try seedItem(in: fixture.context)
+        let store = WardrobeStore(modelContext: fixture.context)
 
-        try WardrobeStore(modelContext: fixture.context)
-            .acceptPendingItems([pendingA, pendingB, accepted], reviewedAt: reviewedAt)
+        try store.setFavorite(true, for: item)
+        try store.setArchived(true, for: item)
 
-        #expect(pendingA.reviewState == .accepted && pendingA.reviewedAt == reviewedAt)
-        #expect(pendingB.reviewState == .accepted && pendingB.reviewedAt == reviewedAt)
-        #expect(accepted.reviewedAt == .distantPast)
+        #expect(item.isFavorite)
+        #expect(item.isArchived)
+        #expect(!fixture.context.hasChanges)
     }
 
-    @Test func favoriteAndArchiveAreTransactionalAndAccountScoped() throws {
+    @Test func failedFavoriteRollsBackTheChange() throws {
         let fixture = try makeFixture()
-        let accountA = WardrobeAccountScope.external(.external("account-a"))
-        let accountB = WardrobeAccountScope.external(.external("account-b"))
-        let item = Item(
-            name: "Imported",
-            category: "top",
-            source: .email,
-            accountSubjectKey: accountA.rawValue
-        )
-        fixture.context.insert(item)
-        try fixture.context.save()
-
-        let storeA = WardrobeStore(modelContext: fixture.context, accountScope: accountA)
-        try storeA.setFavorite(true, for: item)
-        try storeA.setArchived(true, for: item)
-        #expect(item.isFavorite && item.isArchived)
+        let item = try seedItem(in: fixture.context)
 
         let error = try capturePersistenceError {
-            try WardrobeStore(modelContext: fixture.context, accountScope: accountB)
-                .setArchived(false, for: item)
+            try failingStore(fixture.context).setFavorite(true, for: item)
         }
-        #expect(error.diagnostic.contains("itemOutsideAccountScope"))
-        #expect(item.isArchived)
+
+        let verification = ModelContext(fixture.container)
+        let persisted = try #require(verification.fetch(FetchDescriptor<Item>()).first)
+        #expect(error.operation == .updateItem)
+        #expect(persisted.isFavorite == false)
+        #expect(!fixture.context.hasChanges)
     }
 
     @Test func deleteCommitsTheRemoval() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
-        let item = try seedItem(in: context)
+        let item = try seedItem(in: fixture.context)
 
-        try WardrobeStore(modelContext: context).deleteItem(item)
+        try WardrobeStore(modelContext: fixture.context).deleteItem(item)
 
-        #expect(try context.fetch(FetchDescriptor<Item>()).isEmpty)
-        #expect(!context.hasChanges)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).isEmpty)
+        #expect(!fixture.context.hasChanges)
     }
 
     @Test func deletingDuplicatePrimaryPromotesAndRelinksRemainingEvidence() throws {
@@ -357,11 +294,10 @@ struct WardrobeStoreTests {
 
     @Test func failedDeleteRollsBackAndKeepsTheItem() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
-        let item = try seedItem(in: context)
+        let item = try seedItem(in: fixture.context)
 
         let error = try capturePersistenceError {
-            try failingStore(context).deleteItem(item)
+            try failingStore(fixture.context).deleteItem(item)
         }
 
         let verification = ModelContext(fixture.container)
@@ -369,7 +305,7 @@ struct WardrobeStoreTests {
         #expect(error.operation == .deleteItem)
         #expect(fetched.map(\.id) == [item.id])
         #expect(fetched.first?.name == "Navy shirt")
-        #expect(!context.hasChanges)
+        #expect(!fixture.context.hasChanges)
     }
 
     @Test func deleteRejectsAnItemFromAnotherContextBeforeSaving() throws {
@@ -392,12 +328,13 @@ struct WardrobeStoreTests {
 
     @Test func recordWearCommitsOutfitAndOneLogPerItem() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
-        let shirt = try seedItem(in: context, name: "Navy shirt", category: "top")
-        let trousers = try seedItem(in: context, name: "Grey trousers", category: "bottom")
+        let shirt = try seedItem(in: fixture.context, name: "Navy shirt", category: "top")
+        let trousers = try seedItem(
+            in: fixture.context, name: "Grey trousers", category: "bottom"
+        )
         let date = Date(timeIntervalSince1970: 1_700_000_000)
 
-        let outfit = try WardrobeStore(modelContext: context).recordWear(
+        let outfit = try WardrobeStore(modelContext: fixture.context).recordWear(
             items: [shirt, trousers],
             occasion: "work",
             rationale: "Balanced layers",
@@ -405,29 +342,26 @@ struct WardrobeStoreTests {
             date: date
         )
 
-        let outfits = try context.fetch(FetchDescriptor<Outfit>())
-        let wearLogs = try context.fetch(FetchDescriptor<WearLog>())
+        let outfits = try fixture.context.fetch(FetchDescriptor<Outfit>())
+        let wearLogs = try fixture.context.fetch(FetchDescriptor<WearLog>())
         #expect(outfits.map(\.id) == [outfit.id])
         #expect(outfits.first?.createdAt == date)
-        #expect(outfits.first?.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue)
         #expect(Set(outfits.first?.items.map(\.id) ?? []) == [shirt.id, trousers.id])
         #expect(wearLogs.count == 2)
         #expect(wearLogs.allSatisfy { $0.date == date && $0.outfit?.id == outfit.id })
-        #expect(wearLogs.allSatisfy {
-            $0.accountSubjectKey == WardrobeAccountScope.deviceLocal.rawValue
-        })
         #expect(Set(wearLogs.compactMap { $0.item?.id }) == [shirt.id, trousers.id])
-        #expect(!context.hasChanges)
+        #expect(!fixture.context.hasChanges)
     }
 
     @Test func failedWearRollsBackOutfitAndEveryWearLog() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
-        let shirt = try seedItem(in: context, name: "Navy shirt", category: "top")
-        let trousers = try seedItem(in: context, name: "Grey trousers", category: "bottom")
+        let shirt = try seedItem(in: fixture.context, name: "Navy shirt", category: "top")
+        let trousers = try seedItem(
+            in: fixture.context, name: "Grey trousers", category: "bottom"
+        )
 
         let error = try capturePersistenceError {
-            try failingStore(context).recordWear(
+            try failingStore(fixture.context).recordWear(
                 items: [shirt, trousers],
                 occasion: "work",
                 rationale: "Balanced layers",
@@ -441,15 +375,14 @@ struct WardrobeStoreTests {
         #expect(try verification.fetch(FetchDescriptor<Outfit>()).isEmpty)
         #expect(try verification.fetch(FetchDescriptor<WearLog>()).isEmpty)
         #expect(try verification.fetch(FetchDescriptor<Item>()).count == 2)
-        #expect(!context.hasChanges)
+        #expect(!fixture.context.hasChanges)
     }
 
     @Test func recordWearDeduplicatesItemsBeforeCreatingLogs() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
-        let shirt = try seedItem(in: context)
+        let shirt = try seedItem(in: fixture.context)
 
-        let outfit = try WardrobeStore(modelContext: context).recordWear(
+        let outfit = try WardrobeStore(modelContext: fixture.context).recordWear(
             items: [shirt, shirt],
             occasion: "work",
             rationale: nil,
@@ -458,92 +391,36 @@ struct WardrobeStoreTests {
         )
 
         #expect(outfit.items.map(\.id) == [shirt.id])
-        #expect(try context.fetch(FetchDescriptor<WearLog>()).count == 1)
+        #expect(try fixture.context.fetch(FetchDescriptor<WearLog>()).count == 1)
     }
 
-    @Test func recordWearRejectsAnItemFromAnotherContextBeforeSaving() throws {
+    @Test func recordWearRejectsForeignAndArchivedItemsBeforeSaving() throws {
         let destination = try makeFixture()
         let source = try makeFixture()
         let foreignItem = try seedItem(in: source.context)
         var saveCalls = 0
-        let store = WardrobeStore(modelContext: destination.context) { _ in saveCalls += 1 }
-
-        let error = try capturePersistenceError {
-            try store.recordWear(
-                items: [foreignItem],
-                occasion: nil,
-                rationale: nil,
-                colorStory: nil,
-                date: .now
-            )
+        let destinationStore = WardrobeStore(modelContext: destination.context) { _ in
+            saveCalls += 1
         }
 
-        #expect(error.operation == .recordWear)
-        #expect(error.diagnostic.contains("itemFromDifferentStore"))
+        let foreignError = try capturePersistenceError {
+            try destinationStore.recordWear(
+                items: [foreignItem], occasion: nil, rationale: nil, colorStory: nil, date: .now
+            )
+        }
+        #expect(foreignError.diagnostic.contains("itemFromDifferentStore"))
         #expect(saveCalls == 0)
+
+        let archived = Item(name: "Archived", category: "top", isArchived: true)
+        destination.context.insert(archived)
+        try destination.context.save()
+        let archivedError = try capturePersistenceError {
+            try WardrobeStore(modelContext: destination.context).recordWear(
+                items: [archived], occasion: nil, rationale: nil, colorStory: nil, date: .now
+            )
+        }
+        #expect(archivedError.diagnostic.contains("itemNotStyleable"))
         #expect(try destination.context.fetch(FetchDescriptor<Outfit>()).isEmpty)
-        #expect(try destination.context.fetch(FetchDescriptor<WearLog>()).isEmpty)
-    }
-
-    @Test func recordWearRejectsAnImportedItemFromAnotherAccount() throws {
-        let fixture = try makeFixture()
-        let accountA = WardrobeAccountScope.external(.external("account-a"))
-        let accountB = WardrobeAccountScope.external(.external("account-b"))
-        let imported = Item(
-            name: "Account A shirt",
-            category: "top",
-            source: .email,
-            accountSubjectKey: accountA.rawValue
-        )
-        fixture.context.insert(imported)
-        try fixture.context.save()
-        var saveCalls = 0
-        let store = WardrobeStore(
-            modelContext: fixture.context,
-            accountScope: accountB,
-            save: { context in
-                saveCalls += 1
-                try context.save()
-            }
-        )
-
-        let error = try capturePersistenceError {
-            try store.recordWear(
-                items: [imported],
-                occasion: nil,
-                rationale: nil,
-                colorStory: nil,
-                date: .now
-            )
-        }
-
-        #expect(error.operation == .recordWear)
-        #expect(error.diagnostic.contains("itemOutsideAccountScope"))
-        #expect(saveCalls == 0)
-        #expect(try fixture.context.fetch(FetchDescriptor<Outfit>()).isEmpty)
-        #expect(try fixture.context.fetch(FetchDescriptor<WearLog>()).isEmpty)
-    }
-
-    @Test func recordWearRejectsPendingAndArchivedItems() throws {
-        let fixture = try makeFixture()
-        let pending = Item(
-            name: "Pending", category: "top", source: .email,
-            accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue,
-            reviewState: .pendingReview
-        )
-        let archived = Item(name: "Archived", category: "shoe", isArchived: true)
-        for item in [pending, archived] { fixture.context.insert(item) }
-        try fixture.context.save()
-
-        for item in [pending, archived] {
-            let error = try capturePersistenceError {
-                try WardrobeStore(modelContext: fixture.context).recordWear(
-                    items: [item], occasion: nil, rationale: nil, colorStory: nil, date: .now
-                )
-            }
-            #expect(error.diagnostic.contains("itemNotStyleable"))
-        }
-        #expect(try fixture.context.fetch(FetchDescriptor<Outfit>()).isEmpty)
     }
 
     @Test func rateOutfitUpdatesEveryLogForOnlyThatOutfit() throws {
@@ -564,34 +441,6 @@ struct WardrobeStoreTests {
         #expect(logs.filter { $0.outfit?.id == target.id }.allSatisfy { $0.feedback == 4 })
         #expect(logs.filter { $0.outfit?.id == other.id }.allSatisfy { $0.feedback == nil })
         #expect(!fixture.context.hasChanges)
-    }
-
-    @Test func rateOutfitNeverMutatesACrossAccountLogEvenIfItReferencesTheOutfit() throws {
-        let fixture = try makeFixture()
-        let accountA = WardrobeAccountScope.external(.external("rating-log-a"))
-        let accountB = WardrobeAccountScope.external(.external("rating-log-b"))
-        let item = try seedItem(in: fixture.context)
-        let outfit = try WardrobeStore(
-            modelContext: fixture.context,
-            accountScope: accountA
-        ).recordWear(
-            items: [item], occasion: nil, rationale: nil, colorStory: nil, date: .now
-        )
-        let foreignLog = WearLog(
-            item: item,
-            outfit: outfit,
-            feedback: 1,
-            accountSubjectKey: accountB.rawValue
-        )
-        fixture.context.insert(foreignLog)
-        try fixture.context.save()
-
-        try WardrobeStore(modelContext: fixture.context, accountScope: accountA)
-            .rateOutfit(outfit, feedback: 5)
-
-        let logs = try fixture.context.fetch(FetchDescriptor<WearLog>())
-        #expect(logs.first { $0.accountSubjectKey == accountA.rawValue }?.feedback == 5)
-        #expect(logs.first { $0.accountSubjectKey == accountB.rawValue }?.feedback == 1)
     }
 
     @Test(arguments: [0, 6, -1])
@@ -621,47 +470,34 @@ struct WardrobeStoreTests {
             items: [item], occasion: nil, rationale: nil, colorStory: nil, date: .now
         )
 
-        try WardrobeStore(modelContext: fixture.context)
-            .rateOutfit(outfit, feedback: feedback)
+        try WardrobeStore(modelContext: fixture.context).rateOutfit(outfit, feedback: feedback)
 
         #expect(try fixture.context.fetch(FetchDescriptor<WearLog>()).map(\.feedback)
             == [feedback])
     }
 
-    @Test func rateOutfitRejectsForeignStoreAndAccount() throws {
+    @Test func rateOutfitRejectsAnOutfitFromAnotherContextBeforeSaving() throws {
         let destination = try makeFixture()
         let source = try makeFixture()
         let item = try seedItem(in: source.context)
         let sourceOutfit = try WardrobeStore(modelContext: source.context).recordWear(
             items: [item], occasion: nil, rationale: nil, colorStory: nil, date: .now
         )
+        var saveCalls = 0
+        let store = WardrobeStore(modelContext: destination.context) { _ in saveCalls += 1 }
 
-        let foreignError = try capturePersistenceError {
-            try WardrobeStore(modelContext: destination.context)
-                .rateOutfit(sourceOutfit, feedback: 3)
+        let error = try capturePersistenceError {
+            try store.rateOutfit(sourceOutfit, feedback: 3)
         }
-        #expect(foreignError.diagnostic.contains("outfitFromDifferentStore"))
 
-        let accountA = WardrobeAccountScope.external(.external("rating-a"))
-        let accountB = WardrobeAccountScope.external(.external("rating-b"))
-        let scopedItem = Item(name: "Scoped", category: "top")
-        destination.context.insert(scopedItem)
-        try destination.context.save()
-        let scopedOutfit = try WardrobeStore(
-            modelContext: destination.context, accountScope: accountA
-        ).recordWear(
-            items: [scopedItem], occasion: nil, rationale: nil, colorStory: nil, date: .now
-        )
-        let accountError = try capturePersistenceError {
-            try WardrobeStore(modelContext: destination.context, accountScope: accountB)
-                .rateOutfit(scopedOutfit, feedback: 3)
-        }
-        #expect(accountError.diagnostic.contains("outfitOutsideAccountScope"))
+        #expect(error.operation == .rateOutfit)
+        #expect(error.diagnostic.contains("outfitFromDifferentStore"))
+        #expect(saveCalls == 0)
     }
 
     @Test func rateOutfitRejectsAnOutfitWithoutWearLogs() throws {
         let fixture = try makeFixture()
-        let outfit = Outfit(accountSubjectKey: WardrobeAccountScope.deviceLocal.rawValue)
+        let outfit = Outfit()
         fixture.context.insert(outfit)
         try fixture.context.save()
 
@@ -700,13 +536,10 @@ struct WardrobeStoreTests {
 
     @Test func dirtyContextFailsBeforeTheActionAndDoesNotCommitOrRollbackItsBaseline() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
         let baseline = Item(name: "Unsaved baseline", category: "top", source: .manual)
-        context.insert(baseline)
+        fixture.context.insert(baseline)
         var saveCalls = 0
-        let store = WardrobeStore(modelContext: context) { _ in
-            saveCalls += 1
-        }
+        let store = WardrobeStore(modelContext: fixture.context) { _ in saveCalls += 1 }
 
         let error = try capturePersistenceError {
             try store.addItem(itemInput(name: "Failed action", category: "bottom"))
@@ -715,39 +548,35 @@ struct WardrobeStoreTests {
         #expect(error.operation == .addItem)
         #expect(error.diagnostic.contains("pendingChanges"))
         #expect(saveCalls == 0)
-        #expect(context.insertedModelsArray.compactMap { $0 as? Item }.map(\.id) == [baseline.id])
-        #expect(context.hasChanges)
+        #expect(fixture.context.insertedModelsArray.compactMap { $0 as? Item }.map(\.id)
+            == [baseline.id])
+        #expect(fixture.context.hasChanges)
     }
 
     @Test func coordinatorRunsDismissalOnlyAfterACommittedRetry() throws {
         let fixture = try makeFixture()
-        let context = fixture.context
         let coordinator = WardrobeWriteCoordinator()
         var didDismiss = false
 
         coordinator.perform(
             operation: .addItem,
-            write: {
-                try failingStore(context).addItem(itemInput())
-            },
+            write: { try failingStore(fixture.context).addItem(itemInput()) },
             onSuccess: { didDismiss = true }
         )
 
         #expect(!didDismiss)
         #expect(coordinator.error?.operation == .addItem)
-        #expect(try context.fetch(FetchDescriptor<Item>()).isEmpty)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).isEmpty)
 
         coordinator.perform(
             operation: .addItem,
-            write: {
-                try WardrobeStore(modelContext: context).addItem(itemInput())
-            },
+            write: { try WardrobeStore(modelContext: fixture.context).addItem(itemInput()) },
             onSuccess: { didDismiss = true }
         )
 
         #expect(didDismiss)
         #expect(coordinator.error == nil)
-        #expect(try context.fetch(FetchDescriptor<Item>()).count == 1)
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).count == 1)
     }
 
     private func capturePersistenceError(

@@ -154,10 +154,7 @@ private struct DemoSettingsView: View {
             }
 
             Section("Connected Features") {
-                LabeledContent("Google sign-in", value: "Unavailable in demo")
-                LabeledContent("Gmail import", value: "Unavailable in demo")
                 LabeledContent("AI network styling", value: "Unavailable in demo")
-                LabeledContent("Background tasks", value: "Unavailable in demo")
                 LabeledContent("Notifications", value: "Unavailable in demo")
             }
         }

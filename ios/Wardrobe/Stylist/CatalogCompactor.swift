@@ -2,8 +2,8 @@ import Foundation
 
 /// Pure mapping from wardrobe items to the compact, text-only payload Aria needs.
 ///
-/// Lives outside `Gmail/` (no network, no read-only-guard surface) and is
-/// protocol-driven so it unit-tests without SwiftData. Deliberately drops images
+/// Has no network access and is protocol-driven so it unit-tests without
+/// SwiftData. Deliberately drops images
 /// and purchase metadata — only ids + style attributes cross to the backend
 /// (hybrid-privacy rule).
 protocol StylableItem {

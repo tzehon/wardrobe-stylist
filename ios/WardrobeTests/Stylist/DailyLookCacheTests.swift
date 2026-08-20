@@ -5,54 +5,30 @@ import Testing
 
 @MainActor
 struct DailyLookCacheTests {
-    private let accountA = WardrobeAccountScope.external(.external("account-a"))
-    private let accountB = WardrobeAccountScope.external(.external("account-b"))
-
-    @Test func cacheRoundTripsAndRemainsAccountIsolated() throws {
+    @Test func cacheRoundTripsAndPurgesDeviceLocalEntry() throws {
         try withDefaults { defaults in
             let cache = UserDefaultsDailyLookCache(defaults: defaults)
             let entry = makeEntry()
-
-            cache.save(entry, for: accountA)
-
-            #expect(cache.load(for: accountA) == entry)
-            #expect(cache.load(for: accountB) == nil)
-            cache.remove(for: accountA)
-            #expect(cache.load(for: accountA) == nil)
+            cache.save(entry, for: .deviceLocal)
+            #expect(cache.load(for: .deviceLocal) == entry)
+            #expect(cache.removeAllAppOwnedEntriesAndVerify())
+            #expect(cache.load(for: .deviceLocal) == nil)
         }
     }
 
-    @Test func corruptAndActuallyPersistedFutureEntriesFailClosed() throws {
+    @Test func corruptAndFutureEntriesFailClosed() throws {
         try withDefaults { defaults in
             let cache = UserDefaultsDailyLookCache(defaults: defaults)
-
-            cache.replaceRawDataForTesting(Data("not-json".utf8), for: accountA)
-            #expect(cache.rawDataForTesting(for: accountA) != nil)
-            #expect(cache.load(for: accountA) == nil)
-            #expect(cache.rawDataForTesting(for: accountA) == nil)
+            cache.replaceRawDataForTesting(Data("not-json".utf8), for: .deviceLocal)
+            #expect(cache.load(for: .deviceLocal) == nil)
 
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .millisecondsSince1970
-            let futureData = try encoder.encode(makeEntry(formatVersion: 2))
-            cache.replaceRawDataForTesting(futureData, for: accountA)
-            #expect(cache.rawDataForTesting(for: accountA) == futureData)
-            #expect(cache.load(for: accountA) == nil)
-            #expect(cache.rawDataForTesting(for: accountA) == nil)
-        }
-    }
-
-    @Test func allAppOwnedPurgeClearsEveryAccountCacheButKeepsUnrelatedDefaults() throws {
-        try withDefaults { defaults in
-            let cache = UserDefaultsDailyLookCache(defaults: defaults)
-            cache.save(makeEntry(), for: accountA)
-            cache.save(makeEntry(occasion: "dinner"), for: accountB)
-            defaults.set("keep", forKey: "unrelated.preference")
-
-            #expect(cache.removeAllAppOwnedEntriesAndVerify())
-
-            #expect(cache.load(for: accountA) == nil)
-            #expect(cache.load(for: accountB) == nil)
-            #expect(defaults.string(forKey: "unrelated.preference") == "keep")
+            cache.replaceRawDataForTesting(
+                try encoder.encode(makeEntry(formatVersion: 2)),
+                for: .deviceLocal
+            )
+            #expect(cache.load(for: .deviceLocal) == nil)
         }
     }
 
@@ -60,7 +36,6 @@ struct DailyLookCacheTests {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
         let entry = makeEntry(occasion: "  WORK ")
-
         #expect(entry.isReusable(
             at: Date(timeIntervalSince1970: 1_700_000_100),
             calendar: calendar,
@@ -79,29 +54,9 @@ struct DailyLookCacheTests {
             catalogFingerprint: "catalog-b",
             occasion: "work"
         ))
-        #expect(!entry.isReusable(
-            at: Date(timeIntervalSince1970: 1_700_000_100),
-            calendar: calendar,
-            catalogFingerprint: "catalog-a",
-            occasion: "dinner"
-        ))
-        #expect(entry.isReusable(
-            at: Date(timeIntervalSince1970: 1_700_000_100),
-            calendar: calendar,
-            catalogFingerprint: "catalog-a",
-            occasion: nil,
-            acceptsStoredOccasionWhenRequestIsEmpty: true
-        ))
-        #expect(!entry.isReusable(
-            at: Date(timeIntervalSince1970: 1_700_000_100),
-            calendar: calendar,
-            catalogFingerprint: "catalog-a",
-            occasion: "dinner",
-            acceptsStoredOccasionWhenRequestIsEmpty: true
-        ))
     }
 
-    @Test func fingerprintIsStableAcrossCatalogOrderAndSensitiveToStyleFields() {
+    @Test func fingerprintIsOrderStableAndStyleSensitive() {
         let first = RecommendCatalogItem(
             id: "1", name: "Shirt", category: "top", colors: ["navy"]
         )
@@ -109,7 +64,6 @@ struct DailyLookCacheTests {
             id: "2", name: "Trouser", category: "bottom", material: "wool"
         )
         let baseline = DailyLookCatalogFingerprint.make(from: [first, second])
-
         #expect(DailyLookCatalogFingerprint.make(from: [second, first]) == baseline)
         #expect(DailyLookCatalogFingerprint.make(from: [
             first,

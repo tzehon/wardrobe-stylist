@@ -61,8 +61,8 @@ struct DisabledDailyLookCache: DailyLookCaching {
     func remove(for accountScope: WardrobeAccountScope) {}
 }
 
-/// Stores one small text-only recommendation per account. No photos, Gmail
-/// content, purchase metadata, or OAuth material enter this cache.
+/// Stores one small text-only recommendation for the device-local wardrobe.
+/// No photos or purchase metadata enter this cache.
 @MainActor
 final class UserDefaultsDailyLookCache: DailyLookCaching {
     static let keyPrefix = "com.tth.Wardrobe.dailyLook.v1."

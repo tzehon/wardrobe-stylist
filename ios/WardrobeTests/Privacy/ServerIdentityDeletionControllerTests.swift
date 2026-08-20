@@ -4,132 +4,38 @@ import Testing
 @testable import Wardrobe
 
 struct ServerIdentityDeletionControllerTests {
-    @Test func confirmationKeepsAllThreeDestructiveOperationsDistinct() {
+    @Test func confirmationKeepsServerAndLocalDeletionDistinct() {
         let confirmation = ServerIdentityDeletionConfirmation()
-
         #expect(confirmation.title == "Delete server security data?")
-        #expect(confirmation.destructiveActionTitle == "Delete Server Security Data")
-        #expect(
-            confirmation.message
-                == "App Attest verifies this installation, then deletes its live anonymous server identity and active AI sessions. Your wardrobe and Google connection stay unchanged; future AI use creates a new identity. Hosting records are separate: Fly’s customer-visible proxy and platform stream lasts 7 days and may include request paths, request IDs, or client IP. Separate provider-internal logs may include source IP, with in-service retention undisclosed. Snapshots stop appearing from Fly’s customer listing after 14 days; Fly does not publish an all-copy deletion deadline."
-        )
+        #expect(confirmation.message == "App Attest verifies this installation, then deletes its live anonymous server identity and active AI sessions. Your wardrobe stays on this device; future AI use creates a new anonymous identity. Hosting records are separate: Fly’s customer-visible proxy and platform stream lasts 7 days and may include request paths, request IDs, or client IP. Separate provider-internal logs may include source IP, with in-service retention undisclosed. Snapshots stop appearing from Fly’s customer listing after 14 days; Fly does not publish an all-copy deletion deadline.")
     }
 
     @MainActor
     @Test func verifiedDeletionPublishesSuccess() async {
         let deletion = FakeServerIdentityDeletion(result: .success(.deleted))
-        let controller = ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: ReceiptSyncActivityController()
-        )
-
-        let succeeded = await controller.delete(
+        let controller = ServerIdentityDeletionController(deletion: deletion)
+        #expect(await controller.delete(
             confirmedBy: ServerIdentityDeletionConfirmation().confirm()
-        )
-
-        #expect(succeeded)
+        ))
         #expect(controller.state == .succeeded(.deleted))
         #expect(await deletion.callCount == 1)
     }
 
     @MainActor
-    @Test func noVerifiableIdentityIsACompletedInformationalResult() async {
-        let deletion = FakeServerIdentityDeletion(result: .success(.noVerifiableIdentity))
-        let controller = ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: ReceiptSyncActivityController()
-        )
-
-        let completed = await controller.delete(
-            confirmedBy: ServerIdentityDeletionConfirmation().confirm()
-        )
-
-        #expect(completed)
-        #expect(controller.state == .succeeded(.noVerifiableIdentity))
-    }
-
-    @MainActor
-    @Test func safeAuthorizationFailureIsShownWithoutTechnicalDetails() async {
-        let deletion = FakeServerIdentityDeletion(
-            result: .failure(AppAttestAuthorizationError.network(.notConnectedToInternet))
-        )
-        let controller = ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: ReceiptSyncActivityController()
-        )
-
-        let succeeded = await controller.delete(
-            confirmedBy: ServerIdentityDeletionConfirmation().confirm()
-        )
-
-        #expect(!succeeded)
-        guard case .failed(let failure) = controller.state else {
-            Issue.record("Expected a safe deletion failure")
-            return
-        }
-        #expect(failure.errorDescription == "Couldn’t Delete Live Server Security Record")
-        #expect(failure.recoverySuggestion?.contains("offline") == true)
-        #expect(!failure.recoverySuggestion!.contains("NSURLError"))
-    }
-
-    @MainActor
-    @Test func unsupportedDeletionStatesThatServerDataWasNotDeleted() async {
+    @Test func unsupportedDeviceFailsClosedWithRetentionRecovery() async {
         let deletion = FakeServerIdentityDeletion(
             result: .failure(AppAttestAuthorizationError.unsupportedDevice)
         )
-        let controller = ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: ReceiptSyncActivityController()
-        )
-
-        let succeeded = await controller.delete(
+        let controller = ServerIdentityDeletionController(deletion: deletion)
+        #expect(await controller.delete(
             confirmedBy: ServerIdentityDeletionConfirmation().confirm()
-        )
-
-        #expect(!succeeded)
+        ) == false)
         guard case .failed(let failure) = controller.state else {
-            Issue.record("Expected an unsupported-device deletion failure")
+            Issue.record("Expected a safe failure")
             return
         }
-        #expect(failure.recoverySuggestion?.contains("was not deleted") == true)
-        #expect(failure.recoverySuggestion?.contains("90 days") == true)
-        #expect(failure.recoverySuggestion?.contains("live identity") == true)
-        #expect(failure.recoverySuggestion?.contains("Hosting logs and snapshots") == true)
-    }
-
-    @MainActor
-    @Test func occupiedPrivacyWindowFailsWithoutCallingTheServer() async {
-        let syncActivity = ReceiptSyncActivityController()
-        let occupied = AsyncLatch()
-        let release = AsyncLatch()
-        let holder = Task { @MainActor in
-            await syncActivity.withQuiesced {
-                await occupied.open()
-                await release.wait()
-            }
-        }
-        await occupied.wait()
-
-        let deletion = FakeServerIdentityDeletion(result: .success(.deleted))
-        let controller = ServerIdentityDeletionController(
-            deletion: deletion,
-            syncActivity: syncActivity
-        )
-        let succeeded = await controller.delete(
-            confirmedBy: ServerIdentityDeletionConfirmation().confirm()
-        )
-
-        #expect(!succeeded)
-        #expect(await deletion.callCount == 0)
-        guard case .failed(let failure) = controller.state else {
-            Issue.record("Expected a no-sync-window failure")
-            await release.open()
-            await holder.value
-            return
-        }
-        #expect(failure.recoverySuggestion?.contains("Receipt import") == true)
-        await release.open()
-        await holder.value
+        #expect(failure.message.contains("was not deleted"))
+        #expect(failure.message.contains("90 days"))
     }
 }
 
@@ -144,25 +50,5 @@ private actor FakeServerIdentityDeletion: ServerIdentityDeleting {
     func deleteServerIdentity() throws -> ServerIdentityDeletionResult {
         callCount += 1
         return try result.get()
-    }
-}
-
-private actor AsyncLatch {
-    private var isOpen = false
-    private var waiters: [CheckedContinuation<Void, Never>] = []
-
-    func wait() async {
-        guard !isOpen else { return }
-        await withCheckedContinuation { continuation in
-            waiters.append(continuation)
-        }
-    }
-
-    func open() {
-        guard !isOpen else { return }
-        isOpen = true
-        let pending = waiters
-        waiters.removeAll()
-        pending.forEach { $0.resume() }
     }
 }

@@ -70,8 +70,7 @@ private enum WardrobeStoreError: Error {
 
 /// Value input for Add Item's manual-photo write. The store creates the
 /// SwiftData model inside the transaction so retrying after rollback never
-/// reuses a detached model. Receipt/import paths intentionally use their own
-/// richer persistence pipeline.
+/// reuses a detached model.
 struct ManualItemInput: Sendable {
     let name: String
     let category: String
@@ -89,9 +88,7 @@ struct ManualItemInput: Sendable {
     let thumbnailData: Data?
 }
 
-/// Value input for correcting an existing catalog item. Receipt-derived fields
-/// are deliberately editable: extraction is a draft, not an unquestionable
-/// source of truth.
+/// Value input for correcting an existing catalog item.
 struct ItemUpdateInput: Equatable, Sendable {
     let name: String
     let category: String
@@ -105,7 +102,6 @@ struct ItemUpdateInput: Equatable, Sendable {
     let purchasePrice: Double?
     let purchaseCurrency: String?
     let imageUpdate: ItemImageUpdate
-    let acceptPendingReview: Bool
 }
 
 enum ItemImageUpdate: Equatable, Sendable {
@@ -124,7 +120,6 @@ protocol WardrobeStoring {
     func deleteItem(_ item: Item) throws
     func setFavorite(_ isFavorite: Bool, for item: Item) throws
     func setArchived(_ isArchived: Bool, for item: Item) throws
-    func acceptPendingItems(_ items: [Item], reviewedAt: Date) throws
 
     @discardableResult
     func recordWear(
@@ -233,17 +228,11 @@ final class WardrobeStore: WardrobeStoring {
             case .replace(let imageData, let thumbnailData):
                 item.imageData = imageData
                 item.thumbnailData = thumbnailData
-                item.imageURL = nil
                 item.featurePrint = nil
             case .remove:
                 item.imageData = nil
                 item.thumbnailData = nil
-                item.imageURL = nil
                 item.featurePrint = nil
-            }
-            if input.acceptPendingReview, item.reviewState == .pendingReview {
-                item.reviewState = .accepted
-                item.reviewedAt = .now
             }
         }
     }
@@ -254,18 +243,6 @@ final class WardrobeStore: WardrobeStoring {
 
     func setArchived(_ isArchived: Bool, for item: Item) throws {
         try mutateItem(item) { $0.isArchived = isArchived }
-    }
-
-    func acceptPendingItems(_ items: [Item], reviewedAt: Date = .now) throws {
-        for item in items {
-            try validate(item, operation: .updateItem, requireAccountVisibility: true)
-        }
-        try transaction(operation: .updateItem) {
-            for item in items where item.reviewState == .pendingReview {
-                item.reviewState = .accepted
-                item.reviewedAt = reviewedAt
-            }
-        }
     }
 
     private func mutateItem(_ item: Item, mutation: (Item) -> Void) throws {
@@ -300,7 +277,7 @@ final class WardrobeStore: WardrobeStoring {
                     underlying: WardrobeStoreError.itemOutsideAccountScope
                 )
             }
-            guard item.reviewState == .accepted, !item.isArchived else {
+            guard !item.isArchived else {
                 throw WardrobePersistenceError(
                     operation: .recordWear,
                     underlying: WardrobeStoreError.itemNotStyleable
@@ -313,7 +290,6 @@ final class WardrobeStore: WardrobeStoring {
                 occasion: occasion,
                 rationale: rationale,
                 colorStory: colorStory,
-                accountSubjectKey: accountScope.rawValue,
                 items: uniqueItems
             )
             modelContext.insert(outfit)
@@ -321,8 +297,7 @@ final class WardrobeStore: WardrobeStoring {
                 modelContext.insert(WearLog(
                     date: date,
                     item: item,
-                    outfit: outfit,
-                    accountSubjectKey: accountScope.rawValue
+                    outfit: outfit
                 ))
             }
             return outfit

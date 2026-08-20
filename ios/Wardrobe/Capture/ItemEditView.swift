@@ -1,8 +1,6 @@
 import SwiftData
 import SwiftUI
 
-/// Shared edit/review flow. Pending receipt imports use the same complete form
-/// as manual items, but the final action explicitly accepts the checked data.
 struct ItemEditView: View {
     let item: Item
     let accountScope: WardrobeAccountScope
@@ -30,10 +28,6 @@ struct ItemEditView: View {
                     Section { DemoFictionalDataNotice() }
                 }
 
-                if item.reviewState == .pendingReview {
-                    reviewNotice
-                }
-
                 ItemPhotoEditor(
                     selectedImage: $replacementImage,
                     removesExistingImage: $removesExistingImage,
@@ -42,20 +36,16 @@ struct ItemEditView: View {
                 )
                 ItemDetailsForm(draft: $draft, categories: categories)
             }
-            .navigationTitle(item.reviewState == .pendingReview ? "Review Import" : "Edit Item")
+            .navigationTitle("Edit Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(item.reviewState == .pendingReview ? "Accept" : "Save", action: save)
+                    Button("Save", action: save)
                         .disabled(!draft.canSave)
-                        .accessibilityIdentifier(
-                            item.reviewState == .pendingReview
-                                ? "item.review.accept"
-                                : "item.edit.save"
-                        )
+                        .accessibilityIdentifier("item.edit.save")
                 }
             }
             .alert("Couldn’t Prepare Image", isPresented: $imageProcessingFailed) {
@@ -70,31 +60,6 @@ struct ItemEditView: View {
             selectedImage: $replacementImage,
             removesExistingImage: $removesExistingImage
         )
-    }
-
-    private var reviewNotice: some View {
-        Section {
-            Label {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Check every imported detail")
-                        .font(.subheadline.weight(.semibold))
-                    Text("Receipt extraction can make mistakes. Accept only after the item, size, purchase details, and image match what you own.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            } icon: {
-                Image(systemName: "checklist")
-            }
-            if let confidence = item.extractionConfidence {
-                LabeledContent("Extraction confidence", value: confidence.label)
-                    .accessibilityIdentifier("item.review.confidence")
-            }
-            if item.possibleDuplicateOfItemID != nil {
-                Label("Possible duplicate: compare this with the similar imported item before accepting.", systemImage: "square.on.square")
-                    .font(.footnote)
-                    .foregroundStyle(.orange)
-            }
-        }
     }
 
     private var categories: [String] {
@@ -122,27 +87,13 @@ struct ItemEditView: View {
             imageUpdate = .unchanged
         }
 
-        let input = draft.updateInput(
-            imageUpdate: imageUpdate,
-            acceptPendingReview: item.reviewState == .pendingReview
-        )
         writes.perform(
             operation: .updateItem,
             write: {
                 try WardrobeStore(modelContext: modelContext, accountScope: accountScope)
-                    .updateItem(item, with: input)
+                    .updateItem(item, with: draft.updateInput(imageUpdate: imageUpdate))
             },
             onSuccess: { dismiss() }
         )
-    }
-}
-
-extension ItemExtractionConfidence {
-    var label: String {
-        switch self {
-        case .high: "High"
-        case .medium: "Medium"
-        case .low: "Low"
-        }
     }
 }

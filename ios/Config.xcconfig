@@ -1,11 +1,7 @@
 // Project-wide build settings.
 //
-// Defaults for OAuth values are empty — the build still succeeds (and tests run) without
-// them. Debug connected features use gitignored `Secrets.xcconfig`; device Release builds use
-// the separately gitignored `Distribution.xcconfig`. See both examples and `docs/setup.md`.
-
-GOOGLE_CLIENT_ID =
-GOOGLE_REVERSED_CLIENT_ID =
+// Debug public settings use gitignored `Secrets.xcconfig`; device Release builds use
+// the separately gitignored `Distribution.xcconfig`.
 // Backend URL is split because xcconfig strips `//…` as a comment. Info.plist composes it.
 BACKEND_SCHEME =
 BACKEND_HOST =
@@ -14,4 +10,4 @@ SUPPORT_URL =
 
 // Configuration-specific files include this common baseline, then include either
 // Secrets.xcconfig (Debug) or Distribution.xcconfig (Release). Keeping the includes
-// separate prevents a LAN backend or test OAuth client from leaking into an archive.
+// separate prevents a LAN backend from leaking into an archive.

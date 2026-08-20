@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// One validated value model shared by manual add, ordinary edit, and imported
-/// item review. The persistence inputs are derived here so every entry point
+/// One validated value model shared by manual add and ordinary edit. The
+/// persistence inputs are derived here so every entry point
 /// applies identical trimming, color parsing, price, and currency rules.
 struct ItemDetailsDraft: Equatable {
     var name = ""
@@ -35,7 +35,7 @@ struct ItemDetailsDraft: Equatable {
         purchaseDate = item.purchaseDate ?? fallbackDate
         purchasePrice = item.purchasePrice.map(Self.formatPrice) ?? ""
         purchaseCurrency = item.purchaseCurrency ?? ""
-        hasImage = item.imageData != nil || item.thumbnailData != nil || item.imageURL != nil
+        hasImage = item.imageData != nil || item.thumbnailData != nil
     }
 
     init() {}
@@ -104,10 +104,7 @@ struct ItemDetailsDraft: Equatable {
         )
     }
 
-    func updateInput(
-        imageUpdate: ItemImageUpdate = .unchanged,
-        acceptPendingReview: Bool = false
-    ) -> ItemUpdateInput {
+    func updateInput(imageUpdate: ItemImageUpdate = .unchanged) -> ItemUpdateInput {
         ItemUpdateInput(
             name: name.trimmedRequired,
             category: category.trimmedRequired.lowercased(),
@@ -120,13 +117,12 @@ struct ItemDetailsDraft: Equatable {
             purchaseDate: includesPurchaseDate ? purchaseDate : nil,
             purchasePrice: parsedPrice,
             purchaseCurrency: normalizedCurrency,
-            imageUpdate: imageUpdate,
-            acceptPendingReview: acceptPendingReview
+            imageUpdate: imageUpdate
         )
     }
 
     /// Compatibility accessor retained for focused edit-draft tests and simple
-    /// callers that do not change the image or review state.
+    /// callers that do not change the image.
     var updateInput: ItemUpdateInput { updateInput() }
 
     private static func formatPrice(_ value: Double) -> String {
@@ -196,8 +192,8 @@ struct ItemDetailsForm: View {
     }
 }
 
-/// Shared optional-photo editor. An existing local or validated remote image is
-/// preserved until the user explicitly replaces or removes it.
+/// Shared optional-photo editor. An existing local image is preserved until
+/// the user explicitly replaces or removes it.
 struct ItemPhotoEditor: View {
     @Binding var selectedImage: UIImage?
     @Binding var removesExistingImage: Bool
@@ -206,9 +202,7 @@ struct ItemPhotoEditor: View {
 
     private var hasExistingImage: Bool {
         guard let existingItem else { return false }
-        return existingItem.imageData != nil
-            || existingItem.thumbnailData != nil
-            || existingItem.imageURL != nil
+        return existingItem.imageData != nil || existingItem.thumbnailData != nil
     }
 
     var body: some View {
@@ -241,7 +235,7 @@ struct ItemPhotoEditor: View {
         } header: {
             Text("Photo")
         } footer: {
-            Text("Optional. Replacing an imported image stores your chosen copy locally.")
+            Text("Optional. Photos are stored with your wardrobe on this device.")
         }
     }
 
