@@ -2,7 +2,7 @@
 
 Only authentication metadata is stored: challenges, public keys, opaque Apple receipts,
 monotonic assertion counters, short-lived session hashes, and coarse rate
-windows. Receipt snippets and wardrobe/catalog payloads never enter this store.
+windows. Wardrobe, prompt, and model-response payloads never enter this store.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from pathlib import Path
 MAX_ACTIVE_RATE_WINDOWS = 512
 # Aggregate buckets are internal, fixed-subject sentinels that must remain
 # admissible even if an attacker has already filled every ordinary IP/key slot.
-# There are currently seven such scopes; eight leaves one future slot while
+# There are currently six such scopes; eight leaves two future slots while
 # preserving a deterministic bound on active aggregate windows.
 MAX_RESERVED_GLOBAL_RATE_WINDOWS = 8
 # Valid deletion must remain possible even when attacker-controlled ordinary
@@ -30,6 +30,16 @@ MAX_RESERVED_GLOBAL_RATE_WINDOWS = 8
 # namespace covers deletion IP and proven-key buckets; its aggregate bucket
 # continues to use the smaller fixed global namespace above.
 MAX_RESERVED_DELETION_RATE_WINDOWS = 32
+
+# These scopes were written by the retired receipt-extraction endpoint. Purge
+# them at every startup so an in-place backend upgrade cannot leave a
+# current-secret installation HMAC behind after that installation is deleted.
+# This is migration cleanup only; no active admission path may create them.
+_RETIRED_API_RATE_SCOPES = (
+    "extract-global",
+    "extract-installation",
+    "extract-ip",
+)
 
 # Cleanup is deliberately bounded per transaction so a large restored backlog
 # cannot hold the single production SQLite writer for one long transaction.
@@ -581,6 +591,10 @@ class AuthStore:
             }
             if "expires_at" not in rate_columns:
                 self._migrate_rate_windows_v3(connection)
+            connection.executemany(
+                "DELETE FROM rate_windows WHERE scope = ?",
+                ((scope,) for scope in _RETIRED_API_RATE_SCOPES),
+            )
             connection.execute(
                 "CREATE INDEX IF NOT EXISTS challenges_expiry_idx ON challenges(expires_at)"
             )
@@ -1537,7 +1551,6 @@ class AuthStore:
         allowed_rate_scopes = {
             "session-key",
             "deletion-key",
-            "extract-installation",
             "recommend-installation",
         }
         if any(scope not in allowed_rate_scopes for scope, _ in rate_subject_hashes):

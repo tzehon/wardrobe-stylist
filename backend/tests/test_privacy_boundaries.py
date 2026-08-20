@@ -10,10 +10,17 @@ from app.auth.store import AuthStore
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 APP_ROOT = BACKEND_ROOT / "app"
+REPOSITORY_ROOT = BACKEND_ROOT.parent
+RETIRED_EXTRACTION_FILES = (
+    APP_ROOT / "agents" / "extractor.py",
+    APP_ROOT / "routes" / "extract.py",
+    APP_ROOT / "schemas" / "purchase.py",
+    REPOSITORY_ROOT / "shared" / "schemas" / "purchase.schema.json",
+)
 
 # Any auth-schema change must be reviewed here. Exact names avoid both a weak
 # substring scan and a false positive for ``receipt``, which is Apple's opaque
-# App Attest receipt rather than a Gmail purchase receipt.
+# App Attest receipt rather than user wardrobe content.
 EXPECTED_AUTH_SCHEMA = {
     "challenges": (
         "challenge_id",
@@ -94,23 +101,6 @@ EXPECTED_LOG_CALLS = {
         "type(exc).__name__",
     ),
     (
-        "routes/extract.py",
-        "error",
-        "'Receipt snippet preprocessing returned no content.'",
-    ),
-    (
-        "routes/extract.py",
-        "warning",
-        "'extractor_failure code=invalid_model_response'",
-    ),
-    (
-        "routes/extract.py",
-        "warning",
-        "'Tool input failed schema validation: count=%d types=%s'",
-        "exc.error_count()",
-        "validation_types",
-    ),
-    (
         "routes/recommend.py",
         "warning",
         "'stylist_failure code=invalid_model_response'",
@@ -164,11 +154,8 @@ DIRECT_DIAGNOSTIC_SINKS = {
     "warnings.warn",
 }
 PAYLOAD_MODULES = {
-    "agents/extractor.py",
     "agents/stylist.py",
-    "routes/extract.py",
     "routes/recommend.py",
-    "schemas/purchase.py",
     "schemas/recommendation.py",
 }
 
@@ -374,6 +361,15 @@ def test_auth_store_remains_the_only_developer_controlled_persistence_sink() -> 
     assert violations == []
 
 
+def test_retired_extraction_files_remain_absent() -> None:
+    present = [
+        str(path.relative_to(REPOSITORY_ROOT))
+        for path in RETIRED_EXTRACTION_FILES
+        if path.exists()
+    ]
+    assert present == []
+
+
 def test_persistence_guard_recognizes_aliases_and_common_write_forms() -> None:
     samples = (
         "from pathlib import Path\nPath('payload').open('w')\n",
@@ -384,7 +380,7 @@ def test_persistence_guard_recognizes_aliases_and_common_write_forms() -> None:
     )
 
     for source in samples:
-        assert _persistence_violations("routes/extract.py", source), source
+        assert _persistence_violations("routes/recommend.py", source), source
 
 
 def test_application_log_calls_match_the_payload_free_allowlist() -> None:

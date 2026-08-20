@@ -68,7 +68,6 @@ class AuthConfiguration:
     challenge_rate_limit_per_minute: int
     registration_rate_limit_per_hour: int
     session_rate_limit_per_hour: int
-    extract_rate_limit_per_hour: int
     recommend_rate_limit_per_hour: int
 
     @property
@@ -226,9 +225,6 @@ class AuthConfiguration:
             "APP_ATTEST_SESSION_RATE_LIMIT_PER_HOUR": (
                 settings.app_attest_session_rate_limit_per_hour
             ),
-            "APP_ATTEST_EXTRACT_RATE_LIMIT_PER_HOUR": (
-                settings.app_attest_extract_rate_limit_per_hour
-            ),
             "APP_ATTEST_RECOMMEND_RATE_LIMIT_PER_HOUR": (
                 settings.app_attest_recommend_rate_limit_per_hour
             ),
@@ -259,6 +255,5 @@ class AuthConfiguration:
             challenge_rate_limit_per_minute=settings.app_attest_challenge_rate_limit_per_minute,
             registration_rate_limit_per_hour=settings.app_attest_registration_rate_limit_per_hour,
             session_rate_limit_per_hour=settings.app_attest_session_rate_limit_per_hour,
-            extract_rate_limit_per_hour=settings.app_attest_extract_rate_limit_per_hour,
             recommend_rate_limit_per_hour=settings.app_attest_recommend_rate_limit_per_hour,
         )

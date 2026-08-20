@@ -1,1 +1,1 @@
-"""LLM-backed agents (extractor, categorizer, stylist) — Phase 2+."""
+"""LLM-backed wardrobe-styling agents."""

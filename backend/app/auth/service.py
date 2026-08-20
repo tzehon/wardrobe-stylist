@@ -96,9 +96,6 @@ _SECURITY_EVENT_SCOPES = frozenset(
         "deletion-key",
         "deletion-proof-global",
         "deletion-proof-ip",
-        "extract-global",
-        "extract-installation",
-        "extract-ip",
         "recommend-global",
         "recommend-installation",
         "recommend-ip",
@@ -109,7 +106,7 @@ _SECURITY_EVENT_SCOPES = frozenset(
         "session-key",
     }
 )
-_SECURITY_EVENT_PATHS = frozenset({"-", "/extract", "/recommend"})
+_SECURITY_EVENT_PATHS = frozenset({"-", "/recommend"})
 _SECURITY_EVENT_MECHANISMS = frozenset({"-", "app_attest", "legacy"})
 _SECURITY_EVENT_LEVELS = frozenset({logging.INFO, logging.WARNING, logging.ERROR})
 
@@ -793,10 +790,6 @@ class AppAttestAuthService:
             ("session-key", self._subject_hash("session-key", key_id)),
             ("deletion-key", self._subject_hash("deletion-key", key_id)),
             (
-                "extract-installation",
-                self._subject_hash("extract-installation", installation.installation_id),
-            ),
-            (
                 "recommend-installation",
                 self._subject_hash("recommend-installation", installation.installation_id),
             ),
@@ -926,8 +919,6 @@ class AppAttestAuthService:
         )
 
     def _api_rate_limit(self, path: str) -> tuple[str, int] | None:
-        if path == "/extract":
-            return "extract", self.configuration.extract_rate_limit_per_hour
         if path == "/recommend":
             return "recommend", self.configuration.recommend_rate_limit_per_hour
         return None
@@ -1379,7 +1370,7 @@ def _legacy_token_matches(candidate: str, expected: str) -> bool:
 
 
 def _security_path(path: str) -> str:
-    return path if path in {"/extract", "/recommend"} else "-"
+    return path if path == "/recommend" else "-"
 
 
 def _security_event(

@@ -4,7 +4,7 @@ Stateless single Claude call per request:
 - model: ``claude-opus-4-8`` — the most capable model, which fits a taste /
   reasoning task like outfit styling. Cost is a non-issue for a single-user app.
 - ``tool_choice`` forces the ``propose_outfit`` tool so we always get a
-  structured outfit back (same pattern as the extractor).
+  structured outfit back.
 - ``cache_control: ephemeral`` on the system block caches ``tools`` + ``system``
   together (render order is tools → system → messages, so one marker on the last
   system block is enough). The styling rubric is the stable, cacheable prefix;

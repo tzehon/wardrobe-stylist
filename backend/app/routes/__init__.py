@@ -1,1 +1,1 @@
-"""HTTP routes (extract, categorize, recommend) — added in later phases."""
+"""Authentication and wardrobe recommendation HTTP routes."""

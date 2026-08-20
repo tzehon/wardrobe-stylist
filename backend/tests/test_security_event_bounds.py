@@ -106,7 +106,7 @@ def test_reviewed_security_event_values_remain_observable(
 def test_unreviewed_security_event_values_and_level_are_bounded(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    private_sentinel = "private-receipt-catalog-token-198.51.100.247"
+    private_sentinel = "private-wardrobe-catalog-token-198.51.100.247"
 
     with caplog.at_level(logging.INFO, logger="app.auth.service"):
         _security_event(

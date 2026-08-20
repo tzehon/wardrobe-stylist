@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     device_token: str = Field(default="", repr=False)
     auth_mode: str = "legacy"
 
-    # App Attest identifies one installation, without creating a Wardrobe user
-    # account or making Google sign-in a prerequisite for styling.
+    # App Attest identifies one installation without creating a Wardrobe user
+    # account.
     # The App ID prefix is usually the Team ID, but must be read from the
     # registered Identifier rather than inferred.
     app_attest_app_id_prefix: str = ""
@@ -37,7 +37,6 @@ class Settings(BaseSettings):
     app_attest_challenge_rate_limit_per_minute: int = 30
     app_attest_registration_rate_limit_per_hour: int = 5
     app_attest_session_rate_limit_per_hour: int = 60
-    app_attest_extract_rate_limit_per_hour: int = 120
     app_attest_recommend_rate_limit_per_hour: int = 30
 
     environment: str = "dev"
