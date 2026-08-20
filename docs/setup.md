@@ -261,7 +261,8 @@ Before treating a deployment as release-ready:
 
 The policy's unchecked compliance items are release gates. A healthy `/health` response, an
 existing snapshot, or a documented target is not evidence that retention, deletion, and the full
-manual operations review are complete.
+operations gate are complete. The first manual operations review passed on 2026-08-20, but it must
+remain current under the policy cadence while the other external evidence is completed.
 
 The image build is verifiable locally first: `docker build -t wb backend && docker run --rm -p 8080:8080 wb`, then `curl localhost:8080/health`.
 
@@ -287,7 +288,8 @@ Every internal beta is built as an App Store candidate. Follow the full
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md); the short version is:
 
 1. Confirm the candidate's policy-enforced backend digest is deployed, then finish the remaining
-   `APP-009` external logging, manual operations, support, snapshot, and restore evidence.
+   `APP-009` external logging, support, snapshot, and restore evidence while keeping the manual
+   operations review current.
 2. Put the production Google identifiers, HTTPS backend, public privacy/support URLs, and real
    `DEVELOPMENT_TEAM` in gitignored `Distribution.xcconfig`.
 3. Check App Store Connect for the highest uploaded build, then set the next unused

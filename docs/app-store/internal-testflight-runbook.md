@@ -43,10 +43,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
   its temporary resources were removed within 391 seconds of volume creation. Snapshot-list
-  expiry, the first payload-free manual operations review, deletion-specific recovery, the signed
-  distribution archive/profile, and
+  expiry, deletion-specific recovery, the signed distribution archive/profile, and
   production TestFlight enrollment, assertion renewal, protected API call, and server-deletion UI
-  proof are still required.
+  proof are still required. The first payload-free manual operations review passed at
+  `2026-08-20T00:15:07Z` and must be repeated before archive/upload.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -89,8 +89,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
 - [ ] Verify production operations against that final image: retain the redacted Fly response and
-  owner decisions, perform the payload-free manual review, then prove 14-day snapshot-list
-  disappearance, restore-after-deletion handling, and monitored support routing. The generic
+  owner decisions, keep the payload-free manual review current, then prove 14-day snapshot-list
+  disappearance, restore-after-deletion handling, and monitored support routing. The first review
+  passed at `2026-08-20T00:15:07Z`. The generic
   isolated restore path passed on
   2026-08-19 with read-only, aggregate-only evidence and immediate temporary-resource cleanup; it
   does not close deletion-specific recovery. The customer-visible log stream is accepted as seven

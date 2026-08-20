@@ -358,8 +358,9 @@ flowchart LR
   seven-day customer-visible stream and undisclosed provider-internal in-service retention.
   On 2026-08-20 the owner approved a payload-free manual review cadence instead of an automated
   monitoring processor for the initial personal single-user release; automated independent
-  monitoring remains optional future hardening. APP-009 remains open until the remaining snapshot,
-  manual-review, support, App Privacy, and deletion/restore operations are evidenced.
+  monitoring remains optional future hardening. The first review passed on 2026-08-20. APP-009
+  remains open until the remaining snapshot, support, App Privacy, and deletion/restore operations
+  are evidenced, and the manual review must remain current under the approved cadence.
 - The app stores Gmail OAuth tokens separately from the App Attest key identifier. The App Attest
   private key stays in the Secure Enclave; the short-lived access token is memory-only.
 - Google is not an account system for Wardrobe backend access. A user can style a local/photo

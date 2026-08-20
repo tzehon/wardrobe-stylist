@@ -70,8 +70,9 @@ securely checkpoints/truncates SQLite WAL state. A fresh App Attest deletion ass
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
 exposes that server-only control. The exact deployed digest and scan evidence are recorded in the
 internal-TestFlight runbook. The owner-approved payload-free manual operations review replaces
-automated alert delivery for this personal single-user release. The first manual review, support
-publication, snapshot-list expiry, and deletion-specific recovery remain release gates.
+automated alert delivery for this personal single-user release. The first manual review passed on
+2026-08-20; support publication, snapshot-list expiry, and deletion-specific recovery remain
+release gates.
 
 The auth service emits bounded security events containing only an event/code/scope/path/
 mechanism tuple. The production container disables Uvicorn access logging, and structural tests
@@ -80,8 +81,9 @@ Fly Security confirmed that provider-controlled logs can include source IP and t
 cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner explicitly accepted
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
-flow. The first manual review, snapshot-list expiry, final App Privacy publication, monitored
-support, and deletion-specific recovery remain release gates.
+flow. The first manual review passed on 2026-08-20. Snapshot-list expiry, final App Privacy
+publication, monitored support, and deletion-specific recovery remain release gates; the manual
+review must remain current under the approved cadence.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.

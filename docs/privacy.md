@@ -103,7 +103,8 @@ expectation, consent gate, deletion path, and unresolved provider-contract quest
 Do not publish claims such as “Anthropic never retains data” or “data is never used for training”
 until the production contract/configuration has been verified. Do not treat the deployed
 application controls as proof of the accepted-undisclosed provider boundary or the still-open
-manual-review, support, restore, processor-contract, and publication requirements.
+support, restore, processor-contract, and publication requirements. The first manual review passed
+on 2026-08-20, but it must remain current under the approved cadence.
 
 ## User controls required for release
 
