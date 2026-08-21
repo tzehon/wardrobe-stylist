@@ -112,6 +112,15 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - **App Transport Security:** the backend is on HTTPS (Fly.io), so `Info.plist` carries **no** ATS exception — the dev-only `NSAllowsArbitraryLoads` + `NSLocalNetworkUsageDescription` keys were removed once production went HTTPS. If you need to point the app back at a plain-HTTP LAN dev backend, re-add an `NSAppTransportSecurity` exception locally (don't commit it).
 - **Commits:** Use logically independent Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Do not add AI co-author or attribution trailers unless the user explicitly requests one.
 - **Linear Git history:** Before opening or updating any PR, fetch `origin` and rebase the feature branch onto the latest `origin/main`; do not merge `main` into a PR branch. Prefer `git pull --rebase` for pulls. If rebasing an already-published PR branch rewrites it, verify that the branch is not shared and update it with `git push --force-with-lease`—never plain `--force`.
+- **PR review lifecycle:** Push new PRs as drafts, then immediately mark them ready for review. Wait
+  for Codex review to finish before merging; 👀 means review is still running and 👍 on the current
+  head means no findings. Address every actionable current-head finding, run the required focused
+  and full regression gates, push the fixes, request another Codex review, and repeat until the
+  current head receives 👍 with no actionable review thread. Then rebase-merge the PR, delete its
+  remote feature branch, fetch/prune `origin`, switch to `main`, and fast-forward only to
+  `origin/main`. Finally audit local branches for reachability, upstream state, other worktree use,
+  and unique commits/tree changes; delete only branches proven merged or tree-equivalent, and
+  preserve anything ambiguous or containing unique work.
 - **iOS target:** iOS 18 deployment, Swift 6 language mode, Swift Testing for new tests, XCTest only where needed (UI flows / `URLProtocol` stubbing).
 
 ## Code review rules
