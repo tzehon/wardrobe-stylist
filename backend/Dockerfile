@@ -38,10 +38,12 @@ COPY --from=builder /app/.venv /app/.venv
 # Application code. Tests and secrets are excluded via .dockerignore.
 COPY app ./app
 COPY container_entrypoint.py ./container_entrypoint.py
+COPY uvicorn-logging.json ./uvicorn-logging.json
 
 # Fly routes public HTTPS (443) to this internal port (see fly.toml).
 EXPOSE 8080
 ENTRYPOINT ["python", "/app/container_entrypoint.py"]
 # APP-009 forbids application access logs because they include client/request
-# metadata. Keep diagnostics in the bounded application security/error events.
-CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]
+# metadata. Emit INFO only from the bounded App Attest security-event logger;
+# other application loggers retain their default WARNING threshold.
+CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--log-config", "/app/uvicorn-logging.json", "--no-access-log"]
