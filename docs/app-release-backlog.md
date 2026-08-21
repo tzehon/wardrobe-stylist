@@ -34,13 +34,13 @@ kept “In progress.”
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
 | APP-014 | **In progress** | All nine Gmail-free simulator UI flows pass, covering local/demo, styling, reminders, history, deletion, offline/relaunch, and removed-capability absence; mandatory physical clean-uninstall/fresh-install QA remains open |
 | APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
-| APP-016 | **In progress** | The owned-domain privacy/support/Terms pages are live, but they still describe the earlier Gmail-capable build. Gmail-free local revisions are prepared; republish, verify signed out, reconcile providers/App Privacy, and finish store answers |
+| APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
 | APP-017–APP-019 | **Submission / later milestone** | App Store Connect confirms build 3 is the highest upload, so `1.0.0 (4)` remains the unused Gmail-free candidate. After APP-036 and all binary/config gates, upload through **TestFlight & App Store**, distribute internally, and retain clean-device evidence |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Today is explicit-action-only, device-local daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import is removed from the repository candidate and verified simulator artifact. The old development build is disconnected, locally cleared, and uninstalled, and the immutable Gmail-free backend is deployed. The processed-TestFlight clean install, Gmail-free Pages republish, signed archive, and TestFlight proof remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import is removed from the repository candidate and verified simulator artifact. The old development build is disconnected, locally cleared, and uninstalled; the immutable Gmail-free backend and public pages are deployed. The processed-TestFlight clean install, signed archive, and TestFlight proof remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -129,11 +129,13 @@ These items are ordered. Do not archive early and plan to repair the same binary
   `/extract` returns `404`, unauthenticated `/recommend` returns `401`, and the payload-free
   post-deploy manual review passed at `2026-08-21T01:11:43Z`. Do not install build 4 yet; it must
   come from processed TestFlight.
-- [ ] **Close the publication portion of APP-016.** The final owned-domain
-  privacy/support/Terms URLs are live and previously verified with the earlier product copy.
-  Republish the locally prepared Gmail-free revisions, verify all three while signed out, and
-  reconcile their claims with current Anthropic/Fly/Apple terms, the App Privacy inventory, and
-  final App Store Connect answers.
+- [x] **Close the publication portion of APP-016.** `tzehon.github.io` PR #5 merged the Gmail-free
+  privacy/support/Terms copy as `c5da090a0417bcda99fc6d328a0cdff808ea597d` at
+  `2026-08-21T01:42:01Z`; the matching Pages deployment completed successfully at
+  `2026-08-21T01:42:39Z`. Anonymous HTTPS requests at `2026-08-21T01:45:27Z` returned `200` for all
+  three owned-domain routes, showed the 21 August 2026 policy/Terms date, linked the pages to each
+  other, and contained no Gmail/Google/OAuth/import capability claim. Provider-contract evidence,
+  App Privacy reconciliation, and final App Store Connect answers remain separate APP-016 work.
 - [ ] **Complete APP-011's signed device-archive proof.** Freeze the merged source, create the
   production-signed archive, and verify its App Attest entitlement, embedded profile, public
   configuration, privacy manifests, and removed-capability absence. Re-resolve the v6 Gmail-free
@@ -270,11 +272,11 @@ governed by APP-036's Gmail-free guards.
 - [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
   full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions.
-- [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** Republish the live
-  privacy/support/Terms pages for the Gmail-free candidate and reconcile the backend, Anthropic,
-  Apple, Fly, purposes, retention, styling-consent withdrawal, deletion, security, contact, and
-  changes. Remove Gmail/Google/Limited Use/receipt-import claims. Do not publish unverified
-  retention or “no training” claims.
+- [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** The live
+  privacy/support/Terms pages now describe the Gmail-free candidate and omit Google/Gmail/Limited
+  Use/receipt-import claims. Finish reconciling current Anthropic, Apple, and Fly terms, purposes,
+  retention, App Privacy answers, and final store fields. Do not publish unverified retention or
+  “no training” claims.
 - [ ] **APP-017 · Submission · Complete the App Store Connect record.** Final name/bundle ID/SKU,
   category, content rights, age rating, DSA status, privacy nutrition labels, support/privacy
   URLs, description, keywords, copyright, review contact, review notes, build, pricing/tax,
@@ -301,8 +303,8 @@ governed by APP-036's Gmail-free guards.
   Privacy answers, review notes, metadata, screenshots, and Release checks. The final archive must
   prove the removed capability is absent. This iOS behavior/configuration change requires a new
   TestFlight build and the full regression/release-artifact/physical-device loop. Repository,
-  simulator-artifact, full-regression, old-build cleanup, and production-backend work is complete;
-  the public-page republish, signed archive, clean physical install, and processed TestFlight proof remain.
+  simulator-artifact, full-regression, old-build cleanup, production-backend, and public-page work
+  is complete; the signed archive, clean physical install, and processed TestFlight proof remain.
 
 ## P1 — core experience polish
 

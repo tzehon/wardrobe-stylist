@@ -1,7 +1,8 @@
 # Wardrobe Stylist support page — publication source
 
-> Source for the Gmail-free candidate's next public-page revision. Reconcile all Settings labels
-> with the exact submitted build before republishing at `https://blog.tth.dev/wardrobe/`.
+> Internal publication source for the Gmail-free support page published by `tzehon.github.io` PR #5
+> at `c5da090a0417bcda99fc6d328a0cdff808ea597d`. Reconcile all Settings labels with the exact
+> submitted build before any future republish at `https://blog.tth.dev/wardrobe/`.
 
 ## Get help
 

@@ -22,10 +22,15 @@ later be promoted to customers.
 
 ## 2. Public pages and truthful data declarations
 
-- [ ] Republish the homepage, support page, privacy policy, Terms, and deletion/help instructions
+- [x] Republish the homepage, support page, privacy policy, Terms, and deletion/help instructions
   on the same stable owned HTTPS domain with Gmail/receipt-import language removed; remove every
-  bracketed placeholder from the publication sources.
-- [ ] Verify each public URL on a signed-out browser and configure the exact values in Release.
+  bracketed placeholder from the publication sources. `tzehon.github.io` PR #5 merged as
+  `c5da090a0417bcda99fc6d328a0cdff808ea597d` at `2026-08-21T01:42:01Z`, and its matching Pages
+  deployment completed successfully at `2026-08-21T01:42:39Z`.
+- [x] Verify each public URL on a signed-out browser and configure the exact values in Release.
+  At `2026-08-21T01:49:21Z`, the signed-out in-app browser rendered the support, privacy, and Terms
+  pages with the expected Gmail-free copy and reciprocal links. `ios/Distribution.xcconfig`
+  contains the exact support and privacy URLs; the file remains gitignored.
 - [ ] Reconcile the policy, in-app disclosures, request captures, backend/host logs, provider
   contract, and [`app-privacy-data-inventory.md`](app-privacy-data-inventory.md).
 - [ ] Complete and publish App Privacy answers for the app and all integrated third parties. Apple
