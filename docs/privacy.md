@@ -81,8 +81,9 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, archive,
-and processed-TestFlight evidence remain release gates.
+enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, and
+processed-client physical evidence remain release gates; archive/upload/processing and internal
+assignment are complete.
 
 ## Data inventory
 

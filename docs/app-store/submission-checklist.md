@@ -85,24 +85,31 @@ or editable: [Required, localizable, and editable properties](https://developer.
   [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
 - [x] Create and verify the replacement production-signed archive; record commit, version/build,
   Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-artifact output.
-  The exact upload target is
+  The retained uploaded archive is
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; strict
   certificate/profile, scalar production App Attest, public-config, privacy-manifest, and Gmail-
   free artifact verification passed. A separate targeted scan found no Anthropic/API-key, shared-
   bearer, or private-key credential marker; separate `dwarfdump --uuid` output matched the arm64
   app and dSYM at `5BA1F06E-7458-32A4-890F-36C8F22D9C13`.
-- [ ] Refresh App Store Connect's build-upload list immediately before validation/upload. Stop if
-  build 4 is no longer unused; the completed archive-time check is not a substitute for this final
-  read-only refresh.
-- [ ] Repeat the payload-free manual operations review against the exact deployed backend
-  immediately before validation/upload.
-- [ ] Validate and export/upload exactly the newly recorded replacement archive; record validation
-  output, exported artifact hash, and symbols. The formerly verified
+- [x] Refresh App Store Connect's build-upload list immediately before validation/upload. At
+  `2026-08-21T08:12:46Z`, builds 1-3 remained the only uploads, so build 4 was still unused at the
+  final stop check. Build 4 has since uploaded and must never be reused.
+- [x] Repeat the payload-free manual operations review against the exact deployed backend
+  immediately before validation/upload. The exact-v7 review passed at
+  `2026-08-21T08:12:46Z` with no remediation required.
+- [x] Validate and export/upload exactly the newly recorded replacement archive; retain validation
+  and upload status, symbols, and an exported-artifact hash when an artifact is exported. Direct
+  Organizer upload of the exact replacement archive validated at 08:16Z and uploaded at 08:18Z;
+  App Store Connect reports symbols included. No standalone IPA was exported, so the retained
+  binary identity is executable SHA-256
+  `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6` plus matching app/dSYM UUID
+  `5BA1F06E-7458-32A4-890F-36C8F22D9C13`. The formerly verified
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive` was superseded by
   shipped Swift/backend changes and is not an upload target. The development-signed
   `Wardrobe-1.0.0-4-dd3d990.xcarchive` is also ineligible.
-- [ ] Distribute from Organizer using **TestFlight & App Store**. Do not use **TestFlight Internal
-  Only**, and do not bypass the device-Release public configuration guard.
+- [x] Distribute from Organizer using **TestFlight & App Store**. The exact replacement archive used
+  Xcode's normal App Store Connect route and processed successfully; **TestFlight Internal Only**
+  was not used, and the device-Release public configuration guard was not bypassed.
 - [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
   Demo Mode, manual add, photo library/camera, catalog edit/delete, styling consent and withdrawal,
   Today/History, reminders, local deletion, separate server-security deletion, backend failure,
@@ -115,11 +122,15 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 ## 5. Upload, review, and release
 
-- [ ] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
-- [ ] Select the processed build and re-check its device requirements and displayed metadata.
-- [ ] For the internal QA phase, add the processed build only to the intended Internal Testing
-  group, enter truthful What to Test notes, and retain the pre-uninstall cleanup plus fresh-install
-  evidence.
+- [x] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
+  Build `1.0.0 (4)` completed processing by `2026-08-21T08:20:20Z` with no unresolved prompt.
+- [x] Select the processed build and re-check its device requirements and displayed metadata. The
+  processed record shows the expected version/build and bundle, arm64 iPhone support, minimum iOS
+  18.0, included symbols, no non-exempt encryption, and production App Attest entitlement.
+- [x] For the internal QA phase, add the processed build only to the intended Internal Testing
+  group and enter truthful What to Test notes. Build 4 is in the `Family` group and the approved
+  notes were saved on 2026-08-21. The separate clean physical-device evidence item above remains
+  open.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).

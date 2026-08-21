@@ -31,10 +31,11 @@ an App Store release candidate from the moment it is archived. This prevents a s
   synchronized archive context `24c17cb9fe643035f9206ee61e2935e086902146`; `ios/`, `backend/`,
   and `shared/` are unchanged from the reviewed code merge. The reviewed backend is deployed and
   the clean replacement regression/archive are verified.
-- Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. Live App Store
-  Connect showed builds 1–3 only at `2026-08-21T06:34:50Z`, immediately before the replacement
-  archive, so build 4 remained unused. The historical `dd3d990` signed archive remains superseded
-  and is not eligible for validation or upload.
+- Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. App Store
+  Connect showed builds 1-3 only at `2026-08-21T06:34:50Z` before the replacement archive and again
+  at `2026-08-21T08:12:46Z` immediately before validation/upload. Build 4 then uploaded and
+  processed, so it is now used and must never be reused. The historical `dd3d990` signed archive
+  remains superseded and was not validated or uploaded.
 - Current production backend baseline: Fly release v7 serves the exact reviewed `linux/amd64`
   image from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at immutable digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`,
@@ -73,8 +74,18 @@ an App Store release candidate from the moment it is archived. This prevents a s
   scalar production App Attest, HTTPS public configuration, app privacy manifest, and Gmail-free
   artifact guards. A separate targeted scan found no Anthropic/API-key, shared-bearer, or private-
   key credential marker; separate `dwarfdump --uuid` output matched the arm64 app and dSYM at
-  `5BA1F06E-7458-32A4-890F-36C8F22D9C13`. The upload target is
+  `5BA1F06E-7458-32A4-890F-36C8F22D9C13`. The retained uploaded archive is
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`.
+- Final distribution proof: the required payload-free exact-v7 review and final unused-build refresh
+  passed at `2026-08-21T08:12:46Z`. The strict verifier passed again before Xcode validation.
+  Organizer recorded the archive prepared/validated at 08:16Z and uploaded through the normal App
+  Store Connect route at 08:18Z. Apple processing completed by `2026-08-21T08:20:20Z`. Processed
+  metadata shows `1.0.0 (4)`, bundle `com.tth.Wardrobe`, arm64, iPhone, minimum iOS 18.0, included
+  symbols, no non-exempt encryption, `get-task-allow = false`, and production App Attest. The build
+  is assigned to the `Family` Internal Testing group with the approved What to Test notes. Direct
+  Organizer upload produced no standalone exported IPA; retained binary evidence is the exact
+  archive above, executable SHA-256
+  `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6`, and matching app/dSYM UUID.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v7 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -83,12 +94,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
   its temporary resources were removed within 391 seconds of volume creation. Snapshot-list
   expiry, deletion-specific recovery, and production TestFlight enrollment, assertion renewal,
-  protected API call, and server-deletion UI proof are still required. The first payload-free
+  protected API call, and server-deletion UI proof are still required. Apple upload/processing and
+  internal assignment alone do not satisfy those physical-client checks. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
   `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
   `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
-  `2026-08-21T06:00:21Z`; repeat it against that exact deployment immediately before upload and no
-  later than 2026-09-20.
+  `2026-08-21T06:00:21Z`; the required final pre-upload repeat passed against that exact deployment
+  at `2026-08-21T08:12:46Z`. The next routine review remains due no later than 2026-09-20.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -200,11 +212,12 @@ active path and must be completed without skipping ahead:
   `2026-08-21T06:36:33Z`; strict certificate/profile, production App Attest, public-config,
   privacy-manifest, and Gmail-free artifact verification passed. Separate targeted credential-
   pattern and app/dSYM UUID checks also passed.
-- [ ] **Repeat the pre-upload review, then validate and upload.** Repeat the payload-free manual
-  review against the exact deployed backend and refresh App Store Connect's build-upload list
-  immediately before validation/upload. Stop if build 4 is no longer unused. Only after both
-  checks pass may the replacement archive be validated and uploaded through **TestFlight & App
-  Store**. Neither `dd3d990` archive is an upload target.
+- [x] **Repeat the pre-upload review, then validate and upload.** The exact-v7 payload-free review
+  and immediately refreshed App Store Connect list passed at `2026-08-21T08:12:46Z`, with builds
+  1-3 still the only uploads. Xcode validated only the replacement `24c17cb` archive at 08:16Z and
+  uploaded it through the normal **TestFlight & App Store**-eligible route at 08:18Z. Processing
+  completed by `2026-08-21T08:20:20Z`; processed metadata, symbols, the `Family` internal group,
+  and the approved What to Test notes were verified. Neither `dd3d990` archive was used.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -230,10 +243,11 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Re-resolve the v6
    Gmail-free recovery digest after fresh private-registry authentication immediately before
    archive/upload.
-2. **Confirm version/build from App Store Connect.** The refreshed inspection at
-   `2026-08-21T06:34:50Z` showed builds 1–3 only, so the replacement archive correctly preserved
-   `1.0.0 (4)`. Refresh the build-upload list again immediately before validation/upload and stop
-   if build 4 is no longer unused. Never reuse build 4 after upload.
+2. **Confirm version/build from App Store Connect.** The archive-time inspection at
+   `2026-08-21T06:34:50Z` and final pre-validation refresh at `2026-08-21T08:12:46Z` showed builds
+   1-3 only, so the replacement archive correctly preserved `1.0.0 (4)`. Its completed upload now
+   consumes build 4. For every later build, refresh immediately before validation/upload and stop
+   if the chosen number is no longer unused; never reuse a build number.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -344,7 +358,7 @@ When the build is approved for public release, do not rebuild unless something c
 If code, resources, configuration, backend contract, disclosures, or version metadata changes,
 increment the build number and repeat the full loop. Never "patch" an uploaded candidate in place.
 
-## Suggested What to Test for the next build
+## What to Test used for build 4
 
 > Verify the new Wardrobe Stylist icon, add an item with both Camera and Photo Library, and confirm
 > each picker remains open until completion or cancellation. Review the simplified Settings hub
@@ -356,6 +370,8 @@ increment the build number and repeat the full loop. Never "patch" an uploaded c
 > server-security deletion. On a clean physical install, confirm there is no Google/Gmail or login
 > path, secure installation verification completes anonymously, and local/demo features remain
 > usable during an offline backend failure.
+
+Saved on processed build `1.0.0 (4)` for its intended Internal Testing group on 2026-08-21.
 
 ## Official Apple references
 

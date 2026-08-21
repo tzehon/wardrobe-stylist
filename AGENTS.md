@@ -87,9 +87,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - A TestFlight build is required when the change alters the shipped iOS app or its user-visible behavior, including Swift sources, bundled resources, `Info.plist`, entitlements, `ios/project.yml` build settings, or an API-contract change that requires a new iOS client. It is also required whenever the user explicitly asks to distribute a build.
 - A TestFlight build is not required for documentation, `AGENTS.md`, GitHub Actions, agent configuration, tests-only changes, or backward-compatible backend-only changes that do not alter the iOS bundle.
 - When a build is required, first confirm the latest build already uploaded to App Store Connect, then increment `CURRENT_PROJECT_VERSION` in `ios/project.yml` to the next unused integer. Do not change `MARKETING_VERSION` unless the user requests a new public version or the change belongs to a planned version milestone.
-- Live App Store Connect inspection confirmed build 3 is the highest upload, so `1.0.0 (4)` is the
-  unused Gmail-free candidate. Recheck immediately before archive/upload; do not increment build 4
-  unless that external fact changes.
+- App Store Connect showed builds 1-3 only immediately before validation/upload on 2026-08-21, so
+  the exact Gmail-free `1.0.0 (4)` replacement archive was validated, uploaded, processed, and
+  assigned to the intended internal TestFlight group. Build 4 is now used and must never be reused.
+  Before any later archive/upload, refresh App Store Connect and select the next unused
+  `CURRENT_PROJECT_VERSION`; do not assume build 5 is unused without that check.
 - Build 4 is **fresh-install-only** and must never be installed over an earlier app. The pre-upload
   transition completed on 2026-08-21: installed development build `0.1.0 (4)` disconnected Google,
   deleted its local data, and was uninstalled after an aggregate production check found no live
