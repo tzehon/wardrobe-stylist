@@ -28,25 +28,25 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, the Gmail-free policy-image deployment, an isolated read-only snapshot-restore rehearsal, the required payload-free reviews to date, and signed-archive proof are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. The immediate pre-upload review, snapshot-list expiry, deletion-specific recovery, and processed-TestFlight proof remain open |
-| APP-011 | **Done** | Product identity, Debug/Release split, unused build 4, Gmail-free Release configuration, public URLs, Team ID, and simulator guards are verified; the production-signed archive passed entitlement, App Store profile, configuration, privacy-manifest, and removed-capability checks |
-| APP-012 | **Done** | Google and its transitive packages are absent from the generated project, simulator artifact, and signed archive; the retained app privacy manifest and archive verifier reflect the Gmail-free dependency set |
+| APP-009 | **External gate** | Repository enforcement, the historical Gmail-free v6 deployment, an isolated read-only snapshot-restore rehearsal, and the payload-free reviews recorded through the superseded `dd3d990` archive are retained evidence. The reviewed backend fixes must be merged, built and scanned as an exact image, deployed by immutable digest, and followed by a passing post-deploy review and a fresh pre-upload review. Snapshot-list expiry, deletion-specific recovery, and processed-TestFlight proof also remain open |
+| APP-011 | **In progress** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards are verified. The historical `dd3d990` production-signed archive is superseded and not eligible for validation or upload after shipped Swift/backend changes; a fresh App Store Connect build-number check and replacement signed archive are required |
+| APP-012 | **In progress** | Google and its transitive packages were absent from the generated project, simulator artifact, and historical `dd3d990` archive. The app privacy manifest and dependency/removed-capability checks must be rerun against the clean replacement Release artifact and signed archive |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
 | APP-014 | **In progress** | All nine Gmail-free simulator UI flows pass, covering local/demo, styling, reminders, history, deletion, offline/relaunch, and removed-capability absence; mandatory physical clean-uninstall/fresh-install QA remains open |
-| APP-015 | **Done** | Full backend/Swift/UI tests, shared-contract routing, Release build, public-config guard, and embedded privacy-manifest artifact checks are active |
+| APP-015 | **In progress** | Full backend/Swift/UI, shared-contract, Release-build, public-config, and embedded privacy-manifest gates are active; a clean complete regression against the merged review-fix candidate remains open |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | App Store Connect confirms build 3 is the highest upload, so `1.0.0 (4)` remains the unused Gmail-free candidate. After APP-036 and all binary/config gates, upload through **TestFlight & App Store**, distribute internally, and retain clean-device evidence |
+| APP-017–APP-019 | **Submission / later milestone** | The check before the superseded archive found build 3 highest. Use `1.0.0 (4)` only if a fresh App Store Connect check immediately before the replacement archive still confirms build 4 is unused. After APP-036 and all binary/config gates, upload through **TestFlight & App Store**, distribute internally, and retain clean-device evidence |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Today is explicit-action-only, device-local daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import is removed from the repository candidate and verified simulator and signed artifacts. The old development build is disconnected, locally cleared, and uninstalled; the immutable Gmail-free backend and public pages are deployed. The processed-TestFlight clean install and physical TestFlight proof remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository candidate. The old development build is disconnected, locally cleared, and uninstalled; the historical Gmail-free backend and public pages remain deployed. Current Release/signed-artifact absence proof, the processed-TestFlight clean install, and physical TestFlight proof remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
 Bandit, Ruff, mypy, and **23/23** release-script tests all passed.
 
-Current post-APP-036 candidate proof on clean source `dd3d99061321cf91bdce166e7da579b84edb07e8`:
+Historical post-APP-036 proof on clean source `dd3d99061321cf91bdce166e7da579b84edb07e8`:
 **209 unique iOS tests** passed (**200 Swift tests plus all 9 UI flows**), **202 backend tests**
 passed, the locked dependency audit found no known vulnerability, Bandit/Ruff/mypy passed, and
 **31/31** release-script tests passed. A clean Release simulator artifact for `1.0.0 (4)` passed
@@ -55,10 +55,15 @@ public configuration, plist, signature, dependency, and removed-capability check
 archive for that build. The strict archive verifier confirmed the scalar production App Attest
 entitlement, matching App Store distribution profile, public configuration, app privacy manifest,
 and absence of shared-bearer, Google/Gmail/OAuth, `/extract`, and receipt-background artifacts.
-Live App Store Connect immediately before archiving still showed build 3 as the highest upload, so
-`1.0.0 (4)` remains unused and selected. Validation and upload remain separate gates.
+Live App Store Connect immediately before that archive showed build 3 as the highest upload. This
+evidence is retained as history, but the archive was superseded when the subsequent code-review
+work changed shipped Swift and backend source. It is not eligible for validation or upload. No
+replacement source SHA, backend image, regression result, or archive is recorded yet. Reuse
+`1.0.0 (4)` only if a fresh App Store Connect check immediately before the replacement archive
+still confirms that build 4 is unused.
 
-Production Fly release v6 serves the exact merged Gmail-free `linux/amd64` image at immutable
+The current production baseline remains Fly release v6, which serves the exact merged Gmail-free
+`linux/amd64` image at immutable
 digest `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`.
 Its local and registry scans found no critical/high vulnerability across 90 packages, and
 production `/extract` returns `404`. Emergency pre-build-4 rollback digest
@@ -67,7 +72,8 @@ App-Attest-only and scan-clean. After fresh private-registry authentication at
 `2026-08-21T01:20:25Z`, both it and the v6 candidate digest resolved successfully. Using v5 would
 re-expose `/extract` and must halt the release; v6 is the required Gmail-free recovery baseline.
 The v6 digest resolved again after fresh registry authentication during the
-`2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive review.
+`2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive review. That image predates the reviewed backend
+fixes and must be replaced by an exact merged, scanned image before the next archive.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -108,14 +114,16 @@ These items are ordered. Do not archive early and plan to repair the same binary
   callback configuration, Gmail/receipt-import UI and client paths, receipt background work, and
   active `/extract` route/client capability are absent from the candidate and verified Release
   simulator artifact. Intentional negative guards and legacy-rate cleanup remain. Build 4 uses the
-  approved fresh local schema. The full backend and iOS regressions and release-script suite pass.
+  approved fresh local schema. The full backend and iOS regressions and release-script suite passed
+  for that historical source; rerun them for the merged review-fix candidate.
 - [x] **Configure the simulator portion of APP-011.** Gitignored `Distribution.xcconfig` contains
   only the HTTPS backend, live public links, and Team ID; resolved Release settings and the clean
   simulator artifact prove Google/Gmail/receipt-import configuration is absent.
-- [x] **Choose candidate metadata from external truth.** Live App Store Connect inspection confirms
-  build 3 is the highest uploaded build, so `1.0.0 (4)` remains unused and selected for the
-  Gmail-free candidate. Keep the App Attest allowlist at build 4 unless a later upload changes the
-  external fact; do not upload before APP-036 and all remaining gates pass.
+- [x] **Retain the historical candidate-metadata check.** Live App Store Connect inspection before
+  the superseded archive found build 3 as the highest uploaded build. Refresh that external fact
+  immediately before the replacement archive: keep `1.0.0 (4)` and the App Attest build allowlist
+  at 4 only if build 4 is still unused; otherwise stop and select the next unused integer. Do not
+  upload before APP-036 and all remaining gates pass.
 - [x] **Freeze and publish the Gmail-free candidate source.** PR #14 merged at
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; the remote feature branch was deleted and local
   `main` was synchronized to the same `origin/main` SHA by fast-forward before the release image
@@ -140,20 +148,37 @@ These items are ordered. Do not archive early and plan to repair the same binary
   three owned-domain routes, showed the 21 August 2026 policy/Terms date, linked the pages to each
   other, and contained no Gmail/Google/OAuth/import capability claim. Provider-contract evidence,
   App Privacy reconciliation, and final App Store Connect answers remain separate APP-016 work.
-- [x] **Complete APP-011's signed device-archive proof.** Live App Store Connect still showed build
+- [x] **Retain the superseded APP-011 signed-archive history.** Live App Store Connect still showed build
   3 as the highest upload. After the v6 Gmail-free recovery digest resolved under fresh private-
   registry authentication and the payload-free manual review passed, clean source
   `dd3d99061321cf91bdce166e7da579b84edb07e8` produced the Apple Distribution archive for
   `1.0.0 (4)` at `2026-08-21T03:34:13Z`. The strict verifier passed the signed scalar production
   App Attest entitlement, matching App Store distribution profile, HTTPS public configuration,
-  app privacy manifest, and removed-capability absence. Validate only
+  app privacy manifest, and removed-capability absence. Subsequent review-fix work changes shipped
+  Swift and backend source, so this archive is historical and must not be validated or uploaded:
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`. The earlier
   automatic-signing archive `Wardrobe-1.0.0-4-dd3d990.xcarchive` used a development profile, failed
   verification, and is not eligible for validation or upload.
-- [ ] **Run and upload the candidate.** Follow
-  [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md): complete regression,
-  signed archive/profile inspection, validation, normal **TestFlight & App Store** upload,
-  processing review, and internal-group assignment.
+- [ ] **Merge and freeze the review fixes.** Finish review, merge the intended Swift, backend,
+  contract, release-verifier, and focused-test changes, synchronize `main` by rebase/fast-forward
+  only, and record the clean reviewed source SHA. Do not archive or deploy an unmerged working tree.
+- [ ] **Build, scan, and deploy the exact reviewed backend.** From that frozen source, build the
+  final `linux/amd64` image, pass local and immutable-registry critical/high scans, deploy only the
+  recorded digest, verify health/auth-store/configuration and Gmail-free route behavior, and pass
+  the required payload-free post-deploy manual review. Do not claim the current v6 image contains
+  the review fixes.
+- [ ] **Run the clean Release regression and replace APP-011/APP-012 archive proof.** Recheck App
+  Store Connect immediately before archiving; retain `1.0.0 (4)` only if build 4 is still unused.
+  On clean frozen source, run the complete locked backend, Swift/UI, shared-contract, Release,
+  request-capture, dependency, privacy-manifest, removed-capability, and release-script gates, then
+  create and strictly verify a new production-signed archive. Record its exact source, path,
+  Xcode/SDK, profile, signing certificate, entitlements, and artifact output before it becomes an
+  upload candidate.
+- [ ] **Repeat the pre-upload review, then validate and upload only the replacement archive.**
+  Follow [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md), repeat the
+  payload-free manual review against the exact deployed backend immediately before upload, then
+  validate, use normal **TestFlight & App Store** upload, wait for processing, and assign the
+  processed build to the internal group. The superseded `dd3d990` archives are never upload targets.
 - [ ] **Complete post-upload APP-009/APP-036 proof and cleanup.** Install build 4 cleanly from the
   processed internal TestFlight build, retain production enrollment/assertion/protected-API and
   physical QA evidence, then prove deletion-specific recovery and the eligible 14-day snapshot-
@@ -257,17 +282,21 @@ governed by APP-036's Gmail-free guards.
 
 ## P0 — release and App Review readiness
 
-- [x] **APP-011 · Done · Align product identity and release configuration.** Use “Wardrobe
+- [ ] **APP-011 · In progress · Align product identity and release configuration.** Use “Wardrobe
   Stylist” consistently in the app, help text, public pages, and store copy. Split development and
   production configuration. A Release archive must fail if required HTTPS endpoints, policy/
   support URLs, or Apple signing identifiers are absent; it must also prove no shared backend
   credential, Google Sign-In SDK/client configuration, Gmail permission/route, receipt-import
   client path, or receipt background task is embedded. The Apple Team/App ID capability, App
   Attest entitlement, backend URL, and accepted release build must match the deployment/archive.
-- [x] **APP-012 · Done · Pin/audit dependencies and archive privacy metadata.** Historical
+  The `dd3d990` archive is retained only as superseded historical evidence; complete this item
+  again with the clean replacement archive after the review fixes merge.
+- [ ] **APP-012 · In progress · Pin/audit dependencies and archive privacy metadata.** Historical
   work pinned and audited Google Sign-In. For the Gmail-free candidate, remove that SDK and its
   transitive bundles, keep only actually integrated dependencies/privacy manifests, and make the
-  artifact verifier fail if Google/AppAuth/GTM components remain.
+  artifact verifier fail if Google/AppAuth/GTM components remain. Rerun dependency, privacy-
+  manifest, and removed-capability verification against the replacement Release artifact and
+  signed archive before completing this item.
 - [x] **APP-013 · Done · Give App Review a deterministic product tour.** Keep the seeded, offline demo
   mode or equivalent UI-test fixture that exercises Today, wardrobe browsing, item editing, and
   data controls without personal data or an account. Replace the synthetic pending import with
@@ -279,9 +308,10 @@ governed by APP-036's Gmail-free guards.
   History, reminder controls, local deletion, server-security deletion, and offline/relaunch
   coverage. Add mandatory clean-uninstall/fresh-install plus signed-artifact/network absence checks
   for Google/Gmail/receipt import.
-- [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
+- [ ] **APP-015 · In progress · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
-  full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions.
+  full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions. The gates exist, but
+  the clean complete post-review-fix regression has not yet been recorded.
 - [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** The live
   privacy/support/Terms pages now describe the Gmail-free candidate and omit Google/Gmail/Limited
   Use/receipt-import claims. Finish reconciling current Anthropic, Apple, and Fly terms, purposes,
@@ -295,8 +325,9 @@ governed by APP-036's Gmail-free guards.
   device class using fictional/demo data, plus optional preview video. The narrative should show
   manual/photo wardrobe building, editing/organization, Today, History, and privacy controls. It
   must not show or imply Google, Gmail, receipt import, or a login.
-- [ ] **APP-019 · Submission · Final distribution verification.** Use the confirmed unused
-  candidate `1.0.0 (4)`. Archive with the currently required Xcode/iOS SDK;
+- [ ] **APP-019 · Submission · Final distribution verification.** Use candidate `1.0.0 (4)` only
+  if a fresh App Store Connect check immediately before archiving confirms build 4 is still unused.
+  Archive with the currently required Xcode/iOS SDK;
   validate and upload using
   **TestFlight & App Store** rather than **TestFlight Internal Only**; distribute the processed
   build to the internal group; test the approved clean-uninstall transition and fresh install on a
@@ -313,8 +344,10 @@ governed by APP-036's Gmail-free guards.
   Privacy answers, review notes, metadata, screenshots, and Release checks. The final archive must
   prove the removed capability is absent. This iOS behavior/configuration change requires a new
   TestFlight build and the full regression/release-artifact/physical-device loop. Repository,
-  simulator-artifact, full-regression, old-build cleanup, production-backend, public-page, and
-  signed-archive work is complete; the clean physical install and processed TestFlight proof remain.
+  historical simulator-artifact, regression, production-backend, and signed-archive evidence is
+  retained, while the old-build cleanup and public-page work remain complete. The reviewed backend
+  deployment, clean current regression, replacement signed archive, clean physical install, and
+  processed TestFlight proof remain open.
 
 ## P1 — core experience polish
 

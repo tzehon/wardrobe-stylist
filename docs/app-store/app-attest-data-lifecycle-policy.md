@@ -3,10 +3,12 @@
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
-- **Release compliance:** Repository enforcement and exact Gmail-free policy-image v6 deployment
-  complete; Fly provider and manual-operations boundaries explicitly accepted; required manual
-  reviews to date complete; Gmail-free public support/privacy/Terms routes live. Snapshot-list
-  expiry and deletion-specific recovery evidence remain incomplete
+- **Release compliance:** Historical repository enforcement and exact Gmail-free policy-image v6
+  deployment evidence retained; Fly provider and manual-operations boundaries explicitly
+  accepted; historical manual reviews and Gmail-free public support/privacy/Terms routes retained.
+  Reviewed iOS/backend fixes, their exact scanned backend deployment, post-deploy and pre-upload
+  manual reviews, replacement signed-archive evidence, snapshot-list expiry, and deletion-specific
+  recovery remain incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -143,7 +145,7 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v6's one-minute maintenance loop |
 | Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v6 purges inactive installations at the deadline and cascades their sessions |
 | Revoked installation metadata | 30 days after revocation | Fly v6 purges revoked installations at the deadline and cascades their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
-| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Once the signed proof is dispatched, iOS immediately fences memory-only sessions and retains its local key only for an idempotent retry until deletion is confirmed. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v6 is deployed; processed-TestFlight proof remains pending |
+| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. The replacement iOS candidate must persist the post-dispatch deletion fence across termination/relaunch and retain its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v6 is deployed; replacement archive and processed-TestFlight proof remain pending |
 | Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v6 is configured for 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
 | Wardrobe application access logs | None | Fly v6's running Uvicorn process uses `--no-access-log`, and a regression pins that production command |
@@ -197,12 +199,14 @@ must never request a token, private key, attestation object, Apple receipt, Gmai
 wardrobe payload.
 
 A successful server deletion removes the installation and cascades its sessions and related auth
-state from the live database within 24 hours. The implemented fresh assertion flow performs this
-synchronously and checkpoints/truncates WAL. After dispatching the signed deletion proof, iOS
-immediately retires every memory-only session so an ambiguous timeout or maintenance response
-cannot recreate the identity through a late retry. It retains the App Attest credential solely for
-an idempotent deletion retry and removes that reference only after the server confirms deletion or
-absence. Reinstalling or restoring the app creates a new installation identity; it does not prove
+state from the live database within 24 hours. The fresh assertion flow performs this synchronously
+and checkpoints/truncates WAL. After dispatching the signed deletion proof, iOS must retire every
+memory-only session and persist a pending-deletion fence across app termination and relaunch so an
+ambiguous timeout or maintenance response cannot reuse or recreate the identity. It may retain the
+App Attest credential solely for an idempotent deletion retry and must remove that reference only
+after the server confirms deletion or absence. The historical `dd3d990` archive fenced only the
+running authorization actor and therefore does not satisfy this requirement; replacement proof is
+open. Reinstalling or restoring the app creates a new installation identity; it does not prove
 deletion of the old record. The 90-day inactivity limit is the fallback for an installation that is
 lost before it can authenticate a deletion.
 
@@ -255,7 +259,7 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-19T23:34:44Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | OPEN · current-buffer markers only; aggregate 5xx unavailable | OPEN · public status page operational; console usage/spend-limit sign-in required | PASS · routing rehearsal confirmed | OPEN | Finish Fly aggregate 5xx and Anthropic console checks; no remediation applied | 2026-08-20 |
 | 2026-08-20T00:15:07Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 7d HTTP view: 200/401/405 only, no 5xx series; selected-event bursts below threshold | PASS · public status operational · <80% of configured limit · expected models/keys | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-19 |
 | 2026-08-21T01:11:43Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · post-v6 2d HTTP view: 401/404 only, no 5xx series; bounded marker buffer empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-20 |
-| 2026-08-21T03:30:33Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded markers empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; archive complete, repeat before upload | 2026-09-20 |
+| 2026-08-21T03:30:33Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded markers empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | Historical archive completed; later superseded by review fixes; repeat after replacement deploy and before upload | 2026-09-20 |
 
 ## Compliance and release evidence
 
@@ -277,11 +281,12 @@ Verified as of 2026-08-21:
   drained. Fly v6 runs the committed minimum-one-Machine production topology.
 - [x] Repository cleanup enforces 90-day inactive-installation and 30-day revoked-installation
   limits, cascades sessions, uses SQLite secure deletion, and checkpoints/truncates WAL.
-- [x] A fresh one-time App Attest deletion assertion synchronously deletes the proven installation;
-  the separate in-app Privacy & Data control fences memory sessions after proof dispatch, retains
-  its local credential for ambiguous-response retries, clears that reference only after confirmed
-  server deletion/absence, and then allows a future remote-AI request to enroll a new anonymous
-  identity.
+- [ ] A fresh one-time App Attest deletion assertion synchronously deletes the proven installation;
+  the separate in-app Privacy & Data control must persist its pending-deletion fence across app
+  termination/relaunch after proof dispatch, retain the existing credential only for ambiguous-
+  response retries, clear that reference only after confirmed server deletion/absence, and only
+  then allow a future remote-AI request to enroll a new anonymous identity. The running-actor-only
+  fence in the superseded `dd3d990` archive is insufficient; merge and verify the reviewed fix.
 - [x] The production container command disables Uvicorn access logs and is pinned by a regression.
 - [x] A redacted production-operations inventory on 2026-08-19 reconfirmed Fly v5 healthy on
   the immutable policy image, one encrypted 1 GB auth volume, automatic daily snapshots, and a
@@ -324,6 +329,13 @@ Required before APP-009 can close:
   `2026-08-21T01:20:25Z`. The v6 digest is the required Gmail-free recovery baseline and resolved
   again after fresh authentication during the `2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive
   window. The payload-free post-deploy manual review passed at `2026-08-21T01:11:43Z`.
+- [ ] Merge and freeze the reviewed backend fixes, then build the exact final `linux/amd64` image,
+  pass local and immutable-registry critical/high scans, and deploy only the recorded digest.
+  Verify the running source/image label, Machine and service health, encrypted auth volume,
+  expected schema/integrity, App Attest configuration and rate-limit behavior, `/extract = 404`,
+  and fail-closed unauthenticated `/recommend`. The current v6 image predates these fixes and does
+  not satisfy this replacement-deployment gate; no future source SHA, digest, scan, or deployment
+  is claimed until it is completed.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
@@ -359,7 +371,11 @@ Required before APP-009 can close:
   remained rehearsed. The required pre-archive repeat at `2026-08-21T03:30:33Z` again passed exact
   image/Machine health, snapshot and volume bands, the two-day 200/401/404-only HTTP view with no
   5xx series, empty bounded markers, Anthropic status/spend/model/key/saturation checks, and support
-  routing. Repeat immediately before upload and no later than 2026-09-20.
+  routing. These remain historical v6/`dd3d990` attestations.
+- [ ] After deploying the exact reviewed backend image, complete and record a new payload-free
+  post-deploy manual review. Repeat the same review against that exact deployment immediately
+  before replacement-archive upload and no later than 2026-09-20. Both passes are required; the
+  historical v6 reviews cannot be carried forward across the backend change.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
@@ -383,13 +399,20 @@ Required before APP-009 can close:
   completed successfully at `2026-08-21T01:42:39Z`. Anonymous HTTPS checks at
   `2026-08-21T01:45:27Z` returned `200` for support, privacy, and Terms, confirmed reciprocal links
   and the 21 August 2026 effective date, and found no Gmail/Google/OAuth/import capability wording.
-- [x] Retain the signed build-4 archive evidence. Clean source
+- [x] Retain the superseded signed build-4 archive history. Clean source
   `dd3d99061321cf91bdce166e7da579b84edb07e8` produced an arm64 Apple Distribution archive for
   `1.0.0 (4)` at `2026-08-21T03:34:13Z` with Xcode 26.6 and the iOS 26.5 SDK. The strict verifier
   passed the signed scalar production App Attest entitlement, matching App Store distribution
   profile, public configuration, app privacy manifest, and absence of shared-bearer, Google/Gmail/
-  OAuth, `/extract`, and receipt-background artifacts. The failed development-profile archive is
-  not eligible for validation or upload.
+  OAuth, `/extract`, and receipt-background artifacts. Subsequent shipped Swift/backend changes
+  supersede this archive, so it and the failed development-profile archive are not eligible for
+  validation or upload.
+- [ ] Retain current replacement signed-archive evidence after the review fixes merge, the exact
+  backend image is deployed and reviewed, App Store Connect freshly confirms the next unused build,
+  and a clean complete regression passes. The evidence must record the exact source, version/build,
+  Xcode/SDK, signing certificate and matching App Store profile, scalar production App Attest
+  entitlement, public configuration, app privacy manifest, and all Gmail-free/secret-absence
+  checks. Use `1.0.0 (4)` only if the fresh App Store Connect check still shows build 4 unused.
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.

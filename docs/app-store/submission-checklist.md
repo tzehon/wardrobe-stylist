@@ -57,24 +57,36 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 ## 4. Release candidate and evidence
 
-- [x] Confirm the latest build already uploaded to App Store Connect, then select the next unused
+- [ ] Merge and freeze the reviewed Swift/backend/contract/verifier fixes on a clean synchronized
+  `main`; record the exact source SHA and do not deploy or archive an unmerged working tree.
+- [ ] Build and scan the exact frozen `linux/amd64` backend image, deploy only its recorded digest,
+  verify production health/configuration/Gmail-free behavior, and complete the required payload-
+  free post-deploy manual review.
+- [ ] Confirm the latest build already uploaded to App Store Connect, then select the next unused
   `CURRENT_PROJECT_VERSION`. If this exact internal build may be promoted, set the intended public
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
-- [x] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
+  The check before the superseded archive found build 3 highest; retain build 4 only if a fresh
+  check immediately before the replacement archive still confirms it is unused.
+- [ ] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
-- [x] Confirm the archive contains no Google Sign-In SDK/client configuration, Gmail permission or
-  route, `/extract` client path, receipt-import UI/background task, Anthropic/shared backend
-  secret, non-HTTPS production endpoint, or placeholder public link.
-- [x] Build with an accepted production Xcode/SDK. As of 28 April 2026, Apple requires uploads to
-  use the iOS 26 SDK or later: [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
-- [x] Confirm the launch-screen key remains present. Uploads built with the iOS 27 SDK or later are
-  validated for a launch-screen configuration: [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
-- [x] Create and verify the production-signed archive; record commit, version/build, Xcode/SDK,
-  dependency resolution, entitlements, privacy manifests, and signed-artifact output.
-- [ ] Validate and export/upload exactly the verified
-  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; record validation
-  output, exported artifact hash, and symbols. Never select the failed development-signed archive
-  without the `-appstore` suffix.
+- [ ] Confirm the replacement archive contains no Google Sign-In SDK/client configuration, Gmail
+  permission or route, `/extract` client path, receipt-import UI/background task, Anthropic/shared
+  backend secret, non-HTTPS production endpoint, or placeholder public link.
+- [ ] Build the replacement archive with an accepted production Xcode/SDK. As of 28 April 2026,
+  Apple requires uploads to use the iOS 26 SDK or later:
+  [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
+- [ ] Confirm the launch-screen key remains present in the replacement archive. Uploads built with
+  the iOS 27 SDK or later are validated for a launch-screen configuration:
+  [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
+- [ ] Create and verify the replacement production-signed archive; record commit, version/build,
+  Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-artifact output.
+- [ ] Repeat the payload-free manual operations review against the exact deployed backend
+  immediately before validation/upload.
+- [ ] Validate and export/upload exactly the newly recorded replacement archive; record validation
+  output, exported artifact hash, and symbols. The formerly verified
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive` was superseded by
+  shipped Swift/backend changes and is not an upload target. The development-signed
+  `Wardrobe-1.0.0-4-dd3d990.xcarchive` is also ineligible.
 - [ ] Distribute from Organizer using **TestFlight & App Store**. Do not use **TestFlight Internal
   Only**, and do not bypass the device-Release public configuration guard.
 - [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
