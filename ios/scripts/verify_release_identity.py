@@ -35,6 +35,20 @@ def _single_string(values: dict[str, Any], key: str, *, source: str) -> str:
     return value[0].strip()
 
 
+def _allowed_strings(values: dict[str, Any], key: str, *, source: str) -> set[str]:
+    value = values.get(key)
+    allowed_values = {"development", "production"}
+    if isinstance(value, str) and value in allowed_values:
+        return {value}
+    if (
+        isinstance(value, list)
+        and value
+        and all(isinstance(item, str) and item in allowed_values for item in value)
+    ):
+        return set(value)
+    raise ReleaseIdentityError(f"{source} has invalid {key}")
+
+
 def validate_signed_identity(
     info: dict[str, Any],
     signed_entitlements: dict[str, Any],
@@ -50,6 +64,15 @@ def validate_signed_identity(
     profile_entitlements = profile.get("Entitlements")
     if not isinstance(profile_entitlements, dict):
         raise ReleaseIdentityError("embedded provisioning profile has no Entitlements dictionary")
+    if (
+        profile_entitlements.get("get-task-allow") is not False
+        or profile_entitlements.get("beta-reports-active") is not True
+        or "ProvisionedDevices" in profile
+        or "ProvisionsAllDevices" in profile
+    ):
+        raise ReleaseIdentityError(
+            "embedded provisioning profile must be for App Store distribution"
+        )
 
     app_id_prefix = _single_string(
         profile,
@@ -97,17 +120,13 @@ def validate_signed_identity(
             "signed app and embedded profile TeamIdentifier values do not match"
         )
 
-    signed_environment = _required_string(
-        signed_entitlements,
-        APP_ATTEST_ENTITLEMENT,
-        source="signed app entitlements",
-    )
-    profile_environment = _required_string(
+    signed_environment = signed_entitlements.get(APP_ATTEST_ENTITLEMENT)
+    profile_environments = _allowed_strings(
         profile_entitlements,
         APP_ATTEST_ENTITLEMENT,
         source="embedded profile entitlements",
     )
-    if signed_environment != "production" or profile_environment != "production":
+    if signed_environment != "production" or "production" not in profile_environments:
         raise ReleaseIdentityError(
             "signed app and embedded profile must both grant production App Attest"
         )
