@@ -40,6 +40,14 @@ enum StylingOccasion {
 @Observable
 final class OutfitRecommender {
 
+    struct WardrobeSnapshot {
+        let items: [Item]
+        let outfits: [Outfit]
+        let wears: [WearLog]
+    }
+
+    typealias SnapshotLoader = @MainActor () throws -> WardrobeSnapshot
+
     /// One renderable look — the primary or an alternate.
     struct Look: Identifiable {
         let id = UUID()
@@ -56,6 +64,8 @@ final class OutfitRecommender {
         let generatedAt: Date
         let isCached: Bool
         var wornItemIDSetsToday: Set<Set<UUID>>
+        /// Transient UI feedback only; `DailyLookCacheEntry` never persists it.
+        var refreshFailureMessage: String? = nil
         var index: Int = 0
 
         var current: Look { looks[index] }
@@ -90,6 +100,7 @@ final class OutfitRecommender {
     private let accountScope: WardrobeAccountScope
     private let dailyLookCache: any DailyLookCaching
     private let calendar: Calendar
+    private let loadSnapshot: SnapshotLoader
 
     /// An outfit needs at least this many items to be worth recommending.
     private static let minimumCatalogItems = RecommendContractLimits.minimumItems
@@ -103,6 +114,7 @@ final class OutfitRecommender {
         accountScope: WardrobeAccountScope = .deviceLocal,
         dailyLookCache: any DailyLookCaching = DisabledDailyLookCache(),
         calendar: Calendar = .autoupdatingCurrent,
+        loadSnapshot: SnapshotLoader? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.recommendClient = recommendClient
@@ -116,6 +128,13 @@ final class OutfitRecommender {
         self.accountScope = accountScope
         self.dailyLookCache = dailyLookCache
         self.calendar = calendar
+        self.loadSnapshot = loadSnapshot ?? {
+            WardrobeSnapshot(
+                items: try modelContext.fetch(FetchDescriptor<Item>()),
+                outfits: try modelContext.fetch(FetchDescriptor<Outfit>()),
+                wears: try modelContext.fetch(FetchDescriptor<WearLog>())
+            )
+        }
         self.now = now
     }
 
@@ -139,6 +158,7 @@ final class OutfitRecommender {
             }
             return
         }
+        let stateBeforeRequest = state
 
         // 1. Snapshot the catalog + wear history up front, before any await.
         let items: [Item]
@@ -147,16 +167,17 @@ final class OutfitRecommender {
         let itemPreferences: [RecommendItemPreference]
         let compactCatalog: [RecommendCatalogItem]
         do {
+            let snapshot = try loadSnapshot()
             items = WardrobeAccountFilter.styleableItems(
-                from: try modelContext.fetch(FetchDescriptor<Item>()),
+                from: snapshot.items,
                 in: accountScope
             )
             outfits = WardrobeAccountFilter.visibleOutfits(
-                from: try modelContext.fetch(FetchDescriptor<Outfit>()),
+                from: snapshot.outfits,
                 in: accountScope
             )
             let wears = WardrobeAccountFilter.visibleWearLogs(
-                from: try modelContext.fetch(FetchDescriptor<WearLog>()),
+                from: snapshot.wears,
                 in: accountScope
             )
             compactCatalog = CatalogCompactor.compact(items)
@@ -169,9 +190,12 @@ final class OutfitRecommender {
             }
         } catch {
             guard !Task.isCancelled else { return }
-            state = .failed(
-                message: "We couldn’t open your wardrobe for styling. Your items are still on this device. Please try again."
-            )
+            let message = "We couldn’t open your wardrobe for styling. Your items are still on this device. Please try again."
+            state = Self.retainingLoadedRecommendation(
+                from: stateBeforeRequest,
+                afterRefreshFailure: message,
+                refresh: refresh
+            ) ?? .failed(message: message)
             return
         }
 
@@ -209,7 +233,7 @@ final class OutfitRecommender {
         }
 
         guard !Task.isCancelled else { return }
-        let stateBeforeLoading = state
+        let stateBeforeLoading = stateBeforeRequest
         state = .loading
         let request = RecommendRequest(
             items: compactCatalog,
@@ -231,7 +255,16 @@ final class OutfitRecommender {
                 wornItemIDSetsToday: wornItemIDSetsToday(among: outfits, at: completedAt)
             )
             try Task.checkCancellation()
-            state = resolved
+            if case .failed(let message) = resolved,
+               let retained = Self.retainingLoadedRecommendation(
+                   from: stateBeforeLoading,
+                   afterRefreshFailure: message,
+                   refresh: refresh
+               ) {
+                state = retained
+            } else {
+                state = resolved
+            }
             if case .loaded = resolved {
                 try Task.checkCancellation()
                 dailyLookCache.save(
@@ -248,7 +281,12 @@ final class OutfitRecommender {
             if Task.isCancelled || error is CancellationError {
                 state = stateBeforeLoading
             } else {
-                state = .failed(message: Self.message(for: error))
+                let message = Self.message(for: error)
+                state = Self.retainingLoadedRecommendation(
+                    from: stateBeforeLoading,
+                    afterRefreshFailure: message,
+                    refresh: refresh
+                ) ?? .failed(message: message)
             }
         }
     }
@@ -325,6 +363,16 @@ final class OutfitRecommender {
             result.insert(Set(outfit.items.map(\.id)))
         }
         return result
+    }
+
+    private static func retainingLoadedRecommendation(
+        from previousState: State,
+        afterRefreshFailure message: String,
+        refresh: Bool
+    ) -> State? {
+        guard refresh, case .loaded(var recommendation) = previousState else { return nil }
+        recommendation.refreshFailureMessage = message
+        return .loaded(recommendation)
     }
 
     private static func message(for error: Error) -> String {
