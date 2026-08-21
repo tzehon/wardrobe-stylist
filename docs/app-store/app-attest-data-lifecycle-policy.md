@@ -5,9 +5,9 @@
 - **Manual-operations revision approved:** 2026-08-20
 - **Release compliance:** Repository enforcement and the exact reviewed Gmail-free v7 deployment
   are verified; Fly provider and manual-operations boundaries are explicitly accepted; the new
-  post-deploy review and Gmail-free public support/privacy/Terms routes are retained. The immediate
-  pre-upload review, replacement signed-archive evidence, snapshot-list expiry, and deletion-
-  specific recovery remain incomplete
+  post-deploy review, replacement signed archive, and Gmail-free public support/privacy/Terms
+  routes are retained. The immediate pre-upload review, snapshot-list expiry, deletion-specific
+  recovery, and processed-TestFlight proof remain incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -144,7 +144,7 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v7's one-minute maintenance loop |
 | Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v7 purges inactive installations at the deadline and cascades their sessions |
 | Revoked installation metadata | 30 days after revocation | Fly v7 purges revoked installations at the deadline and cascades their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
-| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v7 is deployed; replacement archive and processed-TestFlight proof remain pending |
+| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v7 and the replacement archive are verified; processed-TestFlight proof remains pending |
 | Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v7 is configured for 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
 | Wardrobe application access logs | None | Fly v7's running Uvicorn process uses `--no-access-log`, and a regression pins that production command |
@@ -423,12 +423,18 @@ Required before APP-009 can close:
   OAuth, `/extract`, and receipt-background artifacts. Subsequent shipped Swift/backend changes
   supersede this archive, so it and the failed development-profile archive are not eligible for
   validation or upload.
-- [ ] Retain current replacement signed-archive evidence after the review fixes merge, the exact
+- [x] Retain current replacement signed-archive evidence after the review fixes merge, the exact
   backend image is deployed and reviewed, App Store Connect freshly confirms the next unused build,
-  and a clean complete regression passes. The evidence must record the exact source, version/build,
-  Xcode/SDK, signing certificate and matching App Store profile, scalar production App Attest
-  entitlement, public configuration, app privacy manifest, and all Gmail-free/secret-absence
-  checks. Use `1.0.0 (4)` only if the fresh App Store Connect check still shows build 4 unused.
+  and a clean complete regression passes. At `2026-08-21T06:34:50Z`, App Store Connect showed
+  builds 1–3 only. Clean synchronized source context
+  `24c17cb9fe643035f9206ee61e2935e086902146`, a documentation-only successor to shipped-code merge
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`, passed 219 backend tests, 215 Swift tests, all 9 UI
+  flows, 43 release-script tests, and the clean Release/artifact gates. Xcode 26.6 with the iOS
+  26.5 SDK created
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
+  `2026-08-21T06:36:33Z`. The matching Apple Distribution certificate and App Store profile,
+  scalar production App Attest entitlement, HTTPS public configuration, app privacy manifest,
+  matching dSYM, and all Gmail-free/secret-absence checks passed the strict verifier.
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.
