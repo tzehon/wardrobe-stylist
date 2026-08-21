@@ -54,7 +54,7 @@ struct LocalDataDeletionCoordinatorTests {
         #expect(disabled == 1)
         #expect(preferencesCleared == 1)
         #expect(cacheCleared == 1)
-        #expect(events == ["preferences", "disable"])
+        #expect(events == ["disable", "preferences"])
     }
 
     @Test func pendingContextFailsWithoutDeletingRows() async throws {
@@ -129,17 +129,24 @@ struct LocalDataDeletionCoordinatorTests {
         #expect(try context.fetchCount(FetchDescriptor<Item>()) == 1)
     }
 
-    @Test func preferenceFailureDoesNotCancelSystemReminder() async throws {
+    @Test func preferenceFailureStillCancelsSystemReminderAfterVerifiedModelDeletion() async throws {
         let container = try ModelContainerFactory.makeInMemory()
         let context = ModelContext(container)
         context.insert(Item(name: "Saved", category: "top"))
         try context.save()
 
         var disabled = 0
+        var events: [String] = []
         let coordinator = LocalDataDeletionCoordinator(
             modelContext: context,
-            disableSystemWork: { disabled += 1 },
-            clearAllPreferences: { false },
+            disableSystemWork: {
+                disabled += 1
+                events.append("disable")
+            },
+            clearAllPreferences: {
+                events.append("preferences")
+                return false
+            },
             clearAllCaches: { true },
             clearReminderTime: { true },
             clearNavigationSignal: { true }
@@ -153,7 +160,10 @@ struct LocalDataDeletionCoordinatorTests {
             return
         }
         #expect(failure.stage == .preferences)
-        #expect(disabled == 0)
+        #expect(failure.recoverySuggestion?.contains("wardrobe and reminder were removed") == true)
+        #expect(disabled == 1)
+        #expect(events == ["disable", "preferences"])
+        #expect(try context.fetchCount(FetchDescriptor<Item>()) == 0)
     }
 }
 
