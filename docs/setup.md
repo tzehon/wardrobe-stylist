@@ -196,8 +196,9 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list, deletion-specific recovery, App Privacy, and processed-TestFlight policy
-items remain release gates. A healthy `/health` response does not close them.
+Unchecked snapshot-list, deletion-specific recovery, App Privacy, and processed-client physical
+proof remain release gates. Apple processing/internal assignment and a healthy `/health` response
+do not close them.
 
 ## TestFlight distribution
 
@@ -207,13 +208,14 @@ Every internal beta is built as an App Store candidate. Follow the
 1. finish the remaining APP-009 external evidence and keep the manual review current;
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
-4. use the confirmed unused candidate `1.0.0 (4)` while App Store Connect still shows build 3 as
-   the highest upload; recheck immediately before archive/upload and change only if that fact moves;
+4. treat processed candidate `1.0.0 (4)` as consumed and never reuse build 4; before any later
+   archive/upload, refresh App Store Connect and select the next unused build number;
 5. run the complete backend, Swift, UI, public-config, and artifact suites;
 6. create and validate a signed Release archive;
 7. upload with **TestFlight & App Store**, not **TestFlight Internal Only**; and
-8. add the processed build to the Internal Testing group and complete the mandatory clean-
-   uninstall transition plus fresh-install physical-device QA.
+8. add the processed build to the Internal Testing group and complete fresh-install physical-device
+   QA. For build 4, internal assignment and the mandatory pre-upload clean-uninstall transition are
+   complete; the clean TestFlight install remains open.
 
 ### Completed clean-uninstall transition before build 4
 

@@ -108,7 +108,9 @@ routes to Today. Public v1 has no Gmail or receipt background task.
   deleted local data, and was uninstalled after production showed zero installations, zero sessions,
   and zero pending challenges. It predated the server-deletion UI, so do not claim that unavailable
   action succeeded or claim in-place migration support.
-- [ ] Confirm the processed build 4 is distributed and installed only as a clean install.
+- [x] Confirm processed build 4 is distributed only to the `Family` Internal Testing group with the
+  approved What to Test notes.
+- [ ] Install processed build 4 only as a clean physical-device install, never over an older app.
 - [ ] Confirm the production API is healthy throughout the review window.
 - [ ] Confirm App Attest is enabled for the exact App ID and prefix; the archive/profile contain
   the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
