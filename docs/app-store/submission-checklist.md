@@ -72,10 +72,11 @@ or editable: [Required, localizable, and editable properties](https://developer.
   Demo Mode, manual add, photo library/camera, catalog edit/delete, styling consent and withdrawal,
   Today/History, reminders, local deletion, separate server-security deletion, backend failure,
   reinstall identity reset, and relaunch. Confirm no Google/Gmail UI or network path exists.
-- [ ] Never install build 4 over builds 1–3. On the older build, complete **Disconnect Google** and
-  **Delete Server Security Data**, wait for both to succeed, then uninstall (deleting the accepted
-  old local wardrobe) and install build 4 cleanly. Retain redacted transition evidence; do not
-  claim upgrade or migration support.
+- [x] Complete the pre-upload clean-uninstall transition. The installed development build
+  disconnected Google and deleted local data, but predated the server-deletion UI; production had
+  zero installations, zero sessions, and zero pending challenges before uninstall, so no live
+  identity existed to delete. Install build 4 only from processed TestFlight, never over an older
+  app, and do not claim migration.
 
 ## 5. Upload, review, and release
 

@@ -21,14 +21,14 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-20**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-21**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, the pre-APP-036 v5 policy-image deployment, an isolated read-only snapshot-restore rehearsal, and the first payload-free manual operations review are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. The Gmail-free replacement image, snapshot-list expiry, deletion-specific recovery, and signed archive/TestFlight proof remain open |
+| APP-009 | **External gate** | Repository enforcement, the Gmail-free policy-image deployment, an isolated read-only snapshot-restore rehearsal, and the required post-v6 payload-free manual review are complete. The owner accepted Fly's fixed seven-day customer-visible logs, undisclosed provider-internal in-service retention, listing-only 14-day snapshot boundary, and slower manual operations for the personal single-user release. The pre-archive review repeat, snapshot-list expiry, deletion-specific recovery, and signed archive/TestFlight proof remain open |
 | APP-011 | **In progress** | Product identity, Debug/Release split, unused build 4, Gmail-free Release configuration, public URLs, Team ID, and simulator absence guards are verified; the signed production archive/profile remains open |
 | APP-012 | **In progress** | Google and its transitive packages are removed from the generated project and verified simulator artifact; repeat the absence/privacy-manifest proof against the signed archive |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
@@ -40,7 +40,7 @@ kept “In progress.”
 | APP-023 | **Done** | Today is explicit-action-only, device-local daily looks survive offline/relaunch, occasion input is bounded, refreshes serialize/cancel safely, and wear recording is idempotent/transactional |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import is removed from the repository candidate and verified simulator artifact. The old-build cleanup, clean install, Gmail-free Pages republish, immutable backend replacement, signed archive, and TestFlight proof remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import is removed from the repository candidate and verified simulator artifact. The old development build is disconnected, locally cleared, and uninstalled, and the immutable Gmail-free backend is deployed. The processed-TestFlight clean install, Gmail-free Pages republish, signed archive, and TestFlight proof remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -51,20 +51,19 @@ plus all 9 UI flows**), **202 backend tests** passed, the locked dependency audi
 vulnerability, Bandit/Ruff/mypy passed, and **24/24** release-script tests passed. A clean Release
 simulator artifact for `1.0.0 (4)` passed public configuration, plist, signature, dependency, and
 removed-capability checks; source, generated project, executable, and bundle scans found no
-Google/Gmail/OAuth, `/extract`, or receipt-background capability. This proof is from an unmerged
-working tree, not the signed distribution archive. Live App Store Connect inspection confirms build
-3 is the highest upload, so `1.0.0 (4)` remains unused and selected. Record the final merged SHA and
-repeat the signed-archive checks before uploading.
+Google/Gmail/OAuth, `/extract`, or receipt-background capability. The source merged as
+`9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; this simulator proof is not the signed distribution
+archive. Live App Store Connect inspection confirms build 3 is the highest upload, so `1.0.0 (4)`
+remains unused and selected. Repeat the signed-archive checks before uploading.
 
-The Gmail-free backend source is tested but not deployed. Production Fly release v5 still serves
-the pre-APP-036 image and `/extract`; build, scan, push, and deploy the exact merged Gmail-free
-`linux/amd64` image before using build 4.
-Fly release v5 serves the policy-enforced `linux/amd64` image from `main`
-`7b6acb83960e2cd69458489ab5f5fe0e04cd9f85` at immutable digest
-`sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`.
-Its local and registry scans found no critical/high vulnerability across 90 packages. The retained
-App-Attest-only rollback digest is
-`sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`.
+Production Fly release v6 serves the exact merged Gmail-free `linux/amd64` image at immutable
+digest `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`.
+Its local and registry scans found no critical/high vulnerability across 90 packages, and
+production `/extract` returns `404`. Emergency pre-build-4 rollback digest
+`sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17` is
+App-Attest-only and scan-clean. After fresh private-registry authentication at
+`2026-08-21T01:20:25Z`, both it and the v6 candidate digest resolved successfully. Using v5 would
+re-expose `/extract` and must halt the release; v6 is the required Gmail-free recovery baseline.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -92,7 +91,8 @@ These items are ordered. Do not archive early and plan to repair the same binary
   installation through the new in-app server-security-data control. Structural review guardrails
   cover the current persistence/logging boundaries, and a tested production command keeps Uvicorn
   access logs disabled.
-- [x] **Build, scan, and deploy the policy-enforced backend.** Fly v5 serves only immutable digest
+- [x] **Build, scan, and deploy the policy-enforced backend.** On 2026-08-19, Fly release v5
+  deployed immutable digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   from source `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85`. The exact `linux/amd64`
   image passed local and registry high/critical scans across 90 packages; the live schema is v4
@@ -112,23 +112,32 @@ These items are ordered. Do not archive early and plan to repair the same binary
   build 3 is the highest uploaded build, so `1.0.0 (4)` remains unused and selected for the
   Gmail-free candidate. Keep the App Attest allowlist at build 4 unless a later upload changes the
   external fact; do not upload before APP-036 and all remaining gates pass.
-- [ ] **Freeze and publish the Gmail-free candidate source.** Review the combined diff, rebase it
-  onto current `origin/main`, retain the green gates, publish it through a reviewable PR, merge it,
-  synchronize local `main` by fast-forward, and record the exact merged SHA. Do not build or deploy
-  a release image from this unmerged working tree.
-- [ ] **Complete APP-036's pre-upload production cutover.** On the old build, complete **Disconnect
-  Google** and **Delete Server Security Data** and wait for both successes, then uninstall the old
-  local wardrobe. From the exact merged SHA, build/scan/push/deploy the Gmail-free immutable
-  `linux/amd64` image, prove production `/extract` is retired, and repeat the payload-free manual
-  operations review. Do not install build 4 yet; it must come from processed TestFlight.
-- [ ] **Complete APP-011's signed device-archive proof.** Freeze the merged source, create the
-  production-signed archive, and verify its App Attest entitlement, embedded profile, public
-  configuration, privacy manifests, and removed-capability absence.
+- [x] **Freeze and publish the Gmail-free candidate source.** PR #14 merged at
+  `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; the remote feature branch was deleted and local
+  `main` was synchronized to the same `origin/main` SHA by fast-forward before the release image
+  was built.
+- [x] **Complete APP-036's pre-upload production cutover.** The installed intermediate
+  development build `0.1.0 (4)` completed Google disconnection and local deletion, but predated
+  the server-deletion UI. A read-only production check found zero installations, sessions, and
+  pending challenges, so no live production identity existed to delete; the app was then
+  uninstalled. Exact source `9a48caebdec67ac26673c3ba51546a5e7edcf0cc` now runs as immutable
+  `linux/amd64` digest `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`.
+  Local and registry scans found zero critical/high vulnerabilities across 90 packages; the
+  restored v5 emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  resolved after fresh private-registry authentication at `2026-08-21T01:20:25Z`, re-scanned clean,
+  and passed an isolated old/new/old schema-v4 rehearsal. Release v6 is healthy, production
+  `/extract` returns `404`, unauthenticated `/recommend` returns `401`, and the payload-free
+  post-deploy manual review passed at `2026-08-21T01:11:43Z`. Do not install build 4 yet; it must
+  come from processed TestFlight.
 - [ ] **Close the publication portion of APP-016.** The final owned-domain
   privacy/support/Terms URLs are live and previously verified with the earlier product copy.
   Republish the locally prepared Gmail-free revisions, verify all three while signed out, and
   reconcile their claims with current Anthropic/Fly/Apple terms, the App Privacy inventory, and
   final App Store Connect answers.
+- [ ] **Complete APP-011's signed device-archive proof.** Freeze the merged source, create the
+  production-signed archive, and verify its App Attest entitlement, embedded profile, public
+  configuration, privacy manifests, and removed-capability absence. Re-resolve the v6 Gmail-free
+  recovery digest from the private registry immediately before archive/upload.
 - [ ] **Run and upload the candidate.** Follow
   [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md): complete regression,
   signed archive/profile inspection, validation, normal **TestFlight & App Store** upload,
@@ -226,7 +235,9 @@ governed by APP-036's Gmail-free guards.
     rejected, retain a validated App-Attest-only rollback image, and record commit/image,
     categories/build allowlist, tester OS/runtime-field presence, volume, tests, and physical-device
     evidence. Build/category rejection is enforceable only when iOS 27+ supplies those signed fields;
-    the pre-App-Attest shared-token build must be rejected on every OS.
+    the pre-App-Attest shared-token build must be rejected on every OS. After APP-036, the retained
+    recovery image must also be Gmail-free; the former v5 image is only a release-halting abort
+    before build 4 distribution because it restores `/extract`.
   No public build is releasable with the shared bearer or an in-memory-only production auth store.
 - [x] **APP-010 · Done · Restrict remote images.** Do not load arbitrary model-derived URLs. Apply
   HTTPS-only validation, a conservative host policy, bounded image decoding/caching, and a safe
@@ -279,18 +290,19 @@ governed by APP-036's Gmail-free guards.
   build to the internal group; test the approved clean-uninstall transition and fresh install on a
   physical device; retain the
   evidence needed to promote that same binary; keep backend health available through review.
-- [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Google Sign-In, Google client/callback
+- [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 uses a fresh local-only schema and is never
   installed over builds 1–3. The user accepted losing the old local wardrobe and re-adding items.
-  On the old build, complete **Disconnect Google**, then **Delete Server Security Data**, wait for
-  both to succeed, uninstall, and only then install build 4. Make an explicit old-build backend
-  retirement decision. Update in-app disclosures, Demo Mode, public pages, App
+  The pre-upload old-build cleanup and production backend retirement are complete: the installed
+  intermediate build had no server-deletion UI, but the production auth store contained no live
+  identity before it was uninstalled. Install build 4 only from processed TestFlight. The explicit
+  old-build backend retirement decision is complete. Update in-app disclosures, Demo Mode, public pages, App
   Privacy answers, review notes, metadata, screenshots, and Release checks. The final archive must
   prove the removed capability is absent. This iOS behavior/configuration change requires a new
   TestFlight build and the full regression/release-artifact/physical-device loop. Repository,
-  simulator-artifact, and full-regression work is complete; the old-build cleanup, production
-  backend cutover, public-page republish, signed archive, and processed TestFlight proof remain.
+  simulator-artifact, full-regression, old-build cleanup, and production-backend work is complete;
+  the public-page republish, signed archive, clean physical install, and processed TestFlight proof remain.
 
 ## P1 — core experience polish
 

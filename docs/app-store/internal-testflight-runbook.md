@@ -19,23 +19,26 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-20
+## Current candidate status — 2026-08-21
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
-  contains `1.0.0 (4)`. The final Gmail-free source is not frozen; record its merged SHA before
-  archiving or uploading.
+  contains `1.0.0 (4)`. Final Gmail-free source merged through PR #14 as
+  `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; local and remote `main` were synchronized before
+  the release image was built.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. The candidate
   has not been archived or uploaded. Live App Store Connect inspection confirms build 3 is the
   highest upload, so build 4 remains unused and selected unless that external fact changes.
-- Current production backend: Fly release v5 serves the pre-APP-036 policy-enforced `linux/amd64`
+- Current production backend: Fly release v6 serves the Gmail-free policy-enforced `linux/amd64`
   image from source
-  `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85` at immutable digest
-  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`,
+  `9a48caebdec67ac26673c3ba51546a5e7edcf0cc` at immutable digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`,
   with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
-  `min_machines_running = 1`. Retained rollback digest
-  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
-  is App-Attest-only and registry-addressable. This image still exposes `/extract`; the tested
-  Gmail-free replacement has not been built, scanned, pushed, or deployed from a merged source.
+  `min_machines_running = 1`. Emergency pre-build-4 rollback digest
+  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  is App-Attest-only and scan-clean. After fresh private-registry authentication at
+  `2026-08-21T01:20:25Z`, it and the v6 digest both resolved successfully. It re-exposes `/extract`;
+  using it must halt the release. The v6 digest is the required Gmail-free recovery baseline.
+  Production `/extract` now returns `404`.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
   fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
@@ -45,10 +48,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   script tests passed; and a clean Release simulator artifact for `1.0.0 (4)` passed public-config,
   plist, dependency, and removed-capability verification. No Google/Gmail/OAuth, `/extract`, or
   receipt-background capability was found in shipped source/configuration, generated project,
-  executable, or app bundle. This is unmerged simulator evidence, not a signed archive or
-  production cutover.
+  executable, or app bundle. The source is merged and the backend cutover is complete; the
+  simulator result is not a signed archive.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v5 deploys
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v6 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -57,7 +60,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   expiry, deletion-specific recovery, the signed distribution archive/profile, and
   production TestFlight enrollment, assertion renewal, protected API call, and server-deletion UI
   proof are still required. The first payload-free manual operations review passed at
-  `2026-08-20T00:15:07Z` and must be repeated before archive/upload.
+  `2026-08-20T00:15:07Z`; the required post-v6 review passed at `2026-08-21T01:11:43Z`. Repeat it
+  before archive/upload and no later than 2026-09-20.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -90,13 +94,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
   implemented and covered by focused tests.
 - [x] After policy enforcement, build and scan the exact final `linux/amd64` container image,
   including OS packages, for high/critical known vulnerabilities; push and re-scan its immutable
-  registry digest, then deploy only that digest. Fly v5 serves
+  registry digest, then deploy only that digest. Fly v6 serves
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
+  from source `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; both scans covered 90
+  packages and found no critical/high vulnerability. The emergency v5 rollback digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
-  from source `7b6acb83960e2cd69458489ab5f5fe0e04cd9f85`; both scans covered 90
-  packages and found no critical/high vulnerability. The retained App-Attest-only rollback digest
-  `sha256:f4758e08046e187161b992ad34530c3c41c89375c9277522015628ec9306eef1`
-  was restored to the registry, re-scanned, and passed an isolated schema round-trip. The locked
-  Python audit is already enforced in CI; the local Docker Scout command is
+  was restored to the registry, re-scanned, and passed an isolated old/new/old schema-v4
+  round-trip. The locked Python audit is already enforced in CI; the local Docker Scout command is
   `docker scout cves --only-severity critical,high --exit-code local://wardrobe-backend-local-verify`
   and requires an authenticated Docker Desktop/Docker ID session.
 - [x] Rotate and verify the Anthropic API key, retire `DEVICE_TOKEN`, deploy App-Attest-only auth,
@@ -115,14 +119,22 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Apple Developer Team ID. It contains no Google client identifiers or callback scheme; resolved
   Release settings and the simulator artifact passed the public configuration guard. The signed
   archive/profile proof remains a separate per-build step.
-- [ ] Freeze and publish the Gmail-free source: review the combined diff, rebase onto current
-  `origin/main`, publish a reviewable PR, merge it, fast-forward local `main`, and record the exact
-  merged SHA. Do not build or deploy the replacement image from an unmerged working tree.
-- [ ] Complete the pre-upload `APP-036` cutover: on the old build, complete **Disconnect Google**
-  and **Delete Server Security Data**, wait for both successes, and uninstall. Build, scan, push,
-  and deploy the exact merged-source immutable `linux/amd64` backend image; prove `/extract` is
-  retired and repeat the payload-free manual review. Install build 4 only after TestFlight
-  processing, never over builds 1–3.
+- [x] Freeze and publish the Gmail-free source. PR #14 merged as
+  `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; its remote branch was deleted, and local `main` was
+  fast-forwarded to the same `origin/main` SHA before the release image was built.
+- [x] Complete the pre-upload `APP-036` cutover. The installed intermediate development build
+  `0.1.0 (4)` completed Google disconnection and local deletion, but it predated the
+  server-deletion UI. Production had zero installations, zero sessions, and zero pending challenges
+  before it was uninstalled, so no live production identity existed to delete. Exact-source
+  `linux/amd64` digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5` passed local and registry
+  critical/high scans across 90 packages and is healthy as Fly release v6. The registry-resolved
+  v5 emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  resolved after fresh private-registry authentication at `2026-08-21T01:20:25Z`, re-scanned clean,
+  and passed an isolated old/new/old schema-v4 rehearsal. Production `/extract`
+  returns `404`, `/recommend` fails closed without authorization, and the payload-free
+  post-deploy manual review passed at `2026-08-21T01:11:43Z`. Install build 4 only after TestFlight
+  processing, never over an older app.
 - [ ] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
   HTTPS domain and verify all three while signed out. The earlier Gmail-capable publication is
   retained as history: `tzehon.github.io` PR #3 merged as
@@ -139,30 +151,28 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## Mandatory clean-uninstall transition for build 4
 
-Build `1.0.0 (4)` is fresh-install-only and must never be installed over TestFlight builds 1–3.
-The owner explicitly accepted losing the earlier local wardrobe and adding items again.
+Build `1.0.0 (4)` is fresh-install-only and must never be installed over an earlier app. The owner
+explicitly accepted losing the earlier local wardrobe and adding items again.
 
-On the older build, in this order:
+The pre-upload portion completed on 2026-08-21. The installed intermediate development build was
+`0.1.0 (4)`, not an uploaded TestFlight candidate. It completed **Disconnect Google** and
+**Delete Local Data**, but predated **Delete Server Security Data**. A read-only aggregate query
+reported zero production installations, sessions, and pending challenges, so there was no live
+production identity to delete. The app was then uninstalled. This exception is evidence about that
+one retired build, not permission to skip verified server deletion when a future installed build
+has a live identity or exposes the control.
 
-1. Complete **Settings → Connected Features → Disconnect Google** and wait for success.
-2. Complete **Settings → Privacy & Data → Delete Server Security Data** and wait for success.
-3. Uninstall Wardrobe Stylist. This deletes the old device-local wardrobe.
-4. Install build 4 as a clean app and enroll its new anonymous App Attest installation.
-
-Complete steps 1–3 before the backend cutover. Complete step 4 only after build 4 has processed in
-TestFlight; the numbered list defines one transition, not a requirement to install an unprocessed
-build.
-
-Do not uninstall first. The Gmail-free app cannot revoke the old Google grant, and a reinstall
-creates a different App Attest identity that cannot delete the prior live server record. Retain
-redacted success evidence for steps 1–2; do not claim upgrade or migration support.
+Install `1.0.0 (4)` only after it has processed in TestFlight. The clean install must enroll a new
+anonymous production App Attest identity; do not claim upgrade or migration support.
 
 ## Per-build release-candidate loop
 
 1. **Freeze the candidate.** Use a clean, reviewed commit. Record its hash, the backend image that
    will serve it, App Attest environment/category/build allowlist, iOS-version compatibility policy,
    durable auth-store version, and the policy-compliance evidence linked from
-   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md).
+   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Re-resolve the v6
+   Gmail-free recovery digest after fresh private-registry authentication immediately before
+   archive/upload.
 2. **Confirm version/build from App Store Connect.** Live inspection currently shows build 3 as
    the highest upload, so the selected candidate remains `1.0.0 (4)`. Recheck immediately before
    archiving. If build 4 has appeared, stop and select the next unused integer; otherwise preserve
@@ -189,8 +199,8 @@ redacted success evidence for steps 1–2; do not claim upgrade or migration sup
 7. **Distribute internally.** Add the processed build only to the chosen Internal Testing group,
    enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
    gate is desired.
-8. **Run transition and fresh-install QA.** First complete the mandatory pre-uninstall sequence on
-   the older build; never install build 4 over it. Then test a clean build-4 install on a physical
+8. **Run fresh-install QA.** The mandatory pre-uninstall sequence is already recorded complete;
+   never install build 4 over an older app. Test a clean build-4 install on a physical
    iPhone: launch/icon, local onboarding, offline Demo Mode, manual add, camera/photo library,
    catalog edit/delete, App Attest enrollment/session renewal, styling consent/withdrawal,
    Today/History, local reminders, Settings/privacy, local deletion, separate server-security
@@ -202,14 +212,17 @@ redacted success evidence for steps 1–2; do not claim upgrade or migration sup
    category/build enforcement.
 9. **Retire the bridge.** If a legacy compatibility bridge was used, switch the validated backend
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
-   the candidate still succeeds. A rollback must use a retained App-Attest-only image and preserve
-   the auth store; rolling back to the shared bearer is not an acceptable recovery plan.
+   the candidate still succeeds. After build 4 is distributed, recovery must use the retained v6
+   Gmail-free digest or a later validated Gmail-free App-Attest-only image while preserving the auth
+   store. The former v5 image is a pre-build-4 abort only: it re-exposes `/extract` and must halt the
+   release. Rolling back to the shared bearer is never acceptable.
 10. **Record evidence.** Retain the commit, archive, build/version, Xcode and SDK, test results,
    validation/upload logs, processed-build metadata, backend image/config, exact App ID prefix,
    entitlement/profile, tester OS/runtime-field presence, category/build values when supplied,
    auth-store volume and snapshot/restore evidence, Apple-receipt validation/risk-metric policy,
-   APP-036 artifact-absence output, pre-uninstall disconnect/server-deletion success, clean-install
-   proof, bridge retirement, old-build rejection,
+   APP-036 artifact-absence output, pre-uninstall Google disconnection and local deletion, the exact
+   zero-installation/zero-session/zero-pending-challenge production check, clean-install proof,
+   bridge retirement, old-build rejection,
    and physical-device QA. Do not claim build/category
    rejection on iOS 18–26, where Apple omits those fields; the pre-App-Attest shared-token build
    must still be rejected.
@@ -253,8 +266,9 @@ increment the build number and repeat the full loop. Never "patch" an uploaded c
 > Verify the new Wardrobe Stylist icon, add an item with both Camera and Photo Library, and confirm
 > each picker remains open until completion or cancellation. Review the simplified Settings hub
 > and its Connected Features, Wardrobe & Demo, Privacy & Data, and Help & Support destinations.
-> On builds 1–3, complete Disconnect Google and Delete Server Security Data, then uninstall; never
-> install build 4 over the older app. On the clean build-4 install, exercise manual/photo cataloging,
+> Install build 4 only as a clean processed-TestFlight install; the earlier development app was
+> already disconnected, locally cleared, and uninstalled after production was verified to contain
+> zero installations, zero sessions, and zero pending challenges. Exercise manual/photo cataloging,
 > styling/history, reminders, styling-consent withdrawal, verified local deletion, and separate
 > server-security deletion. On a clean physical install, confirm there is no Google/Gmail or login
 > path, secure installation verification completes anonymously, and local/demo features remain

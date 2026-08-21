@@ -69,10 +69,17 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [ ] Confirm unsupported App Attest, offline verification and backend failure preserve local
   wardrobe/Demo Mode while remote AI fails closed without creating an unauthenticated identifier
   or request.
-- [x] Confirm the migration bridge is retired, `DEVICE_TOKEN` is unset/rotated, the obsolete
-  shared-token build is rejected, and the deployed rollback boundary is App-Attest-only.
-- [ ] After any auth schema/image change, re-scan the immutable candidate image and revalidate the
-  retained App-Attest-only rollback image plus obsolete-build rejection.
+- [x] Confirm the migration bridge is retired, `DEVICE_TOKEN` is unset/rotated, and the obsolete
+  shared-token build is rejected. The initial rollback boundary was App-Attest-only; APP-036 now
+  additionally requires a Gmail-free recovery image after build 4 distribution.
+- [x] After the Gmail-free image change, exact candidate digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5` and retained v5
+  emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
+  both resolved from the registry after fresh authentication at `2026-08-21T01:20:25Z` and passed
+  critical/high scans across 90 packages. An isolated old/new/old schema-v4 rehearsal retained
+  integrity and zero foreign-key errors; live `/extract` now returns `404`, `/recommend` rejects
+  missing authorization, and the obsolete shared bearer remains rejected. The v5 digest is an
+  emergency pre-build-4 abort only; v6 is the retained Gmail-free recovery baseline.
 - [ ] Confirm Anthropic API retention, training/model-improvement, human access, subprocessors and
   contract configuration in writing.
 - [ ] Match every item above to the exact in-app notice and public policy wording.
@@ -84,6 +91,8 @@ The exact approved developer-controlled schedule and its current compliance stat
   analytics, advertising, marketing, personalization, or other purposes without new evidence.
 - [ ] Verify Delete Local Data and Delete Server Security Data remove only the state promised by
   their separate copy on the exact processed TestFlight build and deployed backend.
-- [ ] For the fresh-install-only build-4 transition, verify the older build completes Disconnect
-  Google and Delete Server Security Data before uninstall. The owner accepted deletion of the old
-  local wardrobe and re-entry of items; never install build 4 over builds 1–3 or claim migration.
+- [x] For the fresh-install-only build-4 transition, the installed intermediate development build
+  completed Disconnect Google and local deletion. It predated Delete Server Security Data, but a
+  read-only aggregate production query found zero installations, sessions, and pending challenges,
+  so no live production identity existed to delete. The owner then uninstalled it and accepted
+  re-entry of local items. Never install build 4 over an older app or claim migration.

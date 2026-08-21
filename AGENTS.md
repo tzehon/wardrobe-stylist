@@ -90,11 +90,12 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - Live App Store Connect inspection confirmed build 3 is the highest upload, so `1.0.0 (4)` is the
   unused Gmail-free candidate. Recheck immediately before archive/upload; do not increment build 4
   unless that external fact changes.
-- Build 4 is **fresh-install-only** and must never be installed over builds 1–3. On the earlier
-  build, first complete **Disconnect Google**, then **Delete Server Security Data**; only after both
-  report success, uninstall the app. Uninstalling deletes the old local wardrobe, which the owner
-  explicitly accepted because the items can be added again. Install build 4 only after that clean
-  uninstall. Do not claim or test an in-place local-data migration for this transition.
+- Build 4 is **fresh-install-only** and must never be installed over an earlier app. The pre-upload
+  transition completed on 2026-08-21: installed development build `0.1.0 (4)` disconnected Google,
+  deleted its local data, and was uninstalled after an aggregate production check found no live
+  App Attest installation, session, or pending challenge. That build predated the server-deletion
+  UI, so do not claim the unavailable action succeeded. Install `1.0.0 (4)` only from processed
+  TestFlight and do not claim or test an in-place local-data migration.
 - Before uploading, run the full backend and iOS regression suites, regenerate the Xcode project, create a signed Release archive, validate it, upload it to App Store Connect, add it to the internal TestFlight group, and confirm processing succeeds. Never reuse a build number.
 - Before an App Attest build can ship, confirm the exact App ID prefix from Certificates, Identifiers & Profiles (do not assume it equals the Team ID), enable the capability for `com.tth.Wardrobe`, regenerate signing profiles, provision durable production auth storage, and configure explicit production allowlists for validation category (`2` for TestFlight, `4` for App Store) and accepted bundle builds. Apple adds those signed runtime fields on iOS 27+; iOS 18–26 still requires the complete core App Attest proof but cannot be build/category-gated. Retain the archive's entitlement, tester OS version, runtime-field presence, and physical-device evidence.
 - If release impact, the next unused build number, signing state, or distribution intent is uncertain, ask the user before changing version metadata or uploading a build.
