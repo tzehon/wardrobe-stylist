@@ -104,8 +104,13 @@ routes to Today. Public v1 has no Gmail or receipt background task.
 Build 4 is historical internal-QA evidence and must not be submitted: physical testing found the
 Today offline-cache Restyle defect. App Store Connect shows build 4 as the highest upload; build 5
 is reserved locally but has no signed archive, upload, processing, internal assignment, or physical
-proof. Current local pre-archive gates are green (221 backend tests plus audit/Bandit/Ruff/mypy, 218
-Swift unit tests, 9 UI flows, 43 release-script tests, and Release simulator/artifact checks).
+proof. Reviewed PR #23 merged at `2026-08-21T10:29:56Z`; frozen shipped-code/backend source was
+`4a75b99dcd49e818ad1d5b198e8c49abba702e18`, and later docs-only evidence does not change the
+deployed image or iOS bundle. Current local pre-archive gates are green (221
+backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
+and Release simulator/artifact checks). Fly v8 deploys that source with production category `2`,
+builds `4,5`, and targeted auth-service INFO logging; its post-change review passed at
+`2026-08-21T11:09:20Z`. No lifecycle success event has yet been exercised against v8.
 
 - [ ] Replace every backend, health, fixture, and contact placeholder.
 - [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
@@ -129,9 +134,11 @@ Swift unit tests, 9 UI flows, 43 release-script tests, and Release simulator/art
   claiming category/build enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  Live v7 suppresses bounded registration/assertion success markers at INFO; deploy and verify the
-  locally validated logging fix and source `4,5` allowlist. Protected `/recommend` success remains
-  aggregate/client-evidenced. The latest listed snapshot at `2026-08-21T07:32:23Z`
+  Fly v8 deploys the targeted logger and `4,5` allowlist, and its payload-free review passed. The
+  first bounded query returned zero registration, assertion, and deletion success events because
+  none was exercised; retain real registration/assertion observation from processed build 5 and
+  `installation_deleted` from the later identity-safe handoff. Protected `/recommend` success
+  remains aggregate/client-evidenced. The latest listed snapshot at `2026-08-21T07:32:23Z`
   predates enrollment, so deletion/reinstall is paused. The former v5 image is only a pre-build-4
   abort because it re-exposes `/extract` and halts release.
 - [ ] Confirm server-security-data deletion against the final backend and retain only redacted

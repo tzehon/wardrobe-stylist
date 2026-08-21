@@ -28,7 +28,7 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, exact reviewed Gmail-free v7, manual reviews, an isolated read-only restore rehearsal, and historical build-4 Apple/partial physical evidence are retained. Live registration/assertion success-marker logging, build-5 repeat proof, snapshot-list expiry, deletion-specific recovery, and verified server deletion remain open |
+| APP-009 | **External gate** | Repository enforcement, exact reviewed Gmail-free v8, manual reviews, an isolated read-only restore rehearsal, and historical build-4 Apple/partial physical evidence are retained. Production registration/assertion success-marker observation, build-5 repeat proof, snapshot-list expiry, deletion-specific recovery, and verified server deletion remain open |
 | APP-011 | **Done** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards remain implemented. The uploaded build-4 archive is retained as history; build 5 is reserved locally and its normal per-build signed-archive gate remains open |
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. Build-5 Release simulator/artifact checks pass locally; its normal signed-archive evidence remains open |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
@@ -86,25 +86,43 @@ the full matrix remain open. The latest listed 14-day snapshot at `2026-08-21T07
 enrollment, so server deletion/reinstall is paused pending eligible snapshot recovery evidence.
 Only aggregate counts, times, and outcomes are retained; no payloads, identifiers, or secrets.
 
-The current production baseline is Fly release v7, which serves the exact reviewed source
-`d4637f4b2adf14cd533594aec6060c385f8a5e2b` as a `linux/amd64` image at immutable digest
-`sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`.
-Local and immutable-registry Docker Scout scans each covered 90 packages and found no
-critical/high vulnerability. Production health and the Fly service check pass, `/extract` returns
-`404`, and unauthenticated `/recommend` returns `401`. Gmail-free v6 digest
+The current production baseline is Fly release v8, completed at `2026-08-21T10:45:06Z`. It serves
+reviewed PR #23 source `4a75b99dcd49e818ad1d5b198e8c49abba702e18` as a `linux/amd64`
+image at immutable registry digest
+`sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+The fresh no-cache local image ID is
+`sha256:3eb95304cb6e97976d2aa8b18dce302a3a908cf1d565b13d511c3fc2ed9d7c84`;
+local and re-resolved registry scans each covered 90 packages and found zero critical/high
+vulnerabilities. UID 10001, no-new-privileges, mounted-volume, and targeted-logging container smoke
+checks passed. The running source label, digest, and architecture match; one healthy Singapore
+Machine runs with `min_machines_running = 1`, the required secrets are deployed without retaining
+their values, and production App Attest uses category `2` with bundle builds `4,5`. The encrypted
+1 GB volume is in the below-warning usage band; schema v4 integrity is `ok` with zero foreign-key
+errors, one installation, zero sessions, and zero challenges. All listed snapshots are created; the
+newest is `2026-08-21T07:32:23Z`, and the retention setting remains 14 days. The live process is one
+UID-10001 Uvicorn worker with application `INFO` enabled only for the non-propagating
+`app.auth.service` logger and access logging off. Production health returns `200`, `/extract`
+returns `404`, unauthenticated `/recommend` returns `401`, and the OpenAPI route set matches the
+reviewed source.
+
+Former v7 digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
+remains the immediate rollback, and Gmail-free v6 digest
 `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-remains the required recovery baseline and also passed a fresh immutable-registry scan. Both exact
-v7 and v6 digests resolved after fresh registry authentication at `2026-08-21T06:06:01Z`. Emergency
-pre-build-4 rollback digest
+remains the required recovery baseline; both freshly re-resolved and scanned across 90 packages
+with zero critical/high vulnerabilities. Both are operational recovery only: using either reopens
+the exact-candidate deployment, configuration, and manual-review gates and blocks build-5 archive/
+QA until v8 is restored and reverified. Emergency pre-build-4 rollback digest
 `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17` is
 App-Attest-only and scan-clean, but using it would re-expose `/extract` and must halt the release.
-The payload-free v7 post-deploy review passed at `2026-08-21T06:00:21Z`; the required build-4 final
-pre-upload repeat passed at `2026-08-21T08:12:46Z` against that same deployment. Live v7 suppresses
-the bounded `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events at
-INFO. The build-4 stream therefore had no registration/assertion matches; deletion remains paused
-and was not expected. Protected `/recommend` success intentionally has no developer event and is
-proven separately through its aggregate admission counter plus the non-cached client result. The
-repository logging fix and source allowlist for builds `4,5` are locally validated but not deployed.
+The payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`: the two-day HTTP view had
+only `401`/`404` and no 5xx series; the bounded ten-minute view had no auth-rejection/rate-limit,
+Anthropic/stylist, maintenance, unhandled, malformed-lifecycle, or access-log event. Anthropic
+status, configured-limit, below-80%-of-limit, expected deployed Wardrobe key/Opus 4.8, and
+no-saturation checks passed, as did the published support pages, contact/response target, and
+retained routing rehearsal. The bounded stream contained zero `registration_succeeded`,
+`assertion_succeeded`, or `installation_deleted` events because none was exercised after v8
+deployment; real production marker observation therefore remains open. Protected `/recommend`
+success intentionally has no developer event and remains aggregate/client-evidenced.
 
 ## Immediate next milestone — internal TestFlight candidate
 
@@ -112,18 +130,22 @@ Live App Store Connect now shows build 4 as the highest upload. Build 5 is reser
 `ios/project.yml` for the current replacement candidate but has not been archived, verified,
 validated, uploaded, processed, or assigned. These current gates are ordered:
 
-- [ ] **Freeze the current fixes.** Review and freeze the Today offline-cache fix and focused tests,
-  plus the payload-free production registration/assertion success-marker logging fix and source
-  TestFlight allowlist for builds `4,5`.
+- [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
+  focused tests, the payload-free production registration/assertion success-marker logging fix,
+  and source TestFlight allowlist for builds `4,5` at `2026-08-21T10:29:56Z`. The frozen shipped-
+  code/backend source was `4a75b99dcd49e818ad1d5b198e8c49abba702e18`; later docs-only
+  evidence does not change the deployed image or iOS bundle.
 - [x] **Retain local pre-archive regression evidence.** The mandatory backend gate passed 221 pytest
   cases plus the locked dependency audit, Bandit, Ruff, and mypy. The regenerated build-5 project
   passed 218 Swift unit tests and all 9 UI flows. All 43 release-script tests and the Release
   simulator/artifact checks passed. This is local evidence, not signed-archive or distribution proof;
   rerun any affected gate if source/configuration changes before archive.
-- [ ] **Deploy and review the backend candidate.** Scan and deploy only its reviewed immutable
-  digest, apply the `4,5` allowlist, prove the bounded registration/assertion success markers are
-  visible without identifiers or payloads, and complete the required post-change manual review.
-  Live v7 has not completed this.
+- [x] **Build, scan, deploy, configure, and review the backend candidate.** Fly v8 serves exact PR
+  #23 source and immutable digest
+  `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+  The local and registry scans, runtime/storage/route/configuration checks, `4,5` allowlist, targeted
+  INFO logger, retained rollback/recovery checks, and the `2026-08-21T11:09:20Z` payload-free
+  post-change review passed. This closes deployment/configuration review only.
 - [ ] **Recheck App Store Connect, archive, and strictly verify build 5.** Stop if build 5 is no
   longer unused; retain the new profile, entitlement, credential-absence, and app/dSYM evidence.
 - [ ] **Validate, upload, process, and internally assign build 5.** Use the normal **TestFlight &
@@ -134,9 +156,11 @@ validated, uploaded, processed, or assigned. These current gates are ordered:
   confirm the production aggregate returns to zero. Complete separate local deletion only after its
   evidence is no longer needed. Stop on any ambiguous result; uninstall build 4 only after every
   preceding check passes.
-- [ ] **Repeat the complete clean physical QA matrix on build 5.** Close every build-4 gap, verify
-  the Today cache remains usable across failed Restyle/recovery, then complete build-5 deletion/
-  reinstall, snapshot-specific recovery/expiry, and final Google-retirement gates.
+- [ ] **Repeat the complete clean physical QA matrix on build 5.** Close every build-4 gap, observe
+  real bounded `registration_succeeded`/`assertion_succeeded` production events without payloads or
+  identifiers, and verify the Today cache remains usable across failed Restyle/recovery. Then
+  complete build-5 deletion/reinstall, snapshot-specific recovery/expiry, and final Google-
+  retirement gates. The zero-event post-deploy query did not close this gate.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any build-5 gate.
@@ -225,7 +249,7 @@ the historical build-4 path and does not close any build-5 gate.
   verification, and is not eligible for validation or upload.
 - [x] **Merge and freeze the review fixes.** PR #19 rebase-merged the reviewed Swift, backend,
   contract, release-verifier, and focused-test changes. The remote branch was deleted and clean
-  synchronized `main` is `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
+  synchronized `main` was `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at that historical gate.
 - [x] **Build, scan, and deploy the exact reviewed backend.** The exact frozen `linux/amd64` image
   passed local and immutable-registry critical/high scans across 90 packages and was deployed only
   by immutable digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`

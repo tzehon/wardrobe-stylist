@@ -45,27 +45,44 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Ruff, and mypy gates passed. The regenerated project passed 218 Swift unit tests and all 9 UI
   flows; all 43 release-script tests and the Release simulator/artifact checks also passed. This is
   not signed-archive, deployment, upload, processing, internal-assignment, or physical-device proof.
-- Current production backend baseline: Fly release v7 serves the exact reviewed `linux/amd64`
-  image from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at immutable digest
-  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`,
-  with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
-  `min_machines_running = 1`. Local and immutable-registry scans each covered 90 packages and found
-  no critical/high vulnerability. Gmail-free v6 digest
+- Current production backend baseline: Fly release v8 completed at `2026-08-21T10:45:06Z` and
+  serves reviewed PR #23 source `4a75b99dcd49e818ad1d5b198e8c49abba702e18` as a
+  `linux/amd64` image at immutable registry digest
+  `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+  Its fresh no-cache local image ID is
+  `sha256:3eb95304cb6e97976d2aa8b18dce302a3a908cf1d565b13d511c3fc2ed9d7c84`;
+  local and re-resolved registry scans each covered 90 packages and found zero critical/high
+  vulnerabilities. UID 10001, no-new-privileges, mounted-volume, and targeted-logging container
+  smoke checks passed. The running source label, digest, and architecture match; one healthy
+  Singapore Machine runs with `min_machines_running = 1`; production App Attest uses category `2`
+  and bundle-build allowlist `4,5`; and the required secrets are deployed without retaining their
+  values. The encrypted 1 GB volume is in the below-warning usage band. Schema v4 integrity is `ok`
+  with zero foreign-key errors, one installation, zero sessions, and zero challenges. All listed
+  snapshots are created; the newest is `2026-08-21T07:32:23Z` and retention remains 14 days. The
+  single UID-10001 Uvicorn process enables application `INFO` only for the non-propagating
+  `app.auth.service` logger
+  and keeps access logging off. Health returns `200`, `/extract` returns `404`, unauthenticated
+  `/recommend` returns `401`, and the OpenAPI route set matches the reviewed source.
+- Former v7 digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
+  remains the immediate rollback, and Gmail-free v6 digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  remains the required recovery baseline and passed a fresh registry scan. Both exact v7 and v6
-  digests resolved after fresh registry authentication at `2026-08-21T06:06:01Z`. Emergency
-  pre-build-4 rollback digest
+  remains the required recovery baseline. Both freshly re-resolved and scanned across 90 packages
+  with zero critical/high vulnerabilities. Both are operational recovery only: using either
+  reopens the exact-candidate deployment, configuration, and manual-review gates and blocks build-5
+  archive/QA until v8 is restored and reverified. Emergency pre-build-4 rollback digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   is App-Attest-only and scan-clean, but it re-exposes `/extract`; using it must halt the release.
-  Production `/extract` returns `404`, unauthenticated `/recommend` returns `401`, and the v7
-  post-deploy review passed at `2026-08-21T06:00:21Z`. Live v7 suppresses the bounded
-  `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events at INFO.
-  Deletion has not yet been exercised. Protected `/recommend` success intentionally emits no
-  developer event; prove it separately through the aggregate
-  `recommend-installation` admission counter and a visible non-cached client result. The repository
-  logging fix and source configuration allowing TestFlight builds 4 and 5 are locally validated but
-  not deployed; deploy and verify them before treating these INFO lifecycle events or build-5
-  authorization as production truth.
+- The payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
+  showed only `401`/`404` and no 5xx series; the bounded ten-minute view had no auth-rejection/rate-
+  limit, Anthropic/stylist, maintenance, unhandled, malformed-lifecycle, or access-log event.
+  Anthropic status, configured-limit, below-80%-of-limit, expected deployed Wardrobe key/Opus 4.8,
+  and no-saturation checks passed, as did the published support pages, contact/response target, and
+  retained routing rehearsal. The live logging configuration is deployed, but the bounded query had
+  zero `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events because
+  no corresponding lifecycle operation was exercised after v8 deployment. Real production marker
+  observation remains open. Protected `/recommend` success intentionally emits no developer event;
+  prove it separately through the aggregate `recommend-installation` admission counter and a visible
+  non-cached client result.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
   fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
@@ -104,7 +121,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   archive above, executable SHA-256
   `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6`, and matching app/dSYM UUID.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v7 deploys
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v8 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -112,14 +129,15 @@ an App Store release candidate from the moment it is archived. This prevents a s
   its temporary resources were removed within 391 seconds of volume creation. Build 4 subsequently
   supplied partial production TestFlight enrollment, assertion-renewal, and protected-call evidence,
   but did not complete the physical QA matrix and exposed a release defect; build 5 must repeat the
-  proof. Snapshot-list expiry, deletion-specific recovery, server-deletion UI proof, and deployed
-  registration/assertion success-marker observability are still required. Apple upload/processing
+  proof. Snapshot-list expiry, deletion-specific recovery, server-deletion UI proof, and real
+  registration/assertion success-marker observation are still required. Apple upload/processing
   and internal assignment alone do not satisfy those physical-client checks. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
   `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
   `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
   `2026-08-21T06:00:21Z`; the required final pre-upload repeat passed against that exact deployment
-  at `2026-08-21T08:12:46Z`. The next routine review remains due no later than 2026-09-20.
+  at `2026-08-21T08:12:46Z`. The v8 post-change review passed at
+  `2026-08-21T11:09:20Z`; the next routine review remains due no later than 2026-09-20.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -152,7 +170,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   implemented and covered by focused tests.
 - [x] After policy enforcement, build and scan the exact reviewed `linux/amd64` container image,
   including OS packages, for high/critical known vulnerabilities; push and re-scan its immutable
-  registry digest, then deploy only that digest. Fly v7 serves
+  registry digest, then deploy only that digest. At this historical build-4 gate, Fly v7 served
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
   from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`; both scans covered 90
   packages and found no critical/high vulnerability. Gmail-free v6 digest
@@ -190,12 +208,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   before it was uninstalled, so no live production identity existed to delete. Exact-source
   `linux/amd64` digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0` passed local and registry
-  critical/high scans across 90 packages and is healthy as Fly release v7 from source
+  critical/high scans across 90 packages and was healthy as Fly release v7 from source
   `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. The registry-resolved
   v5 emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   resolved after fresh private-registry authentication at `2026-08-21T01:20:25Z`, re-scanned clean,
   and passed an isolated old/new/old schema-v4 rehearsal. Production `/extract`
-  returns `404`, `/recommend` fails closed without authorization, and the payload-free
+  returned `404`, `/recommend` failed closed without authorization, and the payload-free
   reviewed v7 post-deploy manual review passed at `2026-08-21T06:00:21Z`. Build 4 was later
   installed only after TestFlight processing and never over the older app.
 - [x] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
@@ -217,7 +235,8 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
 
 - [x] **Merge and freeze the review fixes.** PR #19 rebase-merged the reviewed Swift, backend,
   shared-contract, release-verifier, and focused-test changes. The remote branch was deleted and
-  clean synchronized `main` is `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
+  clean synchronized `main` was `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at that historical
+  gate.
 - [x] **Build, scan, and deploy the exact reviewed backend.** The exact frozen `linux/amd64` image
   passed local and immutable-registry critical/high scans across 90 packages and was deployed only
   as digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`.
@@ -241,19 +260,24 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
 
 The current build-5 replacement path is ordered; its distribution and physical gates remain open:
 
-- [ ] **Freeze the fixes.** Review and freeze the Today offline-cache fix, its focused tests, the
-  production registration/assertion success-marker logging fix, and the TestFlight build `4,5`
-  backend allowlist. Keep
+- [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
+  tests, the production registration/assertion success-marker logging fix, and the TestFlight build
+  `4,5` backend allowlist at `2026-08-21T10:29:56Z`. The frozen shipped-code/backend source was
+  `4a75b99dcd49e818ad1d5b198e8c49abba702e18`; later docs-only evidence does not change the
+  deployed image or iOS bundle. Keep
   `MARKETING_VERSION = 1.0.0`; build 5 is only a local reservation until the required immediate
   pre-archive/upload build-list refresh.
 - [x] **Retain local pre-archive regression evidence.** The current build-5 worktree passed 221
   backend tests plus locked dependency audit/Bandit/Ruff/mypy; the regenerated project passed 218
   Swift unit tests and all 9 UI flows; and 43 release-script tests plus Release simulator/artifact
   checks passed. Rerun any affected gate if source or configuration changes before archive.
-- [ ] **Deploy and review the backend candidate.** Build and scan the exact reviewed backend image,
-  deploy only its immutable digest with the `4,5` allowlist, prove the bounded registration/
-  assertion INFO success markers are visible without payloads or identifiers, and complete the
-  required post-change manual review.
+- [x] **Build, scan, deploy, configure, and review the backend candidate.** Fly v8 serves exact PR
+  #23 source and immutable digest
+  `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+  Local/registry scans, runtime/storage/route/configuration checks, the `4,5` allowlist, targeted
+  INFO logger, retained rollback/recovery checks, and the `2026-08-21T11:09:20Z` payload-free
+  post-change review passed. This closes deployment/configuration review only; the real lifecycle-
+  marker observation remains in the physical-device gate below.
 - [ ] **Recheck App Store Connect, archive, and verify build 5.** Confirm build 4 remains the highest
   upload immediately before archive/upload; create a new production-signed archive and retain its
   exact verifier, profile, entitlement, credential-absence, and app/dSYM evidence.
@@ -264,8 +288,10 @@ The current build-5 replacement path is ordered; its distribution and physical g
   enrollment snapshot, delete server security data with aggregate confirmation, and only then
   clear local data and remove build 4. Stop on any ambiguous result.
 - [ ] **Repeat complete physical QA on build 5.** Use a clean TestFlight install, close every gap
-  listed in the partial build-4 record, verify the Today cache remains usable through a failed
-  Restyle and recovery, then finish deletion/reinstall and snapshot-specific recovery evidence.
+  listed in the partial build-4 record, observe real bounded `registration_succeeded`/
+  `assertion_succeeded` events without payloads or identifiers, and verify the Today cache remains
+  usable through a failed Restyle and recovery. Then finish deletion/reinstall and snapshot-specific
+  recovery evidence. The zero-event post-deploy query did not close this gate.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -393,12 +419,12 @@ request body, database row, wardrobe payload, or raw log sample.
 | Online recovery | Styling recovered online and showed `Styled 17:24`; aggregate assertion total advanced from 1 to 2 and the current recommendation-installation rate window from 0 to 1 |
 | Signed runtime fields | Validation category/build fields were absent, as expected on iOS 26.6; this is not category/build-enforcement evidence |
 | Local flows | Manual add/edit, Demo Mode, **Wear this**, and History passed. Camera and Photo Library opened and cancelled only; successful media selection remains untested. Reminder permission and scheduling passed; delivery remains untested |
-| Production marker stream | The bounded stream had no `registration_succeeded` or `assertion_succeeded` matches because live v7 suppresses INFO lifecycle events. `installation_deleted` was not expected because deletion is paused. Protected `/recommend` intentionally has no developer success event and was proven separately by the aggregate admission counter plus the non-cached client result. The repository logging fix and build `4,5` allowlist are validated but not deployed |
+| Production marker stream | The build-4 bounded stream had no `registration_succeeded` or `assertion_succeeded` matches because live v7 suppressed INFO lifecycle events at the time. `installation_deleted` was not expected because deletion was paused. Protected `/recommend` intentionally has no developer success event and was proven separately by the aggregate admission counter plus the non-cached client result. Fly v8 now deploys the targeted logger and build `4,5` allowlist, but its post-deploy lifecycle-event counts remain zero because those operations have not yet been exercised against v8 |
 | Snapshot / deletion boundary | The latest listed 14-day snapshot, `2026-08-21T07:32:23Z`, predates this enrollment. Server deletion and reinstall testing are paused until eligible recovery evidence can be retained without risking restoration of the enrolled identity |
 
 Still open: successful Camera and Photo Library selection, notification delivery, styling-consent
 withdrawal, local deletion, server-security-data deletion, a complete clean build-5 repeat,
-registration/assertion success-marker deployment and production verification, snapshot-list expiry
+real registration/assertion success-marker production observation, snapshot-list expiry
 and deletion-specific recovery, and final owner-confirmed Google retirement.
 
 - [x] Retain historical build-4 signed production App Attest entitlement, matching embedded App
