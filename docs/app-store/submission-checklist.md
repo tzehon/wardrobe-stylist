@@ -57,20 +57,24 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 ## 4. Release candidate and evidence
 
-- [ ] Confirm the latest build already uploaded to App Store Connect, then select the next unused
+- [x] Confirm the latest build already uploaded to App Store Connect, then select the next unused
   `CURRENT_PROJECT_VERSION`. If this exact internal build may be promoted, set the intended public
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
-- [ ] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
+- [x] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
-- [ ] Confirm the archive contains no Google Sign-In SDK/client configuration, Gmail permission or
+- [x] Confirm the archive contains no Google Sign-In SDK/client configuration, Gmail permission or
   route, `/extract` client path, receipt-import UI/background task, Anthropic/shared backend
   secret, non-HTTPS production endpoint, or placeholder public link.
-- [ ] Build with an accepted production Xcode/SDK. As of 28 April 2026, Apple requires uploads to
+- [x] Build with an accepted production Xcode/SDK. As of 28 April 2026, Apple requires uploads to
   use the iOS 26 SDK or later: [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
-- [ ] Confirm the launch-screen key remains present. Uploads built with the iOS 27 SDK or later are
+- [x] Confirm the launch-screen key remains present. Uploads built with the iOS 27 SDK or later are
   validated for a launch-screen configuration: [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
-- [ ] Create, validate, and export the signed archive; record archive hash, commit, version/build,
-  Xcode/SDK, dependency resolution, entitlements, privacy manifests, symbols, and validation output.
+- [x] Create and verify the production-signed archive; record commit, version/build, Xcode/SDK,
+  dependency resolution, entitlements, privacy manifests, and signed-artifact output.
+- [ ] Validate and export/upload exactly the verified
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; record validation
+  output, exported artifact hash, and symbols. Never select the failed development-signed archive
+  without the `-appstore` suffix.
 - [ ] Distribute from Organizer using **TestFlight & App Store**. Do not use **TestFlight Internal
   Only**, and do not bypass the device-Release public configuration guard.
 - [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
