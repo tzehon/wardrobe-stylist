@@ -37,7 +37,9 @@ logger = logging.getLogger(__name__)
 # One installation normally shares one public IP. A 2x aggregate allowance
 # tolerates ordinary IP changes and overlapping retries while preventing a
 # distributed caller from multiplying every per-IP budget by hundreds of
-# source addresses. These constant-subject buckets are charged first.
+# source addresses. Each constant-subject bucket is charged only after the
+# caller's source-IP bucket accepts the request, so one already-limited source
+# cannot drain capacity reserved for other callers.
 _GLOBAL_RATE_LIMIT_MULTIPLIER = 2
 _GLOBAL_RATE_SUBJECT = "single-user-backend"
 _DELETION_CHALLENGE_RATE_LIMIT_PER_MINUTE = 6
@@ -258,16 +260,16 @@ class AppAttestAuthService:
         store = self._required_store()
         now = self._timestamp()
         if purpose != "deletion":
-            self._consume_global_rate(
-                scope="challenge",
-                per_subject_limit=self.configuration.challenge_rate_limit_per_minute,
-                window_seconds=60,
-                now=now,
-            )
             self._consume_rate(
                 scope="challenge",
                 subject=client_ip,
                 limit=self.configuration.challenge_rate_limit_per_minute,
+                window_seconds=60,
+                now=now,
+            )
+            self._consume_global_rate(
+                scope="challenge",
+                per_subject_limit=self.configuration.challenge_rate_limit_per_minute,
                 window_seconds=60,
                 now=now,
             )
@@ -350,16 +352,16 @@ class AppAttestAuthService:
         store = self._required_store()
         verifier = self._required_verifier()
         now = self._timestamp()
-        self._consume_global_rate(
-            scope="registration",
-            per_subject_limit=self.configuration.registration_rate_limit_per_hour,
-            window_seconds=3600,
-            now=now,
-        )
         self._consume_rate(
             scope="registration",
             subject=client_ip,
             limit=self.configuration.registration_rate_limit_per_hour,
+            window_seconds=3600,
+            now=now,
+        )
+        self._consume_global_rate(
+            scope="registration",
+            per_subject_limit=self.configuration.registration_rate_limit_per_hour,
             window_seconds=3600,
             now=now,
         )
@@ -499,13 +501,6 @@ class AppAttestAuthService:
         store = self._required_store()
         verifier = self._required_verifier()
         now = self._timestamp()
-        self._consume_global_rate(
-            scope="session",
-            per_subject_limit=self.configuration.session_rate_limit_per_hour,
-            window_seconds=3600,
-            now=now,
-        )
-        _decode_key_id(key_id)
         self._consume_rate(
             scope="session-ip",
             subject=client_ip,
@@ -513,6 +508,13 @@ class AppAttestAuthService:
             window_seconds=3600,
             now=now,
         )
+        self._consume_global_rate(
+            scope="session",
+            per_subject_limit=self.configuration.session_rate_limit_per_hour,
+            window_seconds=3600,
+            now=now,
+        )
+        _decode_key_id(key_id)
         installation = store.installation_for_key(key_id)
         active_installation = self._require_active_installation(installation)
         installation_policy = self._installation_write_policy(active_installation)
@@ -848,12 +850,14 @@ class AppAttestAuthService:
         now_datetime = self._now().astimezone(UTC)
         now = int(now_datetime.timestamp())
         if self.store is not None:
-            self._rate_limit_api_global(path=path, now=now)
             # Consume the trusted-IP quota before bearer lookup so missing and
             # invalid credentials cannot bypass endpoint abuse limits. A valid
-            # App Attest identity is charged only once at the IP layer, then
-            # separately at the installation layer below.
+            # App Attest identity is charged only once at the IP layer, then at
+            # the aggregate layer and separately at the installation layer.
+            # Rejecting an already-limited IP before the aggregate bucket keeps
+            # that source from starving other callers.
             self._rate_limit_api_ip(path=path, client_ip=client_ip, now=now)
+            self._rate_limit_api_global(path=path, now=now)
             token_hash = _bearer_token_hash(token)
             try:
                 installation = (

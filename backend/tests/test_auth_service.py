@@ -1051,6 +1051,104 @@ def test_challenge_rate_limit_has_retry_after(tmp_path) -> None:
     assert 1 <= limited.value.retry_after <= 60
 
 
+def test_limited_challenge_ip_cannot_drain_global_quota(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, challenge_rate_limit_per_minute=1)
+    service.issue_challenge(
+        purpose="attestation",
+        key_id=None,
+        client_ip="192.0.2.73",
+    )
+
+    with pytest.raises(AuthFlowError) as ip_limited:
+        service.issue_challenge(
+            purpose="attestation",
+            key_id=None,
+            client_ip="192.0.2.73",
+        )
+    assert ip_limited.value.status_code == 429
+
+    # The rejected retry must not take the second aggregate slot.
+    challenge = service.issue_challenge(
+        purpose="attestation",
+        key_id=None,
+        client_ip="192.0.2.74",
+    )
+    assert challenge.challenge
+
+
+def test_limited_registration_ip_cannot_drain_global_quota(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, registration_rate_limit_per_hour=1)
+    for attempt, expected_code in (
+        (1, "unknown_challenge"),
+        (2, "rate_limit_exceeded"),
+    ):
+        with pytest.raises(AuthFlowError) as rejected:
+            service.register(
+                challenge_id=f"missing-registration-same-ip-{attempt}",
+                key_id=KEY_ID,
+                attestation_object=ATTESTATION,
+                client_ip="192.0.2.75",
+            )
+        assert rejected.value.code == expected_code
+
+    # The over-limit source did not consume the remaining aggregate slot.
+    with pytest.raises(AuthFlowError) as other_source:
+        service.register(
+            challenge_id="missing-registration-other-ip",
+            key_id=KEY_ID,
+            attestation_object=ATTESTATION,
+            client_ip="192.0.2.76",
+        )
+    assert other_source.value.code == "unknown_challenge"
+
+
+def test_limited_session_ip_cannot_drain_global_quota(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, session_rate_limit_per_hour=1)
+    for expected_code in ("invalid_base64", "rate_limit_exceeded"):
+        with pytest.raises(AuthFlowError) as rejected:
+            service.create_session(
+                challenge_id="00000000-0000-4000-8000-000000000000",
+                key_id="not-base64",
+                assertion_object=ASSERTION,
+                client_data=base64.b64encode(b"{}").decode("ascii"),
+                client_ip="192.0.2.77",
+            )
+        assert rejected.value.code == expected_code
+
+    # A different source still reaches key validation rather than the global
+    # cap, proving the already-limited source did not drain aggregate capacity.
+    with pytest.raises(AuthFlowError) as other_source:
+        service.create_session(
+            challenge_id="00000000-0000-4000-8000-000000000000",
+            key_id="not-base64",
+            assertion_object=ASSERTION,
+            client_data=base64.b64encode(b"{}").decode("ascii"),
+            client_ip="192.0.2.78",
+        )
+    assert other_source.value.code == "invalid_base64"
+
+
+def test_limited_api_ip_cannot_drain_global_quota(tmp_path) -> None:
+    service, _, _ = _service(tmp_path, recommend_rate_limit_per_hour=1)
+    for attempt in (1, 2):
+        with pytest.raises(AuthFlowError) as rejected:
+            service.authenticate_bearer(
+                token=f"invalid-session-token-{attempt}",
+                path="/recommend",
+                client_ip="192.0.2.79",
+            )
+        assert rejected.value.status_code == (401 if attempt == 1 else 429)
+
+    # A different source retains the second aggregate attempt.
+    with pytest.raises(AuthFlowError) as other_source:
+        service.authenticate_bearer(
+            token="invalid-session-token-other-ip",
+            path="/recommend",
+            client_ip="192.0.2.92",
+        )
+    assert other_source.value.code == "invalid_or_expired_session"
+
+
 def test_global_challenge_quota_bounds_rotating_ip_issuance(tmp_path) -> None:
     service, _, _ = _service(tmp_path, challenge_rate_limit_per_minute=1)
     for address in ("192.0.2.80", "192.0.2.81"):
