@@ -27,7 +27,12 @@ struct LocalDataDeletionFailure: Error, Equatable, LocalizedError, Sendable {
 
     var errorDescription: String? { "Couldn’t Delete Local Data" }
     var recoverySuggestion: String? {
-        "Some local data may remain. Nothing was reported as successfully deleted; please try again."
+        switch stage {
+        case .preferences:
+            "Your wardrobe and reminder were removed, but some app settings may remain. Please try Delete Local Data again."
+        case .persistence, .verification:
+            "Some local data may remain. Nothing was reported as successfully deleted; please try again."
+        }
     }
 }
 
@@ -137,6 +142,11 @@ final class LocalDataDeletionCoordinator {
             return fail(.verification, String(describing: error))
         }
 
+        // Model deletion is committed and verified. Cancel the system-facing
+        // reminder now so a later app-owned preference/cache cleanup failure
+        // cannot leave a notification scheduled for a deleted wardrobe.
+        disableSystemWork()
+
         var cleared = await clearAllPreferences()
         if !clearAllCaches() { cleared = false }
         if !clearReminderTime() { cleared = false }
@@ -145,7 +155,6 @@ final class LocalDataDeletionCoordinator {
             return fail(.preferences, "App-owned preferences could not be cleared")
         }
 
-        disableSystemWork()
         state = .succeeded(before)
         return true
     }
