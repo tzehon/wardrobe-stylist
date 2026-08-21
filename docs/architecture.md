@@ -17,7 +17,7 @@ explicitly historical setup documents; it is not part of the active v1 architect
 - [Data model](#data-model)
 - [Tech stack](#tech-stack)
 - [Deployment topology](#deployment-topology)
-- [Build 4 clean-install transition](#build-4-clean-install-transition)
+- [Historical build 4 clean-install transition](#historical-build-4-clean-install-transition)
 - [Historical Gmail implementation](#historical-gmail-implementation)
 
 ## System overview
@@ -182,8 +182,10 @@ sequenceDiagram
 
 On device, `CatalogCompactor` builds the request, `WearHistory` derives recent-worn data, and
 `OutfitRecommender` resolves returned IDs back to `Item`s. “Show me another” cycles returned
-alternates without another network call. Weather, calendar context, and multi-agent composition
-are deferred.
+alternates without another network call. The last successful look is cached locally for the day;
+if an explicit Restyle fails, the usable look remains visible with bounded retry feedback, and the
+transient failure is not persisted in that cache. Weather, calendar context, and multi-agent
+composition are deferred.
 
 ## Data model
 
@@ -217,8 +219,8 @@ classDiagram
 ```
 
 The v1 schema contains only device-local `Item`, `Outfit`, and `WearLog` models; `ItemSource` is
-`manual | photo`. Build 4 intentionally does not link the earlier Gmail/account-owned schemas into
-the target and does not perform an in-place migration from builds 1–3.
+`manual | photo`. The active public-v1 target does not link the earlier Gmail/account-owned schemas
+and does not perform an in-place migration from the older Gmail-capable builds.
 
 ## Tech stack
 
@@ -257,17 +259,20 @@ flowchart LR
   publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
 - Public v1 has no Google OAuth dependency or Gmail network route.
 
-## Build 4 clean-install transition
+## Historical build 4 clean-install transition
 
-Build `1.0.0 (4)` is intentionally fresh-install-only. The owner approved discarding the earlier
+Build `1.0.0 (4)` was intentionally fresh-install-only. The owner approved discarding the earlier
 local wardrobe and adding items again. The installed development build disconnected Google and
 deleted local data, but predated the server-deletion UI. A read-only aggregate production check
 found zero installations, sessions, and pending challenges before it was uninstalled, so no live
 production identity required deletion. This is evidence for that retired build only, not a general
 server-deletion bypass.
 
-Install build 4 only from processed TestFlight as a clean app and enroll its new anonymous App
-Attest installation. Never install it over an earlier app or claim upgrade/migration support.
+Build 4 was later installed only from processed TestFlight as a clean app and enrolled one new
+anonymous App Attest installation. Physical QA made it non-promotable. Current candidate status,
+clean-install requirements, and retained evidence live in the [release backlog](app-release-backlog.md)
+and [internal TestFlight runbook](app-store/internal-testflight-runbook.md); never treat this
+transition as upgrade/migration support.
 
 ## Historical Gmail implementation
 

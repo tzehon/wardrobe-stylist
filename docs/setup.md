@@ -196,9 +196,10 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list, deletion-specific recovery, App Privacy, and processed-client physical
-proof remain release gates. Apple processing/internal assignment and a healthy `/health` response
-do not close them.
+Unchecked snapshot-list, deletion-specific recovery, App Privacy, live registration/assertion
+success-marker logging, and complete build-5 processed-client physical proof remain release gates.
+Historical partial build-4 QA, Apple processing/internal assignment, and a healthy `/health`
+response do not close them.
 
 ## TestFlight distribution
 
@@ -208,14 +209,18 @@ Every internal beta is built as an App Store candidate. Follow the
 1. finish the remaining APP-009 external evidence and keep the manual review current;
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
-4. treat processed candidate `1.0.0 (4)` as consumed and never reuse build 4; before any later
-   archive/upload, refresh App Store Connect and select the next unused build number;
-5. run the complete backend, Swift, UI, public-config, and artifact suites;
-6. create and validate a signed Release archive;
+4. treat processed candidate `1.0.0 (4)` as consumed and never reuse build 4; a later live check
+   found build 4 highest and `1.0.0 (5)` is reserved locally, but refresh App Store Connect again
+   immediately before its archive/upload;
+5. run the complete backend, Swift, UI, public-config, and artifact suites. Current local build-5
+   evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
+   flows, 43 release-script tests, and Release simulator/artifact checks;
+6. create and validate a new build-5 signed Release archive; local tests are not archive evidence;
 7. upload with **TestFlight & App Store**, not **TestFlight Internal Only**; and
 8. add the processed build to the Internal Testing group and complete fresh-install physical-device
-   QA. For build 4, internal assignment and the mandatory pre-upload clean-uninstall transition are
-   complete; the clean TestFlight install remains open.
+   QA. Build 4 was installed cleanly and produced partial historical evidence, but a failed offline
+   Restyle hid the cached look until relaunch/tap. Complete the runbook's build-4 identity-safe
+   handoff before uninstall, then install build 5 cleanly and repeat the entire matrix.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -225,8 +230,19 @@ read-only aggregate production query found zero installations, sessions, and pen
 so no live production record existed to delete. The owner then uninstalled it and accepted losing
 the earlier local wardrobe.
 
-Install `1.0.0 (4)` only after it has processed in TestFlight. Never install it over an earlier app;
-the clean install must enroll its own production App Attest identity.
+Build `1.0.0 (4)` was installed only after it processed in TestFlight and never over the earlier
+app. On iPhone 16 Pro/iOS 26.6 it enrolled the first production identity from a zero baseline,
+completed first and cold-renewal protected calls, and recovered online; runtime category/build
+fields were absent as expected. Local/Demo features remained usable offline. This was partial QA,
+not build-5 proof.
+
+Live Fly v7 suppresses bounded registration/assertion success markers at INFO. Protected
+`/recommend` intentionally has no developer success marker and remains aggregate/client-evidenced.
+The repository logging fix and source TestFlight allowlist for builds `4,5` are locally validated
+but not deployed. The latest listed 14-day snapshot at `2026-08-21T07:32:23Z` predates enrollment,
+so server deletion/reinstall testing remains paused pending eligible recovery evidence. Build 5
+must be installed cleanly after
+processing and must close the full physical matrix without claiming upgrade support.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

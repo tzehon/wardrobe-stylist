@@ -62,8 +62,6 @@ offline Demo Mode, and optional AI styling protected by App Attest. The earlier 
 receipt-import subsystem has been removed from active v1 source and is deferred to a separately
 reviewed future release.
 
-Build `1.0.0 (4)` is fresh-install-only. The earlier development app was disconnected from Google,
-locally cleared, and uninstalled after a read-only production check found zero installations, zero
-sessions, and zero pending challenges; it predated the server-deletion UI. The owner explicitly
-accepted losing the old local wardrobe and re-adding items. Install build 4 only from processed
-TestFlight, never over an older app.
+For current candidate status, consumed build numbers, clean-install requirements, and physical
+TestFlight QA evidence, see [`docs/app-release-backlog.md`](docs/app-release-backlog.md) and
+[`docs/app-store/internal-testflight-runbook.md`](docs/app-store/internal-testflight-runbook.md).

@@ -82,8 +82,10 @@ guards, payload-free logging guards, and a no-access-log production command. On 
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
 enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, and
-processed-client physical evidence remain release gates; archive/upload/processing and internal
-assignment are complete.
+complete build-5 processed-client physical evidence remain release gates. Build-4 archive/upload/
+processing/internal assignment and partial physical evidence are historical. Live Fly v7 suppresses
+bounded registration/assertion success markers at INFO; protected `/recommend` remains aggregate/
+client-evidenced. The repository fix is validated but not deployed.
 
 ## Data inventory
 
@@ -115,12 +117,25 @@ Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the earli
 wardrobe and adding items again. The installed development build completed Google disconnection
 and local deletion, but predated the server-deletion UI; a read-only aggregate production check
 found zero installations, zero sessions, and zero pending challenges before it was uninstalled.
-Install build 4 only from processed TestFlight, never over an older app, and do not claim an
-in-place migration.
+Build 4 was later installed only from processed TestFlight and never over the older app; do not
+claim an in-place migration.
 
 The ordering mattered because uninstall removed local data and the old Google client. The clean
-build-4 install will create a new anonymous App Attest identity; the zero-count production check is
-the retained reason no earlier live server record required proof-of-possession deletion.
+build-4 install created one anonymous production App Attest identity from that zero baseline. First
+and cold-renewal protected calls succeeded on iPhone 16 Pro/iOS 26.6, with expected signed runtime-
+field absence. This is partial historical evidence: consent withdrawal, local/server deletion, and
+reinstall proof remain open. The latest listed 14-day snapshot at `2026-08-21T07:32:23Z` predates
+enrollment, so server deletion/reinstall is paused until eligible deletion-specific recovery
+evidence can be retained.
+
+Physical QA also found that a failed offline Restyle hid an otherwise persisted cached look until
+relaunch/tap. Build 4 is not promotable. Build 5 is reserved locally after App Store Connect showed
+build 4 highest. Its local pre-archive regression, including Release simulator/artifact privacy
+guards, is green, but it is not archived or uploaded. Before build 4 is uninstalled, follow the
+runbook's identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server
+security data while proof of possession remains available, and confirm zero installation/session
+aggregates. Only then install build 5 cleanly and repeat the complete privacy and failure-state
+matrix.
 
 ## Secrets and release boundaries
 

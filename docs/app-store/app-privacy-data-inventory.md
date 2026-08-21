@@ -14,7 +14,7 @@ contain or invoke that capability.
 | Purchase date/price/currency | Catalog/review/insights | No in v1 styling | Local app | Until item/local-data deletion | Review/edit/delete | Not collected if device-only |
 | Outfit and wear history | Anti-repeat/history and explicit 1–5 feedback | Recent item IDs and bounded per-item rating summaries (item ID, average, count) leave for styling; no feedback free text or wear dates | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; local history until delete; verify Anthropic/provider terms | Styling consent; delete | Pending retention interpretation |
 | Occasion/context text | User-directed recommendation | Yes | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; verify Anthropic/provider terms | Styling consent; user submits | “Other User Content” if retained; pending |
-| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; verified live deletion is synchronous. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. The final policy image is deployed; listing-expiry observation and restore-after-deletion evidence remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
+| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; an assertion-verified deletion request synchronously removes the live installation. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. Production retention enforcement is deployed, but repository logging/build-allowlist changes are not production truth until the replacement image is deployed and reviewed. Listing-expiry observation and restore-after-deletion evidence remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
 | One-time App Attest challenges, hashed short-lived sessions and coarse rate windows | Replay prevention, authorization, quotas and abuse prevention | Yes | Developer backend security store | Repository maxima: challenge 70 minutes from issue; session hash 20 minutes from issue; rate-window hash five minutes after its one-minute/hourly window, enforced by the deployed one-minute maintenance loop and request-time expiry cleanup | Automatic expiry; a verified server deletion removes current-secret-derived key/installation rows, while unlinkable pre-rotation HMAC rows expire within 65 minutes | Device ID and Other Diagnostic Data; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | IP address, request path/ID and timing | Network delivery/security | Inherent | Host/backend abuse prevention | Raw IP is not stored in SQLite and application access logs are disabled. Fly's customer-visible platform/proxy stream can contain path, request ID and client IP for a fixed seven days. Separate operational/abuse logs can contain source IP with undisclosed, non-configurable in-service retention. The owner accepted this provider boundary on 2026-08-19. | Public policy; remote features are optional | Conservatively: Device ID, Other Diagnostic Data and Product Interaction; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | Consent and automation preferences | Enforce user choices | No | Local UserDefaults | Until withdrawal/delete | Privacy Center | Not collected if device-only |
@@ -61,8 +61,9 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Enforce deadline cleanup, 90-day inactivity purge, 30-day revoked-record purge, synchronous
   assertion-verified live deletion, safe SQLite/WAL maintenance, and the separate in-app server
   deletion control in the repository.
-- [x] Against the deployed final image, complete the first owner-approved payload-free manual
-  operations review.
+- [x] Against the then-current reviewed deployment, complete the first owner-approved payload-free
+  manual operations review. Preserve it as history and repeat under the lifecycle policy after each
+  backend or production-configuration change.
 - [x] Publish and rehearse the monitored support route at `contact@tth.dev`; keep the
   two-business-day response target.
 - [ ] Rehearse deletion-specific restore/recovery behavior against the final deployment.
@@ -72,7 +73,7 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Confirm the migration bridge is retired, `DEVICE_TOKEN` is unset/rotated, and the obsolete
   shared-token build is rejected. The initial rollback boundary was App-Attest-only; APP-036 now
   additionally requires a Gmail-free recovery image after build 4 distribution.
-- [x] After the Gmail-free image change, exact candidate digest
+- [x] Retain historical Gmail-free v6 recovery-image evidence: digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5` and retained v5
   emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   both resolved from the registry after fresh authentication at `2026-08-21T01:20:25Z` and passed
@@ -95,4 +96,8 @@ The exact approved developer-controlled schedule and its current compliance stat
   completed Disconnect Google and local deletion. It predated Delete Server Security Data, but a
   read-only aggregate production query found zero installations, sessions, and pending challenges,
   so no live production identity existed to delete. The owner then uninstalled it and accepted
-  re-entry of local items. Never install build 4 over an older app or claim migration.
+  re-entry of local items. Build 4 was later installed cleanly from processed TestFlight; its
+  partial QA exposed the Today release blocker and is historical only. Before uninstalling build 4,
+  wait for an eligible post-enrollment snapshot, use its assertion-verified server-deletion control,
+  and confirm zero installation/session aggregates. Only then install build 5 cleanly and repeat the
+  complete matrix; do not claim migration.

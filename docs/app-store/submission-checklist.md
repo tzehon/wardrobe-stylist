@@ -55,7 +55,22 @@ later be promoted to customers.
 Apple's current field matrix is the source of truth for which properties are required, localizable,
 or editable: [Required, localizable, and editable properties](https://developer.apple.com/help/app-store-connect/reference/app-information/required-localizable-and-editable-properties).
 
-## 4. Release candidate and evidence
+## 4. Historical build-4 and current replacement evidence
+
+Checked items in this section preserve the uploaded build-4 record. They do not satisfy build 5,
+which is reserved locally after a later 2026-08-21 live App Store Connect check showed build 4 as
+the highest upload. Build 5 has not been archived, verified, validated, uploaded, processed, or
+assigned.
+
+- [ ] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
+  assertion success-marker logging fix, and source `4,5` TestFlight allowlist.
+- [x] Retain the current local build-5 pre-archive regression: 221 backend tests plus locked audit/
+  Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, all 43 release-script tests, and Release
+  simulator/artifact checks passed after project regeneration. Rerun affected gates if source or
+  configuration changes; this is not signed-archive or distribution evidence.
+- [ ] After the live build-list refresh and exact backend deployment/review, create and strictly
+  verify a new production-signed `1.0.0 (5)` archive. Retain new source, profile, entitlement,
+  privacy, absence, credential-scan, and app/dSYM evidence; do not reuse build-4 evidence.
 
 - [x] Merge and freeze the reviewed Swift/backend/contract/verifier fixes on clean synchronized
   `main`. PR #19 rebase-merged source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
@@ -69,22 +84,25 @@ or editable: [Required, localizable, and editable properties](https://developer.
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
   The fresh check at `2026-08-21T06:34:50Z` showed builds 1–3 only, so the replacement archive
   correctly uses `1.0.0 (4)`.
+- [ ] Immediately before build-5 archive/upload, refresh App Store Connect and confirm build 5 is
+  still unused. Its current `ios/project.yml` value is a local reservation only.
 - [x] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
   Clean source context `24c17cb` passed 219 backend tests, 215 Swift tests, all 9 UI flows, and 43
   release-script tests plus the locked audit/security/type and Release artifact gates.
-- [x] Confirm the replacement archive contains no Google Sign-In SDK/client configuration, Gmail
-  permission or route, `/extract` client path, receipt-import UI/background task, Anthropic/shared
+- [x] Confirm the build-4 replacement archive contains no Google Sign-In SDK/client configuration,
+  Gmail permission or route, `/extract` client path, receipt-import UI/background task, Anthropic/shared
   backend secret, non-HTTPS production endpoint, or placeholder public link.
-- [x] Build the replacement archive with an accepted production Xcode/SDK. Xcode 26.6 with the iOS
-  26.5 SDK created the verified archive at `2026-08-21T06:36:33Z`. As of 28 April 2026,
+- [x] Build the build-4 replacement archive with an accepted production Xcode/SDK. Xcode 26.6 with
+  the iOS 26.5 SDK created the verified archive at `2026-08-21T06:36:33Z`. As of 28 April 2026,
   Apple requires uploads to use the iOS 26 SDK or later:
   [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
-- [x] Confirm the launch-screen key remains present in the replacement archive. Uploads built with
-  the iOS 27 SDK or later are validated for a launch-screen configuration:
+- [x] Confirm the launch-screen key remains present in the build-4 replacement archive. Uploads
+  built with the iOS 27 SDK or later are validated for a launch-screen configuration:
   [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
-- [x] Create and verify the replacement production-signed archive; record commit, version/build,
-  Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-artifact output.
+- [x] Create and verify the historical uploaded build-4 production-signed archive; record commit,
+  version/build, Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-
+  artifact output.
   The retained uploaded archive is
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; strict
   certificate/profile, scalar production App Attest, public-config, privacy-manifest, and Gmail-
@@ -97,30 +115,50 @@ or editable: [Required, localizable, and editable properties](https://developer.
 - [x] Repeat the payload-free manual operations review against the exact deployed backend
   immediately before validation/upload. The exact-v7 review passed at
   `2026-08-21T08:12:46Z` with no remediation required.
-- [x] Validate and export/upload exactly the newly recorded replacement archive; retain validation
-  and upload status, symbols, and an exported-artifact hash when an artifact is exported. Direct
-  Organizer upload of the exact replacement archive validated at 08:16Z and uploaded at 08:18Z;
-  App Store Connect reports symbols included. No standalone IPA was exported, so the retained
-  binary identity is executable SHA-256
+- [x] Validate and export/upload exactly the newly recorded build-4 replacement archive; retain
+  validation and upload status, symbols, and an exported-artifact hash when an artifact is exported.
+  Direct Organizer upload of the exact build-4 replacement archive validated at 08:16Z and
+  uploaded at 08:18Z; App Store Connect reports symbols included. No standalone IPA was exported,
+  so the retained binary identity is executable SHA-256
   `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6` plus matching app/dSYM UUID
   `5BA1F06E-7458-32A4-890F-36C8F22D9C13`. The formerly verified
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive` was superseded by
-  shipped Swift/backend changes and is not an upload target. The development-signed
+  shipped Swift/backend changes, was not the build-4 upload target, and remains ineligible for any
+  later upload. The development-signed
   `Wardrobe-1.0.0-4-dd3d990.xcarchive` is also ineligible.
-- [x] Distribute from Organizer using **TestFlight & App Store**. The exact replacement archive used
-  Xcode's normal App Store Connect route and processed successfully; **TestFlight Internal Only**
-  was not used, and the device-Release public configuration guard was not bypassed.
-- [ ] Install the candidate on a clean physical device and test first launch, offline/local use,
+- [x] Distribute from Organizer using **TestFlight & App Store**. The exact build-4 replacement
+  archive used Xcode's normal App Store Connect route and processed successfully; **TestFlight
+  Internal Only** was not used, and the device-Release public configuration guard was not bypassed.
+- [ ] Only after the runbook's build-4 identity-safe handoff passes, install processed build 5 on a
+  clean physical device and test first launch, offline/local use,
   Demo Mode, manual add, photo library/camera, catalog edit/delete, styling consent and withdrawal,
   Today/History, reminders, local deletion, separate server-security deletion, backend failure,
-  reinstall identity reset, and relaunch. Confirm no Google/Gmail UI or network path exists.
+  reinstall identity reset, and relaunch. Confirm no Google/Gmail UI or network path exists. Build 4
+  supplied only historical **PARTIAL** evidence: clean TestFlight install on iPhone 16 Pro/iOS 26.6;
+  0→1 production installations; first assertion/protected calls; cold renewal; expected runtime-
+  field absence; offline friendly failure with Wardrobe/History/Demo usable; online recovery at
+  `Styled 17:24` with assertions 1→2 and the current recommendation-installation window 0→1; manual
+  add/edit; Camera and Photo Library open/cancel; Demo; reminder permission/scheduling; and Wear/
+  History. A failed offline Restyle hid the cached look until relaunch/tap, so build 4 is not
+  promotable. Successful media selection, notification delivery, consent withdrawal, local/server
+  deletion, and the full build-5 repeat remain open.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
-  identity existed to delete. Install build 4 only from processed TestFlight, never over an older
-  app, and do not claim migration.
+  identity existed to delete. Build 4 was installed only from processed TestFlight and never over
+  the older app; do not claim migration.
+- [ ] Deploy and verify the repository's payload-free registration/assertion INFO success-marker
+  logging and production build `4,5` allowlist before build-5 QA. Protected `/recommend` remains
+  aggregate/client-evidenced. Live v7 still suppresses those two success markers. The latest
+  listed 14-day snapshot at `2026-08-21T07:32:23Z` predates build-4 enrollment, so server deletion/
+  reinstall and deletion-specific recovery remain paused and open.
 
 ## 5. Upload, review, and release
+
+Checked upload/processing/internal-assignment items below are historical build-4 facts.
+
+- [ ] Validate, upload, process, and internally assign only the verified build-5 archive using the
+  normal **TestFlight & App Store** route, then save truthful build-5 What to Test wording.
 
 - [x] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
   Build `1.0.0 (4)` completed processing by `2026-08-21T08:20:20Z` with no unresolved prompt.
@@ -128,9 +166,9 @@ or editable: [Required, localizable, and editable properties](https://developer.
   processed record shows the expected version/build and bundle, arm64 iPhone support, minimum iOS
   18.0, included symbols, no non-exempt encryption, and production App Attest entitlement.
 - [x] For the internal QA phase, add the processed build only to the intended Internal Testing
-  group and enter truthful What to Test notes. Build 4 is in the `Family` group and the approved
-  notes were saved on 2026-08-21. The separate clean physical-device evidence item above remains
-  open.
+  group and enter truthful What to Test notes. Build 4 is in the `Family` group and the saved
+  truthful wording reproduced in the runbook was saved on 2026-08-21. The separate build-5 upload
+  and clean physical-device evidence items above remain open.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
