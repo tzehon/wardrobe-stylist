@@ -106,6 +106,7 @@ struct OutfitRecommenderTests {
         _ context: ModelContext,
         dailyLookCache: any DailyLookCaching = DisabledDailyLookCache(),
         accountScope: WardrobeAccountScope = .deviceLocal,
+        loadSnapshot: OutfitRecommender.SnapshotLoader? = nil,
         now: @escaping () -> Date = { Date(timeIntervalSince1970: 1_700_000_000) }
     ) -> OutfitRecommender {
         var calendar = Calendar(identifier: .gregorian)
@@ -121,6 +122,7 @@ struct OutfitRecommenderTests {
             accountScope: accountScope,
             dailyLookCache: dailyLookCache,
             calendar: calendar,
+            loadSnapshot: loadSnapshot,
             now: now
         )
     }
@@ -151,6 +153,10 @@ struct OutfitRecommenderTests {
         }
 
         func rateOutfit(_ outfit: Outfit, feedback: Int) throws {}
+    }
+
+    private enum SnapshotFixtureError: Error {
+        case unavailable
     }
 
     nonisolated private static func ok(for request: URLRequest) -> HTTPURLResponse {
@@ -355,6 +361,196 @@ struct OutfitRecommenderTests {
         #expect(restored.isCached)
         #expect(restored.current.items.map(\.id) == [Self.idA, Self.idC])
         #expect(URLProtocolStub.captured.count == 2)
+    }
+
+    @Test func offlineCachedRefreshRetainsLookAndCacheUntilRetrySucceeds() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let firstBody = Self.body(
+            itemIds: [Self.idA, Self.idB],
+            alternates: [[Self.idA, Self.idC]]
+        )
+        let retryBody = Self.body(itemIds: [Self.idB, Self.idC])
+        URLProtocolStub.install { request in
+            switch URLProtocolStub.captured.count {
+            case 1:
+                return (Self.ok(for: request), Data(firstBody.utf8))
+            case 2:
+                throw URLError(.notConnectedToInternet)
+            default:
+                return (Self.ok(for: request), Data(retryBody.utf8))
+            }
+        }
+        defer { URLProtocolStub.reset() }
+
+        let first = Self.makeRecommender(context, dailyLookCache: cache)
+        await first.recommend()
+
+        let relaunched = Self.makeRecommender(context, dailyLookCache: cache)
+        await relaunched.recommend()
+        guard case .loaded(let cached) = relaunched.state else {
+            Issue.record("Expected the cached recommendation after relaunch")
+            return
+        }
+        #expect(cached.isCached)
+        #expect(cached.current.items.map(\.id) == [Self.idA, Self.idB])
+        #expect(URLProtocolStub.captured.count == 1)
+
+        await relaunched.recommend(refresh: true)
+
+        guard case .loaded(let retained) = relaunched.state else {
+            Issue.record("An offline refresh should retain the cached recommendation")
+            return
+        }
+        #expect(retained.isCached)
+        #expect(retained.current.items.map(\.id) == [Self.idA, Self.idB])
+        #expect(retained.generatedAt == cached.generatedAt)
+        #expect(
+            retained.refreshFailureMessage
+                == "You appear to be offline. Reconnect to style a new look. Any look saved earlier today remains stored on this device."
+        )
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(URLProtocolStub.captured.count == 2)
+
+        relaunched.showAnother()
+        guard case .loaded(let alternate) = relaunched.state else {
+            Issue.record("The retained recommendation should still expose its alternate")
+            return
+        }
+        #expect(alternate.index == 1)
+        #expect(alternate.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(alternate.refreshFailureMessage == retained.refreshFailureMessage)
+
+        let didWear = try relaunched.wearCurrent()
+        #expect(didWear)
+        guard case .loaded(let worn) = relaunched.state else {
+            Issue.record("Wearing the retained recommendation should keep it loaded")
+            return
+        }
+        #expect(worn.index == 1)
+        #expect(worn.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(worn.wasWornToday)
+        #expect(worn.refreshFailureMessage == retained.refreshFailureMessage)
+        #expect(try context.fetch(FetchDescriptor<Outfit>()).count == 1)
+
+        await relaunched.recommend(refresh: true)
+
+        guard case .loaded(let retried) = relaunched.state else {
+            Issue.record("Expected a successful retry to load a fresh recommendation")
+            return
+        }
+        #expect(!retried.isCached)
+        #expect(retried.current.items.map(\.id) == [Self.idB, Self.idC])
+        #expect(retried.refreshFailureMessage == nil)
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idB.uuidString,
+            Self.idC.uuidString,
+        ])
+        #expect(URLProtocolStub.captured.count == 3)
+    }
+
+    @Test func unresolvableRefreshRetainsLoadedAlternateAndDoesNotReplaceCache() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let missingID = UUID(uuidString: "44444444-4444-4444-8444-444444444444")!
+        let firstBody = Self.body(
+            itemIds: [Self.idA, Self.idB],
+            alternates: [[Self.idA, Self.idC]]
+        )
+        let invalidBody = Self.body(itemIds: [Self.idA, missingID])
+        URLProtocolStub.install { request in
+            let body = URLProtocolStub.captured.count == 1 ? firstBody : invalidBody
+            return (Self.ok(for: request), Data(body.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context, dailyLookCache: cache)
+        await recommender.recommend()
+        recommender.showAnother()
+        guard case .loaded(let original) = recommender.state else {
+            Issue.record("Expected the initial alternate recommendation")
+            return
+        }
+        #expect(original.index == 1)
+        #expect(original.current.items.map(\.id) == [Self.idA, Self.idC])
+
+        await recommender.recommend(refresh: true)
+
+        guard case .loaded(let retained) = recommender.state else {
+            Issue.record("An unresolvable refresh should retain the loaded recommendation")
+            return
+        }
+        #expect(!retained.isCached)
+        #expect(retained.index == original.index)
+        #expect(retained.current.items.map(\.id) == [Self.idA, Self.idC])
+        #expect(retained.generatedAt == original.generatedAt)
+        #expect(retained.refreshFailureMessage == "Aria's pick didn't match your wardrobe. Try again.")
+        let cachedEntry = try #require(cache.entries[.deviceLocal])
+        #expect(cachedEntry.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(!cachedEntry.response.itemIds.contains(missingID.uuidString))
+        #expect(URLProtocolStub.captured.count == 2)
+    }
+
+    @Test func wardrobeReadFailureDuringRefreshRetainsLoadedLookAndCache() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        try Self.seedCatalog(context)
+        let cache = MemoryDailyLookCache()
+        let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
+        URLProtocolStub.install { request in
+            (Self.ok(for: request), Data(responseBody.utf8))
+        }
+        defer { URLProtocolStub.reset() }
+        var snapshotLoadCount = 0
+
+        let recommender = Self.makeRecommender(
+            context,
+            dailyLookCache: cache,
+            loadSnapshot: {
+                snapshotLoadCount += 1
+                guard snapshotLoadCount == 1 else {
+                    throw SnapshotFixtureError.unavailable
+                }
+                return OutfitRecommender.WardrobeSnapshot(
+                    items: try context.fetch(FetchDescriptor<Item>()),
+                    outfits: try context.fetch(FetchDescriptor<Outfit>()),
+                    wears: try context.fetch(FetchDescriptor<WearLog>())
+                )
+            }
+        )
+        await recommender.recommend()
+        guard case .loaded(let original) = recommender.state else {
+            Issue.record("Expected the initial recommendation")
+            return
+        }
+
+        await recommender.recommend(refresh: true)
+
+        guard case .loaded(let retained) = recommender.state else {
+            Issue.record("A wardrobe read failure should retain the loaded recommendation")
+            return
+        }
+        #expect(retained.current.items.map(\.id) == original.current.items.map(\.id))
+        #expect(retained.generatedAt == original.generatedAt)
+        #expect(
+            retained.refreshFailureMessage
+                == "We couldn’t open your wardrobe for styling. Your items are still on this device. Please try again."
+        )
+        #expect(cache.entries[.deviceLocal]?.response.itemIds == [
+            Self.idA.uuidString,
+            Self.idB.uuidString,
+        ])
+        #expect(URLProtocolStub.captured.count == 1)
     }
 
     @Test func invalidResolvableCacheIsRemovedBeforeNetworkFallback() async throws {

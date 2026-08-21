@@ -170,6 +170,10 @@ struct TodayView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+                if let message = recommendation.refreshFailureMessage {
+                    refreshFailureBanner(message, recommender: recommender)
+                }
+
                 lookStrip(look)
 
                 Text(recommendation.colorStory)
@@ -189,6 +193,32 @@ struct TodayView: View {
             }
             .padding()
         }
+    }
+
+    private func refreshFailureBanner(
+        _ message: String,
+        recommender: OutfitRecommender
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Couldn't refresh this look", systemImage: "exclamationmark.triangle")
+                .font(.headline)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Try again") {
+                requestRestyle(recommender)
+            }
+            .buttonStyle(.bordered)
+            .disabled(activeStylingTask != nil || recommender.isRequestInFlight)
+            .accessibilityHint("Sends a new compact styling request while keeping this look available.")
+            .accessibilityIdentifier("today.refreshRetry")
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.12), in: .rect(cornerRadius: 12))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("today.refreshFailure")
     }
 
     private func lookStrip(_ look: OutfitRecommender.Look) -> some View {
