@@ -36,8 +36,11 @@ def test_production_container_pins_payload_free_uvicorn_command() -> None:
         "0.0.0.0",
         "--port",
         "8080",
+        "--log-config",
+        "/app/uvicorn-logging.json",
         "--no-access-log",
     ]
+    assert "COPY uvicorn-logging.json ./uvicorn-logging.json" in dockerfile
 
 
 def test_prepare_database_parent_creates_private_owned_directory(tmp_path: Path) -> None:
