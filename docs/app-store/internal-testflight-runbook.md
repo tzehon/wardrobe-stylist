@@ -135,17 +135,15 @@ an App Store release candidate from the moment it is archived. This prevents a s
   returns `404`, `/recommend` fails closed without authorization, and the payload-free
   post-deploy manual review passed at `2026-08-21T01:11:43Z`. Install build 4 only after TestFlight
   processing, never over an older app.
-- [ ] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
-  HTTPS domain and verify all three while signed out. The earlier Gmail-capable publication is
-  retained as history: `tzehon.github.io` PR #3 merged as
-  `7e919ef373782c22cc1500a31ed475ebfd75373c`; its Pages deployment succeeded, and anonymous HTTPS
-  requests returned `200` for `https://blog.tth.dev/wardrobe/` and
-  `https://blog.tth.dev/wardrobe/privacy/` at `2026-08-20T13:22:35Z`. PR #4 merged as
-  `ff27bbe3ed2d2c4e7d3041313c0745df7f09fe44`; its Pages deployment also succeeded, and an anonymous
-  HTTPS request returned `200` for `https://blog.tth.dev/wardrobe/terms/` at
-  `2026-08-20T13:52:35Z`. The three rendered pages linked to each other as intended. Local
-  Gmail-free revisions are prepared but must not be treated as published until a later Pages
-  deployment and signed-out verification succeed.
+- [x] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
+  HTTPS domain and verify all three while signed out. `tzehon.github.io` PR #5 merged as
+  `c5da090a0417bcda99fc6d328a0cdff808ea597d` at `2026-08-21T01:42:01Z`; the matching Pages run
+  completed successfully at `2026-08-21T01:42:39Z`. Anonymous HTTPS requests at
+  `2026-08-21T01:45:27Z` returned `200` for `https://blog.tth.dev/wardrobe/`,
+  `https://blog.tth.dev/wardrobe/privacy/`, and `https://blog.tth.dev/wardrobe/terms/`. The rendered
+  pages showed the 21 August 2026 effective date where applicable, linked to each other, and
+  contained no Gmail/Google/OAuth/import capability claim. This closes the publication sub-gate;
+  provider terms, App Privacy, and final store answers remain separate APP-016 work.
 - [ ] Complete or explicitly defer the remaining App Store Connect record/media work in
   `APP-016` through `APP-018`. Deferral does not permit binary/configuration shortcuts.
 

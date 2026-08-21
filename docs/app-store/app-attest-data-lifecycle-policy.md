@@ -5,9 +5,8 @@
 - **Manual-operations revision approved:** 2026-08-20
 - **Release compliance:** Repository enforcement and exact Gmail-free policy-image v6 deployment
   complete; Fly provider and manual-operations boundaries explicitly accepted; required manual
-  reviews to date complete; monitored public support/privacy/Terms routes live. APP-016's
-  Gmail-free page republish, snapshot-list expiry, and deletion-specific recovery evidence remain
-  incomplete
+  reviews to date complete; Gmail-free public support/privacy/Terms routes live. Snapshot-list
+  expiry and deletion-specific recovery evidence remain incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -373,9 +372,12 @@ Required before APP-009 can close:
   A payload-free inbound-routing rehearsal sent at `2026-08-19T13:20:04Z` was confirmed delivered
   by the owner on 2026-08-19; no message body, mailbox contents, or identifiers are retained as
   release evidence.
-  This check remains valid for monitored routing and the server-deletion procedure. The later
-  APP-036 Gmail-free product decision reopens the candidate-copy publication gate under APP-016;
-  locally edited pages are not publication evidence until deployed and verified signed out.
+  This check remains valid for monitored routing and the server-deletion procedure. APP-036's
+  Gmail-free revision then shipped through `tzehon.github.io` PR #5 as
+  `c5da090a0417bcda99fc6d328a0cdff808ea597d` at `2026-08-21T01:42:01Z`; its Pages deployment
+  completed successfully at `2026-08-21T01:42:39Z`. Anonymous HTTPS checks at
+  `2026-08-21T01:45:27Z` returned `200` for support, privacy, and Terms, confirmed reciprocal links
+  and the 21 August 2026 effective date, and found no Gmail/Google/OAuth/import capability wording.
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.

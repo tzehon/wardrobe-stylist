@@ -1,11 +1,11 @@
 # Wardrobe Stylist privacy policy — publication source
 
-> Source for the Gmail-free candidate's next public-page revision. Reconcile it with the exact
-> submitted build, final request-capture tests, current linked provider terms, and App Privacy
-> answers before republishing. The current live page still describes the earlier Gmail-capable
-> build until this revision is deliberately published.
+> Internal publication source for the Gmail-free policy published by `tzehon.github.io` PR #5 at
+> `c5da090a0417bcda99fc6d328a0cdff808ea597d`. Reconcile future revisions with the exact submitted
+> build, final request-capture tests, current linked provider terms, and App Privacy answers before
+> republishing.
 
-- **Effective date:** 20 August 2026
+- **Effective date:** 21 August 2026
 - **Developer:** Tan Tze Hon
 - **Initial App Store availability:** Singapore
 - **Privacy contact:** `contact@tth.dev`
