@@ -10,6 +10,48 @@ struct AppAttestAuthorizationTests {
     private let baseURL = URL(string: "https://backend.example")!
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
+    @Test func legacyCredentialDecodesWithNoPendingDeletionFence() throws {
+        let keyID = Self.keyID(byte: 0x10)
+        let legacy = Data(
+            #"{"keyID":"\#(keyID)","isRegistered":true,"pendingEnrollment":null}"#.utf8
+        )
+
+        let credential = try JSONDecoder().decode(AppAttestCredential.self, from: legacy)
+
+        #expect(credential == AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        ))
+        #expect(!credential.deletionPendingConfirmation)
+    }
+
+    @Test func malformedPendingDeletionFenceStillFailsCredentialDecoding() {
+        let keyID = Self.keyID(byte: 0x10)
+        let malformed = Data(
+            #"{"keyID":"\#(keyID)","isRegistered":true,"pendingEnrollment":null,"deletionPendingConfirmation":"yes"}"#.utf8
+        )
+
+        #expect(throws: DecodingError.self) {
+            _ = try JSONDecoder().decode(AppAttestCredential.self, from: malformed)
+        }
+    }
+
+    @Test func pendingDeletionFenceRoundTripsInTheStoredCredential() throws {
+        let credential = AppAttestCredential(
+            keyID: Self.keyID(byte: 0x10),
+            isRegistered: true,
+            pendingEnrollment: nil,
+            deletionPendingConfirmation: true
+        )
+
+        let encoded = try JSONEncoder().encode(credential)
+        let decoded = try JSONDecoder().decode(AppAttestCredential.self, from: encoded)
+
+        #expect(decoded == credential)
+        #expect(decoded.deletionPendingConfirmation)
+    }
+
     @Test func enrollsANewInstallationAndCachesTheShortLivedSession() async throws {
         let challenge = Data(repeating: 0x1a, count: 32)
         let newKeyID = Self.keyID(byte: 0x11)
@@ -157,6 +199,44 @@ struct AppAttestAuthorizationTests {
         #expect(await service.assertionHashes == [Data(SHA256.hash(data: clientData))])
     }
 
+    @Test func deletionProofIsNotDispatchedUntilThePersistentFenceIsSaved() async {
+        let keyID = Self.keyID(byte: 0x72)
+        let credential = AppAttestCredential(
+            keyID: keyID,
+            isRegistered: true,
+            pendingEnrollment: nil
+        )
+        let store = FakeAppAttestCredentialStore(
+            credential: credential,
+            saveError: .invalidCredentialStorage
+        )
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data([0xd1])
+        )
+        URLProtocolStub.install { request in
+            guard request.url?.path == "/auth/app-attest/challenge" else {
+                Issue.record("DELETE must not dispatch without a durable local fence")
+                return (Self.response(500, request: request), nil)
+            }
+            return (
+                Self.response(200, request: request),
+                Data(#"{"challenge_id":"fence-save","challenge":"\#(Self.base64URL(Data(repeating: 0x73, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        await #expect(throws: AppAttestAuthorizationError.invalidCredentialStorage) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        #expect(await store.credential == credential)
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge",
+        ])
+    }
+
     @Test func maintenancePendingDeletionPreservesCredentialButFencesAuthorization() async throws {
         let keyID = Self.keyID(byte: 0x73)
         let credential = AppAttestCredential(
@@ -172,6 +252,7 @@ struct AppAttestAuthorizationTests {
         let store = FakeAppAttestCredentialStore(credential: credential)
         let token = Self.sessionToken("preserved-session")
         nonisolated(unsafe) var challengeIndex = 0
+        nonisolated(unsafe) var deletionAttempt = 0
         URLProtocolStub.install { request in
             switch request.url?.path {
             case "/auth/app-attest/challenge":
@@ -186,10 +267,14 @@ struct AppAttestAuthorizationTests {
                     Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
                 )
             case "/auth/app-attest/delete":
-                return (
-                    Self.response(503, request: request),
-                    Data(#"{"detail":{"code":"deletion_maintenance_pending"}}"#.utf8)
-                )
+                defer { deletionAttempt += 1 }
+                if deletionAttempt == 0 {
+                    return (
+                        Self.response(503, request: request),
+                        Data(#"{"detail":{"code":"deletion_maintenance_pending"}}"#.utf8)
+                    )
+                }
+                return (Self.response(204, request: request), nil)
             default:
                 Issue.record("Unexpected transient-deletion path")
                 return (Self.response(500, request: request), nil)
@@ -205,7 +290,9 @@ struct AppAttestAuthorizationTests {
         )) {
             _ = try await authorization.deleteServerIdentity()
         }
-        #expect(await store.credential == credential)
+        var pendingCredential = credential
+        pendingCredential.deletionPendingConfirmation = true
+        #expect(await store.credential == pendingCredential)
         #expect(await store.removeCount == 0)
         let requestsAfterDeletion = URLProtocolStub.captured.count
         await #expect(throws: AppAttestAuthorizationError.retiredSession) {
@@ -215,6 +302,15 @@ struct AppAttestAuthorizationTests {
             _ = try await authorization.accessToken(rejecting: nil)
         }
         #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+
+        let relaunched = makeAuthorization(service: service, store: store)
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await relaunched.accessToken(rejecting: nil)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(try await relaunched.deleteServerIdentity() == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
         #expect(await service.generatedKeyCount == 0)
     }
 
@@ -233,6 +329,7 @@ struct AppAttestAuthorizationTests {
         let store = FakeAppAttestCredentialStore(credential: credential)
         let token = Self.sessionToken("lost-deletion-response")
         nonisolated(unsafe) var challengeIndex = 0
+        nonisolated(unsafe) var deletionAttempt = 0
         URLProtocolStub.install { request in
             switch request.url?.path {
             case "/auth/app-attest/challenge":
@@ -247,7 +344,9 @@ struct AppAttestAuthorizationTests {
                     Data(#"{"access_token":"\#(token)","token_type":"Bearer","expires_in":900,"expires_at":"2027-01-15T08:15:00Z","installation_id":"10000000-0000-0000-0000-000000000001"}"#.utf8)
                 )
             case "/auth/app-attest/delete":
-                throw URLError(.timedOut)
+                defer { deletionAttempt += 1 }
+                if deletionAttempt == 0 { throw URLError(.timedOut) }
+                return (Self.response(204, request: request), nil)
             default:
                 Issue.record("Unexpected lost-response deletion path")
                 return (Self.response(500, request: request), nil)
@@ -260,7 +359,9 @@ struct AppAttestAuthorizationTests {
         await #expect(throws: AppAttestAuthorizationError.network(.timedOut)) {
             _ = try await authorization.deleteServerIdentity()
         }
-        #expect(await store.credential == credential)
+        var pendingCredential = credential
+        pendingCredential.deletionPendingConfirmation = true
+        #expect(await store.credential == pendingCredential)
         #expect(await store.removeCount == 0)
         let requestsAfterDeletion = URLProtocolStub.captured.count
         await #expect(throws: AppAttestAuthorizationError.retiredSession) {
@@ -270,6 +371,15 @@ struct AppAttestAuthorizationTests {
             _ = try await authorization.accessToken(rejecting: nil)
         }
         #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+
+        let relaunched = makeAuthorization(service: service, store: store)
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await relaunched.accessToken(rejecting: nil)
+        }
+        #expect(URLProtocolStub.captured.count == requestsAfterDeletion)
+        #expect(try await relaunched.deleteServerIdentity() == .deleted)
+        #expect(await store.credential == nil)
+        #expect(await store.removeCount == 1)
         #expect(await service.generatedKeyCount == 0)
     }
 
@@ -681,6 +791,43 @@ struct AppAttestAuthorizationTests {
         #expect(URLProtocolStub.captured.map(\.url?.path) == [
             "/auth/app-attest/challenge",
         ])
+    }
+
+    @Test func pendingDeletionFenceSurvivesAnInvalidKeyUntilServerAbsenceIsConfirmed() async {
+        let invalidKey = NSError(
+            domain: DCError.errorDomain,
+            code: DCError.Code.invalidKey.rawValue
+        )
+        let credential = AppAttestCredential(
+            keyID: Self.keyID(byte: 0xbc),
+            isRegistered: true,
+            pendingEnrollment: nil,
+            deletionPendingConfirmation: true
+        )
+        let store = FakeAppAttestCredentialStore(credential: credential)
+        let service = FakeAppAttestService(
+            generatedKeyID: "unused",
+            attestation: Data(),
+            assertion: Data(),
+            assertionError: invalidKey
+        )
+        URLProtocolStub.install { request in
+            (
+                Self.response(200, request: request),
+                Data(#"{"challenge_id":"pending-invalid-key","challenge":"\#(Self.base64URL(Data(repeating: 0xbd, count: 32)))","expires_at":"2027-01-15T08:15:00Z"}"#.utf8)
+            )
+        }
+        defer { URLProtocolStub.reset() }
+
+        let authorization = makeAuthorization(service: service, store: store)
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await authorization.deleteServerIdentity()
+        }
+        #expect(await store.credential == credential)
+        #expect(await store.removeCount == 0)
+        await #expect(throws: AppAttestAuthorizationError.deletionConfirmationPending) {
+            _ = try await authorization.accessToken(rejecting: nil)
+        }
     }
 
     @Test func missingCredentialDoesNotClaimAnInaccessibleIdentityWasDeleted() async throws {
@@ -1750,16 +1897,19 @@ private final class LockedTestDate: @unchecked Sendable {
 private actor FakeAppAttestCredentialStore: AppAttestCredentialStoring {
     var credential: AppAttestCredential?
     private var loadError: AppAttestAuthorizationError?
+    private let saveError: AppAttestAuthorizationError?
     private let removeError: AppAttestAuthorizationError?
     private(set) var removeCount = 0
 
     init(
         credential: AppAttestCredential? = nil,
         loadError: AppAttestAuthorizationError? = nil,
+        saveError: AppAttestAuthorizationError? = nil,
         removeError: AppAttestAuthorizationError? = nil
     ) {
         self.credential = credential
         self.loadError = loadError
+        self.saveError = saveError
         self.removeError = removeError
     }
 
@@ -1771,7 +1921,8 @@ private actor FakeAppAttestCredentialStore: AppAttestCredentialStoring {
         return credential
     }
 
-    func save(_ credential: AppAttestCredential) {
+    func save(_ credential: AppAttestCredential) throws {
+        if let saveError { throw saveError }
         self.credential = credential
     }
 

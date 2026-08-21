@@ -44,6 +44,42 @@ struct AppAttestCredential: Codable, Equatable, Sendable {
     let keyID: String
     var isRegistered: Bool
     var pendingEnrollment: PendingEnrollment?
+    var deletionPendingConfirmation: Bool
+
+    init(
+        keyID: String,
+        isRegistered: Bool,
+        pendingEnrollment: PendingEnrollment?,
+        deletionPendingConfirmation: Bool = false
+    ) {
+        self.keyID = keyID
+        self.isRegistered = isRegistered
+        self.pendingEnrollment = pendingEnrollment
+        self.deletionPendingConfirmation = deletionPendingConfirmation
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case keyID
+        case isRegistered
+        case pendingEnrollment
+        case deletionPendingConfirmation
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        keyID = try container.decode(String.self, forKey: .keyID)
+        isRegistered = try container.decode(Bool.self, forKey: .isRegistered)
+        pendingEnrollment = try container.decodeIfPresent(
+            PendingEnrollment.self,
+            forKey: .pendingEnrollment
+        )
+        // Credentials written before the persistent deletion fence was added
+        // remain valid and decode as an ordinary active installation.
+        deletionPendingConfirmation = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .deletionPendingConfirmation
+        ) ?? false
+    }
 }
 
 protocol AppAttestCredentialStoring: Sendable {
@@ -438,9 +474,9 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
             throw AppAttestAuthorizationError.unsupportedDevice
         }
 
-        let credential: AppAttestCredential?
+        let loadedCredential: AppAttestCredential?
         do {
-            credential = try await credentialStore.load()
+            loadedCredential = try await credentialStore.load()
         } catch AppAttestAuthorizationError.invalidCredentialStorage {
             try await finishLocalServerIdentityDeletion()
             return .noVerifiableIdentity
@@ -449,7 +485,7 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         } catch {
             throw AppAttestAuthorizationError.invalidCredentialStorage
         }
-        guard let credential else {
+        guard var credential = loadedCredential else {
             // A missing Keychain credential means this installation can no
             // longer prove control of the server identity. Do not leave a
             // memory-only bearer usable after reporting that state.
@@ -488,6 +524,15 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
             )
         } catch {
             guard Self.isAppAttestInvalidKey(error) else { throw error }
+            if credential.deletionPendingConfirmation {
+                // An earlier DELETE may already have committed. Losing access
+                // to the retained key is not proof of server absence, so keep
+                // the durable fence. A later retry can still observe the
+                // server's definitive unknown-key response after retention.
+                deletionPendingConfirmation = true
+                retireReturnedSessionsAndClearMemory()
+                throw AppAttestAuthorizationError.deletionConfirmationPending
+            }
             // Apple can no longer produce possession proof for this key. The
             // inaccessible server row therefore falls back to inactivity
             // expiry, while this process must stop publishing its sessions.
@@ -498,6 +543,10 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         // response failure is ambiguous. Fence existing bearers before the
         // request leaves this actor, retain the key for a safe retry, and do
         // not permit re-enrollment until absence is confirmed.
+        if !credential.deletionPendingConfirmation {
+            credential.deletionPendingConfirmation = true
+            try await saveCredential(credential)
+        }
         deletionPendingConfirmation = true
         retireReturnedSessionsAndClearMemory()
         do {
@@ -553,6 +602,10 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         }
 
         if let credential = storedCredential {
+            if credential.deletionPendingConfirmation {
+                deletionPendingConfirmation = true
+                throw AppAttestAuthorizationError.deletionConfirmationPending
+            }
             if credential.isRegistered {
                 do {
                     return try await assertSession(with: credential.keyID)
@@ -942,6 +995,9 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
 
     private static func isStructurallyValid(_ credential: AppAttestCredential) -> Bool {
         guard isCanonicalKeyID(credential.keyID) else { return false }
+        if credential.deletionPendingConfirmation {
+            return credential.isRegistered && credential.pendingEnrollment == nil
+        }
         if credential.isRegistered {
             return credential.pendingEnrollment == nil
         }
