@@ -144,8 +144,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   pages showed the 21 August 2026 effective date where applicable, linked to each other, and
   contained no Gmail/Google/OAuth/import capability claim. This closes the publication sub-gate;
   provider terms, App Privacy, and final store answers remain separate APP-016 work.
-- [ ] Complete or explicitly defer the remaining App Store Connect record/media work in
-  `APP-016` through `APP-018`. Deferral does not permit binary/configuration shortcuts.
+- [x] Explicitly defer the remaining App Store Connect record/media work in `APP-016` through
+  `APP-018` for the internal TestFlight build only. Those items remain open and must be completed
+  before App Store submission; this sequencing decision permits no binary, signing,
+  configuration, privacy, or review-evidence shortcut.
 
 ## Mandatory clean-uninstall transition for build 4
 
