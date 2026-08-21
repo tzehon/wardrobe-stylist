@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://wardrobe-stylist/schemas/outfit.schema.json",
-  "title": "OutfitRecommendation",
-  "description": "Result of POST /recommend — a daily outfit Aria proposes from the user's catalog (the `propose_outfit` tool). Item references are catalog UUIDs the caller supplied; the backend rejects any id it didn't send. The iOS app and the backend both validate against this; their language-native models must stay in sync.",
+  "title": "RecommendResponse",
+  "description": "Complete POST /recommend response — a daily outfit Aria proposes from the user's catalog plus bounded Anthropic token counts. Item references are catalog UUIDs the caller supplied; the backend rejects any id it didn't send. The iOS app and the backend both validate against this; their language-native models must stay in sync.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["occasion", "color_story", "rationale", "item_ids", "alternates"],
+  "required": ["occasion", "color_story", "rationale", "item_ids", "alternates", "usage"],
   "properties": {
     "occasion": {
       "type": "string",
@@ -34,6 +34,9 @@
       "description": "Alternative looks powering 'show me another'. May be empty when the catalog is too small to vary.",
       "maxItems": 4,
       "items": { "$ref": "#/$defs/AlternateOutfit" }
+    },
+    "usage": {
+      "$ref": "#/$defs/TokenUsage"
     }
   },
   "$defs": {
@@ -59,6 +62,23 @@
           "minLength": 1,
           "description": "One line on what makes this alternative distinct from the primary look."
         }
+      }
+    },
+    "TokenUsage": {
+      "type": "object",
+      "description": "Non-negative token counts reported by Anthropic for this request.",
+      "additionalProperties": false,
+      "required": [
+        "input_tokens",
+        "output_tokens",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens"
+      ],
+      "properties": {
+        "input_tokens": { "type": "integer", "minimum": 0 },
+        "output_tokens": { "type": "integer", "minimum": 0 },
+        "cache_creation_input_tokens": { "type": "integer", "minimum": 0 },
+        "cache_read_input_tokens": { "type": "integer", "minimum": 0 }
       }
     }
   }

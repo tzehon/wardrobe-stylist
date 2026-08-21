@@ -160,6 +160,9 @@ final class WardrobeStore: WardrobeStoring {
         try validateItemFields(
             name: input.name,
             category: input.category,
+            brand: input.brand,
+            colors: input.colors,
+            material: input.material,
             purchasePrice: input.purchasePrice,
             purchaseCurrency: input.purchaseCurrency,
             operation: .addItem
@@ -206,6 +209,9 @@ final class WardrobeStore: WardrobeStoring {
         try validateItemFields(
             name: input.name,
             category: input.category,
+            brand: input.brand,
+            colors: input.colors,
+            material: input.material,
             purchasePrice: input.purchasePrice,
             purchaseCurrency: input.purchaseCurrency,
             operation: .updateItem
@@ -376,6 +382,9 @@ final class WardrobeStore: WardrobeStoring {
     private func validateItemFields(
         name: String,
         category: String,
+        brand: String?,
+        colors: [String],
+        material: String?,
         purchasePrice: Double?,
         purchaseCurrency: String?,
         operation: WardrobePersistenceError.Operation
@@ -386,8 +395,31 @@ final class WardrobeStore: WardrobeStoring {
                 $0.isASCII && CharacterSet.uppercaseLetters.contains($0)
             }
         } ?? true
+        let validBrand = brand.map { value in
+            RecommendContractLimits.isWithin(
+                value,
+                maximum: RecommendContractLimits.maximumBrandLength
+            )
+        } ?? true
+        let validMaterial = material.map { value in
+            RecommendContractLimits.isWithin(
+                value,
+                maximum: RecommendContractLimits.maximumMaterialLength
+            )
+        } ?? true
         guard !name.trimmedRequired.isEmpty,
               !category.trimmedRequired.isEmpty,
+              RecommendContractLimits.isWithin(
+                  name,
+                  maximum: RecommendContractLimits.maximumNameLength
+              ),
+              RecommendContractLimits.isWithin(
+                  category,
+                  maximum: RecommendContractLimits.maximumCategoryLength
+              ),
+              validBrand,
+              colors.count <= RecommendContractLimits.maximumColors,
+              validMaterial,
               validPrice,
               validCurrency else {
             throw WardrobePersistenceError(

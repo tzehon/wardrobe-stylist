@@ -13,7 +13,7 @@ import jsonschema
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.recommendation import OutfitRecommendation
+from app.schemas.recommendation import RecommendResponse
 
 SCHEMA_PATH = (
     Path(__file__).resolve().parents[2] / "shared" / "schemas" / "outfit.schema.json"
@@ -24,6 +24,12 @@ A = "11111111-1111-4111-8111-111111111111"
 B = "22222222-2222-4222-8222-222222222222"
 C = "33333333-3333-4333-8333-333333333333"
 D = "44444444-4444-4444-8444-444444444444"
+USAGE = {
+    "input_tokens": 100,
+    "output_tokens": 50,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 25,
+}
 
 
 @pytest.fixture(scope="module")
@@ -42,6 +48,7 @@ VALID_FIXTURES: list[dict[str, Any]] = [
             {"item_ids": [A, D], "rationale": "Swap in the dark denim for an evening edge."},
             {"item_ids": [B, C], "rationale": "Drop the layer when it warms up."},
         ],
+        "usage": USAGE,
     },
     # Minimal: exactly two items, no alternates.
     {
@@ -50,6 +57,7 @@ VALID_FIXTURES: list[dict[str, Any]] = [
         "rationale": "A clean, single-tone column reads sharp without effort.",
         "item_ids": [A, B],
         "alternates": [],
+        "usage": USAGE,
     },
 ]
 
@@ -61,6 +69,7 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "rationale": "x",
         "item_ids": [A],
         "alternates": [],
+        "usage": USAGE,
     },
     # Missing required rationale.
     {
@@ -68,6 +77,7 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "color_story": "x",
         "item_ids": [A, B],
         "alternates": [],
+        "usage": USAGE,
     },
     # Unknown top-level property.
     {
@@ -77,6 +87,7 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "item_ids": [A, B],
         "alternates": [],
         "weather": "sunny",
+        "usage": USAGE,
     },
     # Alternate missing its rationale.
     {
@@ -85,6 +96,7 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "rationale": "x",
         "item_ids": [A, B],
         "alternates": [{"item_ids": [A, B]}],
+        "usage": USAGE,
     },
     # Too many alternates (above maxItems 4).
     {
@@ -93,6 +105,7 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "rationale": "x",
         "item_ids": [A, B],
         "alternates": [{"item_ids": [A, B], "rationale": "r"}] * 5,
+        "usage": USAGE,
     },
     # Empty primary look.
     {
@@ -101,6 +114,33 @@ INVALID_FIXTURES: list[dict[str, Any]] = [
         "rationale": "x",
         "item_ids": [],
         "alternates": [],
+        "usage": USAGE,
+    },
+    # Missing required wire-level usage.
+    {
+        "occasion": "x",
+        "color_story": "x",
+        "rationale": "x",
+        "item_ids": [A, B],
+        "alternates": [],
+    },
+    # Unknown usage property remains forbidden.
+    {
+        "occasion": "x",
+        "color_story": "x",
+        "rationale": "x",
+        "item_ids": [A, B],
+        "alternates": [],
+        "usage": {**USAGE, "private_payload": 1},
+    },
+    # Token counts cannot be negative.
+    {
+        "occasion": "x",
+        "color_story": "x",
+        "rationale": "x",
+        "item_ids": [A, B],
+        "alternates": [],
+        "usage": {**USAGE, "output_tokens": -1},
     },
 ]
 
@@ -112,7 +152,7 @@ def test_valid_fixtures_pass_jsonschema(schema: dict[str, Any], fixture: dict[st
 
 @pytest.mark.parametrize("fixture", VALID_FIXTURES)
 def test_valid_fixtures_pass_pydantic(fixture: dict[str, Any]) -> None:
-    OutfitRecommendation.model_validate(fixture)
+    RecommendResponse.model_validate(fixture)
 
 
 @pytest.mark.parametrize("fixture", INVALID_FIXTURES)
@@ -126,4 +166,4 @@ def test_invalid_fixtures_fail_jsonschema(
 @pytest.mark.parametrize("fixture", INVALID_FIXTURES)
 def test_invalid_fixtures_fail_pydantic(fixture: dict[str, Any]) -> None:
     with pytest.raises(ValidationError):
-        OutfitRecommendation.model_validate(fixture)
+        RecommendResponse.model_validate(fixture)

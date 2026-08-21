@@ -5,8 +5,13 @@ dropped, unsalvageable primary -> 502), schema-validation failure -> 502, auth,
 and the missing-tool-call defensive path.
 """
 
+import json
+from pathlib import Path
+
 import anthropic
 import httpx
+import jsonschema
+import pytest
 
 from app.agents.stylist import StylistError
 from tests.conftest import (
@@ -84,6 +89,35 @@ def test_recommend_returns_structured_outfit(client, fake_anthropic, auth_header
     assert D in user_content
     assert "Rated item preferences" in user_content
     assert f"id={A}, average=4.50, ratings=2" in user_content
+
+
+def test_recommend_wire_response_matches_shared_schema(
+    client,
+    fake_anthropic,
+    auth_headers,
+):
+    _queue(
+        fake_anthropic,
+        {
+            "occasion": "smart office",
+            "color_story": "navy and warm tan",
+            "rationale": "A clean, balanced work look.",
+            "item_ids": [A, B, C],
+            "alternates": [],
+        },
+    )
+
+    response = client.post("/recommend", json=_request_body(), headers=auth_headers)
+
+    assert response.status_code == 200, response.text
+    schema_path = (
+        Path(__file__).resolve().parents[2]
+        / "shared"
+        / "schemas"
+        / "outfit.schema.json"
+    )
+    schema = json.loads(schema_path.read_text())
+    jsonschema.validate(instance=response.json(), schema=schema)
 
 
 def test_recommend_rejects_out_of_range_preference(client, fake_anthropic, auth_headers):
@@ -169,6 +203,50 @@ def test_recommend_502_when_primary_unsalvageable(client, fake_anthropic, auth_h
     )
     resp = client.post("/recommend", json=_request_body(), headers=auth_headers)
     assert resp.status_code == 502
+
+
+@pytest.mark.parametrize(
+    "malformed_fields",
+    [
+        {"item_ids": f"{A}{B}"},
+        {"item_ids": [A, B, 7]},
+        {"alternates": None},
+        {"alternates": {"item_ids": [A, B], "rationale": "not an array"}},
+        {"alternates": [None]},
+        {"alternates": [{"item_ids": f"{A}{B}", "rationale": "bad ids"}]},
+    ],
+)
+def test_recommend_502_on_malformed_nested_tool_shapes(
+    client,
+    fake_anthropic,
+    auth_headers,
+    caplog,
+    malformed_fields,
+):
+    private_model_text = "PRIVATE_MALFORMED_MODEL_TEXT_2417"
+    tool_input = {
+        "occasion": "x",
+        "color_story": "x",
+        "rationale": private_model_text,
+        "item_ids": [A, B],
+        "alternates": [],
+    }
+    tool_input.update(malformed_fields)
+    _queue(fake_anthropic, tool_input)
+
+    with caplog.at_level("WARNING", logger="app.routes.recommend"):
+        response = client.post("/recommend", json=_request_body(), headers=auth_headers)
+
+    route_log = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.routes.recommend"
+    )
+    assert response.status_code == 502
+    assert response.json()["detail"] == "The AI service returned an unusable response."
+    assert route_log == "stylist_failure code=unsalvageable_outfit"
+    assert private_model_text not in route_log
+    assert private_model_text not in response.text
 
 
 def test_recommend_502_on_invalid_tool_input(

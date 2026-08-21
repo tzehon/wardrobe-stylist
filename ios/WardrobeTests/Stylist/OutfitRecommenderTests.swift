@@ -178,7 +178,9 @@ struct OutfitRecommenderTests {
         return """
         {"occasion": "relaxed weekend", "color_story": "soft neutrals",
          "rationale": "Easy and cohesive.", "item_ids": [\(primary)],
-         "alternates": [\(alts)], "usage": {"input_tokens": 100, "output_tokens": 40}}
+         "alternates": [\(alts)],
+         "usage": {"input_tokens": 100, "output_tokens": 40,
+                   "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}}
         """
     }
 
@@ -376,7 +378,12 @@ struct OutfitRecommenderTests {
                 rationale: "missing ids",
                 itemIds: [UUID().uuidString, UUID().uuidString],
                 alternates: [],
-                usage: [:]
+                usage: RecommendUsage(
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    cacheCreationInputTokens: 0,
+                    cacheReadInputTokens: 0
+                )
             )
         )
         let responseBody = Self.body(itemIds: [Self.idA, Self.idB])
@@ -702,6 +709,70 @@ struct OutfitRecommenderTests {
             Issue.record("Expected an empty styleable catalog, got \(recommender.state)")
             return
         }
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func legacyOversizedItemShowsCatalogRecoveryWithoutSendingData() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        context.insert(Item(
+            id: Self.idA,
+            name: String(repeating: "n", count: 257),
+            category: "top",
+            source: .manual
+        ))
+        context.insert(Item(
+            id: Self.idB,
+            name: "Trouser",
+            category: "bottom",
+            source: .manual
+        ))
+        try context.save()
+        URLProtocolStub.install { _ in
+            Issue.record("An oversized local item must not reach the network")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context)
+        await recommender.recommend()
+
+        guard case .failed(let message) = recommender.state else {
+            Issue.record("Expected an explicit catalog recovery failure")
+            return
+        }
+        #expect(message == RecommendRequestValidationIssue
+            .catalogFieldTooLong(.name).recoveryMessage)
+        #expect(message.contains("Catalog"))
+        #expect(URLProtocolStub.captured.isEmpty)
+    }
+
+    @Test func catalogOverOneThousandItemsShowsArchiveRecoveryWithoutSendingData() async throws {
+        let container = try Self.makeContainer()
+        let context = ModelContext(container)
+        for index in 0...RecommendContractLimits.maximumItems {
+            context.insert(Item(
+                name: "Item \(index)",
+                category: index.isMultiple(of: 2) ? "top" : "bottom",
+                source: .manual
+            ))
+        }
+        try context.save()
+        URLProtocolStub.install { _ in
+            Issue.record("An oversized catalog must not reach the network")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+
+        let recommender = Self.makeRecommender(context)
+        await recommender.recommend()
+
+        guard case .failed(let message) = recommender.state else {
+            Issue.record("Expected an explicit archive recovery failure")
+            return
+        }
+        #expect(message == RecommendRequestValidationIssue.itemCount(1_001).recoveryMessage)
+        #expect(message.contains("Archive at least 1 item"))
         #expect(URLProtocolStub.captured.isEmpty)
     }
 

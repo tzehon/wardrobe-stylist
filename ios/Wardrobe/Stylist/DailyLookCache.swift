@@ -2,7 +2,9 @@ import CryptoKit
 import Foundation
 
 struct DailyLookCacheEntry: Codable, Equatable, Sendable {
-    static let currentFormatVersion = 1
+    // v2 replaces the free-form usage dictionary with the exact typed wire
+    // contract. Older entries are intentionally purged rather than migrated.
+    static let currentFormatVersion = 2
 
     let formatVersion: Int
     let generatedAt: Date

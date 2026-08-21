@@ -44,15 +44,18 @@ struct WardrobeStoreTests {
 
     private func itemInput(
         name: String = "Navy shirt",
-        category: String = "top"
+        category: String = "top",
+        brand: String? = nil,
+        colors: [String] = [],
+        material: String? = nil
     ) -> ManualItemInput {
         ManualItemInput(
             name: name,
             category: category,
             subcategory: nil,
-            brand: nil,
-            colors: [],
-            material: nil,
+            brand: brand,
+            colors: colors,
+            material: material,
             styleNotes: nil,
             size: nil,
             purchaseDate: nil,
@@ -66,15 +69,18 @@ struct WardrobeStoreTests {
 
     private func updateInput(
         name: String = "Updated linen shirt",
-        category: String = "outerwear"
+        category: String = "outerwear",
+        brand: String? = "Atelier",
+        colors: [String] = ["navy", "white"],
+        material: String? = "linen"
     ) -> ItemUpdateInput {
         ItemUpdateInput(
             name: name,
             category: category,
             subcategory: "overshirt",
-            brand: "Atelier",
-            colors: ["navy", "white"],
-            material: "linen",
+            brand: brand,
+            colors: colors,
+            material: material,
             styleNotes: "Relaxed fit",
             size: "M",
             purchaseDate: Date(timeIntervalSince1970: 1_700_000_000),
@@ -90,6 +96,74 @@ struct WardrobeStoreTests {
         let item = try WardrobeStore(modelContext: fixture.context).addItem(itemInput())
 
         #expect(try fixture.context.fetch(FetchDescriptor<Item>()).map(\.id) == [item.id])
+        #expect(!fixture.context.hasChanges)
+    }
+
+    @Test func addAcceptsExactStylingContractFieldBoundaries() throws {
+        let fixture = try makeFixture()
+        let input = itemInput(
+            name: String(repeating: "n", count: RecommendContractLimits.maximumNameLength),
+            category: String(
+                repeating: "c",
+                count: RecommendContractLimits.maximumCategoryLength
+            ),
+            brand: String(
+                repeating: "b",
+                count: RecommendContractLimits.maximumBrandLength
+            ),
+            colors: Array(
+                repeating: "navy",
+                count: RecommendContractLimits.maximumColors
+            ),
+            material: String(
+                repeating: "m",
+                count: RecommendContractLimits.maximumMaterialLength
+            )
+        )
+
+        let item = try WardrobeStore(modelContext: fixture.context).addItem(input)
+
+        #expect(item.name == input.name)
+        #expect(item.colors.count == RecommendContractLimits.maximumColors)
+        #expect(!fixture.context.hasChanges)
+    }
+
+    @Test func addRejectsEveryStylingFieldBeyondTheWireContract() throws {
+        let fixture = try makeFixture()
+        let invalidInputs = [
+            itemInput(name: String(repeating: "n", count: 257)),
+            itemInput(category: String(repeating: "c", count: 65)),
+            itemInput(brand: String(repeating: "b", count: 129)),
+            itemInput(colors: Array(repeating: "navy", count: 17)),
+            itemInput(material: String(repeating: "m", count: 129)),
+        ]
+
+        for input in invalidInputs {
+            let error = try capturePersistenceError {
+                try WardrobeStore(modelContext: fixture.context).addItem(input)
+            }
+            #expect(error.operation == .addItem)
+            #expect(error.diagnostic.contains("invalidItemInput"))
+            #expect(!fixture.context.hasChanges)
+        }
+        #expect(try fixture.context.fetch(FetchDescriptor<Item>()).isEmpty)
+    }
+
+    @Test func updateRejectsOversizedStylingFieldsWithoutMutatingTheItem() throws {
+        let fixture = try makeFixture()
+        let item = try seedItem(in: fixture.context)
+
+        let error = try capturePersistenceError {
+            try WardrobeStore(modelContext: fixture.context).updateItem(
+                item,
+                with: updateInput(material: String(repeating: "m", count: 129))
+            )
+        }
+
+        #expect(error.operation == .updateItem)
+        #expect(error.diagnostic.contains("invalidItemInput"))
+        #expect(item.name == "Navy shirt")
+        #expect(item.material == nil)
         #expect(!fixture.context.hasChanges)
     }
 
