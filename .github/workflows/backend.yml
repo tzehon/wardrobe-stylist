@@ -72,6 +72,41 @@ jobs:
              ! command -v perl >/dev/null 2>&1 && \
              python -c "import sqlite3; sqlite3.connect(\":memory:\").execute(\"SELECT 1\")"'
 
+          logging_output="$(
+            docker run --rm wardrobe-backend-ci \
+              /app/.venv/bin/python -c '
+          import logging
+          import os
+
+          from uvicorn import Config
+
+          if os.getuid() != 10001:
+              raise SystemExit("unexpected service uid")
+          Config(
+              "app.main:app",
+              access_log=False,
+              log_config="/app/uvicorn-logging.json",
+          ).configure_logging()
+
+          from app.auth.service import _security_event
+
+          _security_event(event="registration_succeeded", mechanism="app_attest")
+          logging.getLogger("app.routes.recommend").warning(
+              "stylist_failure code=invalid_model_response"
+          )
+          logging.getLogger("app.routes.recommend").info(
+              "general_app_info_must_stay_disabled"
+          )
+          logging.getLogger("uvicorn.access").info("access_log_must_stay_disabled")
+          ' 2>&1
+          )"
+          test "$(printf '%s\n' "$logging_output" | grep -Fc \
+            'auth_security_event event=registration_succeeded code=- scope=- path=- mechanism=app_attest')" = 1
+          test "$(printf '%s\n' "$logging_output" | grep -Fc \
+            'stylist_failure code=invalid_model_response')" = 1
+          ! printf '%s\n' "$logging_output" | grep -Fq 'general_app_info_must_stay_disabled'
+          ! printf '%s\n' "$logging_output" | grep -Fq 'access_log_must_stay_disabled'
+
           volume_name="wardrobe-auth-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           docker volume create "$volume_name" >/dev/null
           trap 'docker volume rm "$volume_name" >/dev/null' EXIT
