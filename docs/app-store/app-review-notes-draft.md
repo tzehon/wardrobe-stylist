@@ -101,6 +101,12 @@ routes to Today. Public v1 has no Gmail or receipt background task.
 
 ## Build-specific checks before pasting these notes
 
+Build 4 is historical internal-QA evidence and must not be submitted: physical testing found the
+Today offline-cache Restyle defect. App Store Connect shows build 4 as the highest upload; build 5
+is reserved locally but has no signed archive, upload, processing, internal assignment, or physical
+proof. Current local pre-archive gates are green (221 backend tests plus audit/Bandit/Ruff/mypy, 218
+Swift unit tests, 9 UI flows, 43 release-script tests, and Release simulator/artifact checks).
+
 - [ ] Replace every backend, health, fixture, and contact placeholder.
 - [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
 - [ ] Confirm the archive has no Google/Gmail/receipt-import capability and no login screen.
@@ -109,16 +115,25 @@ routes to Today. Public v1 has no Gmail or receipt background task.
   and zero pending challenges. It predated the server-deletion UI, so do not claim that unavailable
   action succeeded or claim in-place migration support.
 - [x] Confirm processed build 4 is distributed only to the `Family` Internal Testing group with the
-  approved What to Test notes.
-- [ ] Install processed build 4 only as a clean physical-device install, never over an older app.
+  saved truthful What to Test wording reproduced in the internal runbook.
+- [x] Retain the historical clean build-4 TestFlight install on iPhone 16 Pro/iOS 26.6 as partial
+  evidence only; it was never installed over the older app and is not migration evidence.
+- [ ] Only after the runbook's build-4 identity-safe handoff passes, install processed build 5
+  cleanly and repeat the full physical matrix. Close successful Camera/Photo Library selection,
+  notification delivery, styling-consent withdrawal, local/server deletion, Today failed-Restyle
+  cache preservation/recovery, and reinstall evidence.
 - [ ] Confirm the production API is healthy throughout the review window.
-- [ ] Confirm App Attest is enabled for the exact App ID and prefix; the archive/profile contain
-  the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
+- [ ] Confirm App Attest is enabled for the exact App ID and prefix; the build-5 archive/profile
+  contain the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
   the intended signed category/build. On iOS 18–26, record the expected field absence without
   claiming category/build enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The former v5 image is only a pre-build-4 abort because it re-exposes `/extract` and halts release.
+  Live v7 suppresses bounded registration/assertion success markers at INFO; deploy and verify the
+  locally validated logging fix and source `4,5` allowlist. Protected `/recommend` success remains
+  aggregate/client-evidenced. The latest listed snapshot at `2026-08-21T07:32:23Z`
+  predates enrollment, so deletion/reinstall is paused. The former v5 image is only a pre-build-4
+  abort because it re-exposes `/extract` and halts release.
 - [ ] Confirm server-security-data deletion against the final backend and retain only redacted
   success/restore evidence.
 - [ ] Confirm the obsolete shared-bearer build is rejected without breaking the submitted build.

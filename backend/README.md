@@ -62,27 +62,34 @@ bundle-version extensions arrive on iOS 27 and later: their signed absence is ac
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
 The approved operational limits are defined in
 [`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
-Fly release v6 deploys the exact Gmail-free repository enforcement with a one-minute maintenance
-loop on the minimum-one-Machine production topology: cleanup repeats bounded transactions until
-drained, removes inactive installations after 90 days and revoked installations after 30 days, and
-securely checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
+Fly release v7 runs the exact reviewed Gmail-free repository enforcement with a one-minute
+maintenance loop on the minimum-one-Machine production topology; the retained v6 Gmail-free image
+remains the eligible post-build-4 recovery path. Cleanup repeats bounded transactions until drained,
+removes inactive installations after 90 days and revoked installations after 30 days, and securely
+checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
-exposes that server-only control. The exact deployed digest and scan evidence are recorded in the
-internal-TestFlight runbook. The owner-approved payload-free manual operations review replaces
-automated alert delivery for this personal single-user release. The first manual review passed on
-2026-08-20, and the Gmail-free post-deploy review passed on 2026-08-21. The Gmail-free public pages
-are live; snapshot-list expiry and deletion-specific recovery remain release gates.
+exposes that server-only control. The exact live and retained-recovery digests and scan evidence are
+recorded in the internal-TestFlight runbook. The owner-approved payload-free manual operations
+review replaces automated alert delivery for this personal single-user release. The first manual
+review passed on 2026-08-20, and the reviewed v7 post-deploy review passed on 2026-08-21. The
+Gmail-free public pages are live; snapshot-list expiry and deletion-specific recovery remain
+release gates.
 
-The auth service emits bounded security events containing only an event/code/scope/path/
-mechanism tuple. The production container disables Uvicorn access logging, and structural tests
-pin the reviewed auth schema, persistence sinks, application log calls, and container command.
+The auth service defines bounded security events containing only an event/code/scope/path/
+mechanism tuple. Live Fly v7 can emit bounded application `WARNING`/`ERROR` events but retains
+Uvicorn's default filtering of application `INFO`. The next-image logging configuration in this
+repository enables application `INFO` only for `app.auth.service`, routes it through one
+non-propagating handler, leaves other application `INFO` logs disabled, and keeps Uvicorn access
+logging off. It is not live until a new immutable image is built, scanned, deployed, and reviewed.
+Structural and production-equivalent tests pin the reviewed auth schema, persistence sinks,
+application log calls, and container command.
 Fly Security confirmed that provider-controlled logs can include source IP and that customers
 cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner explicitly accepted
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
-flow. Required manual reviews through the v6 cutover have passed. Snapshot-list expiry, final App
-Privacy publication, and deletion-specific recovery remain release gates; the manual review must
-remain current under the approved cadence.
+flow. Required manual reviews through the live v7 deployment have passed. Snapshot-list expiry,
+final App Privacy publication, and deletion-specific recovery remain release gates; the manual
+review must remain current under the approved cadence.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.

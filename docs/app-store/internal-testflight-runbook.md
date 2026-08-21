@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current candidate status — 2026-08-21
+## Current release status — 2026-08-21
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -30,12 +30,21 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Documentation-only PR #20 then produced clean
   synchronized archive context `24c17cb9fe643035f9206ee61e2935e086902146`; `ios/`, `backend/`,
   and `shared/` are unchanged from the reviewed code merge. The reviewed backend is deployed and
-  the clean replacement regression/archive are verified.
-- Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. App Store
-  Connect showed builds 1-3 only at `2026-08-21T06:34:50Z` before the replacement archive and again
-  at `2026-08-21T08:12:46Z` immediately before validation/upload. Build 4 then uploaded and
-  processed, so it is now used and must never be reused. The historical `dd3d990` signed archive
+  the historical build-4 replacement regression/archive are verified.
+- Historical uploaded version/build: `1.0.0 (4)`. App Store Connect showed builds 1-3 only at
+  `2026-08-21T06:34:50Z` before the replacement archive and again at `2026-08-21T08:12:46Z`
+  immediately before validation/upload. Build 4 then uploaded, processed, and entered internal
+  testing, so it is consumed and must never be reused. The historical `dd3d990` signed archive
   remains superseded and was not validated or uploaded.
+- Current replacement candidate: a later live App Store Connect inspection on 2026-08-21 confirmed
+  build 4 is the highest upload. `MARKETING_VERSION = 1.0.0` remains unchanged and
+  `CURRENT_PROJECT_VERSION = 5` is reserved locally for the Today offline-cache fix. Build 5 has
+  not been archived, verified, validated, uploaded, processed, or assigned to testers. Recheck the
+  live build list immediately before its archive/upload and stop if build 5 is no longer unused.
+- Build-5 local pre-archive evidence: 221 backend tests and the locked dependency-audit, Bandit,
+  Ruff, and mypy gates passed. The regenerated project passed 218 Swift unit tests and all 9 UI
+  flows; all 43 release-script tests and the Release simulator/artifact checks also passed. This is
+  not signed-archive, deployment, upload, processing, internal-assignment, or physical-device proof.
 - Current production backend baseline: Fly release v7 serves the exact reviewed `linux/amd64`
   image from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at immutable digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`,
@@ -49,7 +58,14 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   is App-Attest-only and scan-clean, but it re-exposes `/extract`; using it must halt the release.
   Production `/extract` returns `404`, unauthenticated `/recommend` returns `401`, and the v7
-  post-deploy review passed at `2026-08-21T06:00:21Z`.
+  post-deploy review passed at `2026-08-21T06:00:21Z`. Live v7 suppresses the bounded
+  `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events at INFO.
+  Deletion has not yet been exercised. Protected `/recommend` success intentionally emits no
+  developer event; prove it separately through the aggregate
+  `recommend-installation` admission counter and a visible non-cached client result. The repository
+  logging fix and source configuration allowing TestFlight builds 4 and 5 are locally validated but
+  not deployed; deploy and verify them before treating these INFO lifecycle events or build-5
+  authorization as production truth.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
   fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
@@ -65,7 +81,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   removed-capability checks. Preserve these facts as history only: the shipped Swift/backend and
   merged contract/verifier changes invalidate the old regression and archive as current
   candidate evidence.
-- Current replacement proof: clean synchronized source context
+- Historical uploaded build-4 proof: clean synchronized source context
   `24c17cb9fe643035f9206ee61e2935e086902146` passed 219 backend tests, 215 Swift tests, all 9 UI
   flows, 43 release-script tests, the locked dependency/security/type gates, and clean Release
   simulator/public-config/privacy/removed-capability verification. Xcode 26.6 with the iOS 26.5
@@ -82,7 +98,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Store Connect route at 08:18Z. Apple processing completed by `2026-08-21T08:20:20Z`. Processed
   metadata shows `1.0.0 (4)`, bundle `com.tth.Wardrobe`, arm64, iPhone, minimum iOS 18.0, included
   symbols, no non-exempt encryption, `get-task-allow = false`, and production App Attest. The build
-  is assigned to the `Family` Internal Testing group with the approved What to Test notes. Direct
+  is assigned to the `Family` Internal Testing group with the saved truthful What to Test wording
+  reproduced below. Direct
   Organizer upload produced no standalone exported IPA; retained binary evidence is the exact
   archive above, executable SHA-256
   `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6`, and matching app/dSYM UUID.
@@ -92,10 +109,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
-  its temporary resources were removed within 391 seconds of volume creation. Snapshot-list
-  expiry, deletion-specific recovery, and production TestFlight enrollment, assertion renewal,
-  protected API call, and server-deletion UI proof are still required. Apple upload/processing and
-  internal assignment alone do not satisfy those physical-client checks. The first payload-free
+  its temporary resources were removed within 391 seconds of volume creation. Build 4 subsequently
+  supplied partial production TestFlight enrollment, assertion-renewal, and protected-call evidence,
+  but did not complete the physical QA matrix and exposed a release defect; build 5 must repeat the
+  proof. Snapshot-list expiry, deletion-specific recovery, server-deletion UI proof, and deployed
+  registration/assertion success-marker observability are still required. Apple upload/processing
+  and internal assignment alone do not satisfy those physical-client checks. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
   `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
   `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
@@ -151,7 +170,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Apple's receipt signature/chain, App ID, freshness, and attested-public-key checks.
 - [x] Complete the repository and simulator-artifact portion of `APP-036`: Google Sign-In, Google
   client/callback configuration, Gmail/receipt-import UI and network paths, active `/extract`
-  route/client capability, and receipt background scheduling are absent; build 4 uses the approved
+  route/client capability, and receipt background scheduling are absent; build 4 used the approved
   fresh local-only schema; Demo Mode and in-app disclosures are Gmail-free; and Release/artifact
   checks fail if a removed capability returns. Intentional negative guards and legacy-rate cleanup
   remain. The historical Google OAuth sequence is deferred and is not a public-v1 gate.
@@ -160,8 +179,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Apple Developer Team ID. It contains no Google client identifiers or callback scheme; resolved
   Release settings and the simulator artifact passed the public configuration guard. The later
   per-build archive/profile proof also passed for historical `1.0.0 (4)` source `dd3d990`; that
-  archive is now superseded and cannot satisfy the current gate. The completed replacement
-  per-build archive/profile proof is recorded below.
+  archive is now superseded and cannot satisfy any current gate. The later uploaded build-4
+  archive/profile proof is historical; build 5 requires new proof.
 - [x] Freeze and publish the Gmail-free source. PR #14 merged as
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; its remote branch was deleted, and local `main` was
   fast-forwarded to the same `origin/main` SHA before the release image was built.
@@ -177,8 +196,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   resolved after fresh private-registry authentication at `2026-08-21T01:20:25Z`, re-scanned clean,
   and passed an isolated old/new/old schema-v4 rehearsal. Production `/extract`
   returns `404`, `/recommend` fails closed without authorization, and the payload-free
-  reviewed v7 post-deploy manual review passed at `2026-08-21T06:00:21Z`. Install build 4 only after
-  TestFlight processing, never over an older app.
+  reviewed v7 post-deploy manual review passed at `2026-08-21T06:00:21Z`. Build 4 was later
+  installed only after TestFlight processing and never over the older app.
 - [x] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
   HTTPS domain and verify all three while signed out. `tzehon.github.io` PR #5 merged as
   `c5da090a0417bcda99fc6d328a0cdff808ea597d` at `2026-08-21T01:42:01Z`; the matching Pages run
@@ -193,8 +212,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   before App Store submission; this sequencing decision permits no binary, signing,
   configuration, privacy, or review-evidence shortcut.
 
-The following restart gates are ordered. They replace the superseded `dd3d990` archive as the
-active path and must be completed without skipping ahead:
+The following ordered gates record the completed build-4 replacement/upload path. They replaced the
+superseded `dd3d990` archive but are historical now that physical QA requires build 5:
 
 - [x] **Merge and freeze the review fixes.** PR #19 rebase-merged the reviewed Swift, backend,
   shared-contract, release-verifier, and focused-test changes. The remote branch was deleted and
@@ -217,7 +236,36 @@ active path and must be completed without skipping ahead:
   1-3 still the only uploads. Xcode validated only the replacement `24c17cb` archive at 08:16Z and
   uploaded it through the normal **TestFlight & App Store**-eligible route at 08:18Z. Processing
   completed by `2026-08-21T08:20:20Z`; processed metadata, symbols, the `Family` internal group,
-  and the approved What to Test notes were verified. Neither `dd3d990` archive was used.
+  and the saved truthful What to Test wording reproduced below were verified. Neither `dd3d990`
+  archive was used.
+
+The current build-5 replacement path is ordered; its distribution and physical gates remain open:
+
+- [ ] **Freeze the fixes.** Review and freeze the Today offline-cache fix, its focused tests, the
+  production registration/assertion success-marker logging fix, and the TestFlight build `4,5`
+  backend allowlist. Keep
+  `MARKETING_VERSION = 1.0.0`; build 5 is only a local reservation until the required immediate
+  pre-archive/upload build-list refresh.
+- [x] **Retain local pre-archive regression evidence.** The current build-5 worktree passed 221
+  backend tests plus locked dependency audit/Bandit/Ruff/mypy; the regenerated project passed 218
+  Swift unit tests and all 9 UI flows; and 43 release-script tests plus Release simulator/artifact
+  checks passed. Rerun any affected gate if source or configuration changes before archive.
+- [ ] **Deploy and review the backend candidate.** Build and scan the exact reviewed backend image,
+  deploy only its immutable digest with the `4,5` allowlist, prove the bounded registration/
+  assertion INFO success markers are visible without payloads or identifiers, and complete the
+  required post-change manual review.
+- [ ] **Recheck App Store Connect, archive, and verify build 5.** Confirm build 4 remains the highest
+  upload immediately before archive/upload; create a new production-signed archive and retain its
+  exact verifier, profile, entitlement, credential-absence, and app/dSYM evidence.
+- [ ] **Validate, upload, process, and assign build 5.** Use the normal **TestFlight & App Store**
+  route, resolve processing/compliance issues, and save truthful build-5 tester wording.
+- [ ] **Complete build 4's identity-safe handoff before uninstall.** Follow the ordered stop gate in
+  Post-upload APP-009 closure: preserve remaining local evidence, wait for an eligible post-
+  enrollment snapshot, delete server security data with aggregate confirmation, and only then
+  clear local data and remove build 4. Stop on any ambiguous result.
+- [ ] **Repeat complete physical QA on build 5.** Use a clean TestFlight install, close every gap
+  listed in the partial build-4 record, verify the Today cache remains usable through a failed
+  Restyle and recovery, then finish deletion/reinstall and snapshot-specific recovery evidence.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -232,8 +280,10 @@ production identity to delete. The app was then uninstalled. This exception is e
 one retired build, not permission to skip verified server deletion when a future installed build
 has a live identity or exposes the control.
 
-Install `1.0.0 (4)` only after it has processed in TestFlight. The clean install must enroll a new
-anonymous production App Attest identity; do not claim upgrade or migration support.
+Build `1.0.0 (4)` was installed only after it processed in TestFlight and only after the older app
+was removed. That clean install enrolled a new anonymous production App Attest identity. This is
+historical build-4 evidence, not upgrade or migration support and not permission to install build 5
+over an older app.
 
 ## Per-build release-candidate loop
 
@@ -272,7 +322,8 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; retain it only
    as history and never validate or upload it. A separate earlier automatic-signing archive,
    `Wardrobe-1.0.0-4-dd3d990.xcarchive`, used a development profile and failed verification; it
-   also must never be validated or uploaded. Current replacement evidence: clean synchronized
+   also must never be validated or uploaded. Historical uploaded build-4 replacement evidence:
+   clean synchronized
    source context `24c17cb9fe643035f9206ee61e2935e086902146` (a documentation-only successor to
    shipped-code merge `d4637f4b2adf14cd533594aec6060c385f8a5e2b`) produced
    `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
@@ -293,9 +344,11 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
 7. **Distribute internally.** Add the processed build only to the chosen Internal Testing group,
    enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
    gate is desired.
-8. **Run fresh-install QA.** The mandatory pre-uninstall sequence is already recorded complete;
-   never install build 4 over an older app. Test a clean build-4 install on a physical
-   iPhone: launch/icon, local onboarding, offline Demo Mode, manual add, camera/photo library,
+8. **Run fresh-install QA.** Never install a fresh-reset candidate over an older app. Build 4 was
+   installed cleanly and supplied only the partial historical evidence recorded below. For the
+   current replacement, complete the build-4 identity-safe handoff below before uninstall. Then test
+   build 5 as a separate clean physical-device install and repeat the complete matrix: launch/icon, local
+   onboarding, offline Demo Mode, manual add, camera/photo library,
    catalog edit/delete, App Attest enrollment/session renewal, styling consent/withdrawal,
    Today/History, local reminders, Settings/privacy, local deletion, separate server-security
    deletion, offline/relaunch, backend failure, and reinstall creating a new anonymous
@@ -325,26 +378,59 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
 
 Production App Attest proof is necessarily post-upload; it is not a pre-build gate.
 
-- [x] Retain the current candidate's signed production App Attest entitlement, matching embedded
-  App Store profile and certificate, and strict artifact-verifier result. The verified current
-  archive is `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; historical `dd3d990` archives are
-  superseded and cannot satisfy any later upload or processed-build gate.
-- [ ] From the processed internal TestFlight build, retain production enrollment, assertion
-  renewal, and a protected API call. Record the tester OS and signed runtime-field presence; do not
-  claim category/build enforcement when iOS 18–26 omits those fields.
-- [ ] Retain the completed pre-uninstall cleanup evidence, install processed build 4 cleanly, and
-  complete fresh-install QA. The cleanup itself occurs before backend cutover and upload; this
-  post-upload step validates the replacement.
+### Build 4 physical QA — 2026-08-21 (historical, PARTIAL)
+
+This aggregate-only record describes processed TestFlight build `1.0.0 (4)`. It does not satisfy
+the build-5 release gate and retains no device identifier, App Attest identifier, credential,
+request body, database row, wardrobe payload, or raw log sample.
+
+| Boundary | Redacted result |
+|---|---|
+| Installation | Clean TestFlight install on iPhone 16 Pro running iOS 26.6; production aggregate baseline was zero installations, then one installation after enrollment |
+| App Attest / protected API | First production assertion and protected calls succeeded; a cold-app assertion/session renewal also succeeded |
+| Offline behavior | Remote styling failed closed with a friendly offline message while Wardrobe, History, and Demo Mode remained usable |
+| Today cache / release defect | The cached look survived an offline relaunch, but tapping **Restyle** while offline replaced the usable look with the error state. The look returned only after another relaunch and a tap. Build 4 is not promotable; build 5 must contain and verify the fix |
+| Online recovery | Styling recovered online and showed `Styled 17:24`; aggregate assertion total advanced from 1 to 2 and the current recommendation-installation rate window from 0 to 1 |
+| Signed runtime fields | Validation category/build fields were absent, as expected on iOS 26.6; this is not category/build-enforcement evidence |
+| Local flows | Manual add/edit, Demo Mode, **Wear this**, and History passed. Camera and Photo Library opened and cancelled only; successful media selection remains untested. Reminder permission and scheduling passed; delivery remains untested |
+| Production marker stream | The bounded stream had no `registration_succeeded` or `assertion_succeeded` matches because live v7 suppresses INFO lifecycle events. `installation_deleted` was not expected because deletion is paused. Protected `/recommend` intentionally has no developer success event and was proven separately by the aggregate admission counter plus the non-cached client result. The repository logging fix and build `4,5` allowlist are validated but not deployed |
+| Snapshot / deletion boundary | The latest listed 14-day snapshot, `2026-08-21T07:32:23Z`, predates this enrollment. Server deletion and reinstall testing are paused until eligible recovery evidence can be retained without risking restoration of the enrolled identity |
+
+Still open: successful Camera and Photo Library selection, notification delivery, styling-consent
+withdrawal, local deletion, server-security-data deletion, a complete clean build-5 repeat,
+registration/assertion success-marker deployment and production verification, snapshot-list expiry
+and deletion-specific recovery, and final owner-confirmed Google retirement.
+
+- [x] Retain historical build-4 signed production App Attest entitlement, matching embedded App
+  Store profile and certificate, and strict artifact-verifier result. The verified uploaded archive
+  is `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; historical `dd3d990` archives are superseded and
+  cannot satisfy any later upload or processed-build gate.
+- [ ] From processed internal TestFlight build 5, repeat production enrollment and cold assertion/
+  session renewal, and observe the bounded `registration_succeeded`/`assertion_succeeded` markers.
+  Prove a protected `/recommend` separately with its aggregate admission-counter delta and a visible
+  non-cached client result. Record the tester OS and signed runtime-field presence; do not claim
+  category/build enforcement when iOS 18–26 omits those fields. Build-4 partial evidence does not
+  close this current-candidate gate.
+- [ ] Before uninstalling build 4, preserve any remaining local-flow evidence, withdraw styling
+  consent, and disable reminders. Wait for and verify an eligible automatic snapshot created after
+  build-4 enrollment. While build 4 still holds proof of possession, use **Delete Server Security
+  Data**, confirm the production installation/session aggregates return to zero, and retain only the
+  redacted outcome. Complete the separate local-data deletion after its evidence is no longer
+  needed. Stop on any ambiguous deletion or aggregate result; do not uninstall or re-enroll.
+- [ ] Only after the build-4 identity-safe handoff passes, uninstall build 4, install processed build
+  5 cleanly, and complete the entire fresh-install QA matrix, including the build-4 gaps and the
+  Today offline-cache regression. Never install build 5 over build 4.
 - [ ] Finish the remaining observable operations evidence: eligible 14-day snapshot-list
   disappearance and deletion-specific recovery. The generic isolated restore-path rehearsal does
   not prove that a deleted production identity cannot return.
-- [ ] After processed build 4 and its replacement backend are proven, obtain a separate final
+- [ ] After processed build 5 and its replacement backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
 
 ## Promoting an internally tested build
 
-When the build is approved for public release, do not rebuild unless something changed:
+Build 4 is not promotable because physical QA found the Today offline-cache defect. When build 5 is
+fully approved for public release, do not rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
   screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not
@@ -358,7 +444,7 @@ When the build is approved for public release, do not rebuild unless something c
 If code, resources, configuration, backend contract, disclosures, or version metadata changes,
 increment the build number and repeat the full loop. Never "patch" an uploaded candidate in place.
 
-## What to Test used for build 4
+## Saved truthful What to Test wording for build 4
 
 > Verify the new Wardrobe Stylist icon, add an item with both Camera and Photo Library, and confirm
 > each picker remains open until completion or cancellation. Review the simplified Settings hub

@@ -87,17 +87,27 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - A TestFlight build is required when the change alters the shipped iOS app or its user-visible behavior, including Swift sources, bundled resources, `Info.plist`, entitlements, `ios/project.yml` build settings, or an API-contract change that requires a new iOS client. It is also required whenever the user explicitly asks to distribute a build.
 - A TestFlight build is not required for documentation, `AGENTS.md`, GitHub Actions, agent configuration, tests-only changes, or backward-compatible backend-only changes that do not alter the iOS bundle.
 - When a build is required, first confirm the latest build already uploaded to App Store Connect, then increment `CURRENT_PROJECT_VERSION` in `ios/project.yml` to the next unused integer. Do not change `MARKETING_VERSION` unless the user requests a new public version or the change belongs to a planned version milestone.
-- App Store Connect showed builds 1-3 only immediately before validation/upload on 2026-08-21, so
-  the exact Gmail-free `1.0.0 (4)` replacement archive was validated, uploaded, processed, and
-  assigned to the intended internal TestFlight group. Build 4 is now used and must never be reused.
-  Before any later archive/upload, refresh App Store Connect and select the next unused
-  `CURRENT_PROJECT_VERSION`; do not assume build 5 is unused without that check.
-- Build 4 is **fresh-install-only** and must never be installed over an earlier app. The pre-upload
-  transition completed on 2026-08-21: installed development build `0.1.0 (4)` disconnected Google,
-  deleted its local data, and was uninstalled after an aggregate production check found no live
-  App Attest installation, session, or pending challenge. That build predated the server-deletion
-  UI, so do not claim the unavailable action succeeded. Install `1.0.0 (4)` only from processed
-  TestFlight and do not claim or test an in-place local-data migration.
+- App Store Connect showed builds 1-3 only immediately before build-4 validation/upload on
+  2026-08-21, so the exact Gmail-free `1.0.0 (4)` archive was validated, uploaded, processed, and
+  assigned to the intended internal TestFlight group. Build 4 is used and must never be reused.
+  A later live check showed build 4 as the highest upload, and `ios/project.yml` currently reserves
+  `1.0.0 (5)` for the replacement candidate. That local reservation is not proof that build 5
+  remains unused: refresh App Store Connect immediately before archive/upload, stop if it is no
+  longer unused, and keep `MARKETING_VERSION` unchanged unless the release milestone changes.
+- Build 4 was installed only as a clean processed TestFlight build. Partial physical QA found that
+  a failed Restyle could hide the cached Today look until relaunch, so build 4 is historical and
+  non-promotable. Build 5 must contain and verify the fix through the complete clean-install matrix;
+  do not install it over an older build or claim/test in-place upgrade or local-data migration.
+  Before removing any enrolled predecessor, complete the runbook's identity-safe handoff: retain
+  required local evidence, verify an eligible snapshot, delete server security data while proof of
+  possession remains available, and confirm aggregate removal. Never orphan a live server identity
+  by uninstalling first.
+- When an iOS candidate depends on backend source or configuration, first freeze and merge both
+  sides, build and scan the exact immutable backend image, deploy it, verify the live configuration,
+  health, and bounded logging, and complete the post-change manual review before archive/upload.
+  Repository `fly.toml`, container/logging configuration, local tests, and a planned Fly release
+  number are not production truth; confirm the live release, configuration, and digest before
+  updating release evidence.
 - Before uploading, run the full backend and iOS regression suites, regenerate the Xcode project, create a signed Release archive, validate it, upload it to App Store Connect, add it to the internal TestFlight group, and confirm processing succeeds. Never reuse a build number.
 - Before an App Attest build can ship, confirm the exact App ID prefix from Certificates, Identifiers & Profiles (do not assume it equals the Team ID), enable the capability for `com.tth.Wardrobe`, regenerate signing profiles, provision durable production auth storage, and configure explicit production allowlists for validation category (`2` for TestFlight, `4` for App Store) and accepted bundle builds. Apple adds those signed runtime fields on iOS 27+; iOS 18–26 still requires the complete core App Attest proof but cannot be build/category-gated. Retain the archive's entitlement, tester OS version, runtime-field presence, and physical-device evidence.
 - If release impact, the next unused build number, signing state, or distribution intent is uncertain, ask the user before changing version metadata or uploading a build.
