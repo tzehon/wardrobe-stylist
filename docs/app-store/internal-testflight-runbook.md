@@ -25,12 +25,16 @@ an App Store release candidate from the moment it is archived. This prevents a s
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; local and remote `main` were synchronized before
   the release image was built. The archive source is later `dd3d99061321cf91bdce166e7da579b84edb07e8`,
-  which adds the signed-profile verifier fix without changing the shipped app bundle.
+  which adds the signed-profile verifier fix without changing that shipped app bundle. Subsequent
+  code-review work changes shipped Swift and backend source; no merged replacement source SHA is
+  recorded yet.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. Live App Store
-  Connect immediately before archiving confirmed build 3 as the highest upload. The signed build-4
-  archive now exists and passed repository verification; it has not been validated or uploaded.
-- Current production backend: Fly release v6 serves the Gmail-free policy-enforced `linux/amd64`
-  image from source
+  Connect immediately before the historical archive confirmed build 3 as the highest upload. Keep
+  build 4 only if a fresh check immediately before the replacement archive still confirms it is
+  unused; otherwise stop and choose the next unused integer. The historical signed build-4 archive
+  has been superseded and is not eligible for validation or upload.
+- Current production backend baseline: Fly release v6 serves the Gmail-free policy-enforced
+  `linux/amd64` image from source
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc` at immutable digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`,
   with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
@@ -39,12 +43,14 @@ an App Store release candidate from the moment it is archived. This prevents a s
   is App-Attest-only and scan-clean. After fresh private-registry authentication at
   `2026-08-21T01:20:25Z`, it and the v6 digest both resolved successfully. It re-exposes `/extract`;
   using it must halt the release. The v6 digest is the required Gmail-free recovery baseline.
-  Production `/extract` now returns `404`.
+  Production `/extract` now returns `404`. This image predates the reviewed backend fixes. Build,
+  scan, deploy, and verify an exact image from the eventual merged review-fix source before the
+  next archive; no replacement digest or deployment is claimed here.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
   fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
   the earlier run is a baseline, not candidate evidence.
-- Current Gmail-free repository proof: 202 locked backend tests and all dependency/security/type
+- Superseded Gmail-free repository proof: 202 locked backend tests and all dependency/security/type
   gates passed; 209 unique iOS tests passed (200 Swift tests plus all 9 UI flows); 31/31 release-
   script tests passed; and a clean Release simulator artifact for `1.0.0 (4)` passed public-config,
   plist, dependency, and removed-capability verification. No Google/Gmail/OAuth, `/extract`, or
@@ -52,7 +58,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   executable, or app bundle. Clean source `dd3d99061321cf91bdce166e7da579b84edb07e8` then produced
   the signed `1.0.0 (4)` App Store archive. Its strict verifier passed the production App Attest
   entitlement, matching distribution profile, public configuration, app privacy manifest, and
-  removed-capability checks.
+  removed-capability checks. Preserve these facts as history only: the shipped Swift/backend and
+  contract/verifier changes under review invalidate the old regression and archive as current
+  candidate evidence. No replacement test result, Release artifact, or signed archive is recorded.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v6 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -63,8 +71,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   expiry, deletion-specific recovery, and production TestFlight enrollment, assertion renewal,
   protected API call, and server-deletion UI proof are still required. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
-  `2026-08-21T01:11:43Z`; and the pre-archive repeat passed at `2026-08-21T03:30:33Z`. Repeat the
-  review immediately before upload and no later than 2026-09-20.
+  `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
+  `2026-08-21T03:30:33Z`. After deploying the reviewed backend, pass a new post-deploy review and
+  repeat it against that exact deployment immediately before upload and no later than 2026-09-20.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -121,7 +130,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `ios/Distribution.xcconfig.example` with the HTTPS backend host, public privacy/support URLs, and
   Apple Developer Team ID. It contains no Google client identifiers or callback scheme; resolved
   Release settings and the simulator artifact passed the public configuration guard. The later
-  per-build archive/profile proof also passed for `1.0.0 (4)`.
+  per-build archive/profile proof also passed for historical `1.0.0 (4)` source `dd3d990`; that
+  archive is now superseded, so replacement per-build proof remains open below.
 - [x] Freeze and publish the Gmail-free source. PR #14 merged as
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; its remote branch was deleted, and local `main` was
   fast-forwarded to the same `origin/main` SHA before the release image was built.
@@ -152,6 +162,28 @@ an App Store release candidate from the moment it is archived. This prevents a s
   before App Store submission; this sequencing decision permits no binary, signing,
   configuration, privacy, or review-evidence shortcut.
 
+The following restart gates are ordered. They replace the superseded `dd3d990` archive as the
+active path and must be completed without skipping ahead:
+
+- [ ] **Merge and freeze the review fixes.** Finish review, merge the intended Swift, backend,
+  shared-contract, release-verifier, and focused-test changes, synchronize `main` using rebase/
+  fast-forward only, and record the clean source SHA. Do not deploy or archive an unmerged working
+  tree.
+- [ ] **Build, scan, and deploy the exact reviewed backend.** From that frozen source, build the
+  final `linux/amd64` image, pass local and immutable-registry critical/high scans, deploy only the
+  recorded digest, verify production health, auth-store/configuration, and Gmail-free route
+  behavior, then complete the required payload-free post-deploy manual review.
+- [ ] **Run a clean Release regression and create the replacement signed archive.** First recheck
+  App Store Connect; use `1.0.0 (4)` only if build 4 remains unused. Run every locked backend,
+  Swift/UI, shared-contract, Release-build, request-capture, dependency, privacy-manifest,
+  removed-capability, and release-script gate on the frozen source. Then create and strictly verify
+  a new production-signed archive and record its exact source/path, Xcode/SDK, signing certificate,
+  profile, entitlements, and artifact output as the reopened APP-011/APP-012 proof.
+- [ ] **Repeat the pre-upload review, then validate and upload.** Repeat the payload-free manual
+  review against the exact deployed backend immediately before upload. Only after it passes may
+  the replacement archive be validated and uploaded through **TestFlight & App Store**. Neither
+  `dd3d990` archive is an upload target.
+
 ## Mandatory clean-uninstall transition for build 4
 
 Build `1.0.0 (4)` is fresh-install-only and must never be installed over an earlier app. The owner
@@ -176,10 +208,11 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Re-resolve the v6
    Gmail-free recovery digest after fresh private-registry authentication immediately before
    archive/upload.
-2. **Confirm version/build from App Store Connect.** Live inspection currently shows build 3 as
-   the highest upload, so the selected candidate remains `1.0.0 (4)`. Recheck immediately before
-   archiving. If build 4 has appeared, stop and select the next unused integer; otherwise preserve
-   build 4 and do not increment it merely because APP-036 changed unuploaded local source.
+2. **Confirm version/build from App Store Connect.** The inspection before the superseded archive
+   showed build 3 as the highest upload, but that fact must be refreshed immediately before the
+   replacement archive. If build 4 has appeared, stop and select the next unused integer;
+   otherwise preserve `1.0.0 (4)` and do not increment it merely because unuploaded local source
+   changed.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -194,14 +227,18 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    AppAuth/GTM bundles, Google client identifiers/callback scheme, Gmail permission/host/client
    paths, `/extract` client path, and receipt background-task identifier; and correct public URLs.
    Retain the archive entitlement and embedded-profile inspection as APP-009/APP-036 evidence.
-   For build `1.0.0 (4)`, clean source `dd3d99061321cf91bdce166e7da579b84edb07e8`
+   Historical evidence: for build `1.0.0 (4)`, clean source
+   `dd3d99061321cf91bdce166e7da579b84edb07e8`
    produced the Apple Distribution archive at `2026-08-21T03:34:13Z` using Xcode 26.6 and the iOS
    26.5 SDK. The signed app carried scalar production App Attest, and the embedded App Store profile
    matched its team, App ID, certificate, and production grant. The strict artifact verifier passed
-   public configuration, app privacy manifest, and Gmail-free/secret-absence checks. Validate only
-   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`. A separate
-   earlier automatic-signing archive, `Wardrobe-1.0.0-4-dd3d990.xcarchive`, used a development
-   profile and failed verification; it must never be validated or uploaded.
+   public configuration, app privacy manifest, and Gmail-free/secret-absence checks. Subsequent
+   shipped Swift/backend changes supersede
+   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; retain it only
+   as history and never validate or upload it. A separate earlier automatic-signing archive,
+   `Wardrobe-1.0.0-4-dd3d990.xcarchive`, used a development profile and failed verification; it
+   also must never be validated or uploaded. Record a new exact archive path only after the clean
+   replacement archive passes every current verifier.
 5. **Validate and upload.** In Organizer choose **Validate App**, then **Distribute App →
    TestFlight & App Store → Upload**. Upload symbols and use the intended distribution signing.
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy
@@ -242,9 +279,10 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
 
 Production App Attest proof is necessarily post-upload; it is not a pre-build gate.
 
-- [x] Retain the signed archive's production App Attest entitlement and matching embedded profile.
-  Build `1.0.0 (4)` passed the strict signed-artifact verifier at source
-  `dd3d99061321cf91bdce166e7da579b84edb07e8`.
+- [ ] Retain the current candidate's signed production App Attest entitlement, matching embedded
+  App Store profile and certificate, and strict artifact-verifier result. Historical build
+  `1.0.0 (4)` at source `dd3d99061321cf91bdce166e7da579b84edb07e8` passed the earlier verifier,
+  but its archive is superseded and cannot satisfy this gate.
 - [ ] From the processed internal TestFlight build, retain production enrollment, assertion
   renewal, and a protected API call. Record the tester OS and signed runtime-field presence; do not
   claim category/build enforcement when iOS 18–26 omits those fields.
