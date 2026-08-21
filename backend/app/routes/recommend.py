@@ -21,7 +21,7 @@ from app.agents.stylist import StylistError
 from app.anthropic_safety import anthropic_request_slot, raise_anthropic_http_error
 from app.auth.service import BackendIdentity
 from app.dependencies import get_anthropic_client, require_backend_identity
-from app.schemas.recommendation import OutfitRecommendation
+from app.schemas.recommendation import OutfitRecommendation, RecommendResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -57,12 +57,10 @@ class RecommendRequest(BaseModel):
     occasion: str | None = Field(default=None, max_length=128)
 
 
-class RecommendResponse(OutfitRecommendation):
-    usage: dict[str, int]
-
-
-def _sanitize_ids(ids: list[str], valid: set[str]) -> list[str]:
-    """Keep only ids present in the catalog, de-duplicated, preserving order."""
+def _sanitize_ids(ids: Any, valid: set[str]) -> list[str]:
+    """Keep valid catalog ids, rejecting non-array or non-string model shapes."""
+    if not isinstance(ids, list) or any(not isinstance(item_id, str) for item_id in ids):
+        raise StylistError("Outfit item ids were not an array of strings.")
     seen: set[str] = set()
     out: list[str] = []
     for item_id in ids:
@@ -82,8 +80,14 @@ def _sanitize_outfit(tool_input: dict[str, Any], valid_ids: set[str]) -> dict[st
     if len(primary) < 2:
         raise StylistError("Primary outfit had fewer than 2 valid catalog items.")
 
-    alternates = []
-    for alt in tool_input.get("alternates", []) or []:
+    raw_alternates = tool_input.get("alternates", [])
+    if not isinstance(raw_alternates, list):
+        raise StylistError("Outfit alternates were not an array.")
+
+    alternates: list[dict[str, Any]] = []
+    for alt in raw_alternates:
+        if not isinstance(alt, dict):
+            raise StylistError("An alternate outfit was not an object.")
         alt_ids = _sanitize_ids(alt.get("item_ids", []), valid_ids)
         if len(alt_ids) >= 2:
             alternates.append({"item_ids": alt_ids, "rationale": alt.get("rationale", "")})
@@ -127,7 +131,10 @@ def recommend_endpoint(
         ) from exc
 
     try:
-        sanitized = _sanitize_outfit(result["tool_input"], valid_ids)
+        tool_input = result.get("tool_input") if isinstance(result, dict) else None
+        if not isinstance(tool_input, dict):
+            raise StylistError("Stylist result did not contain a tool-input object.")
+        sanitized = _sanitize_outfit(tool_input, valid_ids)
     except StylistError as exc:
         logger.warning("stylist_failure code=unsalvageable_outfit")
         raise HTTPException(
@@ -137,6 +144,9 @@ def recommend_endpoint(
 
     try:
         parsed = OutfitRecommendation.model_validate(sanitized)
+        response = RecommendResponse.model_validate(
+            {**parsed.model_dump(), "usage": result.get("usage")}
+        )
     except ValidationError as exc:
         # Pydantic validation errors include rejected values by default, and
         # `loc` can contain an arbitrary model-supplied extra-field name. Both
@@ -162,4 +172,4 @@ def recommend_endpoint(
             detail="Model returned tool input that failed schema validation.",
         ) from exc
 
-    return RecommendResponse(**parsed.model_dump(), usage=result["usage"])
+    return response

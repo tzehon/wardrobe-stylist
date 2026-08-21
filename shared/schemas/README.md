@@ -3,8 +3,9 @@
 JSON Schemas here are the **single source of truth** for the data that crosses the
 iOS ↔ backend boundary. Both sides validate against them so they can't drift:
 
-- the backend validates Claude tool outputs against these schemas before returning them;
-- the iOS app validates payloads it sends/receives;
+- the backend validates Claude tool outputs and complete wire responses against
+  language-native mirrors of these schemas before returning them;
+- the iOS app encodes and decodes matching language-native wire models;
 - tests on both sides assert golden fixtures conform.
 
 Planned schemas (added with their phase):
@@ -12,9 +13,9 @@ Planned schemas (added with their phase):
 | File | Phase | Describes |
 |---|---|---|
 | `category.schema.json` | 3 | the dynamic browsable taxonomy |
-| `outfit.schema.json` | 5 | a daily outfit recommendation (`propose_outfit`) — **added** |
+| `outfit.schema.json` | 5 | the complete `/recommend` response (outfit plus token usage) — **added** |
 | `recommend-request.schema.json` | 5+ | the compact catalog, wear IDs, rating aggregates, and optional occasion sent to `/recommend` |
 
-Keep field names and enums identical to the Swift models in
-[`ios/Wardrobe/Models/`](../../ios/Wardrobe/Models) and the backend Pydantic models in
-`backend/app/schemas/`.
+Keep field names and constraints identical to the Swift wire models in
+[`ios/Wardrobe/Backend/RecommendAPI.swift`](../../ios/Wardrobe/Backend/RecommendAPI.swift) and the
+backend Pydantic models in [`backend/app/`](../../backend/app/).

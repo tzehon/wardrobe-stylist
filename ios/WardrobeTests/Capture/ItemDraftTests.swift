@@ -48,6 +48,60 @@ struct ItemDraftTests {
         #expect(!draft.canSave)
     }
 
+    @Test func stylingFieldsUseTheBackendCodePointBoundaries() {
+        var draft = ItemDraft()
+        draft.name = String(repeating: "n", count: RecommendContractLimits.maximumNameLength)
+        draft.category = String(
+            repeating: "c",
+            count: RecommendContractLimits.maximumCategoryLength
+        )
+        draft.brand = String(repeating: "b", count: RecommendContractLimits.maximumBrandLength)
+        draft.material = String(
+            repeating: "m",
+            count: RecommendContractLimits.maximumMaterialLength
+        )
+        draft.colors = Array(
+            repeating: "navy",
+            count: RecommendContractLimits.maximumColors
+        ).joined(separator: ",")
+        #expect(draft.canSave)
+        #expect(draft.identityValidationMessage == nil)
+        #expect(draft.detailsValidationMessage == nil)
+
+        draft.name += "n"
+        #expect(!draft.canSave)
+        #expect(draft.identityValidationMessage == "Use 256 or fewer characters for the name.")
+        draft.name.removeLast()
+
+        draft.category += "c"
+        #expect(!draft.canSave)
+        #expect(draft.identityValidationMessage == "Use 64 or fewer characters for the category.")
+        draft.category.removeLast()
+
+        draft.brand += "b"
+        #expect(!draft.canSave)
+        #expect(draft.identityValidationMessage == "Use 128 or fewer characters for the brand.")
+        draft.brand.removeLast()
+
+        draft.material += "m"
+        #expect(!draft.canSave)
+        #expect(draft.detailsValidationMessage == "Use 128 or fewer characters for the material.")
+        draft.material.removeLast()
+
+        draft.colors += ",white"
+        #expect(!draft.canSave)
+        #expect(draft.detailsValidationMessage == "List no more than 16 colors.")
+    }
+
+    @Test func fieldLimitsCountUnicodeCodePointsLikeTheBackend() {
+        var draft = ItemDraft()
+        draft.name = String(repeating: "👨‍👩‍👧‍👦", count: 40)
+
+        #expect(draft.name.count == 40)
+        #expect(draft.name.unicodeScalars.count > RecommendContractLimits.maximumNameLength)
+        #expect(!draft.canSave)
+    }
+
     @Test func manualInputIncludesEverySharedFormField() {
         let purchased = Date(timeIntervalSince1970: 1_700_000_000)
         var draft = ItemDraft()

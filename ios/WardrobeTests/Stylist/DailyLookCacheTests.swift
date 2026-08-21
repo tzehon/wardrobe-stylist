@@ -25,7 +25,9 @@ struct DailyLookCacheTests {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .millisecondsSince1970
             cache.replaceRawDataForTesting(
-                try encoder.encode(makeEntry(formatVersion: 2)),
+                try encoder.encode(makeEntry(
+                    formatVersion: DailyLookCacheEntry.currentFormatVersion + 1
+                )),
                 for: .deviceLocal
             )
             #expect(cache.load(for: .deviceLocal) == nil)
@@ -87,7 +89,12 @@ struct DailyLookCacheTests {
                 rationale: "balanced",
                 itemIds: ["1", "2"],
                 alternates: [],
-                usage: [:]
+                usage: RecommendUsage(
+                    inputTokens: 0,
+                    outputTokens: 0,
+                    cacheCreationInputTokens: 0,
+                    cacheReadInputTokens: 0
+                )
             ),
             formatVersion: formatVersion
         )

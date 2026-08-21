@@ -33,7 +33,12 @@ struct RecommendClientTests {
       "alternates": [
         {"item_ids": ["a", "b", "d"], "rationale": "Layer the jacket when it cools."}
       ],
-      "usage": {"input_tokens": 200, "output_tokens": 60}
+      "usage": {
+        "input_tokens": 200,
+        "output_tokens": 60,
+        "cache_creation_input_tokens": 20,
+        "cache_read_input_tokens": 10
+      }
     }
     """#
 
@@ -44,7 +49,7 @@ struct RecommendClientTests {
                 RecommendCatalogItem(id: "b", name: "Slim Trouser", category: "bottom", colors: ["navy"]),
                 RecommendCatalogItem(id: "c", name: "Suede Loafers", category: "shoe"),
             ],
-            recentlyWornIds: ["d"],
+            recentlyWornIds: ["b"],
             itemPreferences: [
                 RecommendItemPreference(id: "a", averageRating: 4.5, ratingCount: 2),
             ],
@@ -67,7 +72,12 @@ struct RecommendClientTests {
         #expect(response.occasion == "relaxed weekend")
         #expect(response.colorStory == "soft neutrals with a tan warmth")
         #expect(response.alternates.first?.itemIds == ["a", "b", "d"])
-        #expect(response.usage["input_tokens"] == 200)
+        #expect(response.usage == RecommendUsage(
+            inputTokens: 200,
+            outputTokens: 60,
+            cacheCreationInputTokens: 20,
+            cacheReadInputTokens: 10
+        ))
 
         let req = try #require(URLProtocolStub.captured.first)
         #expect(req.httpMethod == "POST")
@@ -81,7 +91,7 @@ struct RecommendClientTests {
         let json = try #require(
             try JSONSerialization.jsonObject(with: body) as? [String: Any]
         )
-        #expect(json["recently_worn_ids"] as? [String] == ["d"])
+        #expect(json["recently_worn_ids"] as? [String] == ["b"])
         let preferences = try #require(json["item_preferences"] as? [[String: Any]])
         #expect(preferences.first?["id"] as? String == "a")
         #expect(preferences.first?["average_rating"] as? Double == 4.5)
@@ -250,7 +260,9 @@ struct RecommendClientTests {
     @Test func emptyAlternatesDecode() async throws {
         let body = #"""
         {"occasion": "smart office", "color_story": "monochrome", "rationale": "Clean column.",
-         "item_ids": ["a", "b"], "alternates": [], "usage": {"input_tokens": 10, "output_tokens": 5}}
+         "item_ids": ["a", "b"], "alternates": [],
+         "usage": {"input_tokens": 10, "output_tokens": 5,
+                   "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}}
         """#
         URLProtocolStub.install { _ in
             (self.makeHTTPResponse(200), Data(body.utf8))
@@ -261,6 +273,236 @@ struct RecommendClientTests {
         let response = try await client.recommend(sampleRequest())
         #expect(response.alternates.isEmpty)
         #expect(response.itemIds == ["a", "b"])
+    }
+
+    @Test func usageMustMatchTheExactNonnegativeWireContract() async {
+        let invalidUsageValues = [
+            #"{"input_tokens":10,"output_tokens":-1,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}"#,
+            #"{"input_tokens":10,"output_tokens":5,"cache_creation_input_tokens":0}"#,
+            #"{"input_tokens":10,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"private_payload":1}"#,
+        ]
+        defer { URLProtocolStub.reset() }
+
+        for usage in invalidUsageValues {
+            let body = Data(
+                #"{"occasion":"work","color_story":"navy","rationale":"balanced","item_ids":["a","b"],"alternates":[],"usage":\#(usage)}"#.utf8
+            )
+            URLProtocolStub.reset()
+            URLProtocolStub.install { request in
+                (self.makeHTTPResponse(200), body)
+            }
+
+            do {
+                _ = try await makeClient().recommend(sampleRequest())
+                Issue.record("Expected invalid usage to fail decoding")
+            } catch RecommendError.decoding {
+                // Expected: the response never reaches the UI/cache.
+            } catch {
+                Issue.record("Wrong error: \(error)")
+            }
+        }
+    }
+
+    @Test func requestValidationPinsEveryBackendBoundary() throws {
+        let maximumItems = (0..<RecommendContractLimits.maximumItems).map { index in
+            RecommendCatalogItem(
+                id: String(index),
+                name: String(repeating: "n", count: RecommendContractLimits.maximumNameLength),
+                category: String(
+                    repeating: "c",
+                    count: RecommendContractLimits.maximumCategoryLength
+                ),
+                brand: String(
+                    repeating: "b",
+                    count: RecommendContractLimits.maximumBrandLength
+                ),
+                colors: Array(
+                    repeating: "navy",
+                    count: RecommendContractLimits.maximumColors
+                ),
+                material: String(
+                    repeating: "m",
+                    count: RecommendContractLimits.maximumMaterialLength
+                )
+            )
+        }
+        let valid = RecommendRequest(
+            items: maximumItems,
+            recentlyWornIds: Array(
+                repeating: "0",
+                count: RecommendContractLimits.maximumRecentlyWornIDs
+            ),
+            itemPreferences: Array(
+                repeating: RecommendItemPreference(
+                    id: "0",
+                    averageRating: 5,
+                    ratingCount: 1
+                ),
+                count: RecommendContractLimits.maximumItemPreferences
+            ),
+            occasion: String(
+                repeating: "o",
+                count: RecommendContractLimits.maximumOccasionLength
+            )
+        )
+        try valid.validateForWire()
+
+        var tooManyItems = maximumItems
+        tooManyItems.append(RecommendCatalogItem(id: "overflow", name: "N", category: "top"))
+        #expect(throws: RecommendRequestValidationIssue.itemCount(1_001)) {
+            try RecommendRequest(
+                items: tooManyItems,
+                recentlyWornIds: []
+            ).validateForWire()
+        }
+
+        let validCompanion = RecommendCatalogItem(id: "b", name: "B", category: "bottom")
+        func request(with item: RecommendCatalogItem) -> RecommendRequest {
+            RecommendRequest(items: [item, validCompanion], recentlyWornIds: [])
+        }
+        try request(with: RecommendCatalogItem(
+            id: String(repeating: "i", count: 64),
+            name: "A",
+            category: "top"
+        )).validateForWire()
+        #expect(throws: RecommendRequestValidationIssue.emptyCatalogField(.id)) {
+            try request(with: RecommendCatalogItem(
+                id: "",
+                name: "A",
+                category: "top"
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.catalogFieldTooLong(.id)) {
+            try request(with: RecommendCatalogItem(
+                id: String(repeating: "i", count: 65),
+                name: "A",
+                category: "top"
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.emptyCatalogField(.name)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "",
+                category: "top"
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.emptyCatalogField(.category)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "A",
+                category: ""
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.catalogFieldTooLong(.name)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: String(repeating: "n", count: 257),
+                category: "top"
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.catalogFieldTooLong(.category)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "A",
+                category: String(repeating: "c", count: 65)
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.catalogFieldTooLong(.brand)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "A",
+                category: "top",
+                brand: String(repeating: "b", count: 129)
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.tooManyColors) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "A",
+                category: "top",
+                colors: Array(repeating: "navy", count: 17)
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.catalogFieldTooLong(.material)) {
+            try request(with: RecommendCatalogItem(
+                id: "a",
+                name: "A",
+                category: "top",
+                material: String(repeating: "m", count: 129)
+            )).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.occasionTooLong) {
+            try RecommendRequest(
+                items: [
+                    RecommendCatalogItem(id: "a", name: "A", category: "top"),
+                    validCompanion,
+                ],
+                recentlyWornIds: [],
+                occasion: String(repeating: "o", count: 129)
+            ).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.tooManyRecentlyWornIDs) {
+            try RecommendRequest(
+                items: [
+                    RecommendCatalogItem(id: "a", name: "A", category: "top"),
+                    validCompanion,
+                ],
+                recentlyWornIds: Array(repeating: "a", count: 1_001)
+            ).validateForWire()
+        }
+        #expect(throws: RecommendRequestValidationIssue.tooManyItemPreferences) {
+            try RecommendRequest(
+                items: [
+                    RecommendCatalogItem(id: "a", name: "A", category: "top"),
+                    validCompanion,
+                ],
+                recentlyWornIds: [],
+                itemPreferences: Array(
+                    repeating: RecommendItemPreference(
+                        id: "a",
+                        averageRating: 5,
+                        ratingCount: 1
+                    ),
+                    count: 1_001
+                )
+            ).validateForWire()
+        }
+    }
+
+    @Test func invalidRequestIsRejectedBeforeAuthorizationOrNetwork() async {
+        let authorization = RecommendRotatingAuthorization(
+            initialToken: "unused",
+            refreshedToken: "also-unused"
+        )
+        let client = RecommendClient(
+            baseURL: baseURL,
+            authorization: authorization,
+            session: URLProtocolStub.makeSession()
+        )
+        URLProtocolStub.install { _ in
+            Issue.record("An invalid local request must not reach the network")
+            throw URLError(.cancelled)
+        }
+        defer { URLProtocolStub.reset() }
+        let invalid = RecommendRequest(
+            items: [
+                RecommendCatalogItem(
+                    id: "a",
+                    name: String(repeating: "n", count: 257),
+                    category: "top"
+                ),
+                RecommendCatalogItem(id: "b", name: "B", category: "bottom"),
+            ],
+            recentlyWornIds: []
+        )
+
+        await #expect(
+            throws: RecommendRequestValidationIssue.catalogFieldTooLong(.name)
+        ) {
+            _ = try await client.recommend(invalid)
+        }
+        #expect(await authorization.rejectedTokens.isEmpty)
+        #expect(URLProtocolStub.captured.isEmpty)
     }
 }
 

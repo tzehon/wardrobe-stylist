@@ -41,10 +41,53 @@ struct ItemDetailsDraft: Equatable {
     init() {}
 
     var canSave: Bool {
-        !name.trimmedRequired.isEmpty
-            && !category.trimmedRequired.isEmpty
+        identityValidationMessage == nil
+            && detailsValidationMessage == nil
             && purchasePriceIsValid
             && purchaseCurrencyIsValid
+    }
+
+    var identityValidationMessage: String? {
+        let normalizedName = name.trimmedRequired
+        guard !normalizedName.isEmpty else { return "Enter a name." }
+        guard RecommendContractLimits.isWithin(
+            normalizedName,
+            maximum: RecommendContractLimits.maximumNameLength
+        ) else {
+            return "Use 256 or fewer characters for the name."
+        }
+
+        let normalizedCategory = category.trimmedRequired.lowercased()
+        guard !normalizedCategory.isEmpty else { return "Choose a category." }
+        guard RecommendContractLimits.isWithin(
+            normalizedCategory,
+            maximum: RecommendContractLimits.maximumCategoryLength
+        ) else {
+            return "Use 64 or fewer characters for the category."
+        }
+
+        if let normalizedBrand = brand.trimmedOptional,
+           !RecommendContractLimits.isWithin(
+               normalizedBrand,
+               maximum: RecommendContractLimits.maximumBrandLength
+           ) {
+            return "Use 128 or fewer characters for the brand."
+        }
+        return nil
+    }
+
+    var detailsValidationMessage: String? {
+        guard parsedColors.count <= RecommendContractLimits.maximumColors else {
+            return "List no more than 16 colors."
+        }
+        if let normalizedMaterial = material.trimmedOptional,
+           !RecommendContractLimits.isWithin(
+               normalizedMaterial,
+               maximum: RecommendContractLimits.maximumMaterialLength
+           ) {
+            return "Use 128 or fewer characters for the material."
+        }
+        return nil
     }
 
     var parsedColors: [String] {
@@ -138,7 +181,7 @@ struct ItemDetailsForm: View {
     let categories: [String]
 
     var body: some View {
-        Section("Identity") {
+        Section {
             TextField("Name", text: $draft.name)
                 .textInputAutocapitalization(.words)
                 .accessibilityIdentifier("item.details.name")
@@ -149,15 +192,29 @@ struct ItemDetailsForm: View {
             }
             TextField("Subcategory", text: $draft.subcategory)
             TextField("Brand", text: $draft.brand)
+        } header: {
+            Text("Identity")
+        } footer: {
+            if let message = draft.identityValidationMessage {
+                Text(message)
+                    .foregroundStyle(.red)
+            }
         }
 
-        Section("Details") {
+        Section {
             TextField("Colors (comma-separated)", text: $draft.colors)
             TextField("Size", text: $draft.size)
                 .accessibilityIdentifier("item.details.size")
             TextField("Material", text: $draft.material)
             TextField("Style notes", text: $draft.styleNotes, axis: .vertical)
                 .lineLimit(2...5)
+        } header: {
+            Text("Details")
+        } footer: {
+            if let message = draft.detailsValidationMessage {
+                Text(message)
+                    .foregroundStyle(.red)
+            }
         }
 
         Section {

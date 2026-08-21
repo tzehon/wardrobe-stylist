@@ -92,7 +92,7 @@ final class OutfitRecommender {
     private let calendar: Calendar
 
     /// An outfit needs at least this many items to be worth recommending.
-    private static let minimumCatalogItems = 2
+    private static let minimumCatalogItems = RecommendContractLimits.minimumItems
 
     init(
         recommendClient: RecommendClient,
@@ -329,6 +329,8 @@ final class OutfitRecommender {
 
     private static func message(for error: Error) -> String {
         switch error {
+        case let issue as RecommendRequestValidationIssue:
+            return issue.recoveryMessage
         case let authorizationError as AppAttestAuthorizationError:
             return authorizationError.localizedDescription
         case RecommendError.http(let status, _):

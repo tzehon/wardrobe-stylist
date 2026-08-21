@@ -23,6 +23,7 @@ struct RecommendClient: Sendable {
     }
 
     func recommend(_ payload: RecommendRequest) async throws -> RecommendResponse {
+        try payload.validateForWire()
         var rejectedToken: String?
         for attempt in 0..<2 {
             let token = try await authorization.accessToken(rejecting: rejectedToken)
