@@ -255,6 +255,7 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-19T23:34:44Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | OPEN · current-buffer markers only; aggregate 5xx unavailable | OPEN · public status page operational; console usage/spend-limit sign-in required | PASS · routing rehearsal confirmed | OPEN | Finish Fly aggregate 5xx and Anthropic console checks; no remediation applied | 2026-08-20 |
 | 2026-08-20T00:15:07Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 7d HTTP view: 200/401/405 only, no 5xx series; selected-event bursts below threshold | PASS · public status operational · <80% of configured limit · expected models/keys | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-19 |
 | 2026-08-21T01:11:43Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · post-v6 2d HTTP view: 401/404 only, no 5xx series; bounded marker buffer empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-20 |
+| 2026-08-21T03:30:33Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded markers empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; archive complete, repeat before upload | 2026-09-20 |
 
 ## Compliance and release evidence
 
@@ -320,8 +321,9 @@ Required before APP-009 can close:
   was restored to the registry, re-scanned clean, and passed an isolated old/new/old schema-v4
   rehearsal as an emergency pre-build-4 rollback only; using it would re-expose `/extract` and halt
   release. Both exact digests resolved after fresh private-registry authentication at
-  `2026-08-21T01:20:25Z`. The v6 digest is the required Gmail-free recovery baseline. The
-  payload-free post-deploy manual review passed at `2026-08-21T01:11:43Z`.
+  `2026-08-21T01:20:25Z`. The v6 digest is the required Gmail-free recovery baseline and resolved
+  again after fresh authentication during the `2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive
+  window. The payload-free post-deploy manual review passed at `2026-08-21T01:11:43Z`.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
@@ -354,7 +356,10 @@ Required before APP-009 can close:
   series without a 5xx series, and an empty bounded marker buffer. Anthropic public status was
   operational; signed-in spend was below 80% of its configured limit; only the production Wardrobe
   key on the expected model was visible; and no saturation warning was present. Support routing
-  remained rehearsed. Repeat before archive/upload and no later than 2026-09-20.
+  remained rehearsed. The required pre-archive repeat at `2026-08-21T03:30:33Z` again passed exact
+  image/Machine health, snapshot and volume bands, the two-day 200/401/404-only HTTP view with no
+  5xx series, empty bounded markers, Anthropic status/spend/model/key/saturation checks, and support
+  routing. Repeat immediately before upload and no later than 2026-09-20.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
@@ -378,6 +383,13 @@ Required before APP-009 can close:
   completed successfully at `2026-08-21T01:42:39Z`. Anonymous HTTPS checks at
   `2026-08-21T01:45:27Z` returned `200` for support, privacy, and Terms, confirmed reciprocal links
   and the 21 August 2026 effective date, and found no Gmail/Google/OAuth/import capability wording.
+- [x] Retain the signed build-4 archive evidence. Clean source
+  `dd3d99061321cf91bdce166e7da579b84edb07e8` produced an arm64 Apple Distribution archive for
+  `1.0.0 (4)` at `2026-08-21T03:34:13Z` with Xcode 26.6 and the iOS 26.5 SDK. The strict verifier
+  passed the signed scalar production App Attest entitlement, matching App Store distribution
+  profile, public configuration, app privacy manifest, and absence of shared-bearer, Google/Gmail/
+  OAuth, `/extract`, and receipt-background artifacts. The failed development-profile archive is
+  not eligible for validation or upload.
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.
