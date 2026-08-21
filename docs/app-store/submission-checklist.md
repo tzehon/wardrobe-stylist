@@ -87,8 +87,10 @@ or editable: [Required, localizable, and editable properties](https://developer.
   Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-artifact output.
   The exact upload target is
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; strict
-  certificate/profile, scalar production App Attest, public-config, privacy-manifest, dSYM, and
-  Gmail-free/secret-absence verification passed.
+  certificate/profile, scalar production App Attest, public-config, privacy-manifest, and Gmail-
+  free artifact verification passed. A separate targeted scan found no Anthropic/API-key, shared-
+  bearer, or private-key credential marker; separate `dwarfdump --uuid` output matched the arm64
+  app and dSYM at `5BA1F06E-7458-32A4-890F-36C8F22D9C13`.
 - [ ] Refresh App Store Connect's build-upload list immediately before validation/upload. Stop if
   build 4 is no longer unused; the completed archive-time check is not a substitute for this final
   read-only refresh.
