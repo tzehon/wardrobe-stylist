@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import plistlib
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -49,10 +50,63 @@ def _allowed_strings(values: dict[str, Any], key: str, *, source: str) -> set[st
     raise ReleaseIdentityError(f"{source} has invalid {key}")
 
 
+def _profile_expiration(
+    profile: dict[str, Any],
+    *,
+    now: datetime | None = None,
+) -> None:
+    expiration = profile.get("ExpirationDate")
+    if not isinstance(expiration, datetime):
+        raise ReleaseIdentityError(
+            "embedded provisioning profile is missing a valid ExpirationDate"
+        )
+
+    # Provisioning-profile plists encode UTC dates without an explicit timezone.
+    expiration_utc = (
+        expiration.replace(tzinfo=timezone.utc)
+        if expiration.tzinfo is None
+        else expiration.astimezone(timezone.utc)
+    )
+    current = now or datetime.now(timezone.utc)
+    current_utc = (
+        current.replace(tzinfo=timezone.utc)
+        if current.tzinfo is None
+        else current.astimezone(timezone.utc)
+    )
+    if expiration_utc <= current_utc:
+        raise ReleaseIdentityError("embedded provisioning profile has expired")
+
+
+def _verify_signing_certificate(
+    profile: dict[str, Any], signing_certificate: bytes
+) -> None:
+    if not signing_certificate:
+        raise ReleaseIdentityError("signed app leaf certificate is empty")
+    developer_certificates = profile.get("DeveloperCertificates")
+    if (
+        not isinstance(developer_certificates, list)
+        or not developer_certificates
+        or any(
+            not isinstance(certificate, bytes) or not certificate
+            for certificate in developer_certificates
+        )
+    ):
+        raise ReleaseIdentityError(
+            "embedded provisioning profile has invalid DeveloperCertificates"
+        )
+    if signing_certificate not in developer_certificates:
+        raise ReleaseIdentityError(
+            "signed app leaf certificate is not authorized by the embedded provisioning profile"
+        )
+
+
 def validate_signed_identity(
     info: dict[str, Any],
     signed_entitlements: dict[str, Any],
     profile: dict[str, Any],
+    signing_certificate: bytes,
+    *,
+    now: datetime | None = None,
 ) -> None:
     """Require the bundle, signed entitlements, and profile to describe one App ID."""
     bundle_id = _required_string(info, "CFBundleIdentifier", source="built Info.plist")
@@ -63,7 +117,9 @@ def validate_signed_identity(
 
     profile_entitlements = profile.get("Entitlements")
     if not isinstance(profile_entitlements, dict):
-        raise ReleaseIdentityError("embedded provisioning profile has no Entitlements dictionary")
+        raise ReleaseIdentityError(
+            "embedded provisioning profile has no Entitlements dictionary"
+        )
     if (
         profile_entitlements.get("get-task-allow") is not False
         or profile_entitlements.get("beta-reports-active") is not True
@@ -73,6 +129,16 @@ def validate_signed_identity(
         raise ReleaseIdentityError(
             "embedded provisioning profile must be for App Store distribution"
         )
+    if (
+        "get-task-allow" in signed_entitlements
+        and signed_entitlements["get-task-allow"] is not False
+    ):
+        raise ReleaseIdentityError(
+            "signed app get-task-allow must be absent or exactly false"
+        )
+
+    _profile_expiration(profile, now=now)
+    _verify_signing_certificate(profile, signing_certificate)
 
     app_id_prefix = _single_string(
         profile,
@@ -141,14 +207,18 @@ def _load_plist(path: Path) -> dict[str, Any]:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 4:
+    if len(argv) != 5:
         print(
-            f"usage: {argv[0]} BUILT_INFO_PLIST SIGNED_ENTITLEMENTS_PLIST PROFILE_PLIST",
+            f"usage: {argv[0]} BUILT_INFO_PLIST SIGNED_ENTITLEMENTS_PLIST "
+            "PROFILE_PLIST SIGNING_LEAF_CERTIFICATE_DER",
             file=sys.stderr,
         )
         return 2
     try:
-        validate_signed_identity(*(_load_plist(Path(value)) for value in argv[1:]))
+        validate_signed_identity(
+            *(_load_plist(Path(value)) for value in argv[1:4]),
+            Path(argv[4]).read_bytes(),
+        )
     except (OSError, plistlib.InvalidFileException, ReleaseIdentityError) as error:
         print(f"Release identity verification failed: {error}", file=sys.stderr)
         return 1

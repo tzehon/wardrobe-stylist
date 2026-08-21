@@ -71,9 +71,12 @@ readonly BUILT_PLATFORM="$(
 case "${BUILT_PLATFORM}" in
   iphoneos)
     /usr/bin/python3 "${SCRIPT_DIR}/validate_public_release.py" "${INFO_PLIST}"
-    readonly ENTITLEMENTS_PLIST="$(/usr/bin/mktemp -t wardrobe-release-entitlements)"
-    readonly PROFILE_PLIST="$(/usr/bin/mktemp -t wardrobe-release-profile)"
-    trap '/bin/rm -f "${ENTITLEMENTS_PLIST}" "${PROFILE_PLIST}"' EXIT
+    readonly RELEASE_IDENTITY_TEMP_DIR="$(/usr/bin/mktemp -d -t wardrobe-release-identity)"
+    readonly ENTITLEMENTS_PLIST="${RELEASE_IDENTITY_TEMP_DIR}/entitlements.plist"
+    readonly PROFILE_PLIST="${RELEASE_IDENTITY_TEMP_DIR}/profile.plist"
+    readonly SIGNING_CERTIFICATE_PREFIX="${RELEASE_IDENTITY_TEMP_DIR}/signing-certificate-"
+    readonly SIGNING_CERTIFICATE="${SIGNING_CERTIFICATE_PREFIX}0"
+    trap '/bin/rm -rf "${RELEASE_IDENTITY_TEMP_DIR}"' EXIT
     /usr/bin/codesign --display --entitlements - --xml "${APP_PATH}" \
       >"${ENTITLEMENTS_PLIST}" 2>/dev/null \
       || fail "could not read the built app entitlements"
@@ -85,8 +88,15 @@ case "${BUILT_PLATFORM}" in
       || fail "could not decode the embedded provisioning profile"
     /usr/bin/plutil -lint "${PROFILE_PLIST}" >/dev/null \
       || fail "embedded provisioning profile is invalid"
+    /usr/bin/codesign --display \
+      --extract-certificates="${SIGNING_CERTIFICATE_PREFIX}" "${APP_PATH}" \
+      >/dev/null 2>&1 \
+      || fail "could not extract the built app signing certificate"
+    [[ -s "${SIGNING_CERTIFICATE}" ]] \
+      || fail "built app signature has no extractable leaf certificate"
     /usr/bin/python3 "${SCRIPT_DIR}/verify_release_identity.py" \
-      "${INFO_PLIST}" "${ENTITLEMENTS_PLIST}" "${PROFILE_PLIST}"
+      "${INFO_PLIST}" "${ENTITLEMENTS_PLIST}" "${PROFILE_PLIST}" \
+      "${SIGNING_CERTIFICATE}"
     readonly APP_ATTEST_RESULT="production App Attest entitlement and matching provisioning profile"
     ;;
   iphonesimulator)
@@ -120,8 +130,9 @@ readonly -a FORBIDDEN_SDK_BUNDLES=(
 )
 
 for bundle_name in "${FORBIDDEN_SDK_BUNDLES[@]}"; do
-  bundle_path="${APP_PATH}/${bundle_name}"
-  [[ ! -e "${bundle_path}" ]] || fail "removed SDK resource bundle is still embedded: ${bundle_name}"
+  bundle_path="$(/usr/bin/find "${APP_PATH}" -name "${bundle_name}" -print -quit)"
+  [[ -z "${bundle_path}" ]] \
+    || fail "removed SDK resource bundle is still embedded: ${bundle_path#${APP_PATH}/}"
 done
 
 while IFS= read -r manifest_path; do
