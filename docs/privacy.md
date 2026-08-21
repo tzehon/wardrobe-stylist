@@ -81,11 +81,14 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, and
-complete build-5 processed-client physical evidence remain release gates. Build-4 archive/upload/
-processing/internal assignment and partial physical evidence are historical. Live Fly v7 suppresses
-bounded registration/assertion success markers at INFO; protected `/recommend` remains aggregate/
-client-evidenced. The repository fix is validated but not deployed.
+enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, real
+lifecycle-marker observation, and complete build-5 processed-client physical evidence remain
+release gates. Build-4 archive/upload/processing/internal assignment and partial physical evidence
+are historical. Fly v8 deploys the targeted auth-service INFO logger and production TestFlight
+allowlist for builds `4,5`; its payload-free post-change review passed at
+`2026-08-21T11:09:20Z`. The first bounded query returned zero registration, assertion, and deletion
+success events because none was exercised, so deployment is not production marker observation.
+Protected `/recommend` remains aggregate/client-evidenced.
 
 ## Data inventory
 

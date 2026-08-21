@@ -62,12 +62,22 @@ which is reserved locally after a later 2026-08-21 live App Store Connect check 
 the highest upload. Build 5 has not been archived, verified, validated, uploaded, processed, or
 assigned.
 
-- [ ] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
-  assertion success-marker logging fix, and source `4,5` TestFlight allowlist.
+- [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
+  assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
+  merged at `2026-08-21T10:29:56Z`; frozen shipped-code/backend source was
+  `4a75b99dcd49e818ad1d5b198e8c49abba702e18`. Later docs-only evidence does not change the
+  deployed image or iOS bundle.
 - [x] Retain the current local build-5 pre-archive regression: 221 backend tests plus locked audit/
   Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, all 43 release-script tests, and Release
   simulator/artifact checks passed after project regeneration. Rerun affected gates if source or
   configuration changes; this is not signed-archive or distribution evidence.
+- [x] Build, scan, deploy, configure, and review the exact frozen backend. Fly v8 completed at
+  `2026-08-21T10:45:06Z` with exact source and immutable registry digest
+  `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+  Local/registry zero-critical/high scans, runtime/storage/route checks, production App Attest
+  category `2` and builds `4,5`, targeted INFO logging, rollback/recovery checks, and the payload-
+  free post-change review at `2026-08-21T11:09:20Z` passed. This is not lifecycle-event,
+  signed-archive, upload, or physical-device proof.
 - [ ] After the live build-list refresh and exact backend deployment/review, create and strictly
   verify a new production-signed `1.0.0 (5)` archive. Retain new source, profile, entitlement,
   privacy, absence, credential-scan, and app/dSYM evidence; do not reuse build-4 evidence.
@@ -76,7 +86,7 @@ assigned.
   `main`. PR #19 rebase-merged source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
 - [x] Build and scan the exact frozen `linux/amd64` backend image, deploy only its recorded digest,
   verify production health/configuration/Gmail-free behavior, and complete the required payload-
-  free post-deploy manual review. Fly v7 serves
+  free post-deploy manual review. At this historical build-4 gate, Fly v7 served
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`;
   the review passed at `2026-08-21T06:00:21Z`.
 - [x] Confirm the latest build already uploaded to App Store Connect, then select the next unused
@@ -147,11 +157,13 @@ assigned.
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
   identity existed to delete. Build 4 was installed only from processed TestFlight and never over
   the older app; do not claim migration.
-- [ ] Deploy and verify the repository's payload-free registration/assertion INFO success-marker
-  logging and production build `4,5` allowlist before build-5 QA. Protected `/recommend` remains
-  aggregate/client-evidenced. Live v7 still suppresses those two success markers. The latest
-  listed 14-day snapshot at `2026-08-21T07:32:23Z` predates build-4 enrollment, so server deletion/
-  reinstall and deletion-specific recovery remain paused and open.
+- [ ] From processed build 5, exercise and observe real payload-free `registration_succeeded` and
+  `assertion_succeeded` INFO events. Fly v8 deploys the targeted logger and production build `4,5`
+  allowlist, but its post-deploy counts for registration, assertion, and deletion success remained
+  zero because none was exercised. Observe `installation_deleted` only during the later identity-
+  safe handoff. Protected `/recommend` remains aggregate/client-evidenced. The latest listed 14-day
+  snapshot at `2026-08-21T07:32:23Z` predates build-4 enrollment, so server deletion/reinstall and
+  deletion-specific recovery remain paused and open.
 
 ## 5. Upload, review, and release
 

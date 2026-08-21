@@ -196,8 +196,9 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list, deletion-specific recovery, App Privacy, live registration/assertion
-success-marker logging, and complete build-5 processed-client physical proof remain release gates.
+Unchecked snapshot-list, deletion-specific recovery, App Privacy, real registration/assertion
+success-marker observation, and complete build-5 processed-client physical proof remain release
+gates.
 Historical partial build-4 QA, Apple processing/internal assignment, and a healthy `/health`
 response do not close them.
 
@@ -236,13 +237,17 @@ completed first and cold-renewal protected calls, and recovered online; runtime 
 fields were absent as expected. Local/Demo features remained usable offline. This was partial QA,
 not build-5 proof.
 
-Live Fly v7 suppresses bounded registration/assertion success markers at INFO. Protected
-`/recommend` intentionally has no developer success marker and remains aggregate/client-evidenced.
-The repository logging fix and source TestFlight allowlist for builds `4,5` are locally validated
-but not deployed. The latest listed 14-day snapshot at `2026-08-21T07:32:23Z` predates enrollment,
-so server deletion/reinstall testing remains paused pending eligible recovery evidence. Build 5
-must be installed cleanly after
-processing and must close the full physical matrix without claiming upgrade support.
+Fly v8 completed at `2026-08-21T10:45:06Z` from reviewed PR #23 source
+`4a75b99dcd49e818ad1d5b198e8c49abba702e18` and immutable `linux/amd64` digest
+`sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
+Its targeted auth-service INFO logger and TestFlight allowlist for builds `4,5` are live, and the
+payload-free post-change review passed at `2026-08-21T11:09:20Z`. The first bounded query returned
+zero registration, assertion, and deletion success events because none was exercised, so real
+production marker observation remains open. Protected `/recommend` intentionally has no developer
+success marker and remains aggregate/client-evidenced. The latest listed 14-day snapshot at
+`2026-08-21T07:32:23Z` predates enrollment, so server deletion/reinstall testing remains paused
+pending eligible recovery evidence. Build 5 must be installed cleanly after processing and must
+close the full physical matrix without claiming upgrade support.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

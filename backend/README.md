@@ -62,32 +62,41 @@ bundle-version extensions arrive on iOS 27 and later: their signed absence is ac
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
 The approved operational limits are defined in
 [`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
-Fly release v7 runs the exact reviewed Gmail-free repository enforcement with a one-minute
-maintenance loop on the minimum-one-Machine production topology; the retained v6 Gmail-free image
-remains the eligible post-build-4 recovery path. Cleanup repeats bounded transactions until drained,
+Fly release v8 runs reviewed PR #23 source
+`4a75b99dcd49e818ad1d5b198e8c49abba702e18` at immutable `linux/amd64` digest
+`sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`
+with a one-minute maintenance loop on the minimum-one-Machine production topology. Former v7 digest
+`sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
+is the immediate rollback, while retained v6 Gmail-free digest
+`sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
+remains the eligible post-build-4 recovery path; both freshly re-resolved and scanned with zero
+critical/high vulnerabilities. Both are operational recovery only: using either reopens the exact-
+candidate deployment, configuration, and manual-review gates and blocks build-5 archive/QA until
+v8 is restored and reverified. Cleanup repeats bounded transactions until drained,
 removes inactive installations after 90 days and revoked installations after 30 days, and securely
 checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
 exposes that server-only control. The exact live and retained-recovery digests and scan evidence are
 recorded in the internal-TestFlight runbook. The owner-approved payload-free manual operations
 review replaces automated alert delivery for this personal single-user release. The first manual
-review passed on 2026-08-20, and the reviewed v7 post-deploy review passed on 2026-08-21. The
-Gmail-free public pages are live; snapshot-list expiry and deletion-specific recovery remain
+review passed on 2026-08-20, and the reviewed v8 post-change review passed at
+`2026-08-21T11:09:20Z`. The Gmail-free public pages are live; snapshot-list expiry and deletion-
+specific recovery remain
 release gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v7 can emit bounded application `WARNING`/`ERROR` events but retains
-Uvicorn's default filtering of application `INFO`. The next-image logging configuration in this
-repository enables application `INFO` only for `app.auth.service`, routes it through one
-non-propagating handler, leaves other application `INFO` logs disabled, and keeps Uvicorn access
-logging off. It is not live until a new immutable image is built, scanned, deployed, and reviewed.
+mechanism tuple. Live Fly v8 enables application `INFO` only for `app.auth.service`, routes it
+through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
+Uvicorn access logging off. The first post-deploy bounded query returned zero
+`registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events because none was
+exercised; real production lifecycle-marker observation remains a release gate.
 Structural and production-equivalent tests pin the reviewed auth schema, persistence sinks,
 application log calls, and container command.
 Fly Security confirmed that provider-controlled logs can include source IP and that customers
 cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner explicitly accepted
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
-flow. Required manual reviews through the live v7 deployment have passed. Snapshot-list expiry,
+flow. Required manual reviews through the live v8 deployment have passed. Snapshot-list expiry,
 final App Privacy publication, and deletion-specific recovery remain release gates; the manual
 review must remain current under the approved cadence.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
