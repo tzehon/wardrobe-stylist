@@ -259,20 +259,15 @@ flowchart LR
 
 ## Build 4 clean-install transition
 
-Build `1.0.0 (4)` is intentionally fresh-install-only. The owner approved discarding the local
-wardrobe from TestFlight builds 1–3 and adding items again. Never install build 4 over an earlier
-build.
+Build `1.0.0 (4)` is intentionally fresh-install-only. The owner approved discarding the earlier
+local wardrobe and adding items again. The installed development build disconnected Google and
+deleted local data, but predated the server-deletion UI. A read-only aggregate production check
+found zero installations, sessions, and pending challenges before it was uninstalled, so no live
+production identity required deletion. This is evidence for that retired build only, not a general
+server-deletion bypass.
 
-On the earlier build, complete this sequence in order:
-
-1. **Disconnect Google** and wait for the app to report success.
-2. **Delete Server Security Data** and wait for the fresh App Attest deletion to report success.
-3. Uninstall Wardrobe Stylist. This deletes the earlier device-local wardrobe.
-4. Install build 4 as a clean app and enroll its new anonymous App Attest installation.
-
-The first two actions cannot be recovered after uninstall because the Gmail-free app no longer has
-the Google client and App Attest reinstall creates a different anonymous installation. Release QA
-must retain the successful pre-uninstall checks and must not claim upgrade or migration support.
+Install build 4 only from processed TestFlight as a clean app and enroll its new anonymous App
+Attest installation. Never install it over an earlier app or claim upgrade/migration support.
 
 ## Historical Gmail implementation
 

@@ -62,7 +62,8 @@ offline Demo Mode, and optional AI styling protected by App Attest. The earlier 
 receipt-import subsystem has been removed from active v1 source and is deferred to a separately
 reviewed future release.
 
-Build `1.0.0 (4)` is a fresh-install-only transition from TestFlight builds 1–3. Before uninstalling
-an older build, complete **Disconnect Google** and **Delete Server Security Data**, then uninstall
-and install build 4. The owner explicitly accepted losing the old local wardrobe and re-adding
-items; do not install build 4 over an older build.
+Build `1.0.0 (4)` is fresh-install-only. The earlier development app was disconnected from Google,
+locally cleared, and uninstalled after a read-only production check found zero installations, zero
+sessions, and zero pending challenges; it predated the server-deletion UI. The owner explicitly
+accepted losing the old local wardrobe and re-adding items. Install build 4 only from processed
+TestFlight, never over an older app.

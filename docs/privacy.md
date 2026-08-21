@@ -110,15 +110,16 @@ specific confirmation, and a failure must never be presented as deletion success
 
 ## Build 4 privacy transition
 
-Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the device-local wardrobe
-from TestFlight builds 1–3 and adding items again. Before uninstalling an older build, complete
-**Disconnect Google**, then **Delete Server Security Data**, and wait for each to report success.
-Only then uninstall the app and install build 4 cleanly. Do not install build 4 over an older build
-or claim an in-place migration.
+Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the earlier device-local
+wardrobe and adding items again. The installed development build completed Google disconnection
+and local deletion, but predated the server-deletion UI; a read-only aggregate production check
+found zero installations, zero sessions, and zero pending challenges before it was uninstalled.
+Install build 4 only from processed TestFlight, never over an older app, and do not claim an
+in-place migration.
 
-The ordering matters: uninstall removes local data and the old Google client, while reinstall
-creates a different anonymous App Attest identity that cannot prove control of the prior live
-server record.
+The ordering mattered because uninstall removed local data and the old Google client. The clean
+build-4 install will create a new anonymous App Attest identity; the zero-count production check is
+the retained reason no earlier live server record required proof-of-possession deletion.
 
 ## Secrets and release boundaries
 

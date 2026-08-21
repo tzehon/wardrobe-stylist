@@ -215,21 +215,16 @@ Every internal beta is built as an App Store candidate. Follow the
 8. add the processed build to the Internal Testing group and complete the mandatory clean-
    uninstall transition plus fresh-install physical-device QA.
 
-### Mandatory transition from TestFlight builds 1–3
+### Completed clean-uninstall transition before build 4
 
-Build `1.0.0 (4)` is fresh-install-only. The owner approved losing the earlier local wardrobe and
-adding items again. Never install build 4 over builds 1–3.
+Build `1.0.0 (4)` is fresh-install-only. On 2026-08-21 the installed development build completed
+**Disconnect Google** and **Delete Local Data**. It predated **Delete Server Security Data**, but a
+read-only aggregate production query found zero installations, sessions, and pending challenges,
+so no live production record existed to delete. The owner then uninstalled it and accepted losing
+the earlier local wardrobe.
 
-While the older build is still installed:
-
-1. open **Settings → Connected Features** and complete **Disconnect Google**;
-2. open **Settings → Privacy & Data** and complete **Delete Server Security Data**;
-3. wait for both actions to report success;
-4. uninstall Wardrobe Stylist, which deletes its local wardrobe; and
-5. install build 4 as a clean app.
-
-Do not uninstall first: the Gmail-free build cannot revoke the old Google grant, and a reinstall
-creates a different App Attest identity that cannot prove control of the previous live server row.
+Install `1.0.0 (4)` only after it has processed in TestFlight. Never install it over an earlier app;
+the clean install must enroll its own production App Attest identity.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

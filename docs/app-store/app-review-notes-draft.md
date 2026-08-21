@@ -104,16 +104,19 @@ routes to Today. Public v1 has no Gmail or receipt background task.
 - [ ] Replace every backend, health, fixture, and contact placeholder.
 - [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
 - [ ] Confirm the archive has no Google/Gmail/receipt-import capability and no login screen.
-- [ ] Confirm build 4 is distributed only as a clean install. Builds 1–3 must first complete
-  Disconnect Google and Delete Server Security Data, then be uninstalled; the owner accepted the
-  resulting local wardrobe reset. Do not claim in-place migration support.
+- [x] Record the pre-upload transition. The installed development build disconnected Google,
+  deleted local data, and was uninstalled after production showed zero installations, zero sessions,
+  and zero pending challenges. It predated the server-deletion UI, so do not claim that unavailable
+  action succeeded or claim in-place migration support.
+- [ ] Confirm the processed build 4 is distributed and installed only as a clean install.
 - [ ] Confirm the production API is healthy throughout the review window.
 - [ ] Confirm App Attest is enabled for the exact App ID and prefix; the archive/profile contain
   the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
   the intended signed category/build. On iOS 18–26, record the expected field absence without
   claiming category/build enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
-  limits, and an App-Attest-only rollback image against the deployed backend.
+  limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
+  The former v5 image is only a pre-build-4 abort because it re-exposes `/extract` and halts release.
 - [ ] Confirm server-security-data deletion against the final backend and retain only redacted
   success/restore evidence.
 - [ ] Confirm the obsolete shared-bearer build is rejected without breaking the submitted build.
