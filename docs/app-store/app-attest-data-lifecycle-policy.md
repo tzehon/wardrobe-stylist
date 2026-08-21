@@ -3,12 +3,11 @@
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
-- **Release compliance:** Historical repository enforcement and exact Gmail-free policy-image v6
-  deployment evidence retained; Fly provider and manual-operations boundaries explicitly
-  accepted; historical manual reviews and Gmail-free public support/privacy/Terms routes retained.
-  Reviewed iOS/backend fixes, their exact scanned backend deployment, post-deploy and pre-upload
-  manual reviews, replacement signed-archive evidence, snapshot-list expiry, and deletion-specific
-  recovery remain incomplete
+- **Release compliance:** Repository enforcement and the exact reviewed Gmail-free v7 deployment
+  are verified; Fly provider and manual-operations boundaries are explicitly accepted; the new
+  post-deploy review and Gmail-free public support/privacy/Terms routes are retained. The immediate
+  pre-upload review, replacement signed-archive evidence, snapshot-list expiry, and deletion-
+  specific recovery remain incomplete
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -140,15 +139,15 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Data | Approved limit / accepted provider boundary | Current repository/production truth |
 |---|---|---|
 | Wardrobe request payloads | Request lifetime only; no application persistence | Current routes do not persist payloads. Review guardrails pin the exact auth schema, block common file/database persistence patterns and direct auth-store use from payload modules, and allowlist current application log calls. Anthropic/provider terms remain separate evidence |
-| App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v6 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
-| Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v6 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
-| Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v6's one-minute maintenance loop |
-| Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v6 purges inactive installations at the deadline and cascades their sessions |
-| Revoked installation metadata | 30 days after revocation | Fly v6 purges revoked installations at the deadline and cascades their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
-| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. The replacement iOS candidate must persist the post-dispatch deletion fence across termination/relaunch and retain its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v6 is deployed; replacement archive and processed-TestFlight proof remain pending |
-| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v6 is configured for 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
+| App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v7 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
+| Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v7 runs one-minute deadline maintenance on the minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
+| Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v7's one-minute maintenance loop |
+| Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v7 purges inactive installations at the deadline and cascades their sessions |
+| Revoked installation metadata | 30 days after revocation | Fly v7 purges revoked installations at the deadline and cascades their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
+| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v7 is deployed; replacement archive and processed-TestFlight proof remain pending |
+| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v7 is configured for 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
-| Wardrobe application access logs | None | Fly v6's running Uvicorn process uses `--no-access-log`, and a regression pins that production command |
+| Wardrobe application access logs | None | Fly v7's running Uvicorn process uses `--no-access-log`, and a regression pins that production command |
 | Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly retains the customer-visible stream for seven days, which is not configurable per app |
 | Provider-generated proxy/platform records in the customer-visible stream | Fixed seven days, including when a provider record contains client IP | Fly says these records can include paths, request IDs, and sometimes client IP; retention cannot be shortened, disabled, or configured per app |
 | Separate Fly operational/abuse-prevention logs | Fly-defined in-service retention with no disclosed or customer-enforceable numeric maximum; explicitly accepted 2026-08-19 | Fly says these records can include connection metadata such as source IP but does not publish the requested per-system fields, retention, or purge timing |
@@ -260,6 +259,7 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-20T00:15:07Z | PASS · expected Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 7d HTTP view: 200/401/405 only, no 5xx series; selected-event bursts below threshold | PASS · public status operational · <80% of configured limit · expected models/keys | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-19 |
 | 2026-08-21T01:11:43Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · post-v6 2d HTTP view: 401/404 only, no 5xx series; bounded marker buffer empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-20 |
 | 2026-08-21T03:30:33Z | PASS · exact Gmail-free Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded markers empty | PASS · public status operational · <80% of configured limit · production key on expected model · no saturation warning | PASS · routing rehearsal confirmed | PASS | Historical archive completed; later superseded by review fixes; repeat after replacement deploy and before upload | 2026-09-20 |
+| 2026-08-21T06:00:21Z | PASS · exact reviewed v7 Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded marker queries empty | PASS · public status operational · <80% of configured limit · production key on Opus 4.8 · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; repeat immediately before replacement-archive upload | 2026-09-20 |
 
 ## Compliance and release evidence
 
@@ -278,15 +278,17 @@ Verified as of 2026-08-21:
   against every possible future persistence mechanism.
 - [x] A one-minute lifecycle task starts and stops with FastAPI, uses cold-start lookahead, and
   repeats bounded cleanup transactions until every eligible challenge, session, and rate row is
-  drained. Fly v6 runs the committed minimum-one-Machine production topology.
+  drained. Fly v7 runs the committed minimum-one-Machine production topology.
 - [x] Repository cleanup enforces 90-day inactive-installation and 30-day revoked-installation
   limits, cascades sessions, uses SQLite secure deletion, and checkpoints/truncates WAL.
-- [ ] A fresh one-time App Attest deletion assertion synchronously deletes the proven installation;
+- [x] A fresh one-time App Attest deletion assertion synchronously deletes the proven installation;
   the separate in-app Privacy & Data control must persist its pending-deletion fence across app
   termination/relaunch after proof dispatch, retain the existing credential only for ambiguous-
   response retries, clear that reference only after confirmed server deletion/absence, and only
-  then allow a future remote-AI request to enroll a new anonymous identity. The running-actor-only
-  fence in the superseded `dd3d990` archive is insufficient; merge and verify the reviewed fix.
+  then allow a future remote-AI request to enroll a new anonymous identity. PR #19 merged the
+  persisted fence and relaunch/retry coverage in source
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`; replacement signed-archive and processed-TestFlight
+  proof remain separate gates.
 - [x] The production container command disables Uvicorn access logs and is pinned by a regression.
 - [x] A redacted production-operations inventory on 2026-08-19 reconfirmed Fly v5 healthy on
   the immutable policy image, one encrypted 1 GB auth volume, automatic daily snapshots, and a
@@ -329,13 +331,20 @@ Required before APP-009 can close:
   `2026-08-21T01:20:25Z`. The v6 digest is the required Gmail-free recovery baseline and resolved
   again after fresh authentication during the `2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive
   window. The payload-free post-deploy manual review passed at `2026-08-21T01:11:43Z`.
-- [ ] Merge and freeze the reviewed backend fixes, then build the exact final `linux/amd64` image,
-  pass local and immutable-registry critical/high scans, and deploy only the recorded digest.
-  Verify the running source/image label, Machine and service health, encrypted auth volume,
-  expected schema/integrity, App Attest configuration and rate-limit behavior, `/extract = 404`,
-  and fail-closed unauthenticated `/recommend`. The current v6 image predates these fixes and does
-  not satisfy this replacement-deployment gate; no future source SHA, digest, scan, or deployment
-  is claimed until it is completed.
+- [x] PR #19 rebase-merged the reviewed fixes as
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Its exact local `linux/amd64` image ID
+  `sha256:ac409ec2e687b96f718aeffd27dd244814919483f86e4af2dea3d97e9a80c643`
+  and immutable registry digest
+  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
+  each passed a Docker Scout critical/high scan across 90 packages. Fly release v7 deployed only
+  that digest. The running label matches the reviewed source; one Singapore Machine and its health
+  check pass; `min_machines_running = 1`; the encrypted 1 GB auth volume remains attached with
+  automatic 14-day snapshots; schema v4 integrity is `ok` with zero foreign-key errors; production
+  App Attest category/build configuration remains `2`/`4`; `/extract` returns `404`; and
+  unauthenticated `/recommend` returns `401`. Locked backend tests cover the reviewed quota order.
+  Gmail-free v6 digest `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
+  remains the freshly scan-clean recovery baseline; both exact v7 and v6 digests resolved after
+  fresh registry authentication at `2026-08-21T06:06:01Z`.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
@@ -372,10 +381,17 @@ Required before APP-009 can close:
   image/Machine health, snapshot and volume bands, the two-day 200/401/404-only HTTP view with no
   5xx series, empty bounded markers, Anthropic status/spend/model/key/saturation checks, and support
   routing. These remain historical v6/`dd3d990` attestations.
-- [ ] After deploying the exact reviewed backend image, complete and record a new payload-free
-  post-deploy manual review. Repeat the same review against that exact deployment immediately
-  before replacement-archive upload and no later than 2026-09-20. Both passes are required; the
-  historical v6 reviews cannot be carried forward across the backend change.
+- [x] Complete and record the payload-free post-deploy manual review against exact reviewed Fly v7.
+  At `2026-08-21T06:00:21Z`, the exact Machine/image, health, encrypted-volume, snapshot, and
+  below-warning usage bands passed. The two-day Fly Edge view showed only 200/401/404 series and no
+  5xx series; aggregate bounded auth, Anthropic, stylist, and schema-failure marker queries were
+  empty. Anthropic public status was operational, signed-in spend was below 80% of a configured
+  limit, only the production Wardrobe key on Opus 4.8 was visible, and no saturation warning was
+  present. Support routing remained rehearsed. No raw sample, identifier, exact billing amount,
+  credential, screenshot, or provider body is retained as evidence.
+- [ ] Repeat the same payload-free review against exact Fly v7 immediately before replacement-
+  archive upload and no later than 2026-09-20. The post-deploy pass cannot be carried forward across
+  a later backend/configuration change.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub

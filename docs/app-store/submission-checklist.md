@@ -57,11 +57,13 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 ## 4. Release candidate and evidence
 
-- [ ] Merge and freeze the reviewed Swift/backend/contract/verifier fixes on a clean synchronized
-  `main`; record the exact source SHA and do not deploy or archive an unmerged working tree.
-- [ ] Build and scan the exact frozen `linux/amd64` backend image, deploy only its recorded digest,
+- [x] Merge and freeze the reviewed Swift/backend/contract/verifier fixes on clean synchronized
+  `main`. PR #19 rebase-merged source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
+- [x] Build and scan the exact frozen `linux/amd64` backend image, deploy only its recorded digest,
   verify production health/configuration/Gmail-free behavior, and complete the required payload-
-  free post-deploy manual review.
+  free post-deploy manual review. Fly v7 serves
+  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`;
+  the review passed at `2026-08-21T06:00:21Z`.
 - [ ] Confirm the latest build already uploaded to App Store Connect, then select the next unused
   `CURRENT_PROJECT_VERSION`. If this exact internal build may be promoted, set the intended public
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.

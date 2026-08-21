@@ -25,27 +25,29 @@ an App Store release candidate from the moment it is archived. This prevents a s
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; local and remote `main` were synchronized before
   the release image was built. The archive source is later `dd3d99061321cf91bdce166e7da579b84edb07e8`,
-  which adds the signed-profile verifier fix without changing that shipped app bundle. Subsequent
-  code-review work changes shipped Swift and backend source; no merged replacement source SHA is
-  recorded yet.
+  which adds the signed-profile verifier fix without changing that shipped app bundle. PR #19 then
+  rebase-merged the reviewed Swift/backend/contract/verifier fixes; the clean replacement source is
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Its backend is deployed, while its clean replacement
+  Release regression and signed archive remain open.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. Live App Store
   Connect immediately before the historical archive confirmed build 3 as the highest upload. Keep
   build 4 only if a fresh check immediately before the replacement archive still confirms it is
   unused; otherwise stop and choose the next unused integer. The historical signed build-4 archive
   has been superseded and is not eligible for validation or upload.
-- Current production backend baseline: Fly release v6 serves the Gmail-free policy-enforced
-  `linux/amd64` image from source
-  `9a48caebdec67ac26673c3ba51546a5e7edcf0cc` at immutable digest
-  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`,
+- Current production backend baseline: Fly release v7 serves the exact reviewed `linux/amd64`
+  image from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at immutable digest
+  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`,
   with validation category `2`, bundle-build allowlist `4`, durable encrypted auth storage, and
-  `min_machines_running = 1`. Emergency pre-build-4 rollback digest
+  `min_machines_running = 1`. Local and immutable-registry scans each covered 90 packages and found
+  no critical/high vulnerability. Gmail-free v6 digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
+  remains the required recovery baseline and passed a fresh registry scan. Both exact v7 and v6
+  digests resolved after fresh registry authentication at `2026-08-21T06:06:01Z`. Emergency
+  pre-build-4 rollback digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
-  is App-Attest-only and scan-clean. After fresh private-registry authentication at
-  `2026-08-21T01:20:25Z`, it and the v6 digest both resolved successfully. It re-exposes `/extract`;
-  using it must halt the release. The v6 digest is the required Gmail-free recovery baseline.
-  Production `/extract` now returns `404`. This image predates the reviewed backend fixes. Build,
-  scan, deploy, and verify an exact image from the eventual merged review-fix source before the
-  next archive; no replacement digest or deployment is claimed here.
+  is App-Attest-only and scan-clean, but it re-exposes `/extract`; using it must halt the release.
+  Production `/extract` returns `404`, unauthenticated `/recommend` returns `401`, and the v7
+  post-deploy review passed at `2026-08-21T06:00:21Z`.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
   fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
@@ -59,10 +61,11 @@ an App Store release candidate from the moment it is archived. This prevents a s
   the signed `1.0.0 (4)` App Store archive. Its strict verifier passed the production App Attest
   entitlement, matching distribution profile, public configuration, app privacy manifest, and
   removed-capability checks. Preserve these facts as history only: the shipped Swift/backend and
-  contract/verifier changes under review invalidate the old regression and archive as current
-  candidate evidence. No replacement test result, Release artifact, or signed archive is recorded.
+  merged contract/verifier changes invalidate the old regression and archive as current
+  candidate evidence. Merged-main CI is green, but no clean per-build replacement regression
+  evidence, retained Release artifact, or signed archive is recorded.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v6 deploys
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v7 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -72,8 +75,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   protected API call, and server-deletion UI proof are still required. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
   `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
-  `2026-08-21T03:30:33Z`. After deploying the reviewed backend, pass a new post-deploy review and
-  repeat it against that exact deployment immediately before upload and no later than 2026-09-20.
+  `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
+  `2026-08-21T06:00:21Z`; repeat it against that exact deployment immediately before upload and no
+  later than 2026-09-20.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -104,12 +108,14 @@ an App Store release candidate from the moment it is archived. This prevents a s
   installation purge, assertion-verified in-app deletion, SQLite secure-delete/WAL maintenance,
   structural persistence/logging guards, and a pinned no-access-log production command are all
   implemented and covered by focused tests.
-- [x] After policy enforcement, build and scan the exact final `linux/amd64` container image,
+- [x] After policy enforcement, build and scan the exact reviewed `linux/amd64` container image,
   including OS packages, for high/critical known vulnerabilities; push and re-scan its immutable
-  registry digest, then deploy only that digest. Fly v6 serves
+  registry digest, then deploy only that digest. Fly v7 serves
+  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
+  from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`; both scans covered 90
+  packages and found no critical/high vulnerability. Gmail-free v6 digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  from source `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; both scans covered 90
-  packages and found no critical/high vulnerability. The emergency v5 rollback digest
+  remains the recovery baseline and passed a fresh registry scan. The emergency v5 rollback digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   was restored to the registry, re-scanned, and passed an isolated old/new/old schema-v4
   round-trip. The locked Python audit is already enforced in CI; the local Docker Scout command is
@@ -140,14 +146,15 @@ an App Store release candidate from the moment it is archived. This prevents a s
   server-deletion UI. Production had zero installations, zero sessions, and zero pending challenges
   before it was uninstalled, so no live production identity existed to delete. Exact-source
   `linux/amd64` digest
-  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5` passed local and registry
-  critical/high scans across 90 packages and is healthy as Fly release v6. The registry-resolved
+  `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0` passed local and registry
+  critical/high scans across 90 packages and is healthy as Fly release v7 from source
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. The registry-resolved
   v5 emergency rollback digest `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   resolved after fresh private-registry authentication at `2026-08-21T01:20:25Z`, re-scanned clean,
   and passed an isolated old/new/old schema-v4 rehearsal. Production `/extract`
   returns `404`, `/recommend` fails closed without authorization, and the payload-free
-  post-deploy manual review passed at `2026-08-21T01:11:43Z`. Install build 4 only after TestFlight
-  processing, never over an older app.
+  reviewed v7 post-deploy manual review passed at `2026-08-21T06:00:21Z`. Install build 4 only after
+  TestFlight processing, never over an older app.
 - [x] Republish accurate Gmail-free privacy-policy, support, and Terms pages on the final owned
   HTTPS domain and verify all three while signed out. `tzehon.github.io` PR #5 merged as
   `c5da090a0417bcda99fc6d328a0cdff808ea597d` at `2026-08-21T01:42:01Z`; the matching Pages run
@@ -165,14 +172,14 @@ an App Store release candidate from the moment it is archived. This prevents a s
 The following restart gates are ordered. They replace the superseded `dd3d990` archive as the
 active path and must be completed without skipping ahead:
 
-- [ ] **Merge and freeze the review fixes.** Finish review, merge the intended Swift, backend,
-  shared-contract, release-verifier, and focused-test changes, synchronize `main` using rebase/
-  fast-forward only, and record the clean source SHA. Do not deploy or archive an unmerged working
-  tree.
-- [ ] **Build, scan, and deploy the exact reviewed backend.** From that frozen source, build the
-  final `linux/amd64` image, pass local and immutable-registry critical/high scans, deploy only the
-  recorded digest, verify production health, auth-store/configuration, and Gmail-free route
-  behavior, then complete the required payload-free post-deploy manual review.
+- [x] **Merge and freeze the review fixes.** PR #19 rebase-merged the reviewed Swift, backend,
+  shared-contract, release-verifier, and focused-test changes. The remote branch was deleted and
+  clean synchronized `main` is `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
+- [x] **Build, scan, and deploy the exact reviewed backend.** The exact frozen `linux/amd64` image
+  passed local and immutable-registry critical/high scans across 90 packages and was deployed only
+  as digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`.
+  Production health, auth-store/configuration, encrypted storage, snapshot policy, and Gmail-free
+  route behavior passed, followed by the payload-free review at `2026-08-21T06:00:21Z`.
 - [ ] **Run a clean Release regression and create the replacement signed archive.** First recheck
   App Store Connect; use `1.0.0 (4)` only if build 4 remains unused. Run every locked backend,
   Swift/UI, shared-contract, Release-build, request-capture, dependency, privacy-manifest,
