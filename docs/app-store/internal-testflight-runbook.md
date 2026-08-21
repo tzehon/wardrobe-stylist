@@ -26,14 +26,15 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; local and remote `main` were synchronized before
   the release image was built. The archive source is later `dd3d99061321cf91bdce166e7da579b84edb07e8`,
   which adds the signed-profile verifier fix without changing that shipped app bundle. PR #19 then
-  rebase-merged the reviewed Swift/backend/contract/verifier fixes; the clean replacement source is
-  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Its backend is deployed, while its clean replacement
-  Release regression and signed archive remain open.
+  rebase-merged the reviewed Swift/backend/contract/verifier fixes as
+  `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Documentation-only PR #20 then produced clean
+  synchronized archive context `24c17cb9fe643035f9206ee61e2935e086902146`; `ios/`, `backend/`,
+  and `shared/` are unchanged from the reviewed code merge. The reviewed backend is deployed and
+  the clean replacement regression/archive are verified.
 - Target version/build: `MARKETING_VERSION = 1.0.0`, `CURRENT_PROJECT_VERSION = 4`. Live App Store
-  Connect immediately before the historical archive confirmed build 3 as the highest upload. Keep
-  build 4 only if a fresh check immediately before the replacement archive still confirms it is
-  unused; otherwise stop and choose the next unused integer. The historical signed build-4 archive
-  has been superseded and is not eligible for validation or upload.
+  Connect showed builds 1–3 only at `2026-08-21T06:34:50Z`, immediately before the replacement
+  archive, so build 4 remained unused. The historical `dd3d990` signed archive remains superseded
+  and is not eligible for validation or upload.
 - Current production backend baseline: Fly release v7 serves the exact reviewed `linux/amd64`
   image from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b` at immutable digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`,
@@ -62,8 +63,16 @@ an App Store release candidate from the moment it is archived. This prevents a s
   entitlement, matching distribution profile, public configuration, app privacy manifest, and
   removed-capability checks. Preserve these facts as history only: the shipped Swift/backend and
   merged contract/verifier changes invalidate the old regression and archive as current
-  candidate evidence. Merged-main CI is green, but no clean per-build replacement regression
-  evidence, retained Release artifact, or signed archive is recorded.
+  candidate evidence.
+- Current replacement proof: clean synchronized source context
+  `24c17cb9fe643035f9206ee61e2935e086902146` passed 219 backend tests, 215 Swift tests, all 9 UI
+  flows, 43 release-script tests, the locked dependency/security/type gates, and clean Release
+  simulator/public-config/privacy/removed-capability verification. Xcode 26.6 with the iOS 26.5
+  SDK created the arm64 Apple Distribution archive for `1.0.0 (4)` at
+  `2026-08-21T06:36:33Z`. Its strict verifier passed the matching App Store profile/certificate,
+  scalar production App Attest, HTTPS public configuration, app privacy manifest, matching dSYM,
+  and Gmail-free/secret-absence checks. The upload target is
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v7 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -137,7 +146,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Apple Developer Team ID. It contains no Google client identifiers or callback scheme; resolved
   Release settings and the simulator artifact passed the public configuration guard. The later
   per-build archive/profile proof also passed for historical `1.0.0 (4)` source `dd3d990`; that
-  archive is now superseded, so replacement per-build proof remains open below.
+  archive is now superseded and cannot satisfy the current gate. The completed replacement
+  per-build archive/profile proof is recorded below.
 - [x] Freeze and publish the Gmail-free source. PR #14 merged as
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; its remote branch was deleted, and local `main` was
   fast-forwarded to the same `origin/main` SHA before the release image was built.
@@ -180,16 +190,18 @@ active path and must be completed without skipping ahead:
   as digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`.
   Production health, auth-store/configuration, encrypted storage, snapshot policy, and Gmail-free
   route behavior passed, followed by the payload-free review at `2026-08-21T06:00:21Z`.
-- [ ] **Run a clean Release regression and create the replacement signed archive.** First recheck
-  App Store Connect; use `1.0.0 (4)` only if build 4 remains unused. Run every locked backend,
-  Swift/UI, shared-contract, Release-build, request-capture, dependency, privacy-manifest,
-  removed-capability, and release-script gate on the frozen source. Then create and strictly verify
-  a new production-signed archive and record its exact source/path, Xcode/SDK, signing certificate,
-  profile, entitlements, and artifact output as the reopened APP-011/APP-012 proof.
+- [x] **Run a clean Release regression and create the replacement signed archive.** App Store
+  Connect showed builds 1–3 only at `2026-08-21T06:34:50Z`. Clean source context `24c17cb` passed
+  219 backend tests, 215 Swift tests, all 9 UI flows, 43 release-script tests, and every Release,
+  request-capture, dependency, privacy-manifest, and removed-capability gate. Xcode 26.6/iOS SDK
+  26.5 created `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
+  `2026-08-21T06:36:33Z`; strict certificate/profile, production App Attest, public-config,
+  privacy-manifest, dSYM, Gmail-free, and secret-absence verification passed.
 - [ ] **Repeat the pre-upload review, then validate and upload.** Repeat the payload-free manual
-  review against the exact deployed backend immediately before upload. Only after it passes may
-  the replacement archive be validated and uploaded through **TestFlight & App Store**. Neither
-  `dd3d990` archive is an upload target.
+  review against the exact deployed backend and refresh App Store Connect's build-upload list
+  immediately before validation/upload. Stop if build 4 is no longer unused. Only after both
+  checks pass may the replacement archive be validated and uploaded through **TestFlight & App
+  Store**. Neither `dd3d990` archive is an upload target.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -215,11 +227,10 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Re-resolve the v6
    Gmail-free recovery digest after fresh private-registry authentication immediately before
    archive/upload.
-2. **Confirm version/build from App Store Connect.** The inspection before the superseded archive
-   showed build 3 as the highest upload, but that fact must be refreshed immediately before the
-   replacement archive. If build 4 has appeared, stop and select the next unused integer;
-   otherwise preserve `1.0.0 (4)` and do not increment it merely because unuploaded local source
-   changed.
+2. **Confirm version/build from App Store Connect.** The refreshed inspection at
+   `2026-08-21T06:34:50Z` showed builds 1–3 only, so the replacement archive correctly preserved
+   `1.0.0 (4)`. Refresh the build-upload list again immediately before validation/upload and stop
+   if build 4 is no longer unused. Never reuse build 4 after upload.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -244,8 +255,16 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; retain it only
    as history and never validate or upload it. A separate earlier automatic-signing archive,
    `Wardrobe-1.0.0-4-dd3d990.xcarchive`, used a development profile and failed verification; it
-   also must never be validated or uploaded. Record a new exact archive path only after the clean
-   replacement archive passes every current verifier.
+   also must never be validated or uploaded. Current replacement evidence: clean synchronized
+   source context `24c17cb9fe643035f9206ee61e2935e086902146` (a documentation-only successor to
+   shipped-code merge `d4637f4b2adf14cd533594aec6060c385f8a5e2b`) produced
+   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
+   `2026-08-21T06:36:33Z`. It is arm64, minimum iOS 18.0, Xcode 26.6/iOS SDK 26.5, and signed by
+   `Apple Distribution: Tan Tze Hon (29NT767Y9P)` with profile
+   `Wardrobe App Store App Attest 2026-08-21` (`2b11bc90-0194-4fe6-8dcc-413c6dc5ccd2`). The signed
+   app carries scalar production App Attest; the profile is App Store distribution, grants
+   production, and contains the matching certificate. The strict verifier passed HTTPS public
+   configuration, app privacy manifest, matching dSYM, and Gmail-free/secret-absence checks.
 5. **Validate and upload.** In Organizer choose **Validate App**, then **Distribute App →
    TestFlight & App Store → Upload**. Upload symbols and use the intended distribution signing.
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy
@@ -286,10 +305,10 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
 
 Production App Attest proof is necessarily post-upload; it is not a pre-build gate.
 
-- [ ] Retain the current candidate's signed production App Attest entitlement, matching embedded
-  App Store profile and certificate, and strict artifact-verifier result. Historical build
-  `1.0.0 (4)` at source `dd3d99061321cf91bdce166e7da579b84edb07e8` passed the earlier verifier,
-  but its archive is superseded and cannot satisfy this gate.
+- [x] Retain the current candidate's signed production App Attest entitlement, matching embedded
+  App Store profile and certificate, and strict artifact-verifier result. The verified current
+  archive is `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; historical `dd3d990` archives are
+  superseded and cannot satisfy any later upload or processed-build gate.
 - [ ] From the processed internal TestFlight build, retain production enrollment, assertion
   renewal, and a protected API call. Record the tester OS and signed runtime-field presence; do not
   claim category/build enforcement when iOS 18–26 omits those fields.

@@ -64,24 +64,34 @@ or editable: [Required, localizable, and editable properties](https://developer.
   free post-deploy manual review. Fly v7 serves
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`;
   the review passed at `2026-08-21T06:00:21Z`.
-- [ ] Confirm the latest build already uploaded to App Store Connect, then select the next unused
+- [x] Confirm the latest build already uploaded to App Store Connect, then select the next unused
   `CURRENT_PROJECT_VERSION`. If this exact internal build may be promoted, set the intended public
   `MARKETING_VERSION` before archiving; do not rely on Xcode to invent either value during upload.
-  The check before the superseded archive found build 3 highest; retain build 4 only if a fresh
-  check immediately before the replacement archive still confirms it is unused.
-- [ ] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
+  The fresh check at `2026-08-21T06:34:50Z` showed builds 1–3 only, so the replacement archive
+  correctly uses `1.0.0 (4)`.
+- [x] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
-- [ ] Confirm the replacement archive contains no Google Sign-In SDK/client configuration, Gmail
+  Clean source context `24c17cb` passed 219 backend tests, 215 Swift tests, all 9 UI flows, and 43
+  release-script tests plus the locked audit/security/type and Release artifact gates.
+- [x] Confirm the replacement archive contains no Google Sign-In SDK/client configuration, Gmail
   permission or route, `/extract` client path, receipt-import UI/background task, Anthropic/shared
   backend secret, non-HTTPS production endpoint, or placeholder public link.
-- [ ] Build the replacement archive with an accepted production Xcode/SDK. As of 28 April 2026,
+- [x] Build the replacement archive with an accepted production Xcode/SDK. Xcode 26.6 with the iOS
+  26.5 SDK created the verified archive at `2026-08-21T06:36:33Z`. As of 28 April 2026,
   Apple requires uploads to use the iOS 26 SDK or later:
   [current SDK minimum](https://developer.apple.com/news/?id=ueeok6yw).
-- [ ] Confirm the launch-screen key remains present in the replacement archive. Uploads built with
+- [x] Confirm the launch-screen key remains present in the replacement archive. Uploads built with
   the iOS 27 SDK or later are validated for a launch-screen configuration:
   [TN3208](https://developer.apple.com/documentation/technotes/tn3208-preparing-your-apps-launch-screen-to-meet-app-store-requirements).
-- [ ] Create and verify the replacement production-signed archive; record commit, version/build,
+- [x] Create and verify the replacement production-signed archive; record commit, version/build,
   Xcode/SDK, dependency resolution, entitlements, privacy manifests, and signed-artifact output.
+  The exact upload target is
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; strict
+  certificate/profile, scalar production App Attest, public-config, privacy-manifest, dSYM, and
+  Gmail-free/secret-absence verification passed.
+- [ ] Refresh App Store Connect's build-upload list immediately before validation/upload. Stop if
+  build 4 is no longer unused; the completed archive-time check is not a substitute for this final
+  read-only refresh.
 - [ ] Repeat the payload-free manual operations review against the exact deployed backend
   immediately before validation/upload.
 - [ ] Validate and export/upload exactly the newly recorded replacement archive; record validation
