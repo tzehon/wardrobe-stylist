@@ -70,8 +70,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   simulator/public-config/privacy/removed-capability verification. Xcode 26.6 with the iOS 26.5
   SDK created the arm64 Apple Distribution archive for `1.0.0 (4)` at
   `2026-08-21T06:36:33Z`. Its strict verifier passed the matching App Store profile/certificate,
-  scalar production App Attest, HTTPS public configuration, app privacy manifest, matching dSYM,
-  and Gmail-free/secret-absence checks. The upload target is
+  scalar production App Attest, HTTPS public configuration, app privacy manifest, and Gmail-free
+  artifact guards. A separate targeted scan found no Anthropic/API-key, shared-bearer, or private-
+  key credential marker; separate `dwarfdump --uuid` output matched the arm64 app and dSYM at
+  `5BA1F06E-7458-32A4-890F-36C8F22D9C13`. The upload target is
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v7 deploys
@@ -196,7 +198,8 @@ active path and must be completed without skipping ahead:
   request-capture, dependency, privacy-manifest, and removed-capability gate. Xcode 26.6/iOS SDK
   26.5 created `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
   `2026-08-21T06:36:33Z`; strict certificate/profile, production App Attest, public-config,
-  privacy-manifest, dSYM, Gmail-free, and secret-absence verification passed.
+  privacy-manifest, and Gmail-free artifact verification passed. Separate targeted credential-
+  pattern and app/dSYM UUID checks also passed.
 - [ ] **Repeat the pre-upload review, then validate and upload.** Repeat the payload-free manual
   review against the exact deployed backend and refresh App Store Connect's build-upload list
   immediately before validation/upload. Stop if build 4 is no longer unused. Only after both
@@ -250,7 +253,7 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    produced the Apple Distribution archive at `2026-08-21T03:34:13Z` using Xcode 26.6 and the iOS
    26.5 SDK. The signed app carried scalar production App Attest, and the embedded App Store profile
    matched its team, App ID, certificate, and production grant. The strict artifact verifier passed
-   public configuration, app privacy manifest, and Gmail-free/secret-absence checks. Subsequent
+   public configuration, app privacy manifest, and Gmail-free artifact checks. Subsequent
    shipped Swift/backend changes supersede
    `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-dd3d990-appstore.xcarchive`; retain it only
    as history and never validate or upload it. A separate earlier automatic-signing archive,
@@ -264,7 +267,10 @@ anonymous production App Attest identity; do not claim upgrade or migration supp
    `Wardrobe App Store App Attest 2026-08-21` (`2b11bc90-0194-4fe6-8dcc-413c6dc5ccd2`). The signed
    app carries scalar production App Attest; the profile is App Store distribution, grants
    production, and contains the matching certificate. The strict verifier passed HTTPS public
-   configuration, app privacy manifest, matching dSYM, and Gmail-free/secret-absence checks.
+   configuration, app privacy manifest, and Gmail-free artifact guards. A separate targeted scan
+   found no Anthropic/API-key, shared-bearer, or private-key credential marker. Separate
+   `dwarfdump --uuid` output matched the arm64 app and dSYM at
+   `5BA1F06E-7458-32A4-890F-36C8F22D9C13`.
 5. **Validate and upload.** In Organizer choose **Validate App**, then **Distribute App →
    TestFlight & App Store → Upload**. Upload symbols and use the intended distribution signing.
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy

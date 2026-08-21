@@ -432,9 +432,12 @@ Required before APP-009 can close:
   flows, 43 release-script tests, and the clean Release/artifact gates. Xcode 26.6 with the iOS
   26.5 SDK created
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` at
-  `2026-08-21T06:36:33Z`. The matching Apple Distribution certificate and App Store profile,
-  scalar production App Attest entitlement, HTTPS public configuration, app privacy manifest,
-  matching dSYM, and all Gmail-free/secret-absence checks passed the strict verifier.
+  `2026-08-21T06:36:33Z`. The strict verifier passed the matching Apple Distribution certificate
+  and App Store profile, scalar production App Attest entitlement, HTTPS public configuration, app
+  privacy manifest, and Gmail-free artifact guards. A separate targeted scan of the signed app
+  found no Anthropic/API-key, shared-bearer, or private-key credential marker. Separate
+  `dwarfdump --uuid` output matched the app binary and dSYM at
+  `5BA1F06E-7458-32A4-890F-36C8F22D9C13` (arm64).
 - [ ] From the processed TestFlight client, rehearse deletion followed by eligible snapshot-list
   disappearance or safe fresh-store recovery. The generic isolated restore-path rehearsal above
   does not prove that a deleted production identity cannot return.

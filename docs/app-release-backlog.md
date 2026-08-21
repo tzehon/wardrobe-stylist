@@ -184,8 +184,10 @@ These items are ordered. Do not archive early and plan to repair the same binary
   created the arm64 Apple Distribution archive at `2026-08-21T06:36:33Z`:
   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`. The strict
   verifier passed the matching App Store profile and signing certificate, scalar production App
-  Attest, HTTPS public configuration, app privacy manifest, matching dSYM, and Gmail-free/secret-
-  absence checks.
+  Attest, HTTPS public configuration, app privacy manifest, and Gmail-free artifact guards. A
+  separate targeted scan of the signed app found no Anthropic/API-key, shared-bearer, or private-
+  key credential marker, and separate `dwarfdump --uuid` output matched the arm64 app and dSYM at
+  `5BA1F06E-7458-32A4-890F-36C8F22D9C13`.
 - [ ] **Repeat the pre-upload review, then validate and upload only the replacement archive.**
   Follow [`internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md), repeat the
   payload-free manual review against the exact deployed backend and refresh App Store Connect's
