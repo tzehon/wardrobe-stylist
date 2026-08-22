@@ -132,13 +132,15 @@ enrollment, so server deletion/reinstall is paused until eligible deletion-speci
 evidence can be retained.
 
 Physical QA also found that a failed offline Restyle hid an otherwise persisted cached look until
-relaunch/tap. Build 4 is not promotable. Build 5 is reserved locally after App Store Connect showed
-build 4 highest. Its local pre-archive regression, including Release simulator/artifact privacy
-guards, is green, but it is not archived or uploaded. Before build 4 is uninstalled, follow the
-runbook's identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server
-security data while proof of possession remains available, and confirm zero installation/session
-aggregates. Only then install build 5 cleanly and repeat the complete privacy and failure-state
-matrix.
+relaunch/tap. Build 4 is not promotable. Build 5 was selected after App Store Connect showed build
+4 highest. Its local pre-archive regression, including Release simulator/artifact privacy
+guards, is green. App Store Connect still showed build 4 highest at `2026-08-22T01:09:39Z`, and the
+new production-signed build-5 archive passed strict profile, scalar production App Attest, privacy
+manifest, public configuration, Gmail-free absence, and separate non-emitting credential checks; it
+has not been Organizer-validated or uploaded. Before build 4 is uninstalled, follow the runbook's
+identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server security data
+while proof of possession remains available, and confirm zero installation/session aggregates.
+Only then install build 5 cleanly and repeat the complete privacy and failure-state matrix.
 
 ## Secrets and release boundaries
 

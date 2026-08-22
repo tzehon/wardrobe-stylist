@@ -211,15 +211,23 @@ Every internal beta is built as an App Store candidate. Follow the
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
 4. treat processed candidate `1.0.0 (4)` as consumed and never reuse build 4; a later live check
-   found build 4 highest and `1.0.0 (5)` is reserved locally, but refresh App Store Connect again
-   immediately before its archive/upload;
+   found build 4 highest, and the build-5 archive-time refresh at `2026-08-22T01:09:39Z` still
+   showed builds 1–4 only; refresh App Store Connect again immediately before validation/upload;
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Current local build-5
    evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
-   flows, 43 release-script tests, and Release simulator/artifact checks;
-6. create and validate a new build-5 signed Release archive; local tests are not archive evidence;
-7. upload with **TestFlight & App Store**, not **TestFlight Internal Only**; and
-8. add the processed build to the Internal Testing group and complete fresh-install physical-device
-   QA. Build 4 was installed cleanly and produced partial historical evidence, but a failed offline
+   flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic
+   `/recommend` request-field capture whose focused suite passed 12/12;
+6. create and strictly verify a new build-5 signed Release archive. The exact
+   `Wardrobe-1.0.0-5-695c562-appstore.xcarchive` was created at `2026-08-22T01:10:32Z`; its strict
+   signature/profile, scalar production App Attest, privacy, public-configuration, and Gmail-free
+   checks passed at `2026-08-22T01:11:17Z`; its quiet credential/removed-capability scan passed at
+   `2026-08-22T01:12:01Z`; and its post-scan signature check passed at
+   `2026-08-22T01:12:19Z`. This is not Organizer **Validate App** or upload evidence;
+7. after another live build-list refresh and payload-free exact-v8 review, use Organizer **Validate
+   App** and upload with **TestFlight & App Store**, not **TestFlight Internal Only**;
+8. add the processed build to the Internal Testing group; and
+9. complete fresh-install physical-device QA. Build 4 was installed cleanly and produced partial
+   historical evidence, but a failed offline
    Restyle hid the cached look until relaunch/tap. Complete the runbook's build-4 identity-safe
    handoff before uninstall, then install build 5 cleanly and repeat the entire matrix.
 

@@ -6,10 +6,11 @@
 - **Release compliance:** Repository enforcement and the exact reviewed Gmail-free v8 deployment
   are verified; Fly provider and manual-operations boundaries are explicitly accepted; the v8
   post-change review, historical v7/build-4 reviews and signed archive, Apple upload/processing,
-  internal assignment, and Gmail-free public support/privacy/Terms routes are retained. Build-4
-  processed-client proof is partial and exposed a release defect. Real registration/assertion
-  success-marker observation, complete build-5 physical proof, snapshot-list expiry, and deletion-
-  specific recovery remain incomplete.
+  internal assignment, current build-5 production-signed archive, and Gmail-free public support/
+  privacy/Terms routes are retained. Build-4 processed-client proof is partial and exposed a
+  release defect. Build-5 Organizer validation/upload, real registration/assertion success-marker
+  observation, complete physical proof, snapshot-list expiry, and deletion-specific
+  recovery remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -268,6 +269,7 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-21T06:00:21Z | PASS · exact reviewed v7 Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 200/401/404 only, no 5xx series; bounded marker queries empty | PASS · public status operational · <80% of configured limit · production key on Opus 4.8 · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; repeat immediately before replacement-archive upload | 2026-09-20 |
 | 2026-08-21T08:12:46Z | PASS · exact reviewed v7 Machine/image | PASS · 14d · latest <36h | below-warning | PASS · 2d HTTP view: 401/404 only, no 5xx series; bounded marker queries empty | PASS · public status operational · <80% of configured limit · production key on Opus 4.8 · no saturation warning | PASS · routing rehearsal confirmed | PASS | None; build-4 replacement archive validated/uploaded; resume monthly cadence | 2026-09-20 |
 | 2026-08-21T11:09:20Z | PASS · exact reviewed v8 Machine/image | PASS · 14d · all listed created · latest <36h | below-warning | PASS · 2d HTTP view: 401/404 only, no 5xx series; bounded failure-event classes zero; lifecycle success not exercised | PASS · public status operational · <80% of configured limit · deployed Wardrobe key on Opus 4.8 · no saturation warning | PASS · pages/contact/target and retained rehearsal confirmed | PASS | None; repeat before archive/upload | 2026-09-20 |
+| 2026-08-22T01:07:45Z | PASS · exact reviewed v8 Machine/image | PASS · 14d · all listed created · latest <36h | below-warning | PASS · 2d HTTP view: 401/404 only, no 5xx series; bounded failure-event classes zero; lifecycle success not exercised | PASS · public status operational · <80% of configured limit · deployed Wardrobe key on Opus 4.8 · no saturation warning | PASS · pages/contact/target and retained rehearsal confirmed | PASS | Build-5 archive completed; repeat immediately before validation/upload | 2026-09-21 |
 
 ### Processed build-4 aggregate evidence — 2026-08-21 (PARTIAL)
 
@@ -479,6 +481,15 @@ Required before APP-009 can close:
   free routing rehearsal passed. No raw sample, identifier, exact billing amount, credential,
   screenshot, secret value, or provider body is retained. Repeat before archive/upload and resume
   the monthly cadence no later than 2026-09-20.
+- [x] Repeat the payload-free review against exact Fly v8 immediately before the build-5 archive.
+  The pass completed at `2026-08-22T01:07:45Z` after reconfirming the exact image/source,
+  healthy Singapore Machine, encrypted volume, 14-day snapshot and below-warning usage bands,
+  two-day HTTP surface without a 5xx series, zero bounded failure-event classes, operational
+  Anthropic status, spend below 80% of a configured limit, the deployed Wardrobe key on Opus 4.8,
+  no saturation warning, and monitored support routing. Lifecycle successes were not exercised,
+  so marker observation remains open. No raw sample, identifier, exact billing amount, credential,
+  screenshot, secret value, or provider body is retained. Repeat again immediately before
+  validation/upload; otherwise resume the monthly cadence no later than 2026-09-21.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
@@ -537,8 +548,31 @@ Required before APP-009 can close:
   the archive evidence above.
 - [x] Retain current local build-5 pre-archive evidence: 221 backend tests plus audit/Bandit/Ruff/
   mypy, 218 Swift unit tests, all 9 UI flows, 43 release-script tests, and Release simulator/
-  artifact checks passed. This does not prove deployment, a signed archive, upload, or physical
-  production App Attest behavior.
+  artifact checks passed. This local evidence is distinct from the signed archive retained below
+  and does not prove upload or physical production App Attest behavior.
+- [x] Retain exact build-5 signed-archive evidence. Fresh private-registry authentication
+  re-resolved Gmail-free v6 recovery digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`, whose
+  zero-critical/high scan completed at `2026-08-22T01:00:09Z`; the exact-v8 pre-archive review
+  passed at `2026-08-22T01:07:45Z`; and App Store Connect showed builds 1–4 only at
+  `2026-08-22T01:09:39Z`. Clean source context
+  `695c562b7b18e4a0b7f8a72b814af59efdd0cf3a`, a documentation-only successor to frozen shipped
+  source `4a75b99dcd49e818ad1d5b198e8c49abba702e18`, produced
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-5-695c562-appstore.xcarchive` at
+  `2026-08-22T01:10:32Z` with Xcode 26.6 (`17F113`) and the iOS 26.5 SDK. The exact app is
+  `1.0.0 (5)`, `com.tth.Wardrobe`, `iphoneos`, arm64, minimum iOS 18.0. The Apple Distribution
+  signer and App Store profile `Wardrobe App Store App Attest 2026-08-21`
+  (`2b11bc90-0194-4fe6-8dcc-413c6dc5ccd2`, expires `2027-08-21T02:07:47Z`) match the App ID
+  prefix, team, bundle, and profile certificate; `get-task-allow` is false, beta reporting is
+  active, no devices/all-devices are provisioned, the profile grants production App Attest, and
+  the signed entitlement is scalar `production`. The strict verifier completed at
+  `2026-08-22T01:11:17Z` with public HTTPS configuration, app privacy manifest, shared-bearer, and
+  Gmail-free artifact guards passing. The separate non-emitting credential/removed-capability scan
+  passed at `2026-08-22T01:12:01Z`, followed by deep signature verification at
+  `2026-08-22T01:12:19Z`. App/dSYM UUID
+  `DA20FD8D-64C3-3B7A-9990-19EAF050AF04` matches for arm64; executable SHA-256 is
+  `a9f01231025874d331e76be40ebe6f493b3f36051902b66b0ad03c35206bb3b9`. This is not Organizer
+  validation, upload, processing, assignment, or physical-device evidence.
 - [ ] From processed build 5, repeat production enrollment and cold assertion/session renewal with
   bounded registration/assertion marker observation. Prove protected `/recommend` separately by an
   aggregate admission-counter delta plus the visible non-cached client result; build-4 partial
