@@ -116,6 +116,126 @@ struct DailyOutfitNotifierTests {
         #expect(!DailyReminderNavigation.isTodayDestination(userInfo: [:]))
     }
 
+    @Test func notificationResponseRequiresExactReminderDefaultTapAndPayload() {
+        let request = DailyOutfitNotifier.makeRequest()
+        let valid = DailyReminderResponseFields(
+            request: request,
+            actionIdentifier: UNNotificationDefaultActionIdentifier
+        )
+        #expect(DailyReminderNavigation.shouldOpenToday(valid))
+
+        let otherRequest = UNNotificationRequest(
+            identifier: "another-request",
+            content: request.content,
+            trigger: request.trigger
+        )
+        #expect(!DailyReminderNavigation.shouldOpenToday(DailyReminderResponseFields(
+            request: otherRequest,
+            actionIdentifier: UNNotificationDefaultActionIdentifier
+        )))
+        #expect(!DailyReminderNavigation.shouldOpenToday(DailyReminderResponseFields(
+            request: request,
+            actionIdentifier: UNNotificationDismissActionIdentifier
+        )))
+
+        let missingPayload = UNNotificationRequest(
+            identifier: DailyOutfitNotifier.identifier,
+            content: UNMutableNotificationContent(),
+            trigger: nil
+        )
+        #expect(!DailyReminderNavigation.shouldOpenToday(DailyReminderResponseFields(
+            request: missingPayload,
+            actionIdentifier: UNNotificationDefaultActionIdentifier
+        )))
+
+        let wrongContent = UNMutableNotificationContent()
+        wrongContent.userInfo = [DailyOutfitNotifier.destinationKey: "settings"]
+        let wrongPayload = UNNotificationRequest(
+            identifier: DailyOutfitNotifier.identifier,
+            content: wrongContent,
+            trigger: nil
+        )
+        #expect(!DailyReminderNavigation.shouldOpenToday(DailyReminderResponseFields(
+            request: wrongPayload,
+            actionIdentifier: UNNotificationDefaultActionIdentifier
+        )))
+    }
+
+    @Test func responseHandlerRecordsPublishesThenCompletesExactlyOnceOnMainThread() async {
+        var events: [String] = []
+        var allEventsOnMainThread = true
+        let router = DailyReminderNotificationRouter(
+            recordTodayDestination: {
+                allEventsOnMainThread = allEventsOnMainThread && Thread.isMainThread
+                events.append("record")
+            },
+            publishTodayDestination: {
+                allEventsOnMainThread = allEventsOnMainThread && Thread.isMainThread
+                events.append("publish")
+            }
+        )
+        let fields = DailyReminderResponseFields(
+            request: DailyOutfitNotifier.makeRequest(),
+            actionIdentifier: UNNotificationDefaultActionIdentifier
+        )
+
+        await confirmation("response completion", expectedCount: 1) { completed in
+            await withCheckedContinuation { continuation in
+                router.handle(fields) {
+                    allEventsOnMainThread = allEventsOnMainThread && Thread.isMainThread
+                    events.append("complete")
+                    completed()
+                    continuation.resume()
+                }
+            }
+        }
+
+        #expect(events == ["record", "publish", "complete"])
+        #expect(allEventsOnMainThread)
+    }
+
+    @Test func responseHandlerCompletesIgnoredResponseExactlyOnce() async {
+        var events: [String] = []
+        let router = DailyReminderNotificationRouter(
+            recordTodayDestination: { events.append("record") },
+            publishTodayDestination: { events.append("publish") }
+        )
+        let fields = DailyReminderResponseFields(
+            request: DailyOutfitNotifier.makeRequest(),
+            actionIdentifier: UNNotificationDismissActionIdentifier
+        )
+
+        await confirmation("ignored response completion", expectedCount: 1) { completed in
+            await withCheckedContinuation { continuation in
+                router.handle(fields) {
+                    events.append("complete")
+                    completed()
+                    continuation.resume()
+                }
+            }
+        }
+
+        #expect(events == ["complete"])
+    }
+
+    @Test func foregroundPresentationCompletesExactlyOnceOnMainThread() async {
+        let router = DailyReminderNotificationRouter(
+            recordTodayDestination: {},
+            publishTodayDestination: {}
+        )
+
+        await confirmation("presentation completion", expectedCount: 1) { completed in
+            await withCheckedContinuation { continuation in
+                router.present { options in
+                    #expect(Thread.isMainThread)
+                    #expect(options == [.banner, .sound])
+                    completed()
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
     @Test func enableRequestsPermissionThenSchedulesOnce() async throws {
         let center = FakeCenter()
         let notifier = DailyOutfitNotifier(center: center)
