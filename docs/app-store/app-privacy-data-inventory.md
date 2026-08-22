@@ -14,12 +14,12 @@ contain or invoke that capability.
 | Purchase date/price/currency | Catalog/review/insights | No in v1 styling | Local app | Until item/local-data deletion | Review/edit/delete | Not collected if device-only |
 | Outfit and wear history | Anti-repeat/history and explicit 1–5 feedback | Recent item IDs and bounded per-item rating summaries (item ID, average, count) leave for styling; no feedback free text or wear dates | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; local history until delete; verify Anthropic/provider terms | Styling consent; delete | Pending retention interpretation |
 | Occasion/context text | User-directed recommendation | Yes | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; verify Anthropic/provider terms | Styling consent; user submits | “Other User Content” if retained; pending |
-| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; an assertion-verified deletion request synchronously removes the live installation. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. Production retention enforcement, Fly v8's targeted payload-free auth-service INFO logger, and the production TestFlight allowlist for builds `4,5` are deployed and reviewed. Actual `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` observation, listing-expiry observation, and restore-after-deletion evidence remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
+| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; an assertion-verified deletion request synchronously removes the live installation. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. Production retention enforcement, Fly v8's targeted payload-free auth-service INFO logger, and the production TestFlight allowlist for builds `4,5` are deployed and reviewed. Bounded `registration_succeeded` and `assertion_succeeded` observations passed during clean build-5 QA; exactly one `installation_deleted` marker and `0/0/0` installations/sessions/challenges closed the preceding build-4 live handoff. Listing-expiry and deletion-specific restore/non-return evidence remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
 | One-time App Attest challenges, hashed short-lived sessions and coarse rate windows | Replay prevention, authorization, quotas and abuse prevention | Yes | Developer backend security store | Repository maxima: challenge 70 minutes from issue; session hash 20 minutes from issue; rate-window hash five minutes after its one-minute/hourly window, enforced by the deployed one-minute maintenance loop and request-time expiry cleanup | Automatic expiry; a verified server deletion removes current-secret-derived key/installation rows, while unlinkable pre-rotation HMAC rows expire within 65 minutes | Device ID and Other Diagnostic Data; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | IP address, request path/ID and timing | Network delivery/security | Inherent | Host/backend abuse prevention | Raw IP is not stored in SQLite and application access logs are disabled. Fly's customer-visible platform/proxy stream can contain path, request ID and client IP for a fixed seven days. Separate operational/abuse logs can contain source IP with undisclosed, non-configurable in-service retention. The owner accepted this provider boundary on 2026-08-19. | Public policy; remote features are optional | Conservatively: Device ID, Other Diagnostic Data and Product Interaction; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | Consent and automation preferences | Enforce user choices | No | Local UserDefaults | Until withdrawal/delete | Privacy Center | Not collected if device-only |
 | Camera/photo-library selection | Add item photo | Selected asset only, device-local | Local app | Until item/delete | System permission/selection | Not collected if device-only |
-| Notification schedule | Daily local reminder | Apple notification system | Local notification delivery | Until disabled | Reminder toggle/system settings | Usually not developer-collected; verify no push service |
+| Notification schedule | Daily local reminder | Apple notification system | Local notification delivery | Until disabled | Reminder toggle/system settings | Usually not developer-collected; no push service is used. Clean build-5 delivery passed, but tapping it crashed and blocks promotion |
 | Crash/analytics diagnostics | None currently planned | No current SDK | N/A | N/A | N/A | Reassess before adding any SDK |
 
 ## Release-blocking confirmations
@@ -32,7 +32,8 @@ The exact approved developer-controlled schedule and its current compliance stat
   including nil optionals, and separately pins the complete encoded top-level, catalog-item, and
   preference key sets; the shared schema/backend reject extras. The strengthened focused
   `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:59:08Z`; the post-guard tree then
-  passed the complete 221-test backend gate and an uninterrupted 218-unit/9-UI iOS regression whose
+  passed the complete 221-test backend gate and an uninterrupted historical pre-archive
+  218-unit/9-UI iOS regression whose
   result bundle finalized at `2026-08-22T02:04:17Z`. Only field names and synthetic values were
   inspected; never capture or retain production wardrobe, prompt, or model response bodies as
   evidence.
@@ -59,16 +60,19 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [ ] Reconfirm Fly.io region and encrypted storage; observe the configured 14-day snapshot-list
   disappearance and complete deletion-specific recovery against the final deployment. The
   secret-free, non-serving restore path and immediate temporary-resource cleanup passed on
-  2026-08-19, but no processed-TestFlight deletion identity existed in that empty snapshot.
-  All-copy purge timing is explicitly accepted as undisclosed.
+  2026-08-19. A later eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported
+  `created` with 14-day retention and enabled the build-4 identity-safe live deletion, but actual
+  listing expiry and deletion-specific restore/non-return are still unobserved. All-copy purge
+  timing is explicitly accepted as undisclosed.
 - [x] Confirm the exact build-5 signed archive's production App Attest App ID prefix, App Store
   profile/certificate match, and scalar production entitlement. The strict verifier matched prefix,
   team, bundle, certificate, and production grant for profile
   `2b11bc90-0194-4fe6-8dcc-413c6dc5ccd2`; `get-task-allow` is false and no devices/all-devices are
   provisioned.
-- [ ] From the processed build-5 client, retain tester OS, signed runtime-field presence, iOS 27+
-  validation category/exact bundle-build enforcement or expected iOS 18–26 field absence,
-  physical-device evidence, and the exact Apple receipt fields retained.
+- [ ] From the final processed client, retain tester OS, signed runtime-field behavior, and the
+  exact Apple receipt field set retained. Clean build-5 QA on iPhone 16 Pro/iOS 26.6 proved the
+  expected runtime-field absence plus physical registration/assertion, but it does not prove iOS
+  27+ validation-category/exact-build fields, the remaining receipt evidence, or a promotable build.
 - [x] Confirm the durable auth-store schema contains only public keys/opaque Apple attestation
   receipts, anonymous installation IDs, counters, challenges, session hashes and rate windows—
   never wardrobe, prompt, or model-response payloads.
@@ -104,14 +108,27 @@ The exact approved developer-controlled schedule and its current compliance stat
   records as Other Diagnostic Data, and retained request paths as Product Interaction. Use App
   Functionality, linked, and not tracking on the current evidence; do not select location,
   analytics, advertising, marketing, personalization, or other purposes without new evidence.
-- [ ] Verify Delete Local Data and Delete Server Security Data remove only the state promised by
-  their separate copy on the exact processed TestFlight build and deployed backend.
-- [x] For the fresh-install-only build-4 transition, the installed intermediate development build
-  completed Disconnect Google and local deletion. It predated Delete Server Security Data, but a
-  read-only aggregate production query found zero installations, sessions, and pending challenges,
-  so no live production identity existed to delete. The owner then uninstalled it and accepted
-  re-entry of local items. Build 4 was later installed cleanly from processed TestFlight; its
-  partial QA exposed the Today release blocker and is historical only. Before uninstalling build 4,
-  wait for an eligible post-enrollment snapshot, use its assertion-verified server-deletion control,
-  and confirm zero installation/session aggregates. Only then install build 5 cleanly and repeat the
-  complete matrix; do not claim migration.
+- [x] Verify the separation and ordering of Delete Server Security Data, Delete Local Data, and app
+  deletion against the deployed backend. Build 4's proof remained available after build 5 appeared
+  installed in place unexpectedly; server deletion produced exactly one success marker and `0/0/0` live
+  installations/sessions/challenges before local data and then the app were deleted. Build 5 was
+  subsequently installed cleanly. This does not replace final-candidate deletion/reinstall proof.
+- [x] Retain the complete transition history without claiming migration. The intermediate
+  development build completed Disconnect Google and local deletion, and no live production
+  identity existed before its uninstall. Build 4 was then installed cleanly from processed
+  TestFlight. Its proof later remained available after build 5 appeared installed in place unexpectedly; after
+  the eligible `2026-08-22T07:33:23Z` created/14-day snapshot, assertion-verified server deletion
+  produced exactly one success marker and `0/0/0` live aggregates. Local data and the app were
+  deleted, then build 5 was clean-installed. Keep the current clean build-5 identity live, the app
+  installed, and automatic updates off until another eligible handoff; do not repeat the crashing
+  reminder tap.
+- [x] Retain clean build-5 privacy/failure evidence through notification delivery: no login and an
+  empty wardrobe at first launch; offline Demo Mode; Camera and Photo Library saves; the full local
+  catalog flow; `16:30` registration; cached relaunch; `17:04` assertion renewal; cached-look
+  preservation after failed offline Restyle; offline Wear this/History; and local notification
+  delivery. Tapping the notification at `2026-08-22T17:15:14+08:00` crashed. Exact-dSYM safe
+  symbolication showed `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
+  `DailyReminderNotificationRouter` `didReceive` async bridge. Build 5 is consumed and non-
+  promotable. The signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds
+  1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
+  `MARKETING_VERSION` remains `1.0.0`.

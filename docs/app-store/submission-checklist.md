@@ -57,21 +57,29 @@ or editable: [Required, localizable, and editable properties](https://developer.
 
 ## 4. Historical build-4 and current replacement evidence
 
-Checked historical items in this section preserve the uploaded build-4 record. The current
-`1.0.0 (5)` production-signed archive is strictly verified, Organizer-validated, uploaded,
-processed, and assigned to the `Family` Internal Testing group. Physical testing has not happened;
-build 5 must remain uninstalled until build 4's identity-safe handoff is complete.
+Checked historical items in this section preserve the uploaded build-4 and build-5 records.
+`1.0.0 (5)` was strictly verified, Organizer-validated, uploaded, processed, and assigned to the
+`Family` Internal Testing group. Its clean-install physical matrix reached local and connected
+flows, but tapping the delivered local reminder crashed at `2026-08-22T17:15:14+08:00`. Build 5
+is consumed and non-promotable. A signed-in App Store Connect TestFlight Build Uploads refresh at
+`2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is
+confirmed unused and selected for the replacement; `MARKETING_VERSION` remains `1.0.0`.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
   merged at `2026-08-21T10:29:56Z`; frozen shipped-code/backend source was
   `4a75b99dcd49e818ad1d5b198e8c49abba702e18`. Later docs-only evidence does not change the
   deployed image or iOS bundle.
-- [x] Retain the current local build-5 pre-archive regression: 221 backend tests plus locked audit/
+- [x] Retain the historical build-5 pre-archive regression: 221 backend tests plus locked audit/
   Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, all 43 release-script tests, and Release
   simulator/artifact checks passed after project regeneration. Rerun affected gates if source or
   configuration changes; this local regression is distinct from the retained signed archive and
   is not distribution evidence.
+- [x] Retain the current unmerged notification-router source-fix regression separately from the
+  signed build-5 archive: 17 focused notification tests, 221 backend tests plus the locked audit/
+  Bandit/Ruff/mypy gates, 222 Swift unit tests, all 9 UI flows, and all 43 release-script tests
+  passed. This is local source evidence only; it is not a merged replacement candidate, signed
+  archive, App Store Connect build, or release.
 - [x] Build, scan, deploy, configure, and review the exact frozen backend. Fly v8 completed at
   `2026-08-21T10:45:06Z` with exact source and immutable registry digest
   `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
@@ -101,7 +109,8 @@ build 5 must remain uninstalled until build 4's identity-safe handoff is complet
   separately pins every encoded top-level, catalog-item, and preference key; the shared schema/
   backend reject extras. The strengthened focused `RecommendClientTests` suite passed 12/12 at
   `2026-08-22T01:59:08Z`. The resulting tree then passed the complete mandatory backend gate (221
-  tests plus audit/Bandit/Ruff/mypy) and one uninterrupted full iOS run (218 Swift unit tests plus
+  tests plus audit/Bandit/Ruff/mypy) and one uninterrupted historical pre-archive iOS run (218 Swift
+  unit tests plus
   all 9 UI tests; 227/227 canonical cases), whose result bundle finalized at
   `2026-08-22T02:04:17Z`, with no failures, skips, or retries. No production payload, credential,
   token, or identifier was inspected or retained, and the test does not alter the signed bundle.
@@ -166,36 +175,51 @@ build 5 must remain uninstalled until build 4's identity-safe handoff is complet
 - [x] Distribute from Organizer using **TestFlight & App Store**. The exact build-4 replacement
   archive used Xcode's normal App Store Connect route and processed successfully; **TestFlight
   Internal Only** was not used, and the device-Release public configuration guard was not bypassed.
-- [ ] Only after the runbook's build-4 identity-safe handoff passes, install processed build 5 on a
-  clean physical device and test first launch, offline/local use,
-  Demo Mode, manual add, photo library/camera, catalog edit/delete, styling consent and withdrawal,
-  Today/History, reminders, local deletion, separate server-security deletion, backend failure,
-  reinstall identity reset, and relaunch. Confirm no Google/Gmail UI or network path exists. Build 4
-  supplied only historical **PARTIAL** evidence: clean TestFlight install on iPhone 16 Pro/iOS 26.6;
-  0→1 production installations; first assertion/protected calls; cold renewal; expected runtime-
-  field absence; offline friendly failure with Wardrobe/History/Demo usable; online recovery at
-  `Styled 17:24` with assertions 1→2 and the current recommendation-installation window 0→1; manual
-  add/edit; Camera and Photo Library open/cancel; Demo; reminder permission/scheduling; and Wear/
-  History. A failed offline Restyle hid the cached look until relaunch/tap, so build 4 is not
-  promotable. Successful media selection, notification delivery, consent withdrawal, local/server
-  deletion, and the full build-5 repeat remain open.
+- [x] Complete the build-4 identity-safe handoff. The eligible automatic snapshot created at
+  `2026-08-22T07:33:23Z` reported `created` with 14-day retention. Build 4's proof of possession
+  remained available after build 5 appeared installed in place unexpectedly. With that inherited
+  identity still installed, **Delete Server Security Data** emitted exactly one bounded
+  `installation_deleted` success marker and the live installations/sessions/challenges aggregates
+  became `0/0/0`. Local data and then the app were deleted, and build 5 was installed cleanly.
+  This recovery is deletion evidence, not in-place upgrade or migration support.
+- [x] Retain the clean build-5 physical QA completed before the reminder-tap blocker. On iPhone 16
+  Pro/iOS 26.6, first launch showed no login and an empty wardrobe; offline Demo Mode, Camera and
+  Photo Library saves, and the complete add/edit/favorite/filter/archive/restore/search/delete
+  catalog flow passed. Online Style at `16:30` exercised registration; cached relaunch passed;
+  Restyle at `17:04` exercised assertion renewal; a failed offline Restyle preserved the cached
+  look; offline Wear this/History passed; and the local reminder was delivered. The connected
+  lifecycle markers and coarse server aggregates were observed without retaining identifiers.
+- [ ] Replace the build-5 reminder response implementation and repeat the affected clean physical
+  matrix on the newly processed replacement. Tapping the delivered notification at
+  `2026-08-22T17:15:14+08:00` crashed build 5. The exact build-5 dSYM matched; safe symbolication
+  showed `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
+  `DailyReminderNotificationRouter` `didReceive` async bridge. Do not repeat the tap on build 5.
+  Keep installed build 5, its live clean-install identity, and TestFlight automatic updates off
+  until its own identity-safe handoff can be completed. Consent withdrawal, final-candidate local/
+  server deletion, snapshot-expiry/recovery, and the complete replacement repeat remain open.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
   identity existed to delete. Build 4 was installed only from processed TestFlight and never over
   the older app; do not claim migration.
-- [ ] From processed build 5, exercise and observe real payload-free `registration_succeeded` and
-  `assertion_succeeded` INFO events. Fly v8 deploys the targeted logger and production build `4,5`
-  allowlist, but its post-deploy counts for registration, assertion, and deletion success remained
-  zero because none was exercised. Observe `installation_deleted` only during the later identity-
-  safe handoff. Protected `/recommend` remains aggregate/client-evidenced. The latest listed 14-day
-  snapshot at `2026-08-21T07:32:23Z` predates build-4 enrollment, so server deletion/reinstall and
-  deletion-specific recovery remain paused and open.
+- [x] Observe the three real payload-free lifecycle success markers against Fly v8. The clean
+  build-5 Style at `16:30` produced the bounded `registration_succeeded` observation and Restyle at
+  `17:04` produced `assertion_succeeded`; the preceding build-4 identity-safe handoff produced
+  exactly one `installation_deleted` marker and `0/0/0` live aggregates. Protected `/recommend`
+  remains aggregate/client-evidenced. This closes marker observation only: actual 14-day snapshot-
+  list disappearance and deletion-specific restore/non-return evidence remain open.
+- [x] Refresh App Store Connect before changing `CURRENT_PROJECT_VERSION` or archiving a
+  replacement. The signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds
+  1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
+  the branch records `CURRENT_PROJECT_VERSION = 6`, source allowlist `4,5,6`, and unchanged
+  `MARKETING_VERSION = 1.0.0`. The required regression, Release-build, and simulator-artifact gates
+  passed again after those changes; this is not backend deployment, archive, or upload evidence.
 
 ## 5. Upload, review, and release
 
-The first checked item below is current build-5 distribution evidence. The remaining checked
-upload/processing/internal-assignment items preserve historical build-4 facts.
+The first checked item below preserves build-5 distribution evidence; it does not make build 5
+promotable after the physical reminder-tap crash. The remaining checked upload/processing/internal-
+assignment items preserve historical build-4 facts. A replacement upload has not begun.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -220,7 +244,8 @@ upload/processing/internal-assignment items preserve historical build-4 facts.
 - [x] For the internal QA phase, add the processed build only to the intended Internal Testing
   group and enter truthful What to Test notes. Build 4 is in the `Family` group and the saved
   truthful wording reproduced in the runbook was saved on 2026-08-21. Build 5's separate
-  distribution evidence is retained above; its clean physical-device evidence remains open.
+  distribution evidence is retained above; its clean physical-device evidence is partial and
+  ended at the notification-tap crash described in section 4.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).

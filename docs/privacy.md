@@ -81,18 +81,15 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, real
-lifecycle-marker observation, and complete build-5 processed-client physical evidence remain
-release gates. Build-4 archive/upload/processing/internal assignment and partial physical evidence
-are historical. Build-5 validation/upload/processing/internal assignment is complete, but is also
-distribution evidence rather than physical lifecycle proof. Fly v8 deploys the targeted auth-
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and complete
+replacement-client physical evidence remain release gates. Fly v8 deploys the targeted auth-
 service INFO logger and production TestFlight allowlist for builds `4,5`; its payload-free post-
-change review passed at `2026-08-21T11:09:20Z`. A fresh exact-v8 post-distribution review passed
-from `2026-08-22T03:19:20Z` through `03:30:33Z` with healthy fixed/coarse state, clean endpoint and
-failure-band checks, and passing Anthropic/support checks. The first bounded query returned zero
-registration, assertion, and deletion success events because none was exercised, so deployment or
-distribution is not production marker observation. Protected `/recommend` remains aggregate/
-client-evidenced.
+change review passed at `2026-08-21T11:09:20Z`, and the fresh post-distribution review passed from
+`2026-08-22T03:19:20Z` through `03:30:33Z`. The first bounded query was zero because no lifecycle
+flow had yet been exercised. Later physical flows observed bounded registration and assertion
+successes from clean build 5 and exactly one deletion success during the build-4 identity-safe
+handoff. Protected `/recommend` remains aggregate/client-evidenced. Build 5 then crashed when its
+delivered local notification was tapped and is non-promotable.
 
 ## Data inventory
 
@@ -118,7 +115,7 @@ accepted provider unknown into a stronger production guarantee.
 Each control must report success only after its operation completes. Destructive actions require
 specific confirmation, and a failure must never be presented as deletion success.
 
-## Build 4 privacy transition
+## Build 4 and build 5 privacy transition
 
 Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the earlier device-local
 wardrobe and adding items again. The installed development build completed Google disconnection
@@ -130,10 +127,13 @@ claim an in-place migration.
 The ordering mattered because uninstall removed local data and the old Google client. The clean
 build-4 install created one anonymous production App Attest identity from that zero baseline. First
 and cold-renewal protected calls succeeded on iPhone 16 Pro/iOS 26.6, with expected signed runtime-
-field absence. This is partial historical evidence: consent withdrawal, local/server deletion, and
-reinstall proof remain open. The latest listed 14-day snapshot at `2026-08-21T07:32:23Z` predates
-enrollment, so server deletion/reinstall is paused until eligible deletion-specific recovery
-evidence can be retained.
+field absence. An eligible automatic snapshot created at `2026-08-22T07:33:23Z` later reported
+`created` with 14-day retention. Build 4's proof of possession remained available after build 5
+appeared installed in place unexpectedly. While that inherited identity was still installed, **Delete Server
+Security Data** produced exactly one bounded success marker and live installations, sessions, and
+challenges reached `0/0/0`. The owner then deleted local data, deleted the app, and installed build
+5 cleanly. This is identity-safe deletion evidence, not migration support. Actual snapshot-list
+expiry and deletion-specific restore/non-return remain open.
 
 Physical QA also found that a failed offline Restyle hid an otherwise persisted cached look until
 relaunch/tap. Build 4 is not promotable. Build 5 was selected after App Store Connect showed build
@@ -147,12 +147,23 @@ checks. Xcode validation succeeded at `03:18:30Z` and normal App Store Connect u
 **Ready to Submit** by `03:24:21Z`; processed metadata retained production App Attest,
 `get-task-allow = false`, beta reporting, included symbols, and no non-exempt encryption. Exactly
 the `Family` Internal Testing group is assigned, with one tester and no individual assignments.
-Build 5 is consumed, but this closes distribution only. Before build 4 is uninstalled, follow the
-runbook's identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server
-security data while proof of possession remains available, and confirm zero installation/session
-aggregates. Keep TestFlight automatic updates disabled and do not install or update to build 5
-until that handoff passes. Only then install build 5 cleanly and repeat the complete privacy and
-failure-state matrix.
+Build 5 is consumed. Its clean first launch showed no login and an empty wardrobe; offline Demo
+Mode, Camera and Photo Library saves, and the full local catalog flow passed. Online Style at
+`16:30` registered a new anonymous identity and cached relaunch passed. Restyle at `17:04` exercised
+assertion renewal; a failed offline Restyle preserved the cached look; offline Wear this/History
+passed; and the local reminder delivered. The bounded v8 stream observed registration and assertion
+success markers. Tapping the delivered reminder at `2026-08-22T17:15:14+08:00` crashed. The exact
+build-5 dSYM matched; safe symbolication identified `SIGABRT`, a UIKit state-restoration assertion,
+and an app frame in the `DailyReminderNotificationRouter` `didReceive` async bridge. Build 5 is
+therefore non-promotable. Do not repeat the tap. Keep it installed and keep its live identity intact
+with TestFlight automatic updates off until another eligible identity-safe handoff is complete.
+
+The current local notification-router source fix has passed 17 focused notification tests, 221
+backend tests plus the locked audit/security/type gates, 222 Swift unit tests, all 9 UI flows, and
+all 43 release-script tests. It is not yet a merged, signed, uploaded, or released candidate. A
+replacement build is required. The signed-in TestFlight Build Uploads view at
+`2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is
+confirmed unused and selected; `MARKETING_VERSION` remains `1.0.0`.
 
 ## Secrets and release boundaries
 

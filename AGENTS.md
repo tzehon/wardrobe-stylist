@@ -94,19 +94,40 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   with build 5 absent. The exact production-signed `1.0.0 (5)` archive was then validated, uploaded
   through the normal **TestFlight & App Store**-eligible route, processed, and assigned only to the
   intended `Family` Internal Testing group. Build 5 is now used and must never be reused.
-  `ios/project.yml` still records that consumed build number; this documentation-only evidence
-  update does not require build 6. Before any later iOS distribution, refresh App Store Connect and
-  select the next confirmed-unused build number. Keep `MARKETING_VERSION` unchanged unless the
-  release milestone changes.
+  Physical QA later made build 5 non-promotable, so a replacement iOS build is required. A live,
+  signed-in TestFlight **Build Uploads** inspection at `2026-08-22T10:02:31Z` showed builds 1–5
+  only, build 5 **Complete**, and no build 6. Build 6 is therefore confirmed unused and selected;
+  `ios/project.yml` records `CURRENT_PROJECT_VERSION = 6`, the branch source allowlist is `4,5,6`,
+  and `MARKETING_VERSION` remains `1.0.0`. These branch-local values are not deployed, archived, or
+  uploaded evidence.
 - Build 4 was installed only as a clean processed TestFlight build. Partial physical QA found that
   a failed Restyle could hide the cached Today look until relaunch, so build 4 is historical and
-  non-promotable. Build 5 must contain and verify the fix through the complete clean-install matrix;
-  do not install it over an older build or claim/test in-place upgrade or local-data migration.
-  Before removing any enrolled predecessor, complete the runbook's identity-safe handoff: retain
-  required local evidence, verify an eligible snapshot, delete server security data while proof of
-  possession remains available, and confirm aggregate removal. Never orphan a live server identity
-  by uninstalling first. Until that build-4 handoff is complete, keep TestFlight automatic updates
-  disabled and do not install or update to build 5.
+  non-promotable. Build 5 appeared installed in place before the planned handoff, but the inherited
+  live identity remained available: after a successful post-enrollment automatic snapshot was
+  confirmed, **Delete Server Security Data** succeeded while proof of possession remained, the
+  production aggregates returned to zero, local data was deleted, and the app was removed. Build 5
+  was then installed cleanly. This recovery closes build 4's identity-safe handoff; it is not
+  upgrade, migration, or in-place-install product evidence.
+- Clean build-5 physical QA passed Gmail-free first launch, empty local wardrobe, offline Demo,
+  successful Camera and Photo Library saves, the catalog flow, production enrollment and cold
+  assertion renewal, online styling/Restyle, cached-look offline relaunch and failed-Restyle
+  preservation, and offline Wear/History. Tapping a delivered local reminder then crashed build 5
+  at `2026-08-22 17:15:14 SGT`. The crash report exactly matches the retained build-5 app/dSYM and
+  safely symbolicates to the generated async Objective-C bridge for
+  `DailyReminderNotificationRouter.userNotificationCenter(_:didReceive:)`, which resumed UIKit's
+  completion path from a cooperative queue and triggered `SIGABRT` during state restoration. Do
+  not repeat the notification tap on build 5.
+- The current notification fix is branch-local on `codex/fix-notification-tap-crash`: it replaces
+  both imported async notification-delegate bridges with completion-handler delegates, snapshots
+  only Sendable response fields, and explicitly performs routing and completion on the main queue.
+  Focused tests passed 17/17; the post-fix full branch regression passed 221 backend tests plus the
+  locked audit/Bandit/Ruff/mypy gates, 222 Swift unit tests, all 9 UI flows, and all 43 release-
+  script tests. This is not merged-source, signed-archive, App Store Connect, or replacement-
+  candidate evidence. Build 5 remains installed with a live server identity; before uninstalling
+  it or installing any replacement, repeat the identity-safe sequence and confirm server deletion.
+- The root `README.md` remains unchanged by design: it is the stable project overview, while live
+  release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
+  runbook.
 - When an iOS candidate depends on backend source or configuration, first freeze and merge both
   sides, build and scan the exact immutable backend image, deploy it, verify the live configuration,
   health, and bounded logging, and complete the post-change manual review before archive/upload.
