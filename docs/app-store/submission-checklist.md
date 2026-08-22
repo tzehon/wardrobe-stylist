@@ -58,8 +58,9 @@ or editable: [Required, localizable, and editable properties](https://developer.
 ## 4. Historical build-4 and current replacement evidence
 
 Checked historical items in this section preserve the uploaded build-4 record. The current
-`1.0.0 (5)` production-signed archive is now strictly verified, but Organizer validation, upload,
-processing, assignment, and physical testing have not happened.
+`1.0.0 (5)` production-signed archive is strictly verified, Organizer-validated, uploaded,
+processed, and assigned to the `Family` Internal Testing group. Physical testing has not happened;
+build 5 must remain uninstalled until build 4's identity-safe handoff is complete.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -119,8 +120,9 @@ processing, assignment, and physical testing have not happened.
   correctly uses `1.0.0 (4)`.
 - [x] Immediately before the build-5 archive, refresh App Store Connect and confirm build 5 is
   still unused. The `2026-08-22T01:09:39Z` refresh showed builds 1–4 only and build 4 highest.
-- [ ] Refresh App Store Connect again immediately before build-5 validation/upload and stop if
-  build 5 is no longer unused.
+- [x] Refresh App Store Connect again immediately before build-5 validation/upload and stop if
+  build 5 is no longer unused. At `2026-08-22T03:16:16Z`, builds 1–4 remained the only uploads and
+  build 5 was absent.
 - [x] Regenerate the project and run the complete backend, Swift unit, UI, public-config,
   request-capture, artifact/privacy-manifest, and Release-build checks from the repository runbook.
   Clean source context `24c17cb` passed 219 backend tests, 215 Swift tests, all 9 UI flows, and 43
@@ -192,10 +194,23 @@ processing, assignment, and physical testing have not happened.
 
 ## 5. Upload, review, and release
 
-Checked upload/processing/internal-assignment items below are historical build-4 facts.
+The first checked item below is current build-5 distribution evidence. The remaining checked
+upload/processing/internal-assignment items preserve historical build-4 facts.
 
-- [ ] Validate, upload, process, and internally assign only the verified build-5 archive using the
-  normal **TestFlight & App Store** route, then save truthful build-5 What to Test wording.
+- [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
+  normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
+  The exact-v8 pre-validation review ran from `2026-08-22T02:27:21Z` through `02:37:08Z` and passed.
+  The final live build-list refresh at `03:16:16Z` still showed builds 1–4 only and build 5 absent.
+  Xcode validation succeeded at `03:18:30Z` and the normal App Store Connect upload succeeded at
+  `03:20:59Z`, each with zero warnings, errors, or information messages. Symbols were included;
+  **Manage version and build number** and **TestFlight Internal Testing Only** were off. Processing
+  reached **Ready to Submit** by `03:24:21Z`; the record shows exact `1.0.0 (5)`, bundle
+  `com.tth.Wardrobe`, SDK `23F81a`, arm64 iPhone support, iOS 18.0 minimum, included symbols, no
+  non-exempt encryption, production App Attest, `get-task-allow = false`, and beta reporting active.
+  The build lists exactly the `Family` Internal Testing group with one tester and no individual
+  testers, and the build-specific What to Test wording reproduced in the runbook is saved. The
+  exact-v8 post-distribution review ran from `03:19:20Z` through `03:30:33Z` and passed. Build 5 is
+  consumed, but distribution is not physical, lifecycle-marker, deletion, or snapshot proof.
 
 - [x] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
   Build `1.0.0 (4)` completed processing by `2026-08-21T08:20:20Z` with no unresolved prompt.
@@ -204,8 +219,8 @@ Checked upload/processing/internal-assignment items below are historical build-4
   18.0, included symbols, no non-exempt encryption, and production App Attest entitlement.
 - [x] For the internal QA phase, add the processed build only to the intended Internal Testing
   group and enter truthful What to Test notes. Build 4 is in the `Family` group and the saved
-  truthful wording reproduced in the runbook was saved on 2026-08-21. The separate build-5 upload
-  and clean physical-device evidence items above remain open.
+  truthful wording reproduced in the runbook was saved on 2026-08-21. Build 5's separate
+  distribution evidence is retained above; its clean physical-device evidence remains open.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).

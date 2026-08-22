@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current release status — 2026-08-21
+## Current release status — 2026-08-22
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -36,17 +36,19 @@ an App Store release candidate from the moment it is archived. This prevents a s
   immediately before validation/upload. Build 4 then uploaded, processed, and entered internal
   testing, so it is consumed and must never be reused. The historical `dd3d990` signed archive
   remains superseded and was not validated or uploaded.
-- Current replacement candidate: the final archive-time App Store Connect refresh at
-  `2026-08-22T01:09:39Z` showed builds 1–4 only, with build 4 highest and build 5 unused.
-  `MARKETING_VERSION = 1.0.0` remains unchanged and `CURRENT_PROJECT_VERSION = 5`. The exact
-  production-signed build-5 archive is strictly verified but has not been Organizer-validated,
-  uploaded, processed, or assigned to testers. Refresh the live build list again immediately
-  before validation/upload and stop if build 5 is no longer unused.
+- Current replacement candidate: the archive-time App Store Connect refresh at
+  `2026-08-22T01:09:39Z` and final pre-validation refresh at `2026-08-22T03:16:16Z` showed builds
+  1–4 only and build 5 absent. `MARKETING_VERSION = 1.0.0` remains unchanged and
+  `CURRENT_PROJECT_VERSION = 5`. The exact production-signed build-5 archive is strictly verified,
+  Organizer-validated, uploaded, processed, and assigned only to the `Family` Internal Testing
+  group. Build 5 is consumed and must never be reused. It has not been installed or physically
+  tested; complete build 4's identity-safe handoff before allowing any build-5 install or automatic
+  update.
 - Build-5 local pre-archive evidence: 221 backend tests and the locked dependency-audit, Bandit,
   Ruff, and mypy gates passed. The regenerated project passed 218 Swift unit tests and all 9 UI
-  flows; all 43 release-script tests and the Release simulator/artifact checks also passed. This is
-  This local regression is distinct from the now-retained signed-archive evidence and remains
-  neither upload, processing, internal-assignment, nor physical-device proof.
+  flows; all 43 release-script tests and the Release simulator/artifact checks also passed. This
+  local regression is distinct from the now-retained signed-archive and Apple distribution evidence
+  and remains neither processing nor physical-device proof by itself.
 - Current production backend baseline: Fly release v8 completed at `2026-08-21T10:45:06Z` and
   serves reviewed PR #23 source `4a75b99dcd49e818ad1d5b198e8c49abba702e18` as a
   `linux/amd64` image at immutable registry digest
@@ -122,6 +124,20 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Organizer upload produced no standalone exported IPA; retained binary evidence is the exact
   archive above, executable SHA-256
   `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6`, and matching app/dSYM UUID.
+- Build-5 Apple distribution proof: the exact-v8 pre-validation review ran from
+  `2026-08-22T02:27:21Z` through `2026-08-22T02:37:08Z` and passed. The final App Store Connect
+  refresh at `2026-08-22T03:16:16Z` still showed builds 1–4 only and build 5 absent. Xcode validated
+  the exact build-5 archive at `2026-08-22T03:18:30Z` and uploaded it through the normal App Store
+  Connect route at `2026-08-22T03:20:59Z`, with zero warnings, errors, or information messages at
+  both stages. Symbols were included; **Manage version and build number** and **TestFlight Internal
+  Testing Only** were off. Processing reached **Ready to Submit** by
+  `2026-08-22T03:24:21Z`. The processed record shows `1.0.0 (5)`, bundle `com.tth.Wardrobe`, SDK
+  `23F81a`, arm64 iPhone support, minimum iOS 18.0, included symbols, no non-exempt encryption,
+  `get-task-allow = false`, beta reporting active, and production App Attest. It lists exactly the
+  `Family` Internal Testing group with one tester and no individual testers; the saved truthful
+  build-5 What to Test wording is reproduced below. The separate exact-v8 post-distribution review
+  ran from `2026-08-22T03:19:20Z` through `2026-08-22T03:30:33Z` and passed. This closes Apple
+  distribution only, not physical, lifecycle-marker, deletion, or snapshot-recovery proof.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v8 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -139,7 +155,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
   `2026-08-21T06:00:21Z`; the required final pre-upload repeat passed against that exact deployment
   at `2026-08-21T08:12:46Z`. The v8 post-change review passed at
-  `2026-08-21T11:09:20Z`; the next routine review remains due no later than 2026-09-20.
+  `2026-08-21T11:09:20Z`; the build-5 pre-validation and post-distribution reviews passed at
+  `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The next routine review remains due no later
+  than 2026-09-21.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -261,15 +279,15 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
   and the saved truthful What to Test wording reproduced below were verified. Neither `dd3d990`
   archive was used.
 
-The current build-5 replacement path is ordered; its distribution and physical gates remain open:
+The current build-5 replacement path is ordered; Apple distribution is complete and its physical
+and identity-handoff gates remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
   `4,5` backend allowlist at `2026-08-21T10:29:56Z`. The frozen shipped-code/backend source was
   `4a75b99dcd49e818ad1d5b198e8c49abba702e18`; later docs-only evidence does not change the
-  deployed image or iOS bundle. Keep
-  `MARKETING_VERSION = 1.0.0`; the archive-time unused-build check passed, but another live refresh
-  remains mandatory immediately before validation/upload.
+  deployed image or iOS bundle. Keep `MARKETING_VERSION = 1.0.0`; both the archive-time and final
+  pre-validation unused-build checks passed.
 - [x] **Retain local pre-archive regression evidence.** The current build-5 worktree passed 221
   backend tests plus locked dependency audit/Bandit/Ruff/mypy; the regenerated project passed 218
   Swift unit tests and all 9 UI flows; and 43 release-script tests plus Release simulator/artifact
@@ -297,9 +315,17 @@ The current build-5 replacement path is ordered; its distribution and physical g
   finalized at `2026-08-22T02:04:17Z`, with no failures, skips, or retries. No production payload,
   token, or identifier was inspected or retained; the test-only change does not alter the signed
   archive or require a new build number.
-- [ ] **Validate, upload, process, and assign build 5.** Refresh App Store Connect again and repeat
-  the payload-free review against exact Fly v8 immediately before using the normal **TestFlight &
-  App Store** route. Resolve processing/compliance issues and save truthful build-5 tester wording.
+- [x] **Validate, upload, process, and assign build 5.** The exact-v8 pre-validation review passed at
+  `2026-08-22T02:37:08Z`, and the final `2026-08-22T03:16:16Z` App Store Connect refresh still showed
+  builds 1–4 only with build 5 absent. Xcode validation succeeded at `03:18:30Z` and the normal App
+  Store Connect upload succeeded at `03:20:59Z`, both with zero warnings, errors, or information
+  messages. Symbols were included; **Manage version and build number** and **TestFlight Internal
+  Testing Only** were off. Processing reached **Ready to Submit** by `03:24:21Z` with the expected
+  version/build, bundle, SDK, architecture, minimum OS, symbols, encryption, production App Attest,
+  `get-task-allow`, and beta-reporting metadata. The build lists only the `Family` Internal Testing
+  group with one tester and no individual testers, and the truthful build-5 What to Test wording
+  reproduced below is saved. The post-distribution exact-v8 review passed at `03:30:33Z`. Build 5
+  is consumed; do not install or automatically update to it before build 4's identity-safe handoff.
 - [ ] **Complete build 4's identity-safe handoff before uninstall.** Follow the ordered stop gate in
   Post-upload APP-009 closure: preserve remaining local evidence, wait for an eligible post-
   enrollment snapshot, delete server security data with aggregate confirmation, and only then
@@ -340,8 +366,9 @@ over an older app.
    `2026-08-21T06:34:50Z` and final pre-validation refresh at `2026-08-21T08:12:46Z` showed builds
    1-3 only, so the replacement archive correctly preserved `1.0.0 (4)`. Its completed upload now
    consumes build 4. For build 5, the archive-time refresh at `2026-08-22T01:09:39Z` showed builds
-   1–4 only and build 5 unused. Refresh again immediately before validation/upload and stop if the
-   chosen number is no longer unused; never reuse a build number.
+   1–4 only and build 5 unused. The final pre-validation refresh at `2026-08-22T03:16:16Z` again
+   showed builds 1–4 only and build 5 absent. Its completed upload now consumes build 5; never reuse
+   a build number.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -379,9 +406,9 @@ over an older app.
    at `2026-08-22T01:12:01Z`; post-scan deep signature verification passed at
    `2026-08-22T01:12:19Z`. The arm64 app/dSYM UUID is
    `DA20FD8D-64C3-3B7A-9990-19EAF050AF04`; executable SHA-256 is
-   `a9f01231025874d331e76be40ebe6f493b3f36051902b66b0ad03c35206bb3b9`. This is signed-archive
-   evidence only: Organizer validation, upload, processing, assignment, and physical proof remain
-   open.
+   `a9f01231025874d331e76be40ebe6f493b3f36051902b66b0ad03c35206bb3b9`. At that stage this was
+   signed-archive evidence only; the later Organizer validation, upload, processing, and assignment
+   evidence is retained above. Physical proof remains open.
 
    Historical evidence: for build `1.0.0 (4)`, clean source
    `dd3d99061321cf91bdce166e7da579b84edb07e8`
@@ -529,6 +556,18 @@ increment the build number and repeat the full loop. Never "patch" an uploaded c
 > usable during an offline backend failure.
 
 Saved on processed build `1.0.0 (4)` for its intended Internal Testing group on 2026-08-21.
+
+## Saved truthful What to Test wording for build 5
+
+> Build 5 is a clean-install replacement for build 4. Do not install it until the owner confirms build 4’s identity-safe handoff is complete, and never install it over build 4.
+>
+> After approval, test launch/icon, onboarding, manual catalog/photo/camera flows, editing/deletion, Demo Mode, styling consent/withdrawal, Today/Wear/History, and reminder delivery. Today regression: style online, relaunch offline, tap Restyle; the cached look must stay visible with a friendly failure, then recover after reconnecting. Wardrobe, History, and Demo Mode must remain usable while remote styling is unavailable. Confirm there is no Google, Gmail, login, receipt-import, or /extract path.
+>
+> Do not perform local/server deletion or reinstall until the runbook clears those stages.
+
+Saved on processed build `1.0.0 (5)` for the `Family` Internal Testing group by
+`2026-08-22T03:24:21Z`. Assignment does not authorize installation: keep build 5 uninstalled and
+automatic updates disabled until build 4's identity-safe handoff is complete.
 
 ## Official Apple references
 

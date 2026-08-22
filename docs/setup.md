@@ -207,12 +207,13 @@ response do not close them.
 Every internal beta is built as an App Store candidate. Follow the
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md):
 
-1. finish the remaining APP-009 external evidence and keep the manual review current;
+1. keep the remaining APP-009 physical/deletion/recovery/marker evidence explicitly open and the
+   manual review current;
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
-4. treat processed candidate `1.0.0 (4)` as consumed and never reuse build 4; a later live check
-   found build 4 highest, and the build-5 archive-time refresh at `2026-08-22T01:09:39Z` still
-   showed builds 1–4 only; refresh App Store Connect again immediately before validation/upload;
+4. treat processed candidates `1.0.0 (4)` and `1.0.0 (5)` as consumed and never reuse either build
+   number. The final build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4
+   only and build 5 absent; any future candidate requires another live check and a new unused build;
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Current local build-5
    evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
    flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic
@@ -225,14 +226,26 @@ Every internal beta is built as an App Store candidate. Follow the
    signature/profile, scalar production App Attest, privacy, public-configuration, and Gmail-free
    checks passed at `2026-08-22T01:11:17Z`; its quiet credential/removed-capability scan passed at
    `2026-08-22T01:12:01Z`; and its post-scan signature check passed at
-   `2026-08-22T01:12:19Z`. This is not Organizer **Validate App** or upload evidence;
-7. after another live build-list refresh and payload-free exact-v8 review, use Organizer **Validate
-   App** and upload with **TestFlight & App Store**, not **TestFlight Internal Only**;
-8. add the processed build to the Internal Testing group; and
+   `2026-08-22T01:12:19Z`. This evidence preceded Organizer validation and upload;
+7. retain the completed build-5 distribution evidence. The exact-v8 payload-free review passed
+   from `2026-08-22T02:27:21Z` through `02:37:08Z`; Organizer **Validate App** succeeded at
+   `03:18:30Z` with zero errors, warnings, or informational messages. Upload through the normal
+   **TestFlight & App Store**-eligible App Store Connect route succeeded at `03:20:59Z`, also with
+   zero errors, warnings, or informational messages. Symbols were on, while **Manage Version and
+   Build Number** and **Internal Testing Only** were off;
+8. retain the processed/internal-assignment evidence. Processing reached **Ready to Submit** by
+   `03:24:21Z`. The exact `1.0.0 (5)` build for `com.tth.Wardrobe` is arm64, minimum iOS 18.0, SDK
+   build `23F81a`, includes symbols, reports no non-exempt encryption, and retains scalar production
+   App Attest with `get-task-allow = false` and beta reporting active. Exactly the `Family` Internal
+   Testing group is assigned, with one tester and no individual tester assignments; and
 9. complete fresh-install physical-device QA. Build 4 was installed cleanly and produced partial
-   historical evidence, but a failed offline
-   Restyle hid the cached look until relaunch/tap. Complete the runbook's build-4 identity-safe
-   handoff before uninstall, then install build 5 cleanly and repeat the entire matrix.
+   historical evidence, but a failed offline Restyle hid the cached look until relaunch/tap. Keep
+   TestFlight automatic updates disabled and do not install or update to build 5. Complete the
+   runbook's build-4 identity-safe handoff before uninstall, then install build 5 cleanly and repeat
+   the entire matrix.
+
+Recording this completed distribution evidence changes documentation only; it does not alter the
+iOS bundle and does not require build 6.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -252,10 +265,13 @@ Fly v8 completed at `2026-08-21T10:45:06Z` from reviewed PR #23 source
 `4a75b99dcd49e818ad1d5b198e8c49abba702e18` and immutable `linux/amd64` digest
 `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
 Its targeted auth-service INFO logger and TestFlight allowlist for builds `4,5` are live, and the
-payload-free post-change review passed at `2026-08-21T11:09:20Z`. The first bounded query returned
-zero registration, assertion, and deletion success events because none was exercised, so real
-production marker observation remains open. Protected `/recommend` intentionally has no developer
-success marker and remains aggregate/client-evidenced. The latest listed 14-day snapshot at
+payload-free post-change review passed at `2026-08-21T11:09:20Z`. A fresh exact-v8 post-
+distribution review also passed from `2026-08-22T03:19:20Z` through `03:30:33Z`; fixed/coarse
+health, recent snapshots, schema/integrity, endpoint surface, zero failure bands, Anthropic, and
+support checks remained green. The first bounded query returned zero registration, assertion, and
+deletion success events because none was exercised, so real production marker observation remains
+open. Protected `/recommend` intentionally has no developer success marker and remains aggregate/
+client-evidenced. The latest listed 14-day snapshot at
 `2026-08-21T07:32:23Z` predates enrollment, so server deletion/reinstall testing remains paused
 pending eligible recovery evidence. Build 5 must be installed cleanly after processing and must
 close the full physical matrix without claiming upgrade support.

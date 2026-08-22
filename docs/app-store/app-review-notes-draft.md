@@ -103,17 +103,20 @@ routes to Today. Public v1 has no Gmail or receipt background task.
 
 Build 4 is historical internal-QA evidence and must not be submitted: physical testing found the
 Today offline-cache Restyle defect. At the `2026-08-22T01:09:39Z` archive-time refresh, App Store
-Connect showed build 4 as the highest upload and build 5 unused. Build 5 has a strictly verified
-production-signed archive but no Organizer validation, upload, processing, internal assignment, or
-physical proof. Reviewed PR #23 merged at `2026-08-21T10:29:56Z`; frozen
+Connect showed build 4 as the highest upload and build 5 unused; the final pre-validation refresh at
+`2026-08-22T03:16:16Z` again showed builds 1–4 only and build 5 absent. Build 5 has a strictly
+verified production-signed archive and completed Organizer validation, upload, processing, and
+`Family` Internal Testing assignment by `2026-08-22T03:24:21Z`, but no physical proof. Reviewed PR
+#23 merged at `2026-08-21T10:29:56Z`; frozen
 shipped-code/backend source was
 `4a75b99dcd49e818ad1d5b198e8c49abba702e18`, and later docs-only evidence does not change the
 deployed image or iOS bundle. Current local pre-archive gates are green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Fly v8 deploys that source with production category `2`,
 builds `4,5`, and targeted auth-service INFO logging; its post-change review passed at
-`2026-08-21T11:09:20Z`, and the pre-archive repeat passed at `2026-08-22T01:07:45Z`. No lifecycle
-success event has yet been exercised against v8.
+`2026-08-21T11:09:20Z`, the pre-archive repeat passed at `2026-08-22T01:07:45Z`, the pre-validation
+review passed at `2026-08-22T02:37:08Z`, and the separate post-distribution review passed at
+`2026-08-22T03:30:33Z`. No lifecycle success event has yet been exercised against v8.
 
 - [ ] Replace every backend, health, fixture, and contact placeholder.
 - [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
@@ -128,6 +131,11 @@ success event has yet been exercised against v8.
   action succeeded or claim in-place migration support.
 - [x] Confirm processed build 4 is distributed only to the `Family` Internal Testing group with the
   saved truthful What to Test wording reproduced in the internal runbook.
+- [x] Confirm processed build 5 is distributed only to the `Family` Internal Testing group with the
+  saved truthful build-specific What to Test wording reproduced in the internal runbook. The build
+  lists one tester through that group and no individual testers. This assignment is not physical
+  proof and does not authorize installation or automatic update before build 4's identity-safe
+  handoff.
 - [x] Retain the historical clean build-4 TestFlight install on iPhone 16 Pro/iOS 26.6 as partial
   evidence only; it was never installed over the older app and is not migration evidence.
 - [ ] Only after the runbook's build-4 identity-safe handoff passes, install processed build 5
