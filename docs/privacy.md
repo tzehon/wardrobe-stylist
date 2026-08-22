@@ -84,11 +84,15 @@ production-configuration change, and at least every 30 days while production rem
 enabled. The policy's unchecked snapshot-list, deletion-specific recovery, App Privacy, real
 lifecycle-marker observation, and complete build-5 processed-client physical evidence remain
 release gates. Build-4 archive/upload/processing/internal assignment and partial physical evidence
-are historical. Fly v8 deploys the targeted auth-service INFO logger and production TestFlight
-allowlist for builds `4,5`; its payload-free post-change review passed at
-`2026-08-21T11:09:20Z`. The first bounded query returned zero registration, assertion, and deletion
-success events because none was exercised, so deployment is not production marker observation.
-Protected `/recommend` remains aggregate/client-evidenced.
+are historical. Build-5 validation/upload/processing/internal assignment is complete, but is also
+distribution evidence rather than physical lifecycle proof. Fly v8 deploys the targeted auth-
+service INFO logger and production TestFlight allowlist for builds `4,5`; its payload-free post-
+change review passed at `2026-08-21T11:09:20Z`. A fresh exact-v8 post-distribution review passed
+from `2026-08-22T03:19:20Z` through `03:30:33Z` with healthy fixed/coarse state, clean endpoint and
+failure-band checks, and passing Anthropic/support checks. The first bounded query returned zero
+registration, assertion, and deletion success events because none was exercised, so deployment or
+distribution is not production marker observation. Protected `/recommend` remains aggregate/
+client-evidenced.
 
 ## Data inventory
 
@@ -134,13 +138,21 @@ evidence can be retained.
 Physical QA also found that a failed offline Restyle hid an otherwise persisted cached look until
 relaunch/tap. Build 4 is not promotable. Build 5 was selected after App Store Connect showed build
 4 highest. Its local pre-archive regression, including Release simulator/artifact privacy
-guards, is green. App Store Connect still showed build 4 highest at `2026-08-22T01:09:39Z`, and the
-new production-signed build-5 archive passed strict profile, scalar production App Attest, privacy
-manifest, public configuration, Gmail-free absence, and separate non-emitting credential checks; it
-has not been Organizer-validated or uploaded. Before build 4 is uninstalled, follow the runbook's
-identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server security data
-while proof of possession remains available, and confirm zero installation/session aggregates.
-Only then install build 5 cleanly and repeat the complete privacy and failure-state matrix.
+guards, is green. App Store Connect still showed build 4 highest at `2026-08-22T01:09:39Z`; the
+final pre-validation refresh at `2026-08-22T03:16:16Z` again showed builds 1–4 only and build 5
+absent. The production-signed build-5 archive passed strict profile, scalar production App Attest,
+privacy manifest, public configuration, Gmail-free absence, and separate non-emitting credential
+checks. Xcode validation succeeded at `03:18:30Z` and normal App Store Connect upload succeeded at
+`03:20:59Z`, each with zero errors, warnings, or informational messages. Processing reached
+**Ready to Submit** by `03:24:21Z`; processed metadata retained production App Attest,
+`get-task-allow = false`, beta reporting, included symbols, and no non-exempt encryption. Exactly
+the `Family` Internal Testing group is assigned, with one tester and no individual assignments.
+Build 5 is consumed, but this closes distribution only. Before build 4 is uninstalled, follow the
+runbook's identity-safe handoff: wait for an eligible post-enrollment snapshot, delete server
+security data while proof of possession remains available, and confirm zero installation/session
+aggregates. Keep TestFlight automatic updates disabled and do not install or update to build 5
+until that handoff passes. Only then install build 5 cleanly and repeat the complete privacy and
+failure-state matrix.
 
 ## Secrets and release boundaries
 

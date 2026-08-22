@@ -35,7 +35,7 @@ kept “In progress.”
 | APP-014 | **In progress** | Build-4 physical QA is partial: clean install, production App Attest, cold renewal, offline/local/demo, manual/edit, open/cancel pickers, reminder scheduling, and wear/history were exercised, but a failed Restyle hid the cached look. Build 5 must repeat the full matrix and close all untested actions |
 | APP-015 | **Done** | CI/release gates remain implemented. Current build-5 local regression evidence is green: 221 backend tests plus locked audit/Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and a synthetic stored-property/encoded-key request guard |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` passed production review, unused-build check, validation, upload, processing, and internal distribution with truthful tester wording. The new `1.0.0 (5)` signed archive is strictly verified but has not been Organizer-validated, uploaded, processed, or assigned |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` remains non-promotable. Exact `1.0.0 (5)` passed the final unused-build check, validation, normal-route upload, processing, and assignment only to the `Family` internal group. Complete physical QA, App Store record/media, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **In progress** | Today is explicit-action-only and the cache survives offline relaunch, but build-4 physical QA found that failed Restyle replaces the usable cached look with an error until relaunch/tap. The repository fix passed local regression and needs build-5 physical verification |
 | APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
@@ -124,12 +124,14 @@ retained routing rehearsal. The bounded stream contained zero `registration_succ
 deployment; real production marker observation therefore remains open. Protected `/recommend`
 success intentionally has no developer event and remains aggregate/client-evidenced.
 
-## Immediate next milestone — internal TestFlight candidate
+## Immediate next milestone — build-4 identity-safe handoff
 
-App Store Connect showed build 4 as the highest upload and build 5 unused at
-`2026-08-22T01:09:39Z`. The exact `1.0.0 (5)` production-signed archive is strictly verified but
-has not been Organizer-validated, uploaded, processed, or assigned. These current gates are
-ordered:
+App Store Connect showed builds 1–4 only and build 5 absent at the final pre-validation refresh,
+`2026-08-22T03:16:16Z`. The exact `1.0.0 (5)` production-signed archive then validated, uploaded,
+processed, and reached only the intended `Family` Internal Testing group. Build 5 is consumed and
+must never be reused. This documentation-only evidence update does not alter the iOS bundle or
+require build 6. The sequence below remains ordered; the first unchecked gate is build 4's
+identity-safe handoff, before any automatic update or install of build 5:
 
 - [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
   focused tests, the payload-free production registration/assertion success-marker logging fix,
@@ -181,15 +183,29 @@ ordered:
   and synthetic values were inspected; no production wardrobe, prompt, model response, token, or
   identifier was retained. This tests-only evidence does not alter the signed iOS bundle or require
   another TestFlight build.
-- [ ] **Validate, upload, process, and internally assign build 5.** Immediately beforehand,
-  refresh App Store Connect again and repeat the payload-free review against exact Fly v8. Use the
-  normal **TestFlight & App Store** route and save truthful build-5 tester wording.
+- [x] **Validate, upload, process, and internally assign build 5.** The exact-v8 payload-free
+  review passed from `2026-08-22T02:27:21Z` through `02:37:08Z`; the final App Store Connect refresh
+  at `03:16:16Z` still showed builds 1–4 only and build 5 absent. Organizer **Validate App**
+  succeeded at `03:18:30Z` with zero errors, warnings, or informational messages. The exact archive
+  uploaded through the normal **TestFlight & App Store**-eligible App Store Connect route at
+  `03:20:59Z`, again with zero errors, warnings, or informational messages. Symbols were on;
+  **Manage Version and Build Number** and **Internal Testing Only** were off. Processing reached
+  **Ready to Submit** by `03:24:21Z`. Processed metadata shows `1.0.0 (5)`,
+  `com.tth.Wardrobe`, arm64, minimum iOS 18.0, SDK build `23F81a`, included symbols, no non-exempt
+  encryption, scalar production App Attest, `get-task-allow = false`, and beta reporting active.
+  Exactly the `Family` Internal Testing group is assigned with one tester and no individual tester
+  assignments. The exact-v8 immediate post-distribution review passed from `03:19:20Z` through
+  `03:30:33Z`: fixed/coarse state remained healthy, the newest snapshot was under 36 hours old,
+  schema v4 integrity/foreign keys passed, the endpoint surface stayed clean, failure bands stayed
+  at zero, and the Anthropic/support checks passed. The review interval overlapped upload and is
+  retained as post-distribution evidence, not pre-upload evidence.
 - [ ] **Complete the build-4 identity-safe handoff before uninstall.** Preserve the remaining local
   evidence, withdraw styling consent and disable reminders, wait for an eligible automatic snapshot
   created after build-4 enrollment, then use build 4's **Delete Server Security Data** control and
   confirm the production aggregate returns to zero. Complete separate local deletion only after its
-  evidence is no longer needed. Stop on any ambiguous result; uninstall build 4 only after every
-  preceding check passes.
+  evidence is no longer needed. Until this gate passes, keep TestFlight automatic updates disabled
+  and do not install or update to build 5. Stop on any ambiguous result; uninstall build 4 only
+  after every preceding check passes.
 - [ ] **Repeat the complete clean physical QA matrix on build 5.** Close every build-4 gap, observe
   real bounded `registration_succeeded`/`assertion_succeeded` production events without payloads or
   identifiers, and verify the Today cache remains usable across failed Restyle/recovery. Then
@@ -197,7 +213,8 @@ ordered:
   retirement gates. The zero-event post-deploy query did not close this gate.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
-the historical build-4 path and does not close any build-5 gate.
+the historical build-4 path and does not close any build-5 physical, deletion, recovery, marker,
+APP-019, APP-036, or public-submission gate.
 
 - [x] **Publish the candidate source.** PR #7 merged the reviewed `codex/app-store-readiness`
   scope to `main` at `f2a02825fd4178478bfc130525463165f12d648c`.
@@ -244,9 +261,10 @@ the historical build-4 path and does not close any build-5 gate.
   check at `2026-08-21T06:34:50Z` and final pre-validation check at
   `2026-08-21T08:12:46Z` again showed builds 1-3 only, so `1.0.0 (4)` and the App Attest build
   allowlist correctly remained at 4. Build 4 has since uploaded and must never be reused. A later
-  final archive-time refresh at `2026-08-22T01:09:39Z` showed builds 1–4 only, so build 5 was
-  unused. Its signed archive is now strictly verified; another immediate refresh remains required
-  before Organizer validation/upload.
+  archive-time refresh at `2026-08-22T01:09:39Z` showed builds 1–4 only, and the final
+  pre-validation refresh at `2026-08-22T03:16:16Z` again showed build 5 absent. The exact signed
+  archive subsequently validated, uploaded, processed, and reached the intended internal group.
+  Build 5 is now used and must never be reused.
 - [x] **Freeze and publish the Gmail-free candidate source.** PR #14 merged at
   `9a48caebdec67ac26673c3ba51546a5e7edcf0cc`; the remote feature branch was deleted and local
   `main` was synchronized to the same `origin/main` SHA by fast-forward before the release image
@@ -426,7 +444,8 @@ governed by APP-036's Gmail-free guards.
   Attest entitlement, backend URL, and accepted release build must match the deployment/archive.
   The `dd3d990` archive is retained only as superseded historical evidence. The uploaded build-4
   archive `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive` is also historical. The new verified
-  build-5 archive is retained above; Organizer validation/upload remain separate gates.
+  build-5 archive and its completed validation/upload/processing/internal-assignment evidence are
+  retained above. Physical-device and public-submission gates remain separate.
 - [x] **APP-012 · Done · Pin/audit dependencies and archive privacy metadata.** Historical
   work pinned and audited Google Sign-In. For the Gmail-free candidate, remove that SDK and its
   transitive bundles, keep only actually integrated dependencies/privacy manifests, and make the
@@ -472,8 +491,9 @@ governed by APP-036's Gmail-free guards.
   normal **TestFlight & App Store**-eligible route rather than **TestFlight Internal Only**,
   processed, and reached the intended internal group with truthful tester wording. Physical QA was
   partial and exposed the Today offline-cache defect, so build 4 is not promotable. The build-5
-  archive is strictly verified; complete its validation/upload/clean-device remainder and keep
-  backend health available through review.
+  archive has also passed validation, normal-route upload, processing, and assignment only to the
+  intended internal group. Complete its identity-safe predecessor handoff and clean-device QA
+  remainder, then keep backend health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -487,8 +507,9 @@ governed by APP-036's Gmail-free guards.
   TestFlight build and the full regression/release-artifact/physical-device loop. Repository,
   historical simulator-artifact, regression, production-backend, signed-archive, upload, and partial
   physical evidence is retained. The current build-5 regression and signed-archive evidence are
-  retained; validation/upload, complete physical proof, deletion/recovery, and final Google
-  retirement remain open.
+  retained, and its validation/upload/processing/internal assignment are complete. Complete
+  physical proof, deletion/recovery, production markers, final Google retirement, and public
+  submission remain open.
 
 ## P1 — core experience polish
 

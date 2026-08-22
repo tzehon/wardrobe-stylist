@@ -90,11 +90,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - App Store Connect showed builds 1-3 only immediately before build-4 validation/upload on
   2026-08-21, so the exact Gmail-free `1.0.0 (4)` archive was validated, uploaded, processed, and
   assigned to the intended internal TestFlight group. Build 4 is used and must never be reused.
-  The final build-5 archive-time check on 2026-08-22 showed build 4 as the highest upload and build
-  5 unused. `ios/project.yml` uses `1.0.0 (5)`, and the new production-signed build-5 archive is
-  strictly verified but not validated or uploaded. Refresh App Store Connect again immediately
-  before validation/upload, stop if build 5 is no longer unused, and keep `MARKETING_VERSION`
-  unchanged unless the release milestone changes.
+  The final build-5 pre-validation refresh at `2026-08-22T03:16:16Z` again showed builds 1-4 only,
+  with build 5 absent. The exact production-signed `1.0.0 (5)` archive was then validated, uploaded
+  through the normal **TestFlight & App Store**-eligible route, processed, and assigned only to the
+  intended `Family` Internal Testing group. Build 5 is now used and must never be reused.
+  `ios/project.yml` still records that consumed build number; this documentation-only evidence
+  update does not require build 6. Before any later iOS distribution, refresh App Store Connect and
+  select the next confirmed-unused build number. Keep `MARKETING_VERSION` unchanged unless the
+  release milestone changes.
 - Build 4 was installed only as a clean processed TestFlight build. Partial physical QA found that
   a failed Restyle could hide the cached Today look until relaunch, so build 4 is historical and
   non-promotable. Build 5 must contain and verify the fix through the complete clean-install matrix;
@@ -102,7 +105,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Before removing any enrolled predecessor, complete the runbook's identity-safe handoff: retain
   required local evidence, verify an eligible snapshot, delete server security data while proof of
   possession remains available, and confirm aggregate removal. Never orphan a live server identity
-  by uninstalling first.
+  by uninstalling first. Until that build-4 handoff is complete, keep TestFlight automatic updates
+  disabled and do not install or update to build 5.
 - When an iOS candidate depends on backend source or configuration, first freeze and merge both
   sides, build and scan the exact immutable backend image, deploy it, verify the live configuration,
   health, and bounded logging, and complete the post-change manual review before archive/upload.
