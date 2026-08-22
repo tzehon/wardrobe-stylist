@@ -33,7 +33,7 @@ kept “In progress.”
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. The build-5 signed archive passed the privacy-manifest and Gmail-free absence guards plus a separate non-emitting credential scan |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
 | APP-014 | **In progress** | Build-4 physical QA is partial: clean install, production App Attest, cold renewal, offline/local/demo, manual/edit, open/cancel pickers, reminder scheduling, and wear/history were exercised, but a failed Restyle hid the cached look. Build 5 must repeat the full matrix and close all untested actions |
-| APP-015 | **Done** | CI/release gates remain implemented. Current build-5 local pre-archive evidence is green: 221 backend tests plus locked audit/Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic request-field capture |
+| APP-015 | **Done** | CI/release gates remain implemented. Current build-5 local pre-archive evidence is green: 221 backend tests plus locked audit/Bandit/Ruff/mypy, 218 Swift unit tests, all 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and a synthetic stored-property/encoded-key request guard |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
 | APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` passed production review, unused-build check, validation, upload, processing, and internal distribution with truthful tester wording. The new `1.0.0 (5)` signed archive is strictly verified but has not been Organizer-validated, uploaded, processed, or assigned |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
@@ -169,17 +169,18 @@ ordered:
   `DA20FD8D-64C3-3B7A-9990-19EAF050AF04` (arm64); executable SHA-256 is
   `a9f01231025874d331e76be40ebe6f493b3f36051902b66b0ad03c35206bb3b9`.
 - [x] **Retain exact synthetic `/recommend` request-capture evidence.** The tests-only boundary
-  pins the complete top-level key set (`items`, `recently_worn_ids`, `item_preferences`,
-  `occasion`), the complete catalog-item allowlist (`id`, `name`, `category`, `brand`, `colors`,
-  `material`), and the complete preference allowlist (`id`, `average_rating`, `rating_count`),
-  while rejecting extra fields. The focused `RecommendClientTests` suite passed 12/12 at
-  `2026-08-22T01:27:39Z` on an iPhone 17/iOS 26.5 simulator. After this tests-only change, the
+  inventories every stored property on the three Swift request types, including nil optionals, and
+  separately pins the encoded top-level keys (`items`, `recently_worn_ids`, `item_preferences`,
+  `occasion`), catalog-item keys (`id`, `name`, `category`, `brand`, `colors`, `material`), and
+  preference keys (`id`, `average_rating`, `rating_count`). The shared schema/backend reject extra
+  fields. The strengthened focused `RecommendClientTests` suite passed 12/12 at
+  `2026-08-22T01:59:08Z` on an iPhone 17/iOS 26.5 simulator. After this tests-only change, the
   mandatory backend gate passed 221 tests plus audit/Bandit/Ruff/mypy, and one uninterrupted full
-  iOS run passed 218 Swift unit tests plus all 9 UI tests (227/227 canonical cases) at
-  `2026-08-22T01:34:58Z`, with no failures, skips, or retries. Only field names and synthetic
-  values were inspected; no production wardrobe, prompt, model response, token, or identifier was
-  retained. This tests-only evidence does not alter the signed iOS bundle or require another
-  TestFlight build.
+  iOS run passed 218 Swift unit tests plus all 9 UI tests (227/227 canonical cases), whose result
+  bundle finalized at `2026-08-22T02:04:17Z`, with no failures, skips, or retries. Only field names
+  and synthetic values were inspected; no production wardrobe, prompt, model response, token, or
+  identifier was retained. This tests-only evidence does not alter the signed iOS bundle or require
+  another TestFlight build.
 - [ ] **Validate, upload, process, and internally assign build 5.** Immediately beforehand,
   refresh App Store Connect again and repeat the payload-free review against exact Fly v8. Use the
   normal **TestFlight & App Store** route and save truthful build-5 tester wording.
