@@ -36,19 +36,27 @@ an App Store release candidate from the moment it is archived. This prevents a s
   immediately before validation/upload. Build 4 then uploaded, processed, and entered internal
   testing, so it is consumed and must never be reused. The historical `dd3d990` signed archive
   remains superseded and was not validated or uploaded.
-- Current replacement candidate: the archive-time App Store Connect refresh at
+- Historical build-5 distribution and current replacement gate: the archive-time App Store Connect refresh at
   `2026-08-22T01:09:39Z` and final pre-validation refresh at `2026-08-22T03:16:16Z` showed builds
-  1–4 only and build 5 absent. `MARKETING_VERSION = 1.0.0` remains unchanged and
+  1–4 only and build 5 absent. That archive used `MARKETING_VERSION = 1.0.0` and
   `CURRENT_PROJECT_VERSION = 5`. The exact production-signed build-5 archive is strictly verified,
   Organizer-validated, uploaded, processed, and assigned only to the `Family` Internal Testing
-  group. Build 5 is consumed and must never be reused. It has not been installed or physically
-  tested; complete build 4's identity-safe handoff before allowing any build-5 install or automatic
-  update.
-- Build-5 local pre-archive evidence: 221 backend tests and the locked dependency-audit, Bandit,
-  Ruff, and mypy gates passed. The regenerated project passed 218 Swift unit tests and all 9 UI
-  flows; all 43 release-script tests and the Release simulator/artifact checks also passed. This
-  local regression is distinct from the now-retained signed-archive and Apple distribution evidence
-  and remains neither processing nor physical-device proof by itself.
+  group. Build 5 is consumed and must never be reused. Build-4 identity-safe recovery/handoff and
+  broad clean build-5 physical QA later completed, but tapping a delivered reminder crashed build 5;
+  it is non-promotable and a replacement iOS build is required. A read-only signed-in TestFlight
+  **Build Uploads** inspection at `2026-08-22T10:02:31Z` (`18:02:31 SGT`) showed builds 1–5 only,
+  build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected while
+  `MARKETING_VERSION` remains `1.0.0`. The branch records `CURRENT_PROJECT_VERSION = 6` and source
+  allowlist `4,5,6`; the required backend, iOS/UI, release-script, optimized Release-build, and
+  simulator-artifact gates passed again after those changes. This remains branch-local, not deployed
+  backend, signed archive, or App Store Connect build evidence. The root `README.md` remains
+  unchanged by design; this runbook and the release backlog own live release state.
+- Notification-fix branch evidence: `codex/fix-notification-tap-crash` is based on clean
+  synchronized `main` `74ed41ee7077a5a4be616718f99499ffeb52a5ee`. Its focused tests passed
+  17/17, followed by 221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 222 Swift
+  unit tests, all 9 UI flows, and all 43 release-script tests. This is branch-local evidence only,
+  distinct from review/merge, confirmed replacement metadata, signed archive, Apple distribution,
+  and physical-device proof. The earlier build-5 pre-archive regression remains historical.
 - Current production backend baseline: Fly release v8 completed at `2026-08-21T10:45:06Z` and
   serves reviewed PR #23 source `4a75b99dcd49e818ad1d5b198e8c49abba702e18` as a
   `linux/amd64` image at immutable registry digest
@@ -61,8 +69,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Singapore Machine runs with `min_machines_running = 1`; production App Attest uses category `2`
   and bundle-build allowlist `4,5`; and the required secrets are deployed without retaining their
   values. The encrypted 1 GB volume is in the below-warning usage band. Schema v4 integrity is `ok`
-  with zero foreign-key errors, one installation, zero sessions, and zero challenges. All listed
-  snapshots are created; the newest is `2026-08-21T07:32:23Z` and retention remains 14 days. The
+  with zero foreign-key errors. Build-4 handoff returned installations/sessions/challenges to zero.
+  A bounded observation shortly after the build-5 Restyle at 17:04 showed one installation, one
+  session, and zero challenges; sessions expire, so that is not current state. The safe current
+  claim is only that the clean build-5 installation remains live. At the handoff gate all listed
+  snapshots were created, the newest
+  successful snapshot was `2026-08-22T07:33:23Z`, and retention remained 14 days. The
   single UID-10001 Uvicorn process enables application `INFO` only for the non-propagating
   `app.auth.service` logger
   and keeps access logging off. Health returns `200`, `/extract` returns `404`, unauthenticated
@@ -83,14 +95,16 @@ an App Store release candidate from the moment it is archived. This prevents a s
   and no-saturation checks passed, as did the published support pages, contact/response target, and
   retained routing rehearsal. The live logging configuration is deployed, but the bounded query had
   zero `registration_succeeded`, `assertion_succeeded`, and `installation_deleted` events because
-  no corresponding lifecycle operation was exercised after v8 deployment. Real production marker
-  observation remains open. Protected `/recommend` success intentionally emits no developer event;
-  prove it separately through the aggregate `recommend-installation` admission counter and a visible
-  non-cached client result.
+  no corresponding lifecycle operation was exercised after v8 deployment at that review point.
+  Later physical QA safely observed predecessor deletion and one clean-build registration plus one
+  cold assertion success without payloads or identifiers. Protected `/recommend` success
+  intentionally emits no developer event; it was proven separately through the aggregate
+  `recommend-installation` admission counter and a visible non-cached client result.
 - Pre-APP-036 development proof: App Attest enrollment, assertion renewal, and `/recommend`
   succeeded on an iPhone 16 Pro running iOS 26.6 with build 4. The iOS 27+ runtime category/build
-  fields were absent as expected. Repeat the relevant proof against the final Gmail-free build;
-  the earlier run is a baseline, not candidate evidence.
+  fields were absent as expected. Clean build 5 repeated production enrollment, cold assertion
+  renewal, and protected styling, with the same expected runtime-field absence. Build 5's later
+  notification crash prevents it from being final-candidate evidence.
 - Superseded Gmail-free repository proof: 202 locked backend tests and all dependency/security/type
   gates passed; 209 unique iOS tests passed (200 Swift tests plus all 9 UI flows); 31/31 release-
   script tests passed; and a clean Release simulator artifact for `1.0.0 (4)` passed public-config,
@@ -138,6 +152,21 @@ an App Store release candidate from the moment it is archived. This prevents a s
   build-5 What to Test wording is reproduced below. The separate exact-v8 post-distribution review
   ran from `2026-08-22T03:19:20Z` through `2026-08-22T03:30:33Z` and passed. This closes Apple
   distribution only, not physical, lifecycle-marker, deletion, or snapshot-recovery proof.
+- Build-5 physical/crash proof: build 5 appeared installed in place before the planned handoff, but
+  retained the predecessor identity's proof of possession. After the successful post-enrollment
+  automatic snapshot at `2026-08-22T07:33:23Z` was confirmed with 14-day retention, the inherited
+  identity successfully deleted server security data and production aggregates returned to zero.
+  Local data was deleted, the app was removed, and build 5 was then installed cleanly. Clean QA
+  passed Gmail-free launch/onboarding, empty wardrobe, offline Demo/local flows, Camera and Photo
+  Library saves, the catalog matrix, production enrollment/cold renewal, styling/Restyle, Today
+  offline-cache preservation, and Wear/History. Tapping a delivered reminder at
+  `2026-08-22 17:15:14 SGT` then caused an ordinary `EXC_CRASH`/`SIGABRT`, not jetsam or watchdog.
+  The executable exactly matches the retained build-5 dSYM. Safe symbolication reaches the
+  generated async Objective-C bridge for
+  `DailyReminderNotificationRouter.userNotificationCenter(_:didReceive:)`, which resumed UIKit's
+  completion path on a cooperative queue while state restoration was updating. Build 5 is
+  non-promotable; do not repeat the reminder tap. Keep its current clean-install server identity
+  live until the replacement handoff can delete it safely.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v8 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
@@ -146,10 +175,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
   its temporary resources were removed within 391 seconds of volume creation. Build 4 subsequently
   supplied partial production TestFlight enrollment, assertion-renewal, and protected-call evidence,
-  but did not complete the physical QA matrix and exposed a release defect; build 5 must repeat the
-  proof. Snapshot-list expiry, deletion-specific recovery, server-deletion UI proof, and real
-  registration/assertion success-marker observation are still required. Apple upload/processing
-  and internal assignment alone do not satisfy those physical-client checks. The first payload-free
+  then its inherited identity was safely deleted before a clean build-5 install. Build 5 repeated
+  enrollment, assertion renewal, protected styling, server markers, media flows, and the Today
+  regression, but its reminder-tap crash requires a replacement candidate. Snapshot-list expiry,
+  deletion-specific recovery, identity-safe deletion of the currently live build-5 record, and
+  replacement physical proof are still required. Apple upload/processing and internal assignment
+  alone do not satisfy those physical-client checks. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
   `2026-08-21T01:11:43Z`; and the historical pre-archive repeat passed at
   `2026-08-21T03:30:33Z`. The reviewed v7 post-deploy review passed at
@@ -279,8 +310,9 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
   and the saved truthful What to Test wording reproduced below were verified. Neither `dd3d990`
   archive was used.
 
-The current build-5 replacement path is ordered; Apple distribution is complete and its physical
-and identity-handoff gates remain open:
+The historical build-5 path and current replacement path are ordered. Build-5 Apple distribution,
+build-4 identity-safe recovery, partial clean build-5 physical QA, and the live build-6 availability
+check are complete; the replacement now advances to the reviewed/merged candidate pipeline:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -288,7 +320,7 @@ and identity-handoff gates remain open:
   `4a75b99dcd49e818ad1d5b198e8c49abba702e18`; later docs-only evidence does not change the
   deployed image or iOS bundle. Keep `MARKETING_VERSION = 1.0.0`; both the archive-time and final
   pre-validation unused-build checks passed.
-- [x] **Retain local pre-archive regression evidence.** The current build-5 worktree passed 221
+- [x] **Retain historical build-5 pre-archive regression evidence.** The frozen build-5 worktree passed 221
   backend tests plus locked dependency audit/Bandit/Ruff/mypy; the regenerated project passed 218
   Swift unit tests and all 9 UI flows; and 43 release-script tests plus Release simulator/artifact
   checks passed. Rerun any affected gate if source or configuration changes before archive.
@@ -297,8 +329,8 @@ and identity-handoff gates remain open:
   `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
   Local/registry scans, runtime/storage/route/configuration checks, the `4,5` allowlist, targeted
   INFO logger, retained rollback/recovery checks, and the `2026-08-21T11:09:20Z` payload-free
-  post-change review passed. This closes deployment/configuration review only; the real lifecycle-
-  marker observation remains in the physical-device gate below.
+  post-change review passed. This closed deployment/configuration review only at that stage; later
+  physical QA observed the bounded lifecycle markers recorded below.
 - [x] **Recheck App Store Connect, archive, and verify build 5.** Fresh registry recovery checks,
   the exact-v8 payload-free review, and the archive-time build-list refresh passed at
   `2026-08-22T01:00:09Z`, `2026-08-22T01:07:45Z`, and `2026-08-22T01:09:39Z` respectively.
@@ -325,16 +357,35 @@ and identity-handoff gates remain open:
   `get-task-allow`, and beta-reporting metadata. The build lists only the `Family` Internal Testing
   group with one tester and no individual testers, and the truthful build-5 What to Test wording
   reproduced below is saved. The post-distribution exact-v8 review passed at `03:30:33Z`. Build 5
-  is consumed; do not install or automatically update to it before build 4's identity-safe handoff.
-- [ ] **Complete build 4's identity-safe handoff before uninstall.** Follow the ordered stop gate in
-  Post-upload APP-009 closure: preserve remaining local evidence, wait for an eligible post-
-  enrollment snapshot, delete server security data with aggregate confirmation, and only then
-  clear local data and remove build 4. Stop on any ambiguous result.
-- [ ] **Repeat complete physical QA on build 5.** Use a clean TestFlight install, close every gap
-  listed in the partial build-4 record, observe real bounded `registration_succeeded`/
-  `assertion_succeeded` events without payloads or identifiers, and verify the Today cache remains
-  usable through a failed Restyle and recovery. Then finish deletion/reinstall and snapshot-specific
-  recovery evidence. The zero-event post-deploy query did not close this gate.
+  is consumed and must never be reused.
+- [x] **Complete build 4's identity-safe recovery/handoff.** Build 5 appeared installed in place,
+  but the predecessor's live proof of possession remained available. A successful post-enrollment
+  automatic snapshot created at `2026-08-22T07:33:23Z` was confirmed with 14-day retention;
+  **Delete Server Security Data** succeeded; production installation/session/challenge aggregates
+  returned to zero; and local deletion plus app removal preceded the clean build-5 install. This is
+  safe recovery evidence, not upgrade/migration product proof.
+- [x] **Run clean build-5 physical QA through the first blocker.** The launch/local/media/catalog,
+  production auth/styling, Today offline-cache/failed-Restyle, and Wear/History boundaries passed,
+  including one registration and one later assertion marker without payloads or identifiers. A
+  delivered reminder tap at `2026-08-22 17:15:14 SGT` then caused `EXC_CRASH`/`SIGABRT`; build 5
+  is non-promotable and must not receive another notification-tap attempt.
+- [x] **Diagnose and implement the source fix on a branch.** The crash exactly matches the build-5
+  dSYM and safely symbolicates to the generated async bridge for
+  `DailyReminderNotificationRouter.userNotificationCenter(_:didReceive:)`. Branch
+  `codex/fix-notification-tap-crash` replaces both imported async notification-delegate bridges
+  with explicit completion-handler/main-queue routing. Focused tests passed 17/17 and the full
+  branch regression passed 221 backend tests plus audit/Bandit/Ruff/mypy, 222 Swift unit tests,
+  all 9 UI flows, and 43 release-script tests. This is not merged/candidate evidence.
+- [x] **Confirm the replacement build number in live App Store Connect.** The read-only signed-in
+  TestFlight **Build Uploads** view at `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5
+  **Complete**, and no build 6. Build 6 is confirmed unused and selected; the branch records
+  `CURRENT_PROJECT_VERSION = 6`, source allowlist `4,5,6`, and `MARKETING_VERSION = 1.0.0`.
+- [ ] **Complete the replacement candidate pipeline and physical matrix.** Finish review/merge,
+  rerun all affected gates on clean merged source and confirmed metadata, freeze/review compatible
+  backend configuration, strictly verify a new signed archive, validate/upload/process/assign it by
+  the normal App Store route, then identity-safely delete the currently live build-5 record before
+  uninstall. Install the replacement cleanly and repeat the complete matrix, especially delivered-
+  reminder tap, deletion/reinstall, snapshot recovery/expiry, and final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -351,8 +402,15 @@ has a live identity or exposes the control.
 
 Build `1.0.0 (4)` was installed only after it processed in TestFlight and only after the older app
 was removed. That clean install enrolled a new anonymous production App Attest identity. This is
-historical build-4 evidence, not upgrade or migration support and not permission to install build 5
-over an older app.
+historical build-4 evidence, not upgrade or migration support.
+
+The planned handoff was recovered after build 5 appeared installed in place: the predecessor's
+proof of possession remained live, an eligible successful post-enrollment snapshot was confirmed,
+server security data was deleted with zero aggregate confirmation, and local deletion plus app
+removal followed. Build 5 was then installed cleanly. This completes the predecessor handoff but
+does not validate the in-place installation as a supported upgrade. Build 5 now owns a separate
+live server identity; keep it installed, do not repeat the crashing notification tap, and complete
+the same identity-safe deletion sequence before any replacement uninstall/install.
 
 ## Per-build release-candidate loop
 
@@ -368,7 +426,9 @@ over an older app.
    consumes build 4. For build 5, the archive-time refresh at `2026-08-22T01:09:39Z` showed builds
    1–4 only and build 5 unused. The final pre-validation refresh at `2026-08-22T03:16:16Z` again
    showed builds 1–4 only and build 5 absent. Its completed upload now consumes build 5; never reuse
-   a build number.
+   a build number. The read-only live TestFlight **Build Uploads** inspection at
+   `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6; build 6 is
+   confirmed unused and selected with `MARKETING_VERSION = 1.0.0`.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -443,9 +503,12 @@ over an older app.
    enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
    gate is desired.
 8. **Run fresh-install QA.** Never install a fresh-reset candidate over an older app. Build 4 was
-   installed cleanly and supplied only the partial historical evidence recorded below. For the
-   current replacement, complete the build-4 identity-safe handoff below before uninstall. Then test
-   build 5 as a separate clean physical-device install and repeat the complete matrix: launch/icon, local
+   installed cleanly; its identity-safe handoff is complete. Build 5 was later installed cleanly
+   after that recovered handoff and supplied the partial physical evidence recorded below before
+   the notification-tap crash. Before replacing it, keep build 5 installed, avoid another reminder
+   tap, and identity-safely delete its live server record with aggregate confirmation. Then install
+   the processed replacement as a separate clean physical-device build and repeat the complete
+   matrix: launch/icon, local
    onboarding, offline Demo Mode, manual add, camera/photo library,
    catalog edit/delete, App Attest enrollment/session renewal, styling consent/withdrawal,
    Today/History, local reminders, Settings/privacy, local deletion, separate server-security
@@ -487,48 +550,57 @@ request body, database row, wardrobe payload, or raw log sample.
 | Installation | Clean TestFlight install on iPhone 16 Pro running iOS 26.6; production aggregate baseline was zero installations, then one installation after enrollment |
 | App Attest / protected API | First production assertion and protected calls succeeded; a cold-app assertion/session renewal also succeeded |
 | Offline behavior | Remote styling failed closed with a friendly offline message while Wardrobe, History, and Demo Mode remained usable |
-| Today cache / release defect | The cached look survived an offline relaunch, but tapping **Restyle** while offline replaced the usable look with the error state. The look returned only after another relaunch and a tap. Build 4 is not promotable; build 5 must contain and verify the fix |
+| Today cache / release defect | The cached look survived an offline relaunch, but tapping **Restyle** while offline replaced the usable look with the error state. The look returned only after another relaunch and a tap. Build 4 is not promotable; clean build 5 later verified the fix |
 | Online recovery | Styling recovered online and showed `Styled 17:24`; aggregate assertion total advanced from 1 to 2 and the current recommendation-installation rate window from 0 to 1 |
 | Signed runtime fields | Validation category/build fields were absent, as expected on iOS 26.6; this is not category/build-enforcement evidence |
 | Local flows | Manual add/edit, Demo Mode, **Wear this**, and History passed. Camera and Photo Library opened and cancelled only; successful media selection remains untested. Reminder permission and scheduling passed; delivery remains untested |
-| Production marker stream | The build-4 bounded stream had no `registration_succeeded` or `assertion_succeeded` matches because live v7 suppressed INFO lifecycle events at the time. `installation_deleted` was not expected because deletion was paused. Protected `/recommend` intentionally has no developer success event and was proven separately by the aggregate admission counter plus the non-cached client result. Fly v8 now deploys the targeted logger and build `4,5` allowlist, but its post-deploy lifecycle-event counts remain zero because those operations have not yet been exercised against v8 |
-| Snapshot / deletion boundary | The latest listed 14-day snapshot, `2026-08-21T07:32:23Z`, predates this enrollment. Server deletion and reinstall testing are paused until eligible recovery evidence can be retained without risking restoration of the enrolled identity |
+| Production marker stream | The build-4 bounded stream had no `registration_succeeded` or `assertion_succeeded` matches because live v7 suppressed INFO lifecycle events at the time. Fly v8 later emitted the bounded build-4 deletion and clean build-5 registration/assertion evidence without payloads or identifiers |
+| Snapshot / deletion boundary | The initially listed snapshot predated enrollment. A later successful post-enrollment snapshot at `2026-08-22T07:33:23Z` cleared the recovery gate, after which server and local deletion completed safely |
 
-Still open: successful Camera and Photo Library selection, notification delivery, styling-consent
-withdrawal, local deletion, server-security-data deletion, a complete clean build-5 repeat,
-real registration/assertion success-marker production observation, snapshot-list expiry
-and deletion-specific recovery, and final owner-confirmed Google retirement.
+### Build 5 physical QA — 2026-08-22 (historical, BLOCKED)
+
+Clean build `1.0.0 (5)` passed Gmail-free launch/onboarding, empty wardrobe, offline Demo and local
+tabs, successful Camera/Photo Library saves, the catalog matrix, production enrollment and cold
+renewal, initial styling/Restyle, Today offline-cache and failed-Restyle preservation, and offline
+Wear/History. Production markers and aggregates corroborated the connected operations without
+retaining payloads or identifiers. Tapping a delivered reminder at `17:15:14 SGT` then caused
+`EXC_CRASH`/`SIGABRT`. The executable exactly matches the retained build-5 dSYM; safe symbolication
+reaches the generated async bridge for
+`DailyReminderNotificationRouter.userNotificationCenter(_:didReceive:)` as UIKit updated state
+restoration. Build 5 is consumed and non-promotable. Do not repeat the tap.
 
 - [x] Retain historical build-4 signed production App Attest entitlement, matching embedded App
   Store profile and certificate, and strict artifact-verifier result. The verified uploaded archive
   is `Wardrobe-1.0.0-4-24c17cb-appstore.xcarchive`; historical `dd3d990` archives are superseded and
   cannot satisfy any later upload or processed-build gate.
-- [ ] From processed internal TestFlight build 5, repeat production enrollment and cold assertion/
-  session renewal, and observe the bounded `registration_succeeded`/`assertion_succeeded` markers.
-  Prove a protected `/recommend` separately with its aggregate admission-counter delta and a visible
-  non-cached client result. Record the tester OS and signed runtime-field presence; do not claim
-  category/build enforcement when iOS 18–26 omits those fields. Build-4 partial evidence does not
-  close this current-candidate gate.
-- [ ] Before uninstalling build 4, preserve any remaining local-flow evidence, withdraw styling
-  consent, and disable reminders. Wait for and verify an eligible automatic snapshot created after
-  build-4 enrollment. While build 4 still holds proof of possession, use **Delete Server Security
-  Data**, confirm the production installation/session aggregates return to zero, and retain only the
-  redacted outcome. Complete the separate local-data deletion after its evidence is no longer
-  needed. Stop on any ambiguous deletion or aggregate result; do not uninstall or re-enroll.
-- [ ] Only after the build-4 identity-safe handoff passes, uninstall build 4, install processed build
-  5 cleanly, and complete the entire fresh-install QA matrix, including the build-4 gaps and the
-  Today offline-cache regression. Never install build 5 over build 4.
+- [x] Retain build-4 identity-safe recovery: eligible snapshot, assertion-verified server deletion,
+  zero installation/session/challenge aggregates, local deletion, app removal, and subsequent clean
+  build-5 install. This is not upgrade/migration proof.
+- [x] Retain the clean build-5 production enrollment, cold assertion, protected styling, bounded
+  markers, media/catalog, Today regression, and reminder-crash evidence above.
+- [x] Confirm the replacement build number through fresh live App Store Connect inspection. At
+  `2026-08-22T10:02:31Z`, builds 1–5 were the only uploads, build 5 was **Complete**, and build 6
+  was absent. Build 6 is confirmed unused and selected; `MARKETING_VERSION` stays `1.0.0`.
+- [ ] Finish review/merge and the entire replacement build/archive/upload/processing/assignment
+  loop. Branch-local 17/17 focused, 221 backend plus audit/Bandit/Ruff/mypy, 222 unit, 9 UI, and 43
+  release-script results are not candidate evidence.
+- [ ] Before uninstalling build 5, disable the reminder, withdraw styling permission, verify an
+  eligible snapshot, delete its live server security record with aggregate confirmation, and delete
+  local data. Keep build 5 installed and do not repeat the notification tap until this ordered gate.
+- [ ] Install the processed replacement cleanly and repeat the complete fresh-install matrix,
+  including delivered-reminder tap and deletion/reinstall.
 - [ ] Finish the remaining observable operations evidence: eligible 14-day snapshot-list
   disappearance and deletion-specific recovery. The generic isolated restore-path rehearsal does
   not prove that a deleted production identity cannot return.
-- [ ] After processed build 5 and its replacement backend are proven, obtain a separate final
+- [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
 
 ## Promoting an internally tested build
 
-Build 4 is not promotable because physical QA found the Today offline-cache defect. When build 5 is
-fully approved for public release, do not rebuild unless something changed:
+Build 4 is not promotable because of the Today offline-cache defect, and build 5 is not promotable
+because of the delivered-reminder tap crash. When the replacement candidate is fully approved for
+public release, do not rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
   screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not
@@ -566,8 +638,9 @@ Saved on processed build `1.0.0 (4)` for its intended Internal Testing group on 
 > Do not perform local/server deletion or reinstall until the runbook clears those stages.
 
 Saved on processed build `1.0.0 (5)` for the `Family` Internal Testing group by
-`2026-08-22T03:24:21Z`. Assignment does not authorize installation: keep build 5 uninstalled and
-automatic updates disabled until build 4's identity-safe handoff is complete.
+`2026-08-22T03:24:21Z`. This preserves the truthful pre-install instruction shown at assignment.
+The later recovered handoff and clean build-5 QA are recorded above; the reminder-tap crash now
+makes build 5 non-promotable.
 
 ## Official Apple references
 

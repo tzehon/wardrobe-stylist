@@ -196,25 +196,28 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list, deletion-specific recovery, App Privacy, real registration/assertion
-success-marker observation, and complete build-5 processed-client physical proof remain release
-gates.
-Historical partial build-4 QA, Apple processing/internal assignment, and a healthy `/health`
-response do not close them.
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and complete
+replacement-client physical proof remain release gates. Real registration, assertion, and deletion
+success markers have now been observed, but the notification-tap crash makes build 5 non-promotable.
+Historical Apple processing/internal assignment and a healthy `/health` response do not close the
+remaining gates.
 
 ## TestFlight distribution
 
 Every internal beta is built as an App Store candidate. Follow the
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md):
 
-1. keep the remaining APP-009 physical/deletion/recovery/marker evidence explicitly open and the
+1. keep the remaining APP-009 physical/deletion/recovery evidence explicitly open and the
    manual review current;
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
 4. treat processed candidates `1.0.0 (4)` and `1.0.0 (5)` as consumed and never reuse either build
-   number. The final build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4
-   only and build 5 absent; any future candidate requires another live check and a new unused build;
-5. run the complete backend, Swift, UI, public-config, and artifact suites. Current local build-5
+   number. Build 5 is also non-promotable after its physical notification-tap crash. The final
+   build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4 only and build 5
+   absent. A later signed-in TestFlight Build Uploads refresh at `2026-08-22T10:02:31Z` showed
+   builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
+   set `CURRENT_PROJECT_VERSION = 6` for the replacement while keeping `MARKETING_VERSION = 1.0.0`;
+5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical pre-archive build-5
    evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
    flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic
    `/recommend` request guard that inventories stored properties including nil optionals and pins
@@ -238,14 +241,23 @@ Every internal beta is built as an App Store candidate. Follow the
    build `23F81a`, includes symbols, reports no non-exempt encryption, and retains scalar production
    App Attest with `get-task-allow = false` and beta reporting active. Exactly the `Family` Internal
    Testing group is assigned, with one tester and no individual tester assignments; and
-9. complete fresh-install physical-device QA. Build 4 was installed cleanly and produced partial
-   historical evidence, but a failed offline Restyle hid the cached look until relaunch/tap. Keep
-   TestFlight automatic updates disabled and do not install or update to build 5. Complete the
-   runbook's build-4 identity-safe handoff before uninstall, then install build 5 cleanly and repeat
-   the entire matrix.
+9. retain the completed build-4 identity-safe handoff and partial clean build-5 physical QA. The
+   eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported `created` and 14-day
+   retention. Build-4 proof remained available after build 5 appeared installed in place unexpectedly; server
+   deletion emitted exactly one success marker and live installations/sessions/challenges reached
+   `0/0/0`. Local data and the app were deleted, and build 5 was clean-installed. Its no-login empty
+   first launch, offline Demo Mode, Camera/Library saves, full catalog flow, Style at `16:30`, cached
+   relaunch, Restyle at `17:04`, failed-offline-Restyle cached-look preservation, offline Wear/
+   History, and notification delivery passed. Tapping the notification crashed at
+   `2026-08-22T17:15:14+08:00`; exact-dSYM safe symbolication showed `SIGABRT`, a UIKit state-
+   restoration assertion, and a `DailyReminderNotificationRouter` `didReceive` async-bridge frame.
+   Do not repeat the tap. Keep build 5 installed, its live identity intact, and TestFlight automatic
+   updates off until another eligible handoff, then repeat the affected matrix on the replacement.
 
-Recording this completed distribution evidence changes documentation only; it does not alter the
-iOS bundle and does not require build 6.
+The local notification-router source fix has passed 17 focused tests, 221 backend tests plus locked
+audit/Bandit/Ruff/mypy, 222 Swift unit tests, all 9 UI flows, and all 43 release-script tests. It
+changes shipped iOS source and therefore requires a replacement TestFlight build after merge and a
+confirmed build-6 number; it is not yet a signed, uploaded, or released candidate.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -269,12 +281,13 @@ payload-free post-change review passed at `2026-08-21T11:09:20Z`. A fresh exact-
 distribution review also passed from `2026-08-22T03:19:20Z` through `03:30:33Z`; fixed/coarse
 health, recent snapshots, schema/integrity, endpoint surface, zero failure bands, Anthropic, and
 support checks remained green. The first bounded query returned zero registration, assertion, and
-deletion success events because none was exercised, so real production marker observation remains
-open. Protected `/recommend` intentionally has no developer success marker and remains aggregate/
-client-evidenced. The latest listed 14-day snapshot at
-`2026-08-21T07:32:23Z` predates enrollment, so server deletion/reinstall testing remains paused
-pending eligible recovery evidence. Build 5 must be installed cleanly after processing and must
-close the full physical matrix without claiming upgrade support.
+deletion successes because none had yet been exercised; later clean build-5 Style/Restyle observed
+registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
+`0/0/0` live aggregates. Protected `/recommend` intentionally has no developer success marker and
+remains aggregate/client-evidenced. The `2026-08-22T07:33:23Z` created/14-day snapshot enabled the
+build-4 handoff, but actual listing expiry and deletion-specific restore/non-return remain open. It
+predates the clean build-5 enrollment, whose installed live identity must be retained until another
+eligible handoff.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or
