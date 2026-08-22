@@ -45,7 +45,14 @@ struct RecommendClientTests {
     private func sampleRequest() -> RecommendRequest {
         RecommendRequest(
             items: [
-                RecommendCatalogItem(id: "a", name: "Oversized Tee", category: "top", colors: ["white"]),
+                RecommendCatalogItem(
+                    id: "a",
+                    name: "Oversized Tee",
+                    category: "top",
+                    brand: "Example Brand",
+                    colors: ["white"],
+                    material: "cotton"
+                ),
                 RecommendCatalogItem(id: "b", name: "Slim Trouser", category: "bottom", colors: ["navy"]),
                 RecommendCatalogItem(id: "c", name: "Suede Loafers", category: "shoe"),
             ],
@@ -91,14 +98,38 @@ struct RecommendClientTests {
         let json = try #require(
             try JSONSerialization.jsonObject(with: body) as? [String: Any]
         )
+        #expect(Set(json.keys) == [
+            "items",
+            "recently_worn_ids",
+            "item_preferences",
+            "occasion",
+        ])
         #expect(json["recently_worn_ids"] as? [String] == ["b"])
         let preferences = try #require(json["item_preferences"] as? [[String: Any]])
+        #expect(preferences.allSatisfy { Set($0.keys) == [
+            "id",
+            "average_rating",
+            "rating_count",
+        ] })
         #expect(preferences.first?["id"] as? String == "a")
         #expect(preferences.first?["average_rating"] as? Double == 4.5)
         #expect(preferences.first?["rating_count"] as? Int == 2)
         #expect(json["occasion"] as? String == "relaxed weekend")
         let items = try #require(json["items"] as? [[String: Any]])
-        #expect(items.first?["id"] as? String == "a")
+        let firstItem = try #require(items.first)
+        let allowedItemKeys: Set<String> = [
+            "id",
+            "name",
+            "category",
+            "brand",
+            "colors",
+            "material",
+        ]
+        #expect(items.allSatisfy { Set($0.keys).isSubset(of: allowedItemKeys) })
+        #expect(Set(firstItem.keys) == allowedItemKeys)
+        #expect(firstItem["id"] as? String == "a")
+        #expect(firstItem["brand"] as? String == "Example Brand")
+        #expect(firstItem["material"] as? String == "cotton")
     }
 
     @Test func http401IsSurfacedAsHttpError() async {
