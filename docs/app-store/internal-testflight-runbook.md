@@ -288,13 +288,15 @@ The current build-5 replacement path is ordered; its distribution and physical g
   strict verifier, profile/entitlement/identity checks, separate non-emitting credential and
   removed-capability scans, and matching app/dSYM evidence recorded below.
 - [x] **Retain exact synthetic `/recommend` request-capture evidence.** A tests-only assertion pins
-  the exact top-level, catalog-item, and preference field sets and rejects extras. The focused
-  `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z` on an iPhone 17/iOS 26.5
-  simulator. After adding that guard, the mandatory backend gate passed 221 tests plus audit/
-  Bandit/Ruff/mypy, and one uninterrupted full iOS run passed 218 Swift unit tests and all 9 UI
-  tests (227/227 canonical cases) at `2026-08-22T01:34:58Z`, with no failures, skips, or retries.
-  No production payload, token, or identifier was inspected or retained; the test-only change does
-  not alter the signed archive or require a new build number.
+  every stored property on the three Swift request types, including nil optionals, and separately
+  pins the exact encoded top-level, catalog-item, and preference key sets. The shared schema/backend
+  reject extras. The strengthened focused `RecommendClientTests` suite passed 12/12 at
+  `2026-08-22T01:59:08Z` on an iPhone 17/iOS 26.5 simulator. After adding that guard, the mandatory
+  backend gate passed 221 tests plus audit/Bandit/Ruff/mypy, and one uninterrupted full iOS run
+  passed 218 Swift unit tests and all 9 UI tests (227/227 canonical cases); its result bundle
+  finalized at `2026-08-22T02:04:17Z`, with no failures, skips, or retries. No production payload,
+  token, or identifier was inspected or retained; the test-only change does not alter the signed
+  archive or require a new build number.
 - [ ] **Validate, upload, process, and assign build 5.** Refresh App Store Connect again and repeat
   the payload-free review against exact Fly v8 immediately before using the normal **TestFlight &
   App Store** route. Resolve processing/compliance issues and save truthful build-5 tester wording.

@@ -96,13 +96,14 @@ processing, assignment, and physical testing have not happened.
   `a9f01231025874d331e76be40ebe6f493b3f36051902b66b0ad03c35206bb3b9`. Do not reuse build-4
   evidence.
 - [x] Retain exact synthetic build-5 `/recommend` request-capture evidence. The tests-only guard
-  pins every top-level, catalog-item, and preference key and rejects extras; the focused
-  `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z`. The resulting tree then
-  passed the complete mandatory backend gate (221 tests plus audit/Bandit/Ruff/mypy) and one
-  uninterrupted full iOS run (218 Swift unit tests plus all 9 UI tests; 227/227 canonical cases)
-  at `2026-08-22T01:34:58Z`, with no failures, skips, or retries. No production payload,
-  credential, token, or identifier was inspected or retained, and the test does not alter the
-  signed bundle.
+  inventories every stored property on the Swift request types, including nil optionals, and
+  separately pins every encoded top-level, catalog-item, and preference key; the shared schema/
+  backend reject extras. The strengthened focused `RecommendClientTests` suite passed 12/12 at
+  `2026-08-22T01:59:08Z`. The resulting tree then passed the complete mandatory backend gate (221
+  tests plus audit/Bandit/Ruff/mypy) and one uninterrupted full iOS run (218 Swift unit tests plus
+  all 9 UI tests; 227/227 canonical cases), whose result bundle finalized at
+  `2026-08-22T02:04:17Z`, with no failures, skips, or retries. No production payload, credential,
+  token, or identifier was inspected or retained, and the test does not alter the signed bundle.
 
 - [x] Merge and freeze the reviewed Swift/backend/contract/verifier fixes on clean synchronized
   `main`. PR #19 rebase-merged source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`.
