@@ -546,10 +546,13 @@ Required before APP-009 can close:
   the retained executable SHA-256 is
   `81ab249bbab122f549809bc094bdf8bbc450e84db34888b19a3272fe02cd22c6` and its app/dSYM UUID matches
   the archive evidence above.
-- [x] Retain current local build-5 pre-archive evidence: 221 backend tests plus audit/Bandit/Ruff/
+- [x] Retain current local build-5 regression evidence: 221 backend tests plus audit/Bandit/Ruff/
   mypy, 218 Swift unit tests, all 9 UI flows, 43 release-script tests, and Release simulator/
-  artifact checks passed. This local evidence is distinct from the signed archive retained below
-  and does not prove upload or physical production App Attest behavior.
+  artifact checks passed. After the tests-only exact request-field guard was added, the full
+  backend and iOS gates reran on the resulting tree with the same 221 and 218+9 counts; the
+  uninterrupted iOS run completed at `2026-08-22T01:34:58Z` with no failure, skip, or retry. This
+  local evidence is distinct from the signed archive retained below and does not prove upload or
+  physical production App Attest behavior.
 - [x] Retain exact build-5 signed-archive evidence. Fresh private-registry authentication
   re-resolved Gmail-free v6 recovery digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`, whose
