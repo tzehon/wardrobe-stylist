@@ -173,9 +173,13 @@ ordered:
   `occasion`), the complete catalog-item allowlist (`id`, `name`, `category`, `brand`, `colors`,
   `material`), and the complete preference allowlist (`id`, `average_rating`, `rating_count`),
   while rejecting extra fields. The focused `RecommendClientTests` suite passed 12/12 at
-  `2026-08-22T01:27:39Z` on an iPhone 17/iOS 26.5 simulator. Only field names and synthetic values
-  were inspected; no production wardrobe, prompt, model response, token, or identifier was retained.
-  This tests-only evidence does not alter the signed iOS bundle or require another TestFlight build.
+  `2026-08-22T01:27:39Z` on an iPhone 17/iOS 26.5 simulator. After this tests-only change, the
+  mandatory backend gate passed 221 tests plus audit/Bandit/Ruff/mypy, and one uninterrupted full
+  iOS run passed 218 Swift unit tests plus all 9 UI tests (227/227 canonical cases) at
+  `2026-08-22T01:34:58Z`, with no failures, skips, or retries. Only field names and synthetic
+  values were inspected; no production wardrobe, prompt, model response, token, or identifier was
+  retained. This tests-only evidence does not alter the signed iOS bundle or require another
+  TestFlight build.
 - [ ] **Validate, upload, process, and internally assign build 5.** Immediately beforehand,
   refresh App Store Connect again and repeat the payload-free review against exact Fly v8. Use the
   normal **TestFlight & App Store** route and save truthful build-5 tester wording.

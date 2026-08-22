@@ -156,9 +156,11 @@ success event has yet been exercised against v8.
 - [ ] Attach a short screen recording only if the optional styling path needs clarification.
 - [x] Retain explicit synthetic request-capture evidence for the exact allowlisted `/recommend`
   fields. The tests-only guard pins all top-level, catalog-item, and preference keys and rejects
-  extras; focused `RecommendClientTests` passed 12/12 at `2026-08-22T01:27:39Z`. The exact signed
-  build-5 archive separately passed the public Release, privacy-manifest, and artifact-absence
-  verifier. No production payload was inspected or retained.
+  extras; focused `RecommendClientTests` passed 12/12 at `2026-08-22T01:27:39Z`. The post-guard
+  tree then passed the mandatory 221-test backend gate and one uninterrupted 218-unit/9-UI iOS
+  regression at `2026-08-22T01:34:58Z`. The exact signed build-5 archive separately passed the
+  public Release, privacy-manifest, and artifact-absence verifier. No production payload was
+  inspected or retained.
 
 ## Contact
 

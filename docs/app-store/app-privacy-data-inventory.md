@@ -31,9 +31,10 @@ The exact approved developer-controlled schedule and its current compliance stat
   fields. The build-5 guard pins the complete top-level set (`items`, `recently_worn_ids`,
   `item_preferences`, `occasion`), catalog-item set (`id`, `name`, `category`, `brand`, `colors`,
   `material`), and preference set (`id`, `average_rating`, `rating_count`), rejecting extras. The
-  focused `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z`. Only field names and
-  synthetic values were inspected; never capture or retain production wardrobe, prompt, or model
-  response bodies as evidence.
+  focused `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z`; the post-guard tree
+  then passed the complete 221-test backend gate and an uninterrupted 218-unit/9-UI iOS regression
+  at `2026-08-22T01:34:58Z`. Only field names and synthetic values were inspected; never capture or
+  retain production wardrobe, prompt, or model response bodies as evidence.
 - [x] Verify the signed candidate and its generated configuration contain no Google Sign-In SDK,
   Google client identifier/callback scheme, Gmail permission/host/client path, `/extract` client
   path, receipt-import UI, or receipt-background-task identifier. The exact build-5 source guards,

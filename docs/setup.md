@@ -216,7 +216,9 @@ Every internal beta is built as an App Store candidate. Follow the
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Current local build-5
    evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
    flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic
-   `/recommend` request-field capture whose focused suite passed 12/12;
+   `/recommend` request-field capture whose focused suite passed 12/12. After that tests-only guard
+   was added, the full backend and iOS gates reran on the resulting tree; the uninterrupted iOS
+   run completed 227/227 canonical cases at `2026-08-22T01:34:58Z` with no failure, skip, or retry;
 6. create and strictly verify a new build-5 signed Release archive. The exact
    `Wardrobe-1.0.0-5-695c562-appstore.xcarchive` was created at `2026-08-22T01:10:32Z`; its strict
    signature/profile, scalar production App Attest, privacy, public-configuration, and Gmail-free

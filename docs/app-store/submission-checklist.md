@@ -97,7 +97,10 @@ processing, assignment, and physical testing have not happened.
   evidence.
 - [x] Retain exact synthetic build-5 `/recommend` request-capture evidence. The tests-only guard
   pins every top-level, catalog-item, and preference key and rejects extras; the focused
-  `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z`. No production payload,
+  `RecommendClientTests` suite passed 12/12 at `2026-08-22T01:27:39Z`. The resulting tree then
+  passed the complete mandatory backend gate (221 tests plus audit/Bandit/Ruff/mypy) and one
+  uninterrupted full iOS run (218 Swift unit tests plus all 9 UI tests; 227/227 canonical cases)
+  at `2026-08-22T01:34:58Z`, with no failures, skips, or retries. No production payload,
   credential, token, or identifier was inspected or retained, and the test does not alter the
   signed bundle.
 
