@@ -90,10 +90,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - App Store Connect showed builds 1-3 only immediately before build-4 validation/upload on
   2026-08-21, so the exact Gmail-free `1.0.0 (4)` archive was validated, uploaded, processed, and
   assigned to the intended internal TestFlight group. Build 4 is used and must never be reused.
-  A later live check showed build 4 as the highest upload, and `ios/project.yml` currently reserves
-  `1.0.0 (5)` for the replacement candidate. That local reservation is not proof that build 5
-  remains unused: refresh App Store Connect immediately before archive/upload, stop if it is no
-  longer unused, and keep `MARKETING_VERSION` unchanged unless the release milestone changes.
+  The final build-5 archive-time check on 2026-08-22 showed build 4 as the highest upload and build
+  5 unused. `ios/project.yml` uses `1.0.0 (5)`, and the new production-signed build-5 archive is
+  strictly verified but not validated or uploaded. Refresh App Store Connect again immediately
+  before validation/upload, stop if build 5 is no longer unused, and keep `MARKETING_VERSION`
+  unchanged unless the release milestone changes.
 - Build 4 was installed only as a clean processed TestFlight build. Partial physical QA found that
   a failed Restyle could hide the cached Today look until relaunch, so build 4 is historical and
   non-promotable. Build 5 must contain and verify the fix through the complete clean-install matrix;

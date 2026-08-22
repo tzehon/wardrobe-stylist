@@ -102,19 +102,26 @@ routes to Today. Public v1 has no Gmail or receipt background task.
 ## Build-specific checks before pasting these notes
 
 Build 4 is historical internal-QA evidence and must not be submitted: physical testing found the
-Today offline-cache Restyle defect. App Store Connect shows build 4 as the highest upload; build 5
-is reserved locally but has no signed archive, upload, processing, internal assignment, or physical
-proof. Reviewed PR #23 merged at `2026-08-21T10:29:56Z`; frozen shipped-code/backend source was
+Today offline-cache Restyle defect. At the `2026-08-22T01:09:39Z` archive-time refresh, App Store
+Connect showed build 4 as the highest upload and build 5 unused. Build 5 has a strictly verified
+production-signed archive but no Organizer validation, upload, processing, internal assignment, or
+physical proof. Reviewed PR #23 merged at `2026-08-21T10:29:56Z`; frozen
+shipped-code/backend source was
 `4a75b99dcd49e818ad1d5b198e8c49abba702e18`, and later docs-only evidence does not change the
 deployed image or iOS bundle. Current local pre-archive gates are green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Fly v8 deploys that source with production category `2`,
 builds `4,5`, and targeted auth-service INFO logging; its post-change review passed at
-`2026-08-21T11:09:20Z`. No lifecycle success event has yet been exercised against v8.
+`2026-08-21T11:09:20Z`, and the pre-archive repeat passed at `2026-08-22T01:07:45Z`. No lifecycle
+success event has yet been exercised against v8.
 
 - [ ] Replace every backend, health, fixture, and contact placeholder.
 - [ ] Confirm Demo Mode labels, item count, and reviewer steps against the exact uploaded build.
-- [ ] Confirm the archive has no Google/Gmail/receipt-import capability and no login screen.
+- [x] Confirm the exact build-5 signed archive has no Google/Gmail/receipt-import capability. The
+  strict verifier and separate non-emitting credential/removed-capability scan passed for
+  `Wardrobe-1.0.0-5-695c562-appstore.xcarchive`.
+- [ ] Confirm the exact processed build presents no human-login screen. The archive marker scans do
+  not replace source/UI or physical verification of this semantic behavior.
 - [x] Record the pre-upload transition. The installed development build disconnected Google,
   deleted local data, and was uninstalled after production showed zero installations, zero sessions,
   and zero pending challenges. It predated the server-deletion UI, so do not claim that unavailable
@@ -128,10 +135,12 @@ builds `4,5`, and targeted auth-service INFO logging; its post-change review pas
   notification delivery, styling-consent withdrawal, local/server deletion, Today failed-Restyle
   cache preservation/recovery, and reinstall evidence.
 - [ ] Confirm the production API is healthy throughout the review window.
-- [ ] Confirm App Attest is enabled for the exact App ID and prefix; the build-5 archive/profile
-  contain the entitlement; and the uploaded build completes production attestation. On iOS 27+, confirm
-  the intended signed category/build. On iOS 18–26, record the expected field absence without
-  claiming category/build enforcement.
+- [x] Confirm App Attest is enabled for the exact App ID/prefix and the build-5 archive/profile
+  contain matching production authorization. The strict verifier matched the prefix, team, bundle,
+  Apple Distribution certificate, App Store profile, and scalar production entitlement.
+- [ ] Confirm the uploaded build completes production attestation. On iOS 27+, confirm the intended
+  signed category/build. On iOS 18–26, record the expected field absence without claiming category/
+  build enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
   Fly v8 deploys the targeted logger and `4,5` allowlist, and its payload-free review passed. The
@@ -145,8 +154,11 @@ builds `4,5`, and targeted auth-service INFO logging; its post-change review pas
   success/restore evidence.
 - [ ] Confirm the obsolete shared-bearer build is rejected without breaking the submitted build.
 - [ ] Attach a short screen recording only if the optional styling path needs clarification.
-- [ ] Re-run public Release configuration, request-capture, privacy-manifest, and artifact-absence
-  guards against the archive.
+- [x] Retain explicit synthetic request-capture evidence for the exact allowlisted `/recommend`
+  fields. The tests-only guard pins all top-level, catalog-item, and preference keys and rejects
+  extras; focused `RecommendClientTests` passed 12/12 at `2026-08-22T01:27:39Z`. The exact signed
+  build-5 archive separately passed the public Release, privacy-manifest, and artifact-absence
+  verifier. No production payload was inspected or retained.
 
 ## Contact
 
