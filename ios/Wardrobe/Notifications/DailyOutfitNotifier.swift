@@ -228,4 +228,25 @@ enum DailyReminderNavigation {
         userInfo[DailyOutfitNotifier.destinationKey] as? String
             == DailyOutfitNotifier.todayDestination
     }
+
+    static func shouldOpenToday(_ fields: DailyReminderResponseFields) -> Bool {
+        fields.requestIdentifier == DailyOutfitNotifier.identifier
+            && fields.actionIdentifier == UNNotificationDefaultActionIdentifier
+            && fields.destination == DailyOutfitNotifier.todayDestination
+    }
+}
+
+/// Sendable snapshot of the only notification-response fields used for
+/// routing. `UNNotificationResponse` and its `userInfo` dictionary never cross
+/// the explicit hop to the main queue.
+struct DailyReminderResponseFields: Equatable, Sendable {
+    let requestIdentifier: String
+    let actionIdentifier: String
+    let destination: String?
+
+    init(request: UNNotificationRequest, actionIdentifier: String) {
+        requestIdentifier = request.identifier
+        self.actionIdentifier = actionIdentifier
+        destination = request.content.userInfo[DailyOutfitNotifier.destinationKey] as? String
+    }
 }
