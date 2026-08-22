@@ -24,6 +24,10 @@ struct RecommendClientTests {
         )!
     }
 
+    private func storedPropertyNames<T>(of value: T) -> Set<String> {
+        Set(Mirror(reflecting: value).children.compactMap(\.label))
+    }
+
     private let successBody: String = #"""
     {
       "occasion": "relaxed weekend",
@@ -72,8 +76,35 @@ struct RecommendClientTests {
         }
         defer { URLProtocolStub.reset() }
 
+        let request = sampleRequest()
+        let sourceItem = try #require(request.items.first)
+        let sourcePreference = try #require(request.itemPreferences.first)
+
+        // Mirror includes nil optional stored properties, so a future wire-model
+        // field cannot hide from this allowlist merely because the fixture leaves
+        // it nil and synthesized encoding omits it.
+        #expect(storedPropertyNames(of: request) == [
+            "items",
+            "recentlyWornIds",
+            "itemPreferences",
+            "occasion",
+        ])
+        #expect(storedPropertyNames(of: sourceItem) == [
+            "id",
+            "name",
+            "category",
+            "brand",
+            "colors",
+            "material",
+        ])
+        #expect(storedPropertyNames(of: sourcePreference) == [
+            "id",
+            "averageRating",
+            "ratingCount",
+        ])
+
         let client = makeClient(token: "abc-123")
-        let response = try await client.recommend(sampleRequest())
+        let response = try await client.recommend(request)
 
         #expect(response.itemIds == ["a", "b", "c"])
         #expect(response.occasion == "relaxed weekend")
