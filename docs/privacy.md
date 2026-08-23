@@ -82,14 +82,19 @@ guards, payload-free logging guards, and a no-access-log production command. On 
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
 enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and complete
-replacement-client physical evidence remain release gates. Fly v8 deploys the targeted auth-
-service INFO logger and production TestFlight allowlist for builds `4,5`; its payload-free post-
-change review passed at `2026-08-21T11:09:20Z`, and the fresh post-distribution review passed from
+replacement-client physical evidence remain release gates. Fly v9 deploys the targeted auth-
+service INFO logger and production TestFlight allowlist for builds `4,5,6`; its predecessor v8
+payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
+distribution review passed from
 `2026-08-22T03:19:20Z` through `03:30:33Z`. The first bounded query was zero because no lifecycle
 flow had yet been exercised. Later physical flows observed bounded registration and assertion
 successes from clean build 5 and exactly one deletion success during the build-4 identity-safe
 handoff. Protected `/recommend` remains aggregate/client-evidenced. Build 5 then crashed when its
-delivered local notification was tapped and is non-promotable.
+delivered local notification was tapped and is non-promotable. Build 6 is processed and internally
+distributed, but it cannot be installed until build 5 completes the identity-safe handoff. The
+required v9 post-deploy/pre-upload payload-free review was missed and is not backdated; a late full
+review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining the
+process defect.
 
 ## Data inventory
 
@@ -158,12 +163,13 @@ and an app frame in the `DailyReminderNotificationRouter` `didReceive` async bri
 therefore non-promotable. Do not repeat the tap. Keep it installed and keep its live identity intact
 with TestFlight automatic updates off until another eligible identity-safe handoff is complete.
 
-The current local notification-router source fix has passed 17 focused notification tests, 221
-backend tests plus the locked audit/security/type gates, 222 Swift unit tests, all 9 UI flows, and
-all 43 release-script tests. It is not yet a merged, signed, uploaded, or released candidate. A
-replacement build is required. The signed-in TestFlight Build Uploads view at
-`2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is
-confirmed unused and selected; `MARKETING_VERSION` remains `1.0.0`.
+The notification-router fix merged through PR #27. Focused tests passed 17/17; merged-source
+verification retained 221 backend tests plus the locked audit/security/type gates, 231/231 iOS
+tests, and all 43 release-script tests. Fly v9 is compatible with accepted builds `4,5,6`; the exact
+production-signed `1.0.0 (6)` archive passed strict privacy, signing, production App Attest, public-
+configuration, and Gmail-free checks, then completed normal-route validation/upload, Apple
+processing, and `Family` Internal Testing assignment. This is distribution evidence only; build-5
+identity-safe handoff and clean build-6 physical evidence remain open.
 
 ## Secrets and release boundaries
 

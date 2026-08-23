@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current release status — 2026-08-22
+## Current release status — 2026-08-23
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -36,59 +36,51 @@ an App Store release candidate from the moment it is archived. This prevents a s
   immediately before validation/upload. Build 4 then uploaded, processed, and entered internal
   testing, so it is consumed and must never be reused. The historical `dd3d990` signed archive
   remains superseded and was not validated or uploaded.
-- Historical build-5 distribution and current replacement gate: the archive-time App Store Connect refresh at
+- Historical build-5 distribution and completed build-6 distribution: the archive-time App Store Connect refresh at
   `2026-08-22T01:09:39Z` and final pre-validation refresh at `2026-08-22T03:16:16Z` showed builds
   1–4 only and build 5 absent. That archive used `MARKETING_VERSION = 1.0.0` and
   `CURRENT_PROJECT_VERSION = 5`. The exact production-signed build-5 archive is strictly verified,
   Organizer-validated, uploaded, processed, and assigned only to the `Family` Internal Testing
   group. Build 5 is consumed and must never be reused. Build-4 identity-safe recovery/handoff and
   broad clean build-5 physical QA later completed, but tapping a delivered reminder crashed build 5;
-  it is non-promotable and a replacement iOS build is required. A read-only signed-in TestFlight
+  it is non-promotable and a replacement iOS build was required. A read-only signed-in TestFlight
   **Build Uploads** inspection at `2026-08-22T10:02:31Z` (`18:02:31 SGT`) showed builds 1–5 only,
-  build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected while
-  `MARKETING_VERSION` remains `1.0.0`. The branch records `CURRENT_PROJECT_VERSION = 6` and source
-  allowlist `4,5,6`; the required backend, iOS/UI, release-script, optimized Release-build, and
-  simulator-artifact gates passed again after those changes. This remains branch-local, not deployed
-  backend, signed archive, or App Store Connect build evidence. The root `README.md` remains
-  unchanged by design; this runbook and the release backlog own live release state.
-- Notification-fix branch evidence: `codex/fix-notification-tap-crash` is based on clean
-  synchronized `main` `74ed41ee7077a5a4be616718f99499ffeb52a5ee`. Its focused tests passed
-  17/17, followed by 221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 222 Swift
-  unit tests, all 9 UI flows, and all 43 release-script tests. This is branch-local evidence only,
-  distinct from review/merge, confirmed replacement metadata, signed archive, Apple distribution,
-  and physical-device proof. The earlier build-5 pre-archive regression remains historical.
-- Current production backend baseline: Fly release v8 completed at `2026-08-21T10:45:06Z` and
-  serves reviewed PR #23 source `4a75b99dcd49e818ad1d5b198e8c49abba702e18` as a
-  `linux/amd64` image at immutable registry digest
-  `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
-  Its fresh no-cache local image ID is
-  `sha256:3eb95304cb6e97976d2aa8b18dce302a3a908cf1d565b13d511c3fc2ed9d7c84`;
-  local and re-resolved registry scans each covered 90 packages and found zero critical/high
-  vulnerabilities. UID 10001, no-new-privileges, mounted-volume, and targeted-logging container
-  smoke checks passed. The running source label, digest, and architecture match; one healthy
-  Singapore Machine runs with `min_machines_running = 1`; production App Attest uses category `2`
-  and bundle-build allowlist `4,5`; and the required secrets are deployed without retaining their
-  values. The encrypted 1 GB volume is in the below-warning usage band. Schema v4 integrity is `ok`
-  with zero foreign-key errors. Build-4 handoff returned installations/sessions/challenges to zero.
-  A bounded observation shortly after the build-5 Restyle at 17:04 showed one installation, one
-  session, and zero challenges; sessions expire, so that is not current state. The safe current
-  claim is only that the clean build-5 installation remains live. At the handoff gate all listed
-  snapshots were created, the newest
-  successful snapshot was `2026-08-22T07:33:23Z`, and retention remained 14 days. The
-  single UID-10001 Uvicorn process enables application `INFO` only for the non-propagating
-  `app.auth.service` logger
-  and keeps access logging off. Health returns `200`, `/extract` returns `404`, unauthenticated
-  `/recommend` returns `401`, and the OpenAPI route set matches the reviewed source.
-- Former v7 digest `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
-  remains the immediate rollback, and Gmail-free v6 digest
-  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  remains the required recovery baseline. Both freshly re-resolved and scanned across 90 packages
-  with zero critical/high vulnerabilities. Both are operational recovery only: using either
-  reopens the exact-candidate deployment, configuration, and manual-review gates and blocks build-5
-  archive/QA until v8 is restored and reverified. Emergency pre-build-4 rollback digest
-  `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
-  is App-Attest-only and scan-clean, but it re-exposes `/extract`; using it must halt the release.
-- The payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
+  build 5 **Complete**, and no build 6, confirming build 6 unused before replacement work.
+  Reviewed PR #27 then merged the notification fix and build-6 metadata/allowlist to clean
+  synchronized `main` `de7c540275fb16e61aabf1884538b18cf6edf76f`. Fly v9, the strict build-6
+  archive, Xcode validation/upload through the normal App-Store-eligible route, Apple processing,
+  `Family` assignment, and truthful tester-note save all passed. Build 6 is consumed and must never
+  be reused. The root `README.md` remains unchanged by design; this runbook and the release backlog
+  own live release state.
+- Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
+  221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
+  plus 9 UI), and all 43 release-script tests. This closes source/regression proof; physical
+  notification-tap proof remains open until build 6 is installed cleanly after build-5 handoff.
+- Current production backend baseline: Fly release v9 completed at `2026-08-22T11:14:25Z` and
+  serves the exact merged build-6 source as `linux/amd64`. The release and running image references
+  match; a local-only official Alpine secdb comparison found zero unfixed advisories; and locked
+  `pip-audit` passed. One healthy Singapore Machine runs with `min_machines_running = 1`;
+  production App Attest uses category `2` and accepted builds `4,5,6`; and the encrypted auth store
+  and bounded logging configuration remain healthy. `/health` returns `200`, `/extract` returns
+  `404`, unauthenticated `/recommend` returns `401`, and the OpenAPI route set matches the reviewed
+  source. The clean build-5 installation remains live. The newest automatic snapshot is
+  `2026-08-22T07:33:23Z`, status `created`, with 14-day retention; it predates clean build-5
+  enrollment and cannot authorize deletion or uninstall.
+- The required v9 post-deploy/pre-upload payload-free review was missed and cannot be backdated. A
+  late full review completed at `2026-08-23T02:13:12Z`: exact release/runtime/source, public health,
+  automatic 14-day snapshot policy and freshness, below-warning volume use, a current Fly HTTP view
+  without a 5xx series, zero bounded failure classes, Anthropic public status/configured-limit/
+  below-80%-spend/production-Opus-4.8/no-saturation checks, and support/contact/response-target
+  checks passed. A separate older Wardrobe-labelled key had no seven-day activity; its earlier-
+  month Haiku cost was reviewed as historical non-production usage. No raw metric, provider
+  identifier, exact billing amount, key name/value, log sample, screenshot, or provider body is
+  retained. Repeat the review before any future archive/upload and after every backend/configuration
+  change.
+- Former v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None is
+  the exact build-6-compatible candidate: using one reopens deployment/configuration/manual-review
+  gates and blocks build-6 physical QA until v9 is restored and reverified. The emergency pre-
+  build-4 image that re-exposes `/extract` remains a release halt, never a public-v1 rollback.
+- The historical payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
   showed only `401`/`404` and no 5xx series; the bounded ten-minute view had no auth-rejection/rate-
   limit, Anthropic/stylist, maintenance, unhandled, malformed-lifecycle, or access-log event.
   Anthropic status, configured-limit, below-80%-of-limit, expected deployed Wardrobe key/Opus 4.8,
@@ -168,7 +160,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   non-promotable; do not repeat the reminder tap. Keep its current clean-install server identity
   live until the replacement handoff can delete it safely.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v8 deploys
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v9 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -177,7 +169,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   supplied partial production TestFlight enrollment, assertion-renewal, and protected-call evidence,
   then its inherited identity was safely deleted before a clean build-5 install. Build 5 repeated
   enrollment, assertion renewal, protected styling, server markers, media flows, and the Today
-  regression, but its reminder-tap crash requires a replacement candidate. Snapshot-list expiry,
+  regression, but its reminder-tap crash requires clean build-6 replacement proof. Snapshot-list expiry,
   deletion-specific recovery, identity-safe deletion of the currently live build-5 record, and
   replacement physical proof are still required. Apple upload/processing and internal assignment
   alone do not satisfy those physical-client checks. The first payload-free
@@ -310,9 +302,10 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
   and the saved truthful What to Test wording reproduced below were verified. Neither `dd3d990`
   archive was used.
 
-The historical build-5 path and current replacement path are ordered. Build-5 Apple distribution,
-build-4 identity-safe recovery, partial clean build-5 physical QA, and the live build-6 availability
-check are complete; the replacement now advances to the reviewed/merged candidate pipeline:
+The historical build-5 path and build-6 replacement path are ordered. Build-5 Apple distribution,
+build-4 identity-safe recovery, partial clean build-5 physical QA, the build-6 availability check,
+review/merge, Fly v9, strict archive, and Apple internal distribution are complete. The next gate is
+the identity-safe build-5 handoff followed by clean build-6 physical QA:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -375,17 +368,28 @@ check are complete; the replacement now advances to the reviewed/merged candidat
   `codex/fix-notification-tap-crash` replaces both imported async notification-delegate bridges
   with explicit completion-handler/main-queue routing. Focused tests passed 17/17 and the full
   branch regression passed 221 backend tests plus audit/Bandit/Ruff/mypy, 222 Swift unit tests,
-  all 9 UI flows, and 43 release-script tests. This is not merged/candidate evidence.
+  all 9 UI flows, and 43 release-script tests. This branch evidence was later superseded by the
+  merged-source, Fly v9, archive, and Apple distribution evidence below.
 - [x] **Confirm the replacement build number in live App Store Connect.** The read-only signed-in
   TestFlight **Build Uploads** view at `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5
   **Complete**, and no build 6. Build 6 is confirmed unused and selected; the branch records
   `CURRENT_PROJECT_VERSION = 6`, source allowlist `4,5,6`, and `MARKETING_VERSION = 1.0.0`.
-- [ ] **Complete the replacement candidate pipeline and physical matrix.** Finish review/merge,
-  rerun all affected gates on clean merged source and confirmed metadata, freeze/review compatible
-  backend configuration, strictly verify a new signed archive, validate/upload/process/assign it by
-  the normal App Store route, then identity-safely delete the currently live build-5 record before
-  uninstall. Install the replacement cleanly and repeat the complete matrix, especially delivered-
-  reminder tap, deletion/reinstall, snapshot recovery/expiry, and final Google retirement.
+- [x] **Complete the replacement candidate pipeline.** PR #27 merged to clean synchronized `main`
+  `de7c540275fb16e61aabf1884538b18cf6edf76f`. Merged-source regressions/release guards, exact Fly
+  v9 compatibility and health, and strict verification of
+  `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed. Xcode validation and normal-route upload
+  succeeded; Apple processing reached **Ready to Submit**; only `Family` is assigned, with one group
+  tester, no individual testers, and saved truthful What to Test notes.
+- [x] **Record the missed v9 operational review honestly and restore current evidence.** The
+  required post-deploy/pre-upload review was missed and is not backdated. The complete payload-free
+  review passed late at `2026-08-23T02:13:12Z`; repeat before any future archive/upload and after
+  every backend/configuration change.
+- [ ] **Identity-safely replace build 5 and complete the physical matrix.** Keep build 5 installed
+  until a successful automatic snapshot created after clean build-5 enrollment is confirmed. Then
+  follow the ordered reminder-off, consent-withdrawal, server deletion/aggregate confirmation,
+  local deletion, and uninstall steps. Install build 6 cleanly and repeat the complete matrix,
+  especially delivered-reminder tap, deletion/reinstall, snapshot recovery/expiry, and final Google
+  retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -428,7 +432,8 @@ the same identity-safe deletion sequence before any replacement uninstall/instal
    showed builds 1–4 only and build 5 absent. Its completed upload now consumes build 5; never reuse
    a build number. The read-only live TestFlight **Build Uploads** inspection at
    `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6; build 6 is
-   confirmed unused and selected with `MARKETING_VERSION = 1.0.0`.
+   confirmed unused and selected with `MARKETING_VERSION = 1.0.0`. The later completed normal-route
+   upload consumes build 6; never reuse it.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -444,7 +449,21 @@ the same identity-safe deletion sequence before any replacement uninstall/instal
    paths, `/extract` client path, and receipt background-task identifier; and correct public URLs.
    Retain the archive entitlement and embedded-profile inspection as APP-009/APP-036 evidence.
 
-   Current build-5 archive evidence: fresh private-registry authentication re-resolved exact
+   Current build-6 archive and distribution evidence: clean synchronized source context
+   `de7c540275fb16e61aabf1884538b18cf6edf76f` produced
+   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` at
+   `2026-08-22T11:42:24Z`. The strict verifier, deep signature check, matching app/dSYM check,
+   production App Attest entitlement/profile, privacy manifest, public configuration, credential
+   absence, and Gmail-free removed-capability guards passed. Xcode validated the exact archive and
+   uploaded it through **TestFlight & App Store** at `2026-08-23 08:57 SGT`, with symbols enabled,
+   automatic version/build management disabled, and **TestFlight Internal Testing Only** disabled.
+   Apple processing reached **Ready to Submit**. The processed record shows `1.0.0 (6)`, arm64
+   iPhone support, minimum iOS 18.0, included symbols, and no non-exempt encryption. Exactly the
+   `Family` Internal Testing group is assigned with one group tester and no individual testers; the
+   build-6 What to Test wording reproduced below is saved. This is distribution evidence only;
+   build-5 identity-safe handoff and clean build-6 physical proof remain open.
+
+   Historical build-5 archive evidence: fresh private-registry authentication re-resolved exact
    Gmail-free v6 recovery digest
    `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`, whose
    zero-critical/high scan completed at `2026-08-22T01:00:09Z`. The exact-v8 payload-free review
@@ -581,9 +600,9 @@ restoration. Build 5 is consumed and non-promotable. Do not repeat the tap.
 - [x] Confirm the replacement build number through fresh live App Store Connect inspection. At
   `2026-08-22T10:02:31Z`, builds 1–5 were the only uploads, build 5 was **Complete**, and build 6
   was absent. Build 6 is confirmed unused and selected; `MARKETING_VERSION` stays `1.0.0`.
-- [ ] Finish review/merge and the entire replacement build/archive/upload/processing/assignment
-  loop. Branch-local 17/17 focused, 221 backend plus audit/Bandit/Ruff/mypy, 222 unit, 9 UI, and 43
-  release-script results are not candidate evidence.
+- [x] Finish review/merge and the entire replacement build/archive/upload/processing/assignment
+  loop. PR #27, merged-source verification, Fly v9, the strict build-6 archive, Xcode validation/
+  upload, Apple processing, `Family` assignment, and saved tester notes are retained above.
 - [ ] Before uninstalling build 5, disable the reminder, withdraw styling permission, verify an
   eligible snapshot, delete its live server security record with aggregate confirmation, and delete
   local data. Keep build 5 installed and do not repeat the notification tap until this ordered gate.
@@ -641,6 +660,18 @@ Saved on processed build `1.0.0 (5)` for the `Family` Internal Testing group by
 `2026-08-22T03:24:21Z`. This preserves the truthful pre-install instruction shown at assignment.
 The later recovered handoff and clean build-5 QA are recorded above; the reminder-tap crash now
 makes build 5 non-promotable.
+
+## Saved truthful What to Test wording for build 6
+
+> Build 6 is a clean-install replacement for build 5 and fixes the crash when tapping a delivered reminder. Keep build 5 installed until the owner confirms its identity-safe handoff is complete; do not install or update build 6 over build 5.
+>
+> After approval and a clean install, test launch/icon, onboarding, manual catalog/photo/camera flows, editing/deletion, Demo Mode, styling consent/withdrawal, Today/Wear/History, and reminder delivery. Tap the delivered reminder: it must open Wardrobe Stylist on Today without crashing, and existing local state must remain intact. Today regression: style online, relaunch offline, tap Restyle; the cached look must remain visible with a friendly failure, then recover after reconnecting. Wardrobe, History, and Demo Mode must remain usable while remote styling is unavailable. Confirm there is no Google, Gmail, login, receipt-import, or /extract path.
+>
+> Do not perform local/server deletion, uninstall, or reinstall until the runbook clears those stages.
+
+Saved and reload-verified on processed build `1.0.0 (6)` for the `Family` Internal Testing group on
+2026-08-23. The build has one group tester and no individual tester assignments. This preserves the
+pre-install identity-safe handoff instruction; it is not physical QA evidence.
 
 ## Official Apple references
 
