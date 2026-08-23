@@ -208,56 +208,66 @@ Every internal beta is built as an App Store candidate. Follow the
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md):
 
 1. keep the remaining APP-009 physical/deletion/recovery evidence explicitly open and the
-   manual review current;
-2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards;
-3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`;
-4. treat processed candidates `1.0.0 (4)` and `1.0.0 (5)` as consumed and never reuse either build
-   number. Build 5 is also non-promotable after its physical notification-tap crash. The final
-   build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4 only and build 5
-   absent. A later signed-in TestFlight Build Uploads refresh at `2026-08-22T10:02:31Z` showed
-   builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
-   set `CURRENT_PROJECT_VERSION = 6` for the replacement while keeping `MARKETING_VERSION = 1.0.0`;
-5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical pre-archive build-5
-   evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI
-   flows, 43 release-script tests, Release simulator/artifact checks, and an exact synthetic
-   `/recommend` request guard that inventories stored properties including nil optionals and pins
-   encoded keys; its strengthened focused suite passed 12/12. The full backend and iOS gates reran
-   on that tree; the uninterrupted iOS result bundle finalized 227/227 canonical cases at
-   `2026-08-22T02:04:17Z` with no failure, skip, or retry;
+   manual review current.
+2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards.
+3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`.
+4. treat processed candidates `1.0.0 (4)`, `1.0.0 (5)`, and `1.0.0 (6)` as consumed and never
+   reuse any build number. Build 5 is also non-promotable after its physical notification-tap
+   crash. The final build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4
+   only and build 5 absent. A later signed-in TestFlight Build Uploads refresh at
+   `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6, confirming
+   build 6 unused before the replacement. PR #27 later merged `CURRENT_PROJECT_VERSION = 6` and
+   accepted builds `4,5,6` while keeping `MARKETING_VERSION = 1.0.0`; the completed upload now
+   consumes build 6.
+5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical
+   pre-archive build-5 evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift
+   unit tests, 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and an exact
+   synthetic `/recommend` request guard that inventories stored properties including nil optionals
+   and pins encoded keys; its strengthened focused suite passed 12/12. The full backend and iOS
+   gates reran on that tree; the uninterrupted iOS result bundle finalized 227/227 canonical cases
+   at `2026-08-22T02:04:17Z` with no failure, skip, or retry.
 6. create and strictly verify a new build-5 signed Release archive. The exact
    `Wardrobe-1.0.0-5-695c562-appstore.xcarchive` was created at `2026-08-22T01:10:32Z`; its strict
    signature/profile, scalar production App Attest, privacy, public-configuration, and Gmail-free
    checks passed at `2026-08-22T01:11:17Z`; its quiet credential/removed-capability scan passed at
    `2026-08-22T01:12:01Z`; and its post-scan signature check passed at
-   `2026-08-22T01:12:19Z`. This evidence preceded Organizer validation and upload;
+   `2026-08-22T01:12:19Z`. This evidence preceded Organizer validation and upload.
 7. retain the completed build-5 distribution evidence. The exact-v8 payload-free review passed
    from `2026-08-22T02:27:21Z` through `02:37:08Z`; Organizer **Validate App** succeeded at
    `03:18:30Z` with zero errors, warnings, or informational messages. Upload through the normal
    **TestFlight & App Store**-eligible App Store Connect route succeeded at `03:20:59Z`, also with
    zero errors, warnings, or informational messages. Symbols were on, while **Manage Version and
-   Build Number** and **Internal Testing Only** were off;
-8. retain the processed/internal-assignment evidence. Processing reached **Ready to Submit** by
+   Build Number** and **Internal Testing Only** were off.
+8. retain the processed/internal-assignment evidence. Build-5 processing reached **Ready to Submit** by
    `03:24:21Z`. The exact `1.0.0 (5)` build for `com.tth.Wardrobe` is arm64, minimum iOS 18.0, SDK
    build `23F81a`, includes symbols, reports no non-exempt encryption, and retains scalar production
    App Attest with `get-task-allow = false` and beta reporting active. Exactly the `Family` Internal
-   Testing group is assigned, with one tester and no individual tester assignments; and
+   Testing group is assigned, with one tester and no individual tester assignments.
 9. retain the completed build-4 identity-safe handoff and partial clean build-5 physical QA. The
    eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported `created` and 14-day
-   retention. Build-4 proof remained available after build 5 appeared installed in place unexpectedly; server
-   deletion emitted exactly one success marker and live installations/sessions/challenges reached
-   `0/0/0`. Local data and the app were deleted, and build 5 was clean-installed. Its no-login empty
-   first launch, offline Demo Mode, Camera/Library saves, full catalog flow, Style at `16:30`, cached
-   relaunch, Restyle at `17:04`, failed-offline-Restyle cached-look preservation, offline Wear/
-   History, and notification delivery passed. Tapping the notification crashed at
-   `2026-08-22T17:15:14+08:00`; exact-dSYM safe symbolication showed `SIGABRT`, a UIKit state-
-   restoration assertion, and a `DailyReminderNotificationRouter` `didReceive` async-bridge frame.
-   Do not repeat the tap. Keep build 5 installed, its live identity intact, and TestFlight automatic
-   updates off until another eligible handoff, then repeat the affected matrix on the replacement.
+   retention. Build-4 proof remained available after build 5 appeared installed in place
+   unexpectedly; server deletion emitted exactly one success marker and live
+   installations/sessions/challenges reached `0/0/0`. Local data and the app were deleted, and
+   build 5 was clean-installed. Its no-login empty first launch, offline Demo Mode, Camera/Library
+   saves, full catalog flow, Style at `16:30`, cached relaunch, Restyle at `17:04`, failed-offline-
+   Restyle cached-look preservation, offline Wear/History, and notification delivery passed.
+   Tapping the notification crashed at `2026-08-22T17:15:14+08:00`; exact-dSYM safe symbolication
+   showed `SIGABRT`, a UIKit state-restoration assertion, and a `DailyReminderNotificationRouter`
+   `didReceive` async-bridge frame. Do not repeat the tap. Keep build 5 installed, its live identity
+   intact, and TestFlight automatic updates off until another eligible handoff, then repeat the
+   affected matrix on the replacement.
+10. retain the completed build-6 candidate/distribution evidence. Clean synchronized source
+   `de7c540275fb16e61aabf1884538b18cf6edf76f` passed the merged-source gates; Fly v9 serves accepted
+   builds `4,5,6`; and `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed strict signing,
+   production App Attest, privacy, public-configuration, and Gmail-free verification. Xcode
+   validation and normal-route upload succeeded; Apple processing reached **Ready to Submit**; and
+   exactly `Family` is assigned with one group tester, no individual testers, and saved truthful
+   tester notes.
 
-The local notification-router source fix has passed 17 focused tests, 221 backend tests plus locked
-audit/Bandit/Ruff/mypy, 222 Swift unit tests, all 9 UI flows, and all 43 release-script tests. It
-changes shipped iOS source and therefore requires a replacement TestFlight build after merge and a
-confirmed build-6 number; it is not yet a signed, uploaded, or released candidate.
+The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
+evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all
+43 release-script tests. The exact build-6 archive and internal distribution evidence is retained
+above; clean physical proof remains gated on build-5 identity-safe handoff.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -273,21 +283,29 @@ completed first and cold-renewal protected calls, and recovered online; runtime 
 fields were absent as expected. Local/Demo features remained usable offline. This was partial QA,
 not build-5 proof.
 
-Fly v8 completed at `2026-08-21T10:45:06Z` from reviewed PR #23 source
+Historical Fly v8 completed at `2026-08-21T10:45:06Z` from reviewed PR #23 source
 `4a75b99dcd49e818ad1d5b198e8c49abba702e18` and immutable `linux/amd64` digest
 `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
-Its targeted auth-service INFO logger and TestFlight allowlist for builds `4,5` are live, and the
-payload-free post-change review passed at `2026-08-21T11:09:20Z`. A fresh exact-v8 post-
+Its targeted auth-service INFO logger and TestFlight allowlist for builds `4,5` supplied the
+historical runtime baseline; the payload-free post-change review passed at
+`2026-08-21T11:09:20Z`. A fresh exact-v8 post-
 distribution review also passed from `2026-08-22T03:19:20Z` through `03:30:33Z`; fixed/coarse
 health, recent snapshots, schema/integrity, endpoint surface, zero failure bands, Anthropic, and
 support checks remained green. The first bounded query returned zero registration, assertion, and
 deletion successes because none had yet been exercised; later clean build-5 Style/Restyle observed
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
-`0/0/0` live aggregates. Protected `/recommend` intentionally has no developer success marker and
+`0/0/0` live aggregates. Fly v9 is now live on the exact merged build-6 source with accepted builds
+`4,5,6`, matching release/running image references, and one healthy Singapore Machine. Protected
+`/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. The `2026-08-22T07:33:23Z` created/14-day snapshot enabled the
 build-4 handoff, but actual listing expiry and deletion-specific restore/non-return remain open. It
 predates the clean build-5 enrollment, whose installed live identity must be retained until another
 eligible handoff.
+
+The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
+full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining
+the process defect. Repeat the review before every future archive/upload, after every backend or
+production-configuration change, and otherwise no later than 2026-09-22.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

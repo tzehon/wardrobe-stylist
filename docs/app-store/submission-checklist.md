@@ -62,8 +62,10 @@ Checked historical items in this section preserve the uploaded build-4 and build
 `Family` Internal Testing group. Its clean-install physical matrix reached local and connected
 flows, but tapping the delivered local reminder crashed at `2026-08-22T17:15:14+08:00`. Build 5
 is consumed and non-promotable. A signed-in App Store Connect TestFlight Build Uploads refresh at
-`2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is
-confirmed unused and selected for the replacement; `MARKETING_VERSION` remains `1.0.0`.
+`2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6, confirming
+build 6 unused before replacement work. Build 6 has since completed strict verification, normal-
+route validation/upload, Apple processing, and `Family` Internal Testing assignment. It is consumed
+and must never be reused; its clean physical matrix remains open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -75,18 +77,24 @@ confirmed unused and selected for the replacement; `MARKETING_VERSION` remains `
   simulator/artifact checks passed after project regeneration. Rerun affected gates if source or
   configuration changes; this local regression is distinct from the retained signed archive and
   is not distribution evidence.
-- [x] Retain the current unmerged notification-router source-fix regression separately from the
-  signed build-5 archive: 17 focused notification tests, 221 backend tests plus the locked audit/
-  Bandit/Ruff/mypy gates, 222 Swift unit tests, all 9 UI flows, and all 43 release-script tests
-  passed. This is local source evidence only; it is not a merged replacement candidate, signed
-  archive, App Store Connect build, or release.
-- [x] Build, scan, deploy, configure, and review the exact frozen backend. Fly v8 completed at
+- [x] Retain the notification-router fix regression separately from the historical signed build-5
+  archive: 17 focused tests passed; merged-source verification retained 221 backend tests plus the
+  locked audit/Bandit/Ruff/mypy gates, 231/231 iOS tests, and all 43 release-script tests.
+- [x] Retain the historical build-5 backend evidence. Fly v8 completed at
   `2026-08-21T10:45:06Z` with exact source and immutable registry digest
   `sha256:0b2dc350e88522a07f999ae5676ad680c0ab3a6538e44066db52baec8003e7eb`.
   Local/registry zero-critical/high scans, runtime/storage/route checks, production App Attest
   category `2` and builds `4,5`, targeted INFO logging, rollback/recovery checks, and the payload-
   free post-change review at `2026-08-21T11:09:20Z` passed. This is not lifecycle-event, upload,
   or physical-device proof.
+- [x] Build, verify locally, deploy, configure, and runtime-check the exact build-6 backend. Fly v9
+  serves clean merged source `de7c540275fb16e61aabf1884538b18cf6edf76f`; a local-only official
+  Alpine secdb comparison found zero unfixed advisories and locked `pip-audit` passed. Release and
+  running image references match; one Singapore Machine is healthy; and category `2`, accepted
+  builds `4,5,6`, storage, logging, route, and failure-boundary checks passed. No external private-
+  image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
+  not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Repeat it before any future
+  archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
   at `2026-08-22T01:00:09Z`, and the exact-v8 pre-archive review passed at
@@ -189,8 +197,8 @@ confirmed unused and selected for the replacement; `MARKETING_VERSION` remains `
   Restyle at `17:04` exercised assertion renewal; a failed offline Restyle preserved the cached
   look; offline Wear this/History passed; and the local reminder was delivered. The connected
   lifecycle markers and coarse server aggregates were observed without retaining identifiers.
-- [ ] Replace the build-5 reminder response implementation and repeat the affected clean physical
-  matrix on the newly processed replacement. Tapping the delivered notification at
+- [ ] Repeat the affected clean physical matrix using the replaced reminder response implementation
+  in processed build 6. Tapping the delivered notification at
   `2026-08-22T17:15:14+08:00` crashed build 5. The exact build-5 dSYM matched; safe symbolication
   showed `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
   `DailyReminderNotificationRouter` `didReceive` async bridge. Do not repeat the tap on build 5.
@@ -213,13 +221,14 @@ confirmed unused and selected for the replacement; `MARKETING_VERSION` remains `
   1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
   the branch records `CURRENT_PROJECT_VERSION = 6`, source allowlist `4,5,6`, and unchanged
   `MARKETING_VERSION = 1.0.0`. The required regression, Release-build, and simulator-artifact gates
-  passed again after those changes; this is not backend deployment, archive, or upload evidence.
+  passed again after those changes. The subsequent Fly v9, archive, and Apple distribution gates
+  are retained below.
 
 ## 5. Upload, review, and release
 
 The first checked item below preserves build-5 distribution evidence; it does not make build 5
-promotable after the physical reminder-tap crash. The remaining checked upload/processing/internal-
-assignment items preserve historical build-4 facts. A replacement upload has not begun.
+promotable after the physical reminder-tap crash. Build 6 distribution is also complete and retained
+below, but its clean physical matrix has not begun.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -235,6 +244,15 @@ assignment items preserve historical build-4 facts. A replacement upload has not
   testers, and the build-specific What to Test wording reproduced in the runbook is saved. The
   exact-v8 post-distribution review ran from `03:19:20Z` through `03:30:33Z` and passed. Build 5 is
   consumed, but distribution is not physical, lifecycle-marker, deletion, or snapshot proof.
+
+- [x] Validate, upload, process, and internally assign only the verified build-6 archive using the
+  normal **TestFlight & App Store**-eligible route, then save truthful build-6 What to Test wording.
+  `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed strict signing, production App Attest,
+  privacy, public-configuration, credential-absence, and Gmail-free verification. Xcode validation
+  and upload succeeded with symbols on, automatic version/build management off, and **TestFlight
+  Internal Testing Only** off. Processing reached **Ready to Submit**; the record shows `1.0.0 (6)`,
+  arm64 iPhone support, iOS 18.0 minimum, included symbols, and no non-exempt encryption. Exactly
+  `Family` is assigned with one group tester, no individual testers, and saved truthful tester notes.
 
 - [x] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
   Build `1.0.0 (4)` completed processing by `2026-08-21T08:20:20Z` with no unresolved prompt.
