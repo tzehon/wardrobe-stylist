@@ -196,9 +196,10 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and complete
-replacement-client physical proof remain release gates. Real registration, assertion, and deletion
-success markers have now been observed, but the notification-tap crash makes build 5 non-promotable.
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and final-client
+deletion/reinstall proof remain release gates. Real registration, assertion, and deletion success
+markers have now been observed; build 5 is non-promotable, while clean build 6 passed the fixed
+notification route.
 Historical Apple processing/internal assignment and a healthy `/health` response do not close the
 remaining gates.
 
@@ -253,9 +254,8 @@ Every internal beta is built as an App Store candidate. Follow the
    Restyle cached-look preservation, offline Wear/History, and notification delivery passed.
    Tapping the notification crashed at `2026-08-22T17:15:14+08:00`; exact-dSYM safe symbolication
    showed `SIGABRT`, a UIKit state-restoration assertion, and a `DailyReminderNotificationRouter`
-   `didReceive` async-bridge frame. Do not repeat the tap. Keep build 5 installed, its live identity
-   intact, and TestFlight automatic updates off until another eligible handoff, then repeat the
-   affected matrix on the replacement.
+   `didReceive` async-bridge frame. Do not repeat the tap. Build 5 later completed an eligible
+   identity-safe handoff before the replacement was installed cleanly.
 10. retain the completed build-6 candidate/distribution evidence. Clean synchronized source
    `de7c540275fb16e61aabf1884538b18cf6edf76f` passed the merged-source gates; Fly v9 serves accepted
    builds `4,5,6`; and `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed strict signing,
@@ -263,11 +263,20 @@ Every internal beta is built as an App Store candidate. Follow the
    validation and normal-route upload succeeded; Apple processing reached **Ready to Submit**; and
    exactly `Family` is assigned with one group tester, no individual testers, and saved truthful
    tester notes.
+11. retain clean build-6 physical evidence through the fixed notification route. Build 6 initially
+   appeared in place and was not counted as QA. After the eligible build-5 snapshot and ordered
+   server/local deletion plus app removal, build 6 was installed cleanly. Gmail-free launch,
+   offline Demo, Camera/Library saves, catalog operations, production registration/cold assertion,
+   online styling, explicit cached-look restoration after offline relaunch, failed-Restyle
+   preservation, Wear/History, reminder delivery, and reminder tap passed without a crash or local-
+   state loss. Keep build 6 installed with reminder and styling permission off until an eligible
+   post-enrollment snapshot permits final deletion/reinstall.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all
-43 release-script tests. The exact build-6 archive and internal distribution evidence is retained
-above; clean physical proof remains gated on build-5 identity-safe handoff.
+43 release-script tests. The exact build-6 archive, internal distribution, and clean physical proof
+through notification tap are retained above; deletion/reinstall remains gated on a successful
+post-enrollment snapshot.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -297,10 +306,10 @@ registration/assertion markers, and the build-4 handoff observed exactly one del
 `0/0/0` live aggregates. Fly v9 is now live on the exact merged build-6 source with accepted builds
 `4,5,6`, matching release/running image references, and one healthy Singapore Machine. Protected
 `/recommend` intentionally has no developer success marker and
-remains aggregate/client-evidenced. The `2026-08-22T07:33:23Z` created/14-day snapshot enabled the
-build-4 handoff, but actual listing expiry and deletion-specific restore/non-return remain open. It
-predates the clean build-5 enrollment, whose installed live identity must be retained until another
-eligible handoff.
+remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs, but
+actual listing expiry and deletion-specific restore/non-return remain open. The newest successful
+snapshot, `2026-08-24T07:35:23Z`, status `created`, retention 14 days, predates clean build-6
+enrollment at `20:25 SGT`; retain the installed live identity until another eligible handoff.
 
 The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining

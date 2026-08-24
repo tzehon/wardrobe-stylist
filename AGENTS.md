@@ -105,8 +105,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   **TestFlight & App Store** route; Apple processing reached **Ready to Submit**. Build 6 is assigned
   only to the `Family` Internal Testing group with one group tester, no individual testers, and the
   saved truthful What to Test notes. Build 6 is now used and must never be reused. This closes the
-  replacement distribution pipeline only; build-5 identity-safe handoff and clean build-6 physical
-  QA remain open. The required Fly v9 post-deploy/pre-upload payload-free review was missed and is
+  replacement distribution pipeline only. Build 5's identity-safe handoff and clean build-6 QA
+  through the delivered-reminder tap have since passed; build-6 deletion/reinstall and the
+  remaining snapshot recovery/expiry evidence remain open. The required Fly v9 post-deploy/pre-
+  upload payload-free review was missed and is
   not backdated; a late full review passed at `2026-08-23T02:13:12Z`, restoring current operational
   evidence while retaining the process defect. Repeat it before any future archive/upload and after
   every backend/configuration change.
@@ -132,9 +134,28 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   and explicitly performs routing and completion on the main queue. Focused tests passed 17/17;
   merged-source verification retained 221 backend tests plus the locked audit/Bandit/Ruff/mypy
   gates, 231/231 iOS tests (222 Swift unit plus 9 UI), and all 43 release-script tests. The exact
-  build-6 backend, archive, and App Store Connect distribution evidence is recorded above. Build 5
-  remains installed with a live server identity; before uninstalling it or installing build 6,
-  repeat the identity-safe sequence and confirm server deletion.
+  build-6 backend, archive, and App Store Connect distribution evidence is recorded above.
+- Build 6 first appeared installed in place before the planned build-5 handoff. The inherited live
+  identity remained available, so the app stayed installed until a successful post-enrollment
+  automatic snapshot at `2026-08-23T07:34:23Z` was confirmed. **Delete Server Security Data** then
+  succeeded, the production aggregates returned to zero, local data was deleted, and the app was
+  removed. Build 6 was then installed cleanly. This recovery closes build 5's identity-safe handoff;
+  it is not upgrade, migration, or in-place-install evidence.
+- Clean build-6 physical QA on 2026-08-24 passed Gmail-free first launch, empty local state, offline
+  Demo, Camera and Photo Library saves, the catalog matrix, production enrollment and cold assertion
+  renewal, online styling, explicit-action cached-look recovery after offline relaunch, failed-
+  Restyle preservation, offline Wear/History, and delivered-reminder routing. Tapping the reminder
+  opened Today without crashing and preserved Wardrobe/History state. Today initially showing
+  **Style a look** before the cached look is explicitly restored is the intended no-call-on-tab-
+  appearance behavior, but the runbook wording and process-relaunch automation should make that
+  intermediate step explicit. The newest successful automatic snapshot observed after this run was
+  `2026-08-24T07:35:23Z`, status `created`, retention 14 days; it predates the clean build-6
+  enrollment at `2026-08-24 20:25 SGT`. Keep build 6 installed with its reminder and styling
+  permission off until a later eligible snapshot permits the manual deletion/reinstall gate.
+- The owner also observed that the **Allow AI styling** control appears visually right-shifted with
+  an unusually light fill. Treat this as an unverified presentation/contrast finding, separate from
+  the passed identity and notification checks. Any shipped UI correction requires a new unused
+  TestFlight build and the full release loop.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

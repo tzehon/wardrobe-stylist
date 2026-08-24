@@ -14,12 +14,12 @@ contain or invoke that capability.
 | Purchase date/price/currency | Catalog/review/insights | No in v1 styling | Local app | Until item/local-data deletion | Review/edit/delete | Not collected if device-only |
 | Outfit and wear history | Anti-repeat/history and explicit 1–5 feedback | Recent item IDs and bounded per-item rating summaries (item ID, average, count) leave for styling; no feedback free text or wear dates | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; local history until delete; verify Anthropic/provider terms | Styling consent; delete | Pending retention interpretation |
 | Occasion/context text | User-directed recommendation | Yes | Backend → Anthropic recommendation | Developer application: request lifetime only, no persistence; verify Anthropic/provider terms | Styling consent; user submits | “Other User Content” if retained; pending |
-| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; an assertion-verified deletion request synchronously removes the live installation. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. Production retention enforcement, Fly v9's targeted payload-free auth-service INFO logger, and the production TestFlight allowlist for builds `4,5,6` are deployed and runtime-verified. The required v9 post-deploy/pre-upload review was missed and is not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Bounded `registration_succeeded` and `assertion_succeeded` observations passed during clean build-5 QA; exactly one `installation_deleted` marker and `0/0/0` installations/sessions/challenges closed the preceding build-4 live handoff. Listing-expiry and deletion-specific restore/non-return evidence remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
+| App Attest key ID, verified public key, opaque Apple attestation receipt, anonymous installation ID and assertion counter | Prove a genuine installation and renew backend access without a Wardrobe account | Key ID/attestation/assertions leave; private key never leaves Secure Enclave | Apple App Attest certification → developer backend authentication/security store | Repository limits: 90 days after last successful use; revoked records 30 days; an assertion-verified deletion request synchronously removes the live installation. Encrypted snapshots stop appearing from Fly's customer listing after 14 days; all-copy purge timing is undisclosed and owner-accepted. Production retention enforcement, Fly v9's targeted payload-free auth-service INFO logger, and the production TestFlight allowlist for builds `4,5,6` are deployed and runtime-verified. The required v9 post-deploy/pre-upload review was missed and is not backdated; the late full review passed at `2026-08-23T02:13:12Z`. The build-4 and build-5 identity-safe handoffs each reached aggregate zero before local/app deletion, and clean build-6 registration/assertion renewal passed. Its newest successful snapshot predates enrollment, so final-client deletion/reinstall, listing-expiry, and deletion-specific restore/non-return remain APP-009 work. Independent Apple-receipt validation/risk-metric policy remains pending. | **Settings → Privacy & Data → Delete Server Security Data** uses a fresh App Attest assertion; reinstall creates a new identity but does not delete the old row | Device ID, App Functionality, linked, not tracking; publish only after final App Store Connect review |
 | One-time App Attest challenges, hashed short-lived sessions and coarse rate windows | Replay prevention, authorization, quotas and abuse prevention | Yes | Developer backend security store | Repository maxima: challenge 70 minutes from issue; session hash 20 minutes from issue; rate-window hash five minutes after its one-minute/hourly window, enforced by the deployed one-minute maintenance loop and request-time expiry cleanup | Automatic expiry; a verified server deletion removes current-secret-derived key/installation rows, while unlinkable pre-rotation HMAC rows expire within 65 minutes | Device ID and Other Diagnostic Data; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | IP address, request path/ID and timing | Network delivery/security | Inherent | Host/backend abuse prevention | Raw IP is not stored in SQLite and application access logs are disabled. Fly's customer-visible platform/proxy stream can contain path, request ID and client IP for a fixed seven days. Separate operational/abuse logs can contain source IP with undisclosed, non-configurable in-service retention. The owner accepted this provider boundary on 2026-08-19. | Public policy; remote features are optional | Conservatively: Device ID, Other Diagnostic Data and Product Interaction; App Functionality; linked; not tracking. Final App Store Connect publication pending |
 | Consent and automation preferences | Enforce user choices | No | Local UserDefaults | Until withdrawal/delete | Privacy Center | Not collected if device-only |
 | Camera/photo-library selection | Add item photo | Selected asset only, device-local | Local app | Until item/delete | System permission/selection | Not collected if device-only |
-| Notification schedule | Daily local reminder | Apple notification system | Local notification delivery | Until disabled | Reminder toggle/system settings | Usually not developer-collected; no push service is used. Clean build-5 delivery passed, but tapping it crashed and blocks promotion |
+| Notification schedule | Daily local reminder | Apple notification system | Local notification delivery | Until disabled | Reminder toggle/system settings | Usually not developer-collected; no push service is used. Clean build-6 delivery and tap routing passed without a crash or local-state loss |
 | Crash/analytics diagnostics | None currently planned | No current SDK | N/A | N/A | N/A | Reassess before adding any SDK |
 
 ## Release-blocking confirmations
@@ -56,18 +56,19 @@ The exact approved developer-controlled schedule and its current compliance stat
   active DPA; do not treat Fly Security's 30-day post-service deletion and 90-day residual
   encrypted-backup summary as binding unless the exact agreement/version is executed.
 - [ ] Reconfirm Fly.io region and encrypted storage; observe the configured 14-day snapshot-list
-  disappearance and complete deletion-specific recovery against the final deployment. The
-  secret-free, non-serving restore path and immediate temporary-resource cleanup passed on
-  2026-08-19. A later eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported
-  `created` with 14-day retention and enabled the build-4 identity-safe live deletion, but actual
-  listing expiry and deletion-specific restore/non-return are still unobserved. All-copy purge
-  timing is explicitly accepted as undisclosed.
+  disappearance and complete deletion-specific recovery against the final deployment. The secret-
+  free, non-serving restore path and immediate temporary-resource cleanup passed on 2026-08-19.
+  Later eligible snapshots enabled the build-4 and build-5 identity-safe live deletions, but actual
+  listing expiry and deletion-specific restore/non-return are still unobserved. The newest
+  successful snapshot, `2026-08-24T07:35:23Z`, status `created`, retention 14 days, predates clean
+  build-6 enrollment and cannot authorize its deletion. All-copy purge timing is explicitly
+  accepted as undisclosed.
 - [x] Confirm the exact build-6 signed archive's production App Attest App ID prefix, App Store
   profile/certificate match, and scalar production entitlement. The strict verifier matched the
   prefix, team, bundle, certificate, and production grant; `get-task-allow` is false and no
   devices/all-devices are provisioned.
 - [ ] From the final processed client, retain tester OS, signed runtime-field behavior, and the
-  exact Apple receipt field set retained. Clean build-5 QA on iPhone 16 Pro/iOS 26.6 proved the
+  exact Apple receipt field set retained. Clean build-6 QA on iPhone 16 Pro/iOS 26.6 proved the
   expected runtime-field absence plus physical registration/assertion, but it does not prove iOS
   27+ validation-category/exact-build fields, the remaining receipt evidence, or a promotable build.
 - [x] Confirm the durable auth-store schema contains only public keys/opaque Apple attestation
@@ -87,7 +88,9 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [ ] Rehearse deletion-specific restore/recovery behavior against the final deployment.
 - [ ] Confirm unsupported App Attest, offline verification and backend failure preserve local
   wardrobe/Demo Mode while remote AI fails closed without creating an unauthenticated identifier
-  or request.
+  or request. Clean build 6 proved offline/backend failure preserves local Wardrobe, Demo, Today
+  cache, Wear, and History while remote styling fails closed; the distinct unsupported-App-Attest
+  path remains open.
 - [x] Confirm the migration bridge is retired, `DEVICE_TOKEN` is unset/rotated, and the obsolete
   shared-token build is rejected. The initial rollback boundary was App-Attest-only; APP-036 now
   additionally requires a Gmail-free recovery image after build 4 distribution.
@@ -116,13 +119,14 @@ The exact approved developer-controlled schedule and its current compliance stat
 - [x] Retain the complete transition history without claiming migration. The intermediate
   development build completed Disconnect Google and local deletion, and no live production
   identity existed before its uninstall. Build 4 was then installed cleanly from processed
-  TestFlight. Its proof later remained available after build 5 appeared installed in place unexpectedly; after
-  the eligible `2026-08-22T07:33:23Z` created/14-day snapshot, assertion-verified server deletion
-  produced exactly one success marker and `0/0/0` live aggregates. Local data and the app were
-  deleted, then build 5 was clean-installed. Keep the current clean build-5 identity live, the app
-  installed, and automatic updates off until another eligible handoff; do not repeat the crashing
-  reminder tap. The notification fix is merged and internally distributed in processed build 6,
-  but build 5 must complete identity-safe handoff before build 6 is installed cleanly.
+  TestFlight. Its proof later remained available after build 5 appeared installed in place
+  unexpectedly; after the eligible `2026-08-22T07:33:23Z` created/14-day snapshot, assertion-
+  verified server deletion produced exactly one success marker and `0/0/0` live aggregates. Local
+  data and the app were deleted, then build 5 was clean-installed. Build 6 later appeared in place
+  unexpectedly, but the inherited build-5 proof likewise remained available. After the eligible
+  `2026-08-23T07:34:23Z` snapshot, server deletion returned aggregates to `0/0/0`; local data and
+  the app were deleted; and build 6 was installed cleanly. Keep the current clean build-6 identity
+  live with reminder, styling permission, and automatic updates off until its eligible handoff.
 - [x] Retain clean build-5 privacy/failure evidence through notification delivery: no login and an
   empty wardrobe at first launch; offline Demo Mode; Camera and Photo Library saves; the full local
   catalog flow; `16:30` registration; cached relaunch; `17:04` assertion renewal; cached-look
@@ -131,6 +135,11 @@ The exact approved developer-controlled schedule and its current compliance stat
   symbolication showed `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
   `DailyReminderNotificationRouter` `didReceive` async bridge. Build 5 is consumed and non-
   promotable. The pre-upload signed-in TestFlight view confirmed build 6 unused; the exact
-  production-signed `1.0.0 (6)` archive has since passed strict verification, normal-route upload,
-  Apple processing, and `Family` Internal Testing assignment. Clean build-6 privacy/failure proof
-  remains open until the ordered build-5 handoff completes.
+  production-signed `1.0.0 (6)` archive then passed strict verification, normal-route upload,
+  Apple processing, and `Family` Internal Testing assignment.
+- [x] Retain clean build-6 privacy/failure proof through the fixed notification route: Gmail-free
+  first launch, empty local state, offline Demo, Camera/Photo Library saves, catalog operations,
+  `20:25` registration, `20:45` cold assertion renewal, explicit offline cached-look restoration,
+  failed-Restyle preservation, Wear/History, notification delivery, notification tap without a
+  crash, and preserved local state passed. Final-client deletion/reinstall remains open because the
+  newest successful snapshot predates clean build-6 enrollment.

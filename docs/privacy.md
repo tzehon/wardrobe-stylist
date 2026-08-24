@@ -81,8 +81,8 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and complete
-replacement-client physical evidence remain release gates. Fly v9 deploys the targeted auth-
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and final-client
+deletion/reinstall evidence remain release gates. Fly v9 deploys the targeted auth-
 service INFO logger and production TestFlight allowlist for builds `4,5,6`; its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
@@ -90,8 +90,9 @@ distribution review passed from
 flow had yet been exercised. Later physical flows observed bounded registration and assertion
 successes from clean build 5 and exactly one deletion success during the build-4 identity-safe
 handoff. Protected `/recommend` remains aggregate/client-evidenced. Build 5 then crashed when its
-delivered local notification was tapped and is non-promotable. Build 6 is processed and internally
-distributed, but it cannot be installed until build 5 completes the identity-safe handoff. The
+delivered local notification was tapped and is non-promotable. Build 5's identity-safe handoff and
+clean build-6 QA through the fixed notification tap later passed. Build 6 remains installed pending
+its own post-snapshot deletion/reinstall gate. The
 required v9 post-deploy/pre-upload payload-free review was missed and is not backdated; a late full
 review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining the
 process defect.
@@ -120,7 +121,7 @@ accepted provider unknown into a stronger production guarantee.
 Each control must report success only after its operation completes. Destructive actions require
 specific confirmation, and a failure must never be presented as deletion success.
 
-## Build 4 and build 5 privacy transition
+## Build 4 through build 6 privacy transition
 
 Build `1.0.0 (4)` is fresh-install-only. The owner approved discarding the earlier device-local
 wardrobe and adding items again. The installed development build completed Google disconnection
@@ -160,16 +161,28 @@ passed; and the local reminder delivered. The bounded v8 stream observed registr
 success markers. Tapping the delivered reminder at `2026-08-22T17:15:14+08:00` crashed. The exact
 build-5 dSYM matched; safe symbolication identified `SIGABRT`, a UIKit state-restoration assertion,
 and an app frame in the `DailyReminderNotificationRouter` `didReceive` async bridge. Build 5 is
-therefore non-promotable. Do not repeat the tap. Keep it installed and keep its live identity intact
-with TestFlight automatic updates off until another eligible identity-safe handoff is complete.
+therefore non-promotable. Do not repeat the tap. It remained installed with its live identity intact
+until the later eligible identity-safe handoff completed.
 
 The notification-router fix merged through PR #27. Focused tests passed 17/17; merged-source
 verification retained 221 backend tests plus the locked audit/security/type gates, 231/231 iOS
 tests, and all 43 release-script tests. Fly v9 is compatible with accepted builds `4,5,6`; the exact
 production-signed `1.0.0 (6)` archive passed strict privacy, signing, production App Attest, public-
 configuration, and Gmail-free checks, then completed normal-route validation/upload, Apple
-processing, and `Family` Internal Testing assignment. This is distribution evidence only; build-5
-identity-safe handoff and clean build-6 physical evidence remain open.
+processing, and `Family` Internal Testing assignment.
+
+Build 6 first appeared installed in place before the planned build-5 handoff, but inherited proof
+of possession remained available. After the successful `2026-08-23T07:34:23Z` automatic snapshot
+was confirmed post-enrollment with 14-day retention, server deletion returned live aggregates to
+`0/0/0`; local data and the app were deleted; and build 6 was installed cleanly. This is deletion
+evidence, not migration support. Clean build-6 QA then passed Gmail-free launch, offline Demo and
+local catalog/media flows, production registration and cold assertion renewal, explicit cached-
+look restoration after offline relaunch, failed-Restyle preservation, Wear/History, and delivered-
+reminder tap without a crash or local-state loss. The reminder and styling permission are off. The
+newest successful snapshot, `2026-08-24T07:35:23Z`, status `created`, retention 14 days, predates
+the clean build-6 `20:25 SGT` enrollment, so keep the app and live identity intact until a later
+eligible snapshot permits final-client deletion/reinstall. Snapshot-list expiry and deletion-
+specific restore/non-return remain open.
 
 ## Secrets and release boundaries
 

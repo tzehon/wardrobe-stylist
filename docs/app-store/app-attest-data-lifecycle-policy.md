@@ -9,11 +9,11 @@
   historical build-5 distribution, current build-6 production-signed archive and Apple distribution,
   and Gmail-free public support/privacy/Terms routes are retained. The required v9 post-deploy/pre-
   upload review was missed and is not backdated; the late review records that process miss while
-  restoring current operational evidence. The build-4 identity-safe handoff and all three bounded
-  lifecycle-marker observations are complete. Clean build-5 QA exposed a notification-tap crash,
-  so build 5 is consumed and non-promotable. Build 6 is strictly verified, processed, and assigned
-  only to the intended internal group. Build-5 identity-safe handoff, clean build-6 physical proof,
-  snapshot-list expiry, and deletion-specific restore/non-return evidence remain incomplete.
+  restoring current operational evidence. The build-4 and build-5 identity-safe handoffs are
+  complete. Clean build-5 QA exposed a notification-tap crash, so build 5 is consumed and non-
+  promotable. Build 6 is strictly verified, processed, assigned only to the intended internal group,
+  and clean-tested through the fixed reminder tap. Its final deletion/reinstall, snapshot-list
+  expiry, and deletion-specific restore/non-return evidence remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -150,11 +150,11 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v9's one-minute maintenance loop |
 | Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v9 purges inactive installations at the deadline and cascades their sessions |
 | Revoked installation metadata | 30 days after revocation | Fly v9 purges revoked installations at the deadline and cascades their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
-| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v9 and historical build-4 archive/upload evidence are verified. During the build-4 identity-safe handoff, proof remained available after build 5 appeared installed in place unexpectedly; the assertion-verified control produced exactly one `installation_deleted` marker and live installations/sessions/challenges reached `0/0/0` before local data and the app were deleted. The newly clean-installed build-5 identity remains live pending its own safe handoff |
-| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v9 is configured for 14 days. The newest automatic snapshot was created at `2026-08-22T07:33:23Z`, reported `created`, and retained the 14-day setting. It enabled the historical build-4 handoff but predates clean build-5 enrollment, so it does not authorize deleting that new identity or prove its deletion-specific recovery. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
+| Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v9 and historical build-4 archive/upload evidence are verified. The build-4 and build-5 identity-safe handoffs each preserved proof of possession through server deletion, returned live aggregates to zero, then deleted local data and the app before the next clean install. The newly clean-installed build-6 identity remains live pending its own safe handoff |
+| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v9 is configured for 14 days. The `2026-08-23T07:34:23Z` successful snapshot, status `created`, retention 14 days, enabled the build-5 handoff. The newest successful snapshot is `2026-08-24T07:35:23Z`, status `created`, retention 14 days, but it predates clean build-6 enrollment at `20:25 SGT`, so it does not authorize deleting that identity or prove deletion-specific recovery. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance remains to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
 | Wardrobe application access logs | None | Fly v9's single UID-10001 Uvicorn process uses `--no-access-log`, and a regression pins that production command |
-| Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly v9 enables application `INFO` only for the non-propagating `app.auth.service` logger while other application INFO and access logs remain off. Later bounded observation captured clean build-5 `registration_succeeded` and `assertion_succeeded` events and exactly one `installation_deleted` event during the build-4 identity-safe handoff. Protected `/recommend` intentionally has no developer success event and uses aggregate admission plus client-result evidence. Fly retains the customer-visible stream for seven days, which is not configurable per app |
+| Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly v9 enables application `INFO` only for the non-propagating `app.auth.service` logger while other application INFO and access logs remain off. Bounded observation captured clean build-5 registration/assertion events and the build-4 deletion event, then clean build-6 registration/assertion activity was corroborated by safe aggregate deltas. Protected `/recommend` intentionally has no developer success event and uses aggregate admission plus client-result evidence. Fly retains the customer-visible stream for seven days, which is not configurable per app |
 | Provider-generated proxy/platform records in the customer-visible stream | Fixed seven days, including when a provider record contains client IP | Fly says these records can include paths, request IDs, and sometimes client IP; retention cannot be shortened, disabled, or configured per app |
 | Separate Fly operational/abuse-prevention logs | Fly-defined in-service retention with no disclosed or customer-enforceable numeric maximum; explicitly accepted 2026-08-19 | Fly says these records can include connection metadata such as source IP but does not publish the requested per-system fields, retention, or purge timing |
 | Fixed-field manual-review attestations | Project/release evidence lifetime | Long-lived evidence contains only timestamp, fixed check/result fields, coarse aggregate bands, remediation outcome, and next due date; it contains no log samples or identifiers |
@@ -239,14 +239,20 @@ recovery must use a fresh auth store and require re-enrollment. Any future delet
 minimal, keyed, expire after the last eligible snapshot, and be added to this inventory.
 
 An eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported `created` with 14-day
-retention after the build-4 TestFlight enrollment. Build 4's proof of possession remained
-available after build 5 appeared installed in place unexpectedly. While that inherited identity remained
-installed, the owner used the assertion-verified server deletion control; exactly one bounded
-`installation_deleted` marker appeared and live installations, sessions, and challenges reached
-`0/0/0`. The owner then deleted local data, deleted the app, and installed build 5 cleanly. This
-closes the live build-4 handoff, not snapshot-list expiry or deletion-specific restore/non-return
-evidence. The eligible snapshot predates the clean build-5 enrollment, so the currently installed
-build-5 identity must remain intact until its own identity-safe handoff can be completed.
+retention after the build-4 TestFlight enrollment. Build 4's proof of possession remained available
+after build 5 appeared installed in place unexpectedly. The owner used the assertion-verified
+server deletion control; exactly one bounded `installation_deleted` marker appeared and live
+installations, sessions, and challenges reached `0/0/0`. Local data and the app were then deleted,
+and build 5 was installed cleanly.
+
+Build 6 likewise appeared installed in place before the planned build-5 handoff, but inherited
+proof remained available. A successful post-enrollment snapshot at `2026-08-23T07:34:23Z`, status
+`created`, retention 14 days, cleared that gate. Server deletion returned the live aggregates to
+`0/0/0`; local data and the app were deleted; and build 6 was installed cleanly. These sequences
+close the live build-4 and build-5 handoffs, not snapshot-list expiry or deletion-specific restore/
+non-return evidence. The newest successful snapshot, `2026-08-24T07:35:23Z`, status `created`,
+retention 14 days, predates clean build-6 enrollment at `20:25 SGT`, so the currently installed
+build-6 identity must remain intact until its own identity-safe handoff can be completed.
 
 Restore work must use an isolated, non-serving volume/Machine without application secrets. Record
 only aggregate table counts and integrity results, then destroy the temporary restore volume within
@@ -315,16 +321,27 @@ reminder was delivered. Protected `/recommend` remained separately aggregate/cli
 Tapping that delivered notification crashed at `2026-08-22T17:15:14+08:00`. The exact build-5
 dSYM matched. Safe symbolication identified `SIGABRT`, a UIKit state-restoration assertion, and an
 app frame in the `DailyReminderNotificationRouter` `didReceive` async bridge. Build 5 is consumed
-and non-promotable; do not repeat the tap. Keep the clean-installed app and its live identity intact
-with TestFlight automatic updates off until an eligible handoff can be completed. The fix merged
+and non-promotable; do not repeat the tap. Its app and live identity were retained until the later
+eligible handoff completed. The fix merged
 through PR #27; merged-source gates, Fly v9, strict build-6 archive verification, normal-route
 Xcode validation/upload, Apple processing, `Family` assignment, and tester-note checks passed.
 Build 6 is consumed. Retain no raw identifiers, tokens, request
 bodies, database rows, wardrobe payloads, crash-report bodies, or log samples.
 
+### Processed build-6 clean physical evidence — 2026-08-24 (PARTIAL)
+
+Clean build 6 passed Gmail-free first launch, empty local state, offline Demo, Camera and Photo
+Library saves, the catalog matrix, production registration, cold assertion renewal, online styling,
+explicit cached-look restoration after offline relaunch, failed-Restyle preservation, offline Wear/
+History, reminder delivery, and delivered-reminder tap without a crash or local-state loss. The
+initial **Style a look** state before an explicit cached restore is the no-call-on-tab-appearance
+design, not cache loss. The reminder and styling permission are off; keep the app installed until
+an eligible post-enrollment snapshot permits final-client deletion/reinstall. Retain no raw
+identifiers, tokens, request bodies, database rows, wardrobe payloads, or log samples.
+
 ## Compliance and release evidence
 
-Verified as of 2026-08-23:
+Verified as of 2026-08-24:
 
 - [x] The auth-store schema excludes receipt/wardrobe payloads and raw IP addresses.
 - [x] Session bearers are stored only as hashes; rate subjects are stored only as keyed HMACs.
@@ -361,7 +378,8 @@ Verified as of 2026-08-23:
   `d4637f4b2adf14cd533594aec6060c385f8a5e2b`; historical build-4 signed-archive and Apple upload/
   processing evidence are retained. The build-4 handoff then passed against exact Fly v8 after an
   eligible snapshot: deletion emitted exactly one success marker and live aggregate counts reached
-  `0/0/0`. The clean build-5 identity remains installed and live pending its own separate handoff.
+  `0/0/0`. Build 5 later completed the same ordered handoff. The clean build-6 identity remains
+  installed and live pending its own separate handoff.
 - [x] The production container command disables Uvicorn access logs and is pinned by a regression.
 - [x] A redacted production-operations inventory on 2026-08-19 reconfirmed Fly v5 healthy on
   the immutable policy image, one encrypted 1 GB auth volume, automatic daily snapshots, and a
@@ -657,11 +675,12 @@ Required before APP-009 can close:
   Restyle at `17:04` passed; protected `/recommend` was proved separately by aggregate admission-
   counter delta plus the visible non-cached client result. This does not make build 5 promotable.
 - [ ] From the final processed replacement client, rehearse deletion followed by eligible snapshot-
-  list disappearance or safe fresh-store recovery. The `2026-08-22T07:33:23Z` created/14-day
-  snapshot enabled the completed build-4 live handoff, but actual listing expiry and deletion-
-  specific non-return remain unproved. It predates the clean build-5 enrollment, so keep the
-  currently installed build-5 identity intact until a later eligible handoff. The generic isolated
-  restore-path rehearsal above does not prove that a deleted production identity cannot return.
+  list disappearance or safe fresh-store recovery. Earlier eligible snapshots enabled the completed
+  build-4 and build-5 live handoffs, but actual listing expiry and deletion-specific non-return
+  remain unproved. The newest successful snapshot, `2026-08-24T07:35:23Z`, predates clean build-6
+  enrollment, so keep the currently installed build-6 identity intact until a later eligible
+  handoff. The generic isolated restore-path rehearsal above does not prove that a deleted
+  production identity cannot return.
 - [x] Refresh App Store Connect and confirm the replacement build number before changing version
   metadata or archiving. At `2026-08-22T10:02:31Z`, the signed-in TestFlight Build Uploads view
   showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and
