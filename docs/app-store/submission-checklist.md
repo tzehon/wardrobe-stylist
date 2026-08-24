@@ -65,7 +65,8 @@ is consumed and non-promotable. A signed-in App Store Connect TestFlight Build U
 `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6, confirming
 build 6 unused before replacement work. Build 6 has since completed strict verification, normal-
 route validation/upload, Apple processing, and `Family` Internal Testing assignment. It is consumed
-and must never be reused; its clean physical matrix remains open.
+and must never be reused. Clean build-6 QA passed through the fixed delivered-reminder tap without
+a crash or local-state loss; final deletion/reinstall and snapshot lifecycle evidence remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -197,14 +198,18 @@ and must never be reused; its clean physical matrix remains open.
   Restyle at `17:04` exercised assertion renewal; a failed offline Restyle preserved the cached
   look; offline Wear this/History passed; and the local reminder was delivered. The connected
   lifecycle markers and coarse server aggregates were observed without retaining identifiers.
-- [ ] Repeat the affected clean physical matrix using the replaced reminder response implementation
-  in processed build 6. Tapping the delivered notification at
-  `2026-08-22T17:15:14+08:00` crashed build 5. The exact build-5 dSYM matched; safe symbolication
-  showed `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
-  `DailyReminderNotificationRouter` `didReceive` async bridge. Do not repeat the tap on build 5.
-  Keep installed build 5, its live clean-install identity, and TestFlight automatic updates off
-  until its own identity-safe handoff can be completed. Consent withdrawal, final-candidate local/
-  server deletion, snapshot-expiry/recovery, and the complete replacement repeat remain open.
+- [x] Repeat the affected clean physical matrix using the replaced reminder response implementation
+  in processed build 6. The build-5 crash evidence remains historical. Build 5 completed its
+  identity-safe handoff, build 6 was installed cleanly, and launch/offline/media/catalog,
+  production registration/assertion, Today cache/failure, Wear/History, reminder delivery, and the
+  delivered-reminder tap passed without a crash or local-state loss.
+- [ ] Keep clean build 6 installed with reminder and styling permission off until a successful
+  snapshot created after its `2026-08-24 20:25 SGT` enrollment exists. Then complete owner-
+  controlled server deletion, aggregate-zero confirmation, local deletion, uninstall, clean
+  reinstall/new enrollment, snapshot expiry, and deletion-specific recovery/non-return.
+- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before
+  promotion. Do not claim a contrast failure without measurement. A shipped UI correction requires
+  a new unused build and the full release loop.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
@@ -227,8 +232,8 @@ and must never be reused; its clean physical matrix remains open.
 ## 5. Upload, review, and release
 
 The first checked item below preserves build-5 distribution evidence; it does not make build 5
-promotable after the physical reminder-tap crash. Build 6 distribution is also complete and retained
-below, but its clean physical matrix has not begun.
+promotable after the physical reminder-tap crash. Build 6 distribution is also complete, and its
+clean physical matrix has passed through notification tap; deletion/reinstall remains open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -263,7 +268,9 @@ below, but its clean physical matrix has not begun.
   group and enter truthful What to Test notes. Build 4 is in the `Family` group and the saved
   truthful wording reproduced in the runbook was saved on 2026-08-21. Build 5's separate
   distribution evidence is retained above; its clean physical-device evidence is partial and
-  ended at the notification-tap crash described in section 4.
+  ended at the notification-tap crash described in section 4. Build 6 is also assigned only to
+  `Family`; its later clean physical evidence through the fixed notification route is retained in
+  the runbook.
 - [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
   flow requires choosing the build and completing required metadata before **Add for Review** and
   **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).

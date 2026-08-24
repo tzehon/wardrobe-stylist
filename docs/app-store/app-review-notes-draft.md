@@ -69,9 +69,8 @@ sessions. This is separate from deleting the local wardrobe.
 
 Daily reminders are local notifications, off by default, and requested only after the user enables
 them. The notification does not claim that an outfit was generated in the background; opening it
-routes to Today. Public v1 has no Gmail or receipt background task. Do not submit build 5 with this
-claim: delivery passed, but tapping the notification crashed. Reconfirm routing on the exact
-replacement build before these notes are pasted into App Store Connect.
+routes to Today. Public v1 has no Gmail or receipt background task. Clean build 6 physically proved
+delivery and tap routing: the app opened Today without crashing and preserved local state.
 
 ## Backend availability
 
@@ -114,7 +113,10 @@ non-promotable. A signed-in TestFlight Build Uploads refresh at `2026-08-22T10:0
 builds 1–5 only, build 5 **Complete**, and no build 6, confirming build 6 unused before replacement
 work. PR #27 later merged the fix and build-6 metadata/allowlist; exact Fly v9, strict archive,
 normal-route Xcode validation/upload, Apple processing, `Family` assignment, and tester-note checks
-passed. Build 6 is consumed and must never be reused. Reviewed PR #23 remains the historical
+passed. Build 6 is consumed and must never be reused. Its later clean physical run passed through
+the fixed delivered-reminder tap; final-client deletion/reinstall, remaining snapshot lifecycle
+evidence, and the styling-consent control presentation decision remain open. Reviewed PR #23
+remains the historical
 build-5 source baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
@@ -137,9 +139,8 @@ backend/configuration change.
   strict verifier and separate signing, production App Attest, privacy, public-configuration,
   credential-absence, and removed-capability checks passed for
   `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive`.
-- [x] Confirm processed build 5 presents no human-login screen. Its clean first launch showed
-  **Your wardrobe, your way** and an empty wardrobe; this semantic evidence is retained even though
-  the later notification crash makes build 5 non-promotable and must be repeated on the replacement.
+- [x] Confirm processed build 6 presents no human-login screen. Its clean first launch showed
+  **Your wardrobe, your way** and an empty wardrobe, with no Google/Gmail/receipt-import path.
 - [x] Record the pre-upload transition. The installed development build disconnected Google,
   deleted local data, and was uninstalled after production showed zero installations, zero sessions,
   and zero pending challenges. It predated the server-deletion UI, so do not claim that unavailable
@@ -162,21 +163,17 @@ backend/configuration change.
   Camera and Photo Library saves, the full local catalog flow, online Style at `16:30`, cached
   relaunch, Restyle at `17:04`, failed-offline-Restyle cached-look preservation, and offline Wear
   this/History passed. The local reminder delivered.
-- [ ] Physically retest the replaced notification response routing. Tapping the delivered notification at
-  `2026-08-22T17:15:14+08:00` crashed build 5. Its exact dSYM matched; safe symbolication showed
-  `SIGABRT`, a UIKit state-restoration assertion, and an app frame in the
-  `DailyReminderNotificationRouter` `didReceive` async bridge. Do not repeat the tap. Keep installed
-  build 5 and its live clean-install identity intact with automatic TestFlight updates off until
-  the identity-safe handoff. The fix is merged, passed the retained merged-source regression, and is
-  internally distributed in processed build 6. Physical delivered-tap proof remains open until the
-  ordered clean install.
+- [x] Physically retest the replaced notification response routing. Build 5's delivered tap crashed
+  as retained above; do not repeat it. On clean build 6, the reminder delivered at `20:53 SGT` and
+  tapping it opened Today without a crash. One explicit **Style a look** tap restored the cached
+  look locally, and Wardrobe/History state remained intact.
 - [ ] Confirm the production API is healthy throughout the review window.
-- [x] Confirm App Attest is enabled for the exact App ID/prefix and the build-5 archive/profile
+- [x] Confirm App Attest is enabled for the exact App ID/prefix and the build-6 archive/profile
   contain matching production authorization. The strict verifier matched the prefix, team, bundle,
   Apple Distribution certificate, App Store profile, and scalar production entitlement.
-- [x] Confirm processed build 5 completes production registration and assertion renewal on iPhone
+- [x] Confirm processed build 6 completes production registration and assertion renewal on iPhone
   16 Pro/iOS 26.6, with expected signed runtime-field absence. Do not claim iOS 27+ category/build
-  enforcement; repeat the production path on the final replacement.
+  enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
   Fly v9 deploys the targeted logger and `4,5,6` allowlist; predecessor v8's payload-free review
@@ -184,14 +181,19 @@ backend/configuration change.
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
   build-5 Style/Restyle observed `registration_succeeded`/`assertion_succeeded`, and the preceding
   identity-safe handoff observed exactly one `installation_deleted` plus `0/0/0` live aggregates.
-  Protected `/recommend` remains aggregate/client-evidenced. The eligible
-  `2026-08-22T07:33:23Z` created/14-day snapshot enabled the build-4 handoff, but listing expiry and
-  deletion-specific restore/non-return remain open. The former v5 image is only a pre-build-4 abort
-  because it re-exposes `/extract` and halts release.
+  Build 5's later identity-safe handoff also returned aggregates to zero; clean build-6 registration
+  and assertion renewal were corroborated by safe aggregate deltas. Protected `/recommend` remains
+  aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs, but
+  listing expiry and deletion-specific restore/non-return remain open. The former v5 image is only
+  a pre-build-4 abort because it re-exposes `/extract` and halts release.
 - [x] Confirm live server-security-data deletion against Fly v8 with only redacted evidence: one
   success marker and aggregate `0/0/0` during the build-4 handoff.
 - [ ] Confirm snapshot-list expiry, deletion-specific restore/non-return, and the same safe deletion
-  ordering on the final replacement client.
+  ordering on clean build 6. Its newest successful snapshot predates the `20:25 SGT` enrollment, so
+  keep the app and live identity intact until an eligible later snapshot permits the manual gate.
+- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before using
+  these notes for submission. Do not claim a measured contrast failure without measurement; any
+  shipped UI change requires a new build and full release loop.
 - [x] Refresh App Store Connect and confirm the replacement build number before archive/upload.
   The signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds 1–5 only,
   build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;

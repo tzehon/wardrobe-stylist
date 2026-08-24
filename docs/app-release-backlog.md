@@ -21,26 +21,26 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-23**. This table is authoritative when an item's original scope label
+Last updated: **2026-08-24**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, the exact Gmail-free Fly v9 runtime, the late non-backdated v9 operational review, historical reviews, an isolated read-only restore rehearsal, build-4 identity-safe deletion, and build-5 production registration/assertion marker proof are retained. The missed v9 post-deploy/pre-upload review remains recorded as a process defect. The currently live build-5 identity must be identity-safely deleted before replacement; snapshot-list expiry and deletion-specific recovery remain open |
+| APP-009 | **External gate** | Repository enforcement, the exact Gmail-free Fly v9 runtime, the late non-backdated v9 operational review, historical reviews, an isolated read-only restore rehearsal, and the build-4/build-5 identity-safe handoffs are retained. Clean build-6 registration and assertion renewal passed. Its live identity must remain installed until a successful post-enrollment snapshot permits final-client deletion/reinstall; snapshot-list expiry and deletion-specific recovery remain open |
 | APP-011 | **Done** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards remain implemented. Historical build-4/build-5 archives are retained; the exact build-6 production-signed archive passed profile, entitlement, identity, and public-configuration verification |
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. The build-6 signed archive passed the privacy-manifest and Gmail-free absence guards plus a separate non-emitting credential scan |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
-| APP-014 | **In progress** | Clean build-5 QA passed first launch, offline Demo/local catalog, Camera and Photo Library saves, production styling/renewal, Today cache/Restyle recovery, and Wear/History. Tapping the delivered reminder crashed the app, so build 5 is non-promotable and the complete matrix must repeat on a replacement candidate |
+| APP-014 | **In progress** | Clean build-6 QA passed Gmail-free first launch, offline Demo/local catalog, Camera and Photo Library saves, production styling/renewal, Today cache/failure recovery, Wear/History, reminder delivery, and reminder-tap routing without a crash or state loss. Final-client server/local deletion and reinstall remain gated on a post-enrollment snapshot |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified and assigned only to `Family`, but build-5 identity-safe handoff and the complete clean build-6 physical matrix remain open; public submission has not begun |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap. Deletion/reinstall, remaining operations evidence, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
-| APP-023 | **In progress** | Build 5 physically verified explicit-action styling, offline cache restoration, and preservation of the visible look through a failed offline Restyle. That Today regression is fixed, but the separate notification-tap crash blocks the candidate and must be retested in the complete replacement matrix |
-| APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are done; broader localization remains APP-028 |
+| APP-023 | **In progress** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The initial **Style a look** state before explicit cache restoration is intended, but runbook wording and process-relaunch automation need to make that intermediate step explicit |
+| APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. The unverified build-6 **Allow AI styling** alignment/light-fill observation needs physical assessment; broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. The old development build and build-4 identity were safely retired; clean build-5 QA retained broad Gmail-free physical proof before the reminder-tap blocker. Clean build-6 physical proof and final Google retirement remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. Build 5 was identity-safely retired and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap. Final-client deletion/reinstall and final Google retirement remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -121,10 +121,11 @@ and a local-only official Alpine secdb comparison found zero unfixed advisories;
 production App Attest uses validation category `2` and accepted builds `4,5,6`; the encrypted auth
 store remains healthy; and targeted application logging remains bounded with access logging off.
 Production `/health` returns `200`, `/extract` returns `404`, unauthenticated `/recommend` returns
-`401`, and the OpenAPI route set matches the reviewed source. The clean build-5 installation
-remains live. The newest automatic snapshot is still `2026-08-22T07:33:23Z`, status `created`, with
-14-day retention; it predates clean build-5 enrollment and therefore cannot authorize deletion or
-uninstall.
+`401`, and the OpenAPI route set matches the reviewed source. Build 5 was later identity-safely
+retired after an eligible automatic snapshot, and build 6 was installed cleanly. The newest
+successful automatic snapshot observed after clean build-6 QA was `2026-08-24T07:35:23Z`, status
+`created`, with 14-day retention. It predates clean build-6 enrollment at
+`2026-08-24 20:25 SGT` and therefore cannot authorize final-client deletion or uninstall.
 
 The required v9 post-deploy/pre-upload payload-free review was missed and cannot be backdated. A
 late full review completed at `2026-08-23T02:13:12Z`: exact release/runtime/source, health,
@@ -152,7 +153,7 @@ deployment at that review point. Later physical QA observed build-4 identity del
 build-5 registration/assertion markers without payloads or identifiers. Protected `/recommend`
 success intentionally has no developer event and remains aggregate/client-evidenced.
 
-## Immediate next milestone — identity-safe build-5 handoff and clean build-6 QA
+## Immediate next milestone — build-6 deletion/reinstall and remaining release gates
 
 App Store Connect showed builds 1–4 only and build 5 absent at the final pre-validation refresh,
 `2026-08-22T03:16:16Z`. The exact `1.0.0 (5)` production-signed archive then validated, uploaded,
@@ -172,9 +173,11 @@ the normal **TestFlight & App Store** route at `2026-08-23 08:57 SGT`. By
 `2026-08-23T01:22:50Z`, Apple showed it **Ready to Submit**, assigned only to `Family` with one group
 tester and no individual testers, with the truthful What to Test notes saved. Build 6 is consumed
 and must never be reused. The late non-backdated v9 operational review then passed at
-`2026-08-23T02:13:12Z`, while preserving the missed pre-upload timing as a process defect. The first
-unchecked gate is now build-5 identity-safe handoff, which is blocked until a successful automatic
-snapshot created after clean build-5 enrollment exists.
+`2026-08-23T02:13:12Z`, while preserving the missed pre-upload timing as a process defect. Build 5's
+identity-safe handoff and clean build-6 QA through the delivered-reminder tap have since passed. The
+first unchecked release gate is now preserving build 6 until a successful automatic snapshot
+created after its `2026-08-24 20:25 SGT` enrollment exists, then completing the manual server/local
+deletion and reinstall sequence.
 
 - [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
   focused tests, the payload-free production registration/assertion success-marker logging fix,
@@ -279,13 +282,29 @@ snapshot created after clean build-5 enrollment exists.
   upload review was missed. The complete payload-free review passed at `2026-08-23T02:13:12Z`,
   restoring current operational evidence while retaining the process defect. Repeat it before any
   future archive/upload and after every backend/configuration change.
-- [ ] **Identity-safely replace build 5 and repeat complete physical QA.** Build 5 currently has a
-  live server identity. Keep it installed and avoid another notification tap until an eligible
-  snapshot is confirmed; then disable the reminder, withdraw styling permission, delete server
-  security data with aggregate confirmation, delete local data, and uninstall only after every
-  preceding check passes. Install the processed replacement cleanly and repeat the entire matrix,
-  including delivered-reminder tap, deletion/reinstall, snapshot-specific recovery/expiry, and
-  final Google-retirement gates.
+- [x] **Identity-safely retire build 5 and install build 6 cleanly.** Build 6 appeared installed in
+  place unexpectedly, but the inherited proof of possession remained available. After the
+  `2026-08-23T07:34:23Z` successful automatic snapshot was confirmed post-enrollment, the owner
+  disabled the reminder, withdrew styling permission, deleted the live server record, observed
+  aggregate `0/0/0`, deleted local data, removed the app, and installed processed build 6 cleanly.
+  This is deletion evidence, not upgrade/migration proof.
+- [x] **Repeat clean physical QA through the notification fix in build 6.** Gmail-free first launch,
+  empty local state, offline Demo, Camera and Photo Library saves, the catalog matrix, production
+  registration and cold assertion renewal, online styling, explicit cached-look recovery after
+  offline relaunch, failed-Restyle preservation, offline Wear/History, reminder delivery, and the
+  delivered-reminder tap passed. The reminder opened Today without a crash and Wardrobe/History
+  state remained intact.
+- [ ] **Complete build-6 deletion/reinstall after an eligible snapshot.** Build 6 enrolled at
+  `2026-08-24 20:25 SGT`. The newest successful automatic snapshot observed afterward was actually
+  created earlier that day at `2026-08-24T07:35:23Z`, status `created`, retention 14 days, so it is
+  ineligible. Keep build 6 installed with reminder and styling permission off. Only after a later
+  successful snapshot may the owner manually delete server security data, confirm aggregate zero,
+  delete local data, remove the app, reinstall, and prove a new anonymous installation. Then finish
+  snapshot-list expiry and deletion-specific recovery/non-return evidence.
+- [ ] **Triage the build-6 styling-consent control presentation.** The owner reports that **Allow AI
+  styling** appears visually right-shifted and its fill unusually light. Treat this as an unverified
+  polish/contrast finding, not an identity failure. Any shipped UI fix requires a new unused build
+  number and the complete release loop.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any replacement-candidate physical, deletion,
@@ -411,12 +430,12 @@ recovery, APP-019, APP-036, or public-submission gate.
   deletion, uninstall, and clean build-5 install are retained above. Clean build 5 subsequently
   supplied production registration/assertion markers and protected-client proof before the
   delivered-reminder crash made it non-promotable.
-- [ ] **Complete replacement post-upload APP-009/APP-036 proof and cleanup.** Identity-safely delete
-  the currently live build-5 server record before uninstall, then repeat the full physical matrix
-  on the processed replacement candidate. Prove deletion-specific recovery and eligible 14-day
-  snapshot-list disappearance. After the replacement is proven and with a separate final owner
-  confirmation, retire only the inventoried Wardrobe Google Cloud/OAuth projects; do not touch
-  unrelated projects.
+- [ ] **Complete replacement post-upload APP-009/APP-036 proof and cleanup.** Clean build 6 has
+  passed through the delivered-reminder tap. Preserve its live identity until an eligible post-
+  enrollment snapshot, then complete final-client server/local deletion, uninstall, clean
+  reinstall/new enrollment, deletion-specific recovery, and eligible 14-day snapshot-list
+  disappearance. After the replacement is proven and with a separate final owner confirmation,
+  retire only the inventoried Wardrobe Google Cloud/OAuth projects; do not touch unrelated projects.
 
 Using an internal tester group does not relax the binary standard. **TestFlight Internal Only** is
 not used because Apple prevents that artifact from being submitted to customers later.
@@ -543,9 +562,10 @@ governed by APP-036's Gmail-free guards.
   History, reminder controls, local deletion, server-security deletion, and offline/relaunch
   coverage. Add mandatory clean-uninstall/fresh-install plus signed-artifact/network absence checks
   for Google/Gmail/receipt import. Clean build-5 physical QA closed the former media-selection and
-  Today-Restyle gaps but exposed a `SIGABRT` when a delivered reminder was tapped. The notification
-  fix is merged and distributed in build 6; delivered-tap physical proof must repeat after the
-  identity-safe clean install.
+  Today-Restyle gaps but exposed a `SIGABRT` when a delivered reminder was tapped. Clean build 6
+  passed the fixed delivered-tap route and preserved local state. Final deletion/reinstall remains
+  open, and automated coverage still lacks a production process-relaunch case that proves the
+  explicit cached-look restoration step.
 - [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
   full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions. The clean complete
@@ -576,8 +596,9 @@ governed by APP-036's Gmail-free guards.
   intended internal group. Build-4 handoff and broad clean build-5 QA subsequently completed, but
   tapping a delivered reminder crashed build 5, making it non-promotable. The exact build-6 archive
   passed strict verification, normal-route validation/upload, processing, `Family` assignment, and
-  truthful tester-note checks. Complete build-5 identity-safe handoff and the clean build-6 physical
-  matrix, then keep backend health available through review.
+  truthful tester-note checks. Build 5's handoff and clean build-6 proof through delivered-reminder
+  tap are complete. Finish build-6 deletion/reinstall, snapshot lifecycle evidence, and the visual-
+  control decision, then keep backend health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -590,10 +611,11 @@ governed by APP-036's Gmail-free guards.
   prove the removed capability is absent. This iOS behavior/configuration change requires a new
   TestFlight build and the full regression/release-artifact/physical-device loop. Repository,
   historical simulator-artifact, regression, production-backend, signed-archive, upload, and
-  physical evidence is retained. Build-4 handoff completed; clean build 5 provided broad Gmail-free
-  proof and production markers before its notification-tap crash. The fix is merged, Fly v9 is
-  compatible, and build 6 is strictly verified and internally distributed. Clean build-6 physical
-  proof, deletion/recovery, final Google retirement, and public submission remain open.
+  physical evidence is retained. Build-4 and build-5 handoffs completed; clean build 5 provided
+  broad Gmail-free proof and production markers before its notification-tap crash. The fix is
+  merged, Fly v9 is compatible, and clean build 6 passed broad Gmail-free physical QA through the
+  fixed notification tap. Build-6 deletion/recovery, final Google retirement, and public submission
+  remain open.
 
 ## P1 — core experience polish
 
@@ -615,16 +637,19 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   intentionally, accept occasion/context input, explain empty/error/offline states, and never
   make a backend call merely because a tab appeared. Saving “Wear this” must be transactional
   and acknowledged only after persistence succeeds. Build-4 physical QA found that a failed
-  Restyle hid the usable cached look until relaunch. Clean build 5 physically verified the fix: the
-  cached look restored offline and remained visible through failed Restyle. Repeat that proof on
-  the replacement candidate because the separate notification-tap crash blocks build 5.
+  Restyle hid the usable cached look until relaunch. Clean builds 5 and 6 physically verified the
+  fix: the cached look restored offline and remained visible through failed Restyle. After a
+  process relaunch, build 6 intentionally showed **Style a look** until one explicit tap restored
+  the cached look locally; document and automate that intermediate explicit-action state.
 - [x] **APP-024 · Done · Add outfit history and feedback.** Show worn looks, dates, and
   item details. Let users rate/save/skip a recommendation and feed those preferences into future
   prompts without weakening the catalog-ID hallucination guard.
 - [x] **APP-025 · Done · Finish accessibility and adaptive layout.** VoiceOver names/hints and
   traversal, Dynamic Type through accessibility sizes, minimum tap targets, sufficient contrast,
   non-color-only status, Reduce Motion, keyboard/focus behavior, and meaningful image labels.
-  Test the smallest supported phone and large text.
+  Test the smallest supported phone and large text. A build-6 owner observation that **Allow AI
+  styling** appears right-shifted with an unusually light fill is an unverified physical polish/
+  contrast follow-up; assess it before promotion without claiming a measured contrast failure.
 - [x] **APP-026 · Done · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
   SDK/backend errors and indefinite spinners. Preserve user input on failure and make destructive
   or privacy-impacting actions explicit.
