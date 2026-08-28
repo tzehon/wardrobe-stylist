@@ -81,10 +81,11 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the unnumbered
-styling-consent control replacement implementation/distribution/clean physical visual retest remain
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, unnumbered
+styling-consent control replacement distribution, and clean physical Dark Mode visual retest remain
 release gates. The 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-
-promotable. Fly v9 deploys the targeted auth-
+promotable; PR #31 has since merged and verified the replacement implementation. Fly v9 deploys the
+targeted auth-
 service INFO logger and production TestFlight allowlist for builds `4,5,6`; its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
@@ -198,7 +199,11 @@ remain open. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot conf
 its completed identity and notification evidence remains valid. The replacement remains unnumbered
 until a fresh signed-in App Store Connect inspection proves the next build unused.
 
-- [ ] Complete and verify the replacement control implementation.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
+  verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
+  9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] Distribute only the newly numbered replacement after the live build-number precondition and
   complete release loop pass.
 - [ ] Clean-install the processed replacement and physically retest title centering, icon-slot

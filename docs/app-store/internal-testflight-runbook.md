@@ -51,9 +51,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   archive, Xcode validation/upload through the normal App-Store-eligible route, Apple processing,
   `Family` assignment, and truthful tester-note save all passed. Build 6 is consumed and must never
   be reused. A later 2026-08-28 Dark Mode screenshot confirmed its styling-consent control
-  presentation failure, so build 6 is non-promotable and an unnumbered replacement is underway.
-  The root `README.md` remains unchanged by design; this runbook and the release backlog own live
-  release state.
+  presentation failure, so build 6 is non-promotable. PR #31 has since merged and verified the
+  replacement control implementation; its distribution number remains unselected pending a fresh
+  live App Store Connect check. The root `README.md` remains unchanged by design; this runbook and
+  the release backlog own live release state.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
@@ -337,8 +338,8 @@ build-4 identity-safe recovery, partial clean build-5 physical QA, the build-6 a
 review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6 physical QA, and
 the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
-failed; unnumbered replacement implementation, distribution, and clean physical visual retest are
-now open:
+failed, and PR #31 has merged the replacement implementation; unnumbered distribution and clean
+physical Dark Mode visual retest remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -430,8 +431,8 @@ now open:
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, the unnumbered replacement
-  implementation/distribution/clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, unnumbered replacement
+  distribution/clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -696,8 +697,11 @@ identity or notification evidence.
   supplied Dark Mode screenshot places the title approximately 21 points right of center and
   measures the sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is consumed,
   non-promotable, and must never be reused.
-- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
-  sufficiently contrasting enabled, pressed, and disabled states.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  focused coverage pins enabled, pressed, and disabled contrast plus the screenshot UI assertion.
+  Merged verification passed 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests,
+  all 9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] Distribute only a newly numbered replacement candidate. First inspect the live signed-in App
   Store Connect Build Uploads list and prove the next build number unused; do not name or select the
   replacement number before that check. Then repeat the exact backend/configuration, full regression,

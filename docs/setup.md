@@ -197,13 +197,14 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and unnumbered
-styling-consent control replacement implementation/distribution/clean physical visual retest remain
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, unnumbered
+styling-consent control replacement distribution, and clean physical Dark Mode visual retest remain
 release gates. Real registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
-build-6 visual-control failure, making build 6 non-promotable. Historical Apple processing/internal
-assignment and a healthy `/health` response do not close the remaining gates.
+build-6 visual-control failure, making build 6 non-promotable; PR #31 has since merged and verified
+the replacement implementation. Historical Apple processing/internal assignment and a healthy
+`/health` response do not close the remaining gates.
 
 ## TestFlight distribution
 
@@ -284,8 +285,11 @@ Every internal beta is built as an App Store candidate. Follow the
    and the sampled `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 is
    non-promotable; its completed identity and notification evidence remains valid.
 
-- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
-  sufficiently contrasting enabled, pressed, and disabled states.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
+  verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
+  9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] Refresh the live signed-in App Store Connect Build Uploads list and prove the next build unused
   before naming or selecting the replacement number, then distribute it through the complete release
   loop.

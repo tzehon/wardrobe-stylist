@@ -16,8 +16,9 @@
   new anonymous enrollment are complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately
   confirmed that the **Allow AI styling** title is approximately 21 points right of center and its
   sampled `#C2DFFC` fill against white is approximately `1.38:1`, making build 6 non-promotable.
-  Snapshot-list expiry, deletion-specific restore/non-return, and the unnumbered replacement
-  implementation/distribution/clean physical visual retest remain incomplete.
+  PR #31 has since merged and verified the replacement control implementation. Snapshot-list expiry,
+  deletion-specific restore/non-return, unnumbered distribution, and clean physical Dark Mode visual
+  retest remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -704,8 +705,11 @@ Required before APP-009 can close:
   Dark Mode screenshot places the title approximately 21 points right of center and measures the
   sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is non-promotable; its
   completed identity and notification evidence remains valid.
-- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
-  sufficiently contrasting enabled, pressed, and disabled states.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  focused coverage pins enabled, pressed, and disabled contrast plus the screenshot UI assertion.
+  Merged verification passed 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests,
+  all 9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] Distribute only a newly numbered replacement after a fresh signed-in App Store Connect check
   proves the next build unused. Do not name or select the replacement number before that check;
   repeat the complete backend/configuration, regression, archive, upload, processing, assignment,

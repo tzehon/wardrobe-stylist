@@ -117,9 +117,10 @@ passed. Build 6 is consumed and must never be reused. Its later clean physical r
 the fixed delivered-reminder tap. The final identity-safe deletion/reinstall and new anonymous
 enrollment completed on 2026-08-28. A same-day owner-supplied Dark Mode screenshot then confirmed
 that the **Allow AI styling** title is approximately 21 points right of center and its sampled
-`#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore non-promotable;
-snapshot lifecycle evidence and an unnumbered replacement implementation/distribution/clean
-physical visual retest remain open. Reviewed PR #23 remains the historical build-5 source
+`#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore non-promotable. PR #31
+has since merged and verified the replacement control implementation; snapshot lifecycle evidence,
+unnumbered distribution, and clean physical Dark Mode visual retest remain open. Reviewed PR #23
+remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
@@ -204,8 +205,11 @@ backend/configuration change.
   submission. The 2026-08-28 owner-supplied Dark Mode screenshot places the title approximately
   21 points right of center and measures the sampled `#C2DFFC` fill against white at approximately
   `1.38:1`. Build 6 is non-promotable; its completed identity and notification proof remains valid.
-- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
-  sufficiently contrasting enabled, pressed, and disabled states.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
+  verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
+  9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] After a fresh signed-in App Store Connect check proves the next build unused, distribute only
   that newly numbered replacement through the complete release loop and update these notes with its
   exact verified evidence. Do not name or select the replacement number before that check.
