@@ -1,3 +1,5 @@
+import CoreGraphics
+import UIKit
 import XCTest
 
 final class WardrobeUITests: XCTestCase {
@@ -284,6 +286,29 @@ final class WardrobeUITests: XCTestCase {
 
         let allow = element(in: app, identifier: Identifier.stylingAllow)
         XCTAssertTrue(scrollToElement(allow, in: app))
+        XCTAssertEqual(allow.label, "Allow AI styling")
+        XCTAssertTrue(waitForEnabledState(of: allow, expected: true))
+        XCTAssertTrue(allow.isEnabled)
+
+        let allowFrame = allow.frame
+        XCTAssertGreaterThanOrEqual(allowFrame.height, 44)
+
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.exists)
+        let windowFrame = window.frame
+        XCTAssertGreaterThanOrEqual(
+            allowFrame.width,
+            windowFrame.width * 0.75,
+            "The consent action should occupy the available settings row."
+        )
+        XCTAssertEqual(
+            allowFrame.midX,
+            windowFrame.midX,
+            accuracy: 2,
+            "The full-row consent action should be horizontally centered."
+        )
+        assertProminentButtonAppearance(allow)
+
         allow.tap()
         XCTAssertTrue(
             element(in: app, identifier: Identifier.stylingAllowed)
@@ -613,6 +638,114 @@ final class WardrobeUITests: XCTestCase {
     }
 
     @MainActor
+    private func assertProminentButtonAppearance(
+        _ button: XCUIElement,
+        minimumContrast: Double = 4.5,
+        maximumTitleCenterOffsetFraction: Double = 0.05,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let screenshot = button.screenshot()
+        guard let pixels = RGBAImage(image: screenshot.image) else {
+            XCTFail("Could not rasterize the consent button screenshot.", file: file, line: line)
+            return
+        }
+
+        let horizontalInset = max(1, pixels.width / 20)
+        let verticalInset = max(1, pixels.height / 5)
+        guard
+            horizontalInset * 2 < pixels.width,
+            verticalInset * 2 < pixels.height
+        else {
+            XCTFail("The consent button screenshot is too small to inspect.", file: file, line: line)
+            return
+        }
+
+        var opaquePixelCount = 0
+        var fillCounts: [RGBColor: Int] = [:]
+        var titleCounts: [RGBColor: Int] = [:]
+        var titlePixelCount = 0
+        var titleMinX = pixels.width
+        var titleMaxX = -1
+
+        for y in verticalInset..<(pixels.height - verticalInset) {
+            for x in horizontalInset..<(pixels.width - horizontalInset) {
+                let pixel = pixels[x, y]
+                guard pixel.alpha >= 250 else { continue }
+
+                opaquePixelCount += 1
+                if pixel.color.isNearWhite {
+                    titleCounts[pixel.color, default: 0] += 1
+                    titlePixelCount += 1
+                    titleMinX = min(titleMinX, x)
+                    titleMaxX = max(titleMaxX, x)
+                } else {
+                    fillCounts[pixel.color, default: 0] += 1
+                }
+            }
+        }
+
+        guard opaquePixelCount > 0 else {
+            XCTFail("The consent button screenshot contains no opaque pixels.", file: file, line: line)
+            return
+        }
+        guard let dominantFill = fillCounts.max(by: { $0.value < $1.value }) else {
+            XCTFail("Could not identify an opaque consent-button fill color.", file: file, line: line)
+            return
+        }
+        guard let dominantTitle = titleCounts.max(by: { $0.value < $1.value }) else {
+            XCTFail("Could not identify a near-white consent-button title.", file: file, line: line)
+            return
+        }
+
+        let fillFraction = Double(dominantFill.value) / Double(opaquePixelCount)
+        XCTAssertGreaterThanOrEqual(
+            fillFraction,
+            0.5,
+            "Expected one dominant opaque button fill; found \(dominantFill.key.hexDescription) in \(Int((fillFraction * 100).rounded()))% of inspected pixels.",
+            file: file,
+            line: line
+        )
+        XCTAssertGreaterThan(
+            titlePixelCount,
+            20,
+            "Expected a visible near-white button title.",
+            file: file,
+            line: line
+        )
+
+        let contrast = contrastRatio(dominantFill.key, dominantTitle.key)
+        XCTAssertGreaterThanOrEqual(
+            contrast,
+            minimumContrast,
+            "Consent-button contrast was \(String(format: "%.2f", contrast)):1 (fill \(dominantFill.key.hexDescription), title \(dominantTitle.key.hexDescription)); expected at least \(minimumContrast):1.",
+            file: file,
+            line: line
+        )
+
+        guard titleMaxX >= titleMinX else {
+            XCTFail("Could not determine the consent-button title bounds.", file: file, line: line)
+            return
+        }
+        let titleMidX = Double(titleMinX + titleMaxX) / 2
+        let elementMidX = Double(pixels.width - 1) / 2
+        let titleCenterOffsetFraction = abs(titleMidX - elementMidX) / Double(pixels.width)
+        XCTAssertLessThanOrEqual(
+            titleCenterOffsetFraction,
+            maximumTitleCenterOffsetFraction,
+            "The visible button-title bounds are offset by \(Int((titleCenterOffsetFraction * 100).rounded()))% of the element width.",
+            file: file,
+            line: line
+        )
+    }
+
+    private func contrastRatio(_ first: RGBColor, _ second: RGBColor) -> Double {
+        let lighter = max(first.relativeLuminance, second.relativeLuminance)
+        let darker = min(first.relativeLuminance, second.relativeLuminance)
+        return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    @MainActor
     private func confirmationButton(
         in app: XCUIApplication,
         label: String,
@@ -625,5 +758,92 @@ final class WardrobeUITests: XCTestCase {
                 excludingIdentifier
             )
         ).firstMatch
+    }
+
+    private struct RGBColor: Hashable {
+        let red: UInt8
+        let green: UInt8
+        let blue: UInt8
+
+        var isNearWhite: Bool {
+            red >= 235 && green >= 235 && blue >= 235
+        }
+
+        var relativeLuminance: Double {
+            0.2126 * linearized(red)
+                + 0.7152 * linearized(green)
+                + 0.0722 * linearized(blue)
+        }
+
+        var hexDescription: String {
+            String(format: "#%02X%02X%02X", red, green, blue)
+        }
+
+        private func linearized(_ value: UInt8) -> Double {
+            let channel = Double(value) / 255
+            if channel <= 0.04045 {
+                return channel / 12.92
+            }
+            return pow((channel + 0.055) / 1.055, 2.4)
+        }
+    }
+
+    private struct RGBAImage {
+        struct Pixel {
+            let color: RGBColor
+            let alpha: UInt8
+        }
+
+        let width: Int
+        let height: Int
+        private let bytesPerRow: Int
+        private let storage: [UInt8]
+
+        init?(image: UIImage) {
+            guard let cgImage = image.cgImage else { return nil }
+
+            let width = cgImage.width
+            let height = cgImage.height
+            let bytesPerRow = width * 4
+            var storage = [UInt8](repeating: 0, count: bytesPerRow * height)
+            let rendered = storage.withUnsafeMutableBytes { buffer in
+                guard
+                    let baseAddress = buffer.baseAddress,
+                    let context = CGContext(
+                        data: baseAddress,
+                        width: width,
+                        height: height,
+                        bitsPerComponent: 8,
+                        bytesPerRow: bytesPerRow,
+                        space: CGColorSpaceCreateDeviceRGB(),
+                        bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue
+                            | CGImageAlphaInfo.premultipliedLast.rawValue
+                    )
+                else {
+                    return false
+                }
+
+                context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+                return true
+            }
+            guard rendered else { return nil }
+
+            self.width = width
+            self.height = height
+            self.bytesPerRow = bytesPerRow
+            self.storage = storage
+        }
+
+        subscript(x: Int, y: Int) -> Pixel {
+            let offset = y * bytesPerRow + x * 4
+            return Pixel(
+                color: RGBColor(
+                    red: storage[offset],
+                    green: storage[offset + 1],
+                    blue: storage[offset + 2]
+                ),
+                alpha: storage[offset + 3]
+            )
+        }
     }
 }

@@ -120,13 +120,10 @@ struct StylingPrivacySettingsView: View {
                     .accessibilityHint("Turns off AI styling and its daily reminder. Your local wardrobe and outfit history stay in place.")
                     .accessibilityIdentifier("settings.styling.withdraw")
                 } else {
-                    Button {
+                    Button("Allow AI styling") {
                         Task { _ = await settings.grantStyling() }
-                    } label: {
-                        Label("Allow AI styling", systemImage: "checkmark.shield")
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(StylingConsentButtonStyle())
                     .disabled(settings.isUpdating)
                     .accessibilityHint("Allows compact wardrobe text to be sent only after you ask for a look. This does not send a request now.")
                     .accessibilityIdentifier("settings.styling.allow")
@@ -157,5 +154,69 @@ struct StylingPrivacySettingsView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Error: \(message)")
             .accessibilityIdentifier("settings.styling.error")
+    }
+}
+
+struct StylingConsentButtonSRGB: Equatable, Sendable {
+    let red: Double
+    let green: Double
+    let blue: Double
+
+    init(hex: UInt32) {
+        red = Double((hex >> 16) & 0xFF) / 255
+        green = Double((hex >> 8) & 0xFF) / 255
+        blue = Double(hex & 0xFF) / 255
+    }
+
+    var color: Color {
+        Color(.sRGB, red: red, green: green, blue: blue, opacity: 1)
+    }
+}
+
+struct StylingConsentButtonColors: Equatable, Sendable {
+    let background: StylingConsentButtonSRGB
+    let foreground: StylingConsentButtonSRGB
+}
+
+enum StylingConsentButtonPalette {
+    static let enabled = StylingConsentButtonColors(
+        background: StylingConsentButtonSRGB(hex: 0x006ED2),
+        foreground: StylingConsentButtonSRGB(hex: 0xFFFFFF)
+    )
+
+    static let pressed = StylingConsentButtonColors(
+        background: StylingConsentButtonSRGB(hex: 0x0056A6),
+        foreground: StylingConsentButtonSRGB(hex: 0xFFFFFF)
+    )
+
+    static let disabled = StylingConsentButtonColors(
+        background: StylingConsentButtonSRGB(hex: 0x4B5563),
+        foreground: StylingConsentButtonSRGB(hex: 0xD0D5DC)
+    )
+
+    static func colors(isEnabled: Bool, isPressed: Bool) -> StylingConsentButtonColors {
+        guard isEnabled else { return disabled }
+        return isPressed ? pressed : enabled
+    }
+}
+
+private struct StylingConsentButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let colors = StylingConsentButtonPalette.colors(
+            isEnabled: isEnabled,
+            isPressed: configuration.isPressed
+        )
+
+        configuration.label
+            .font(.body.weight(.semibold))
+            .multilineTextAlignment(.center)
+            .foregroundStyle(colors.foreground.color)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, minHeight: 50, alignment: .center)
+            .background(colors.background.color, in: Capsule())
+            .contentShape(Capsule())
     }
 }
