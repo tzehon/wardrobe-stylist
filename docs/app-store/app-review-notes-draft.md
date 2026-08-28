@@ -115,8 +115,11 @@ work. PR #27 later merged the fix and build-6 metadata/allowlist; exact Fly v9, 
 normal-route Xcode validation/upload, Apple processing, `Family` assignment, and tester-note checks
 passed. Build 6 is consumed and must never be reused. Its later clean physical run passed through
 the fixed delivered-reminder tap. The final identity-safe deletion/reinstall and new anonymous
-enrollment completed on 2026-08-28; remaining snapshot lifecycle evidence and the styling-consent
-control presentation decision remain open. Reviewed PR #23 remains the historical build-5 source
+enrollment completed on 2026-08-28. A same-day owner-supplied Dark Mode screenshot then confirmed
+that the **Allow AI styling** title is approximately 21 points right of center and its sampled
+`#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore non-promotable;
+snapshot lifecycle evidence and an unnumbered replacement implementation/distribution/clean
+physical visual retest remain open. Reviewed PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
@@ -197,11 +200,19 @@ backend/configuration change.
 - [ ] Confirm snapshot-list expiry and deletion-specific restore/non-return for the deleted Build 6
   identity. The final handoff is complete, but it does not prove that retained snapshot copies have
   disappeared or that the deleted identity cannot return through recovery.
-- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before using
-  these notes for submission. Do not claim a measured contrast failure without measurement; any
-  shipped UI change requires a new build and full release loop.
-- [x] Refresh App Store Connect and confirm the replacement build number before archive/upload.
-  The signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds 1–5 only,
+- [x] Confirm the build-6 **Allow AI styling** presentation failure before using these notes for
+  submission. The 2026-08-28 owner-supplied Dark Mode screenshot places the title approximately
+  21 points right of center and measures the sampled `#C2DFFC` fill against white at approximately
+  `1.38:1`. Build 6 is non-promotable; its completed identity and notification proof remains valid.
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] After a fresh signed-in App Store Connect check proves the next build unused, distribute only
+  that newly numbered replacement through the complete release loop and update these notes with its
+  exact verified evidence. Do not name or select the replacement number before that check.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
+- [x] Retain the historical build-6 App Store Connect number check before archive/upload. The
+  signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds 1–5 only,
   build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
   `MARKETING_VERSION` remains `1.0.0`. The subsequent completed upload consumes build 6; never
   reuse it.

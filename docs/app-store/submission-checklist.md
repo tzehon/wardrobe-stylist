@@ -67,8 +67,11 @@ build 6 unused before replacement work. Build 6 has since completed strict verif
 route validation/upload, Apple processing, and `Family` Internal Testing assignment. It is consumed
 and must never be reused. Clean build-6 QA passed through the fixed delivered-reminder tap without
 a crash or local-state loss. Its final owner-controlled deletion/reinstall/new-enrollment handoff is
-also complete; snapshot-list expiry, deletion-specific recovery/non-return, and the visual-control
-assessment remain open.
+also complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately confirmed that the
+**Allow AI styling** title is approximately 21 points right of center and its sampled `#C2DFFC` fill
+against white is approximately `1.38:1`; build 6 is therefore non-promotable. Snapshot-list expiry,
+deletion-specific recovery/non-return, and unnumbered replacement implementation/distribution/clean
+physical visual retest remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -218,9 +221,20 @@ assessment remain open.
 - [ ] Finish eligible 14-day snapshot-list disappearance and deletion-specific recovery/non-return.
   The completed final-client handoff and generic isolated restore rehearsal do not prove that a
   deleted production identity cannot return.
-- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before
-  promotion. Do not claim a contrast failure without measurement. A shipped UI correction requires
-  a new unused build and the full release loop.
+- [x] Confirm that build 6 fails the **Allow AI styling** presentation gate. The 2026-08-28 owner-
+  supplied Dark Mode screenshot places the title approximately 21 points right of center and
+  measures the sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is consumed,
+  non-promotable, and must never be reused; its completed identity and notification evidence remains
+  valid.
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] Distribute only a newly numbered replacement candidate. First refresh the live signed-in App
+  Store Connect Build Uploads list and prove the next build number unused; do not name or select the
+  replacement number before that check. Then repeat the backend/configuration, full regression,
+  signed archive, normal-route validation/upload, processing, `Family` assignment, and tester-note
+  gates.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
@@ -232,8 +246,9 @@ assessment remain open.
   exactly one `installation_deleted` marker and `0/0/0` live aggregates. Protected `/recommend`
   remains aggregate/client-evidenced. This closes marker observation only: actual 14-day snapshot-
   list disappearance and deletion-specific restore/non-return evidence remain open.
-- [x] Refresh App Store Connect before changing `CURRENT_PROJECT_VERSION` or archiving a
-  replacement. The signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds
+- [x] Retain the historical build-6 App Store Connect check performed before changing
+  `CURRENT_PROJECT_VERSION` or archiving that replacement. The signed-in TestFlight Build Uploads
+  view at `2026-08-22T10:02:31Z` showed builds
   1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
   the branch records `CURRENT_PROJECT_VERSION = 6`, source allowlist `4,5,6`, and unchanged
   `MARKETING_VERSION = 1.0.0`. The required regression, Release-build, and simulator-artifact gates
@@ -243,9 +258,11 @@ assessment remain open.
 ## 5. Upload, review, and release
 
 The first checked item below preserves build-5 distribution evidence; it does not make build 5
-promotable after the physical reminder-tap crash. Build 6 distribution is also complete, and its
-clean physical matrix has passed through notification tap. Its final deletion/reinstall/new-
-enrollment handoff is complete; snapshot lifecycle and visual-control gates remain open.
+promotable after the physical reminder-tap crash. Build 6 distribution and its identity/notification
+physical evidence are also complete, but the confirmed styling-consent control presentation failure
+makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff remains valid; snapshot
+lifecycle and unnumbered replacement implementation/distribution/clean physical visual-retest gates
+remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

@@ -35,12 +35,12 @@ kept “In progress.”
 | APP-014 | **In progress** | Clean build-6 QA passed Gmail-free first launch, offline Demo/local catalog, Camera and Photo Library saves, production styling/renewal, Today cache/failure recovery, Wear/History, reminder delivery, reminder-tap routing, final-client server/local deletion, clean reinstall, and explicit-action new enrollment. Automated production process-relaunch coverage still needs to prove the explicit cached-look restoration step |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment. Remaining operations evidence, the visual-control decision, metadata, and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. Remaining operations evidence, an unnumbered replacement implementation/distribution/clean visual retest, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **In progress** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The initial **Style a look** state before explicit cache restoration is intended, but runbook wording and process-relaunch automation need to make that intermediate step explicit |
-| APP-024–APP-028 | **Done / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. The unverified build-6 **Allow AI styling** alignment/light-fill observation needs physical assessment; broader localization remains APP-028 |
+| APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 is reopened because the 2026-08-28 Dark Mode screenshot confirms that build 6's **Allow AI styling** title is approximately 21 points right of center and its sampled `#C2DFFC` fill against white is approximately `1.38:1`; broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap and final deletion/reinstall/new enrollment. Deletion-specific recovery, final Google retirement, and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap and final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; unnumbered replacement work, deletion-specific recovery, final Google retirement, and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -183,8 +183,9 @@ identity-safe handoff and clean build-6 QA through the delivered-reminder tap ha
 eligible `2026-08-25T07:35:53Z` automatic snapshot then cleared build 6's final-client handoff; the
 owner-controlled deletion, zero-aggregate checks, local deletion, uninstall, clean reinstall, and
 explicit-action new anonymous enrollment passed on 2026-08-28. The remaining APP-009 evidence is
-snapshot-list expiry plus deletion-specific recovery/non-return. The separate styling-consent
-control presentation gate also remains open.
+snapshot-list expiry plus deletion-specific recovery/non-return. A 2026-08-28 owner-supplied Dark
+Mode screenshot separately confirmed that the build-6 styling-consent control fails its visual gate,
+so build 6 is non-promotable and an unnumbered replacement is underway.
 
 - [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
   focused tests, the payload-free production registration/assertion success-marker logging fix,
@@ -313,10 +314,22 @@ control presentation gate also remains open.
 - [ ] **Finish snapshot-list expiry and deletion-specific recovery/non-return evidence.** Observe
   the eligible 14-day snapshot leaving the customer-visible list and prove that a deleted production
   identity cannot return. The generic isolated restore-path rehearsal does not close this gate.
-- [ ] **Triage the build-6 styling-consent control presentation.** The owner reports that **Allow AI
-  styling** appears visually right-shifted and its fill unusually light. Treat this as an unverified
-  polish/contrast finding, not an identity failure. Any shipped UI fix requires a new unused build
-  number and the complete release loop.
+- [x] **Confirm that build 6 fails the styling-consent control presentation gate.** In the
+  2026-08-28 owner-supplied Dark Mode screenshot, the **Allow AI styling** title is approximately
+  21 points right of the button center, and the sampled `#C2DFFC` fill against the white title is
+  approximately `1.38:1`. This is a confirmed visual/contrast failure, not an identity failure;
+  build 6 is consumed, non-promotable, and must never be reused.
+- [ ] **Implement and verify the styling-consent control replacement.** Keep this gate open until
+  the centered title and opaque, sufficiently contrasting enabled, pressed, and disabled states are
+  reviewed, merged, and covered by focused plus full regression evidence.
+- [ ] **Distribute only a newly numbered replacement candidate.** First refresh the live signed-in
+  App Store Connect Build Uploads list and prove the next build number unused; do not name or select
+  the replacement number before that check. Then update the matching source/backend allowlist and
+  repeat the exact backend, regression, archive, validation, normal-route upload, processing,
+  internal-group assignment, and tester-note gates.
+- [ ] **Clean-install and physically retest the replacement control.** On the processed TestFlight
+  replacement, confirm the title is centered with no invisible icon slot and that enabled, pressed,
+  and disabled presentation remains legible in Dark Mode before promotion.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any replacement-candidate physical, deletion,
@@ -609,8 +622,10 @@ governed by APP-036's Gmail-free guards.
   tapping a delivered reminder crashed build 5, making it non-promotable. The exact build-6 archive
   passed strict verification, normal-route validation/upload, processing, `Family` assignment, and
   truthful tester-note checks. Build 5's handoff and clean build-6 proof through delivered-reminder
-  tap plus final deletion/reinstall/new enrollment are complete. Finish snapshot lifecycle evidence
-  and the visual-control decision, then keep backend health available through review.
+  tap plus final deletion/reinstall/new enrollment are complete, but the confirmed styling-consent
+  control presentation failure makes build 6 non-promotable. Finish snapshot lifecycle evidence and
+  the unnumbered replacement implementation/distribution/clean visual retest, then keep backend
+  health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -656,12 +671,14 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
 - [x] **APP-024 · Done · Add outfit history and feedback.** Show worn looks, dates, and
   item details. Let users rate/save/skip a recommendation and feed those preferences into future
   prompts without weakening the catalog-ID hallucination guard.
-- [x] **APP-025 · Done · Finish accessibility and adaptive layout.** VoiceOver names/hints and
+- [ ] **APP-025 · In progress · Finish accessibility and adaptive layout.** VoiceOver names/hints and
   traversal, Dynamic Type through accessibility sizes, minimum tap targets, sufficient contrast,
   non-color-only status, Reduce Motion, keyboard/focus behavior, and meaningful image labels.
-  Test the smallest supported phone and large text. A build-6 owner observation that **Allow AI
-  styling** appears right-shifted with an unusually light fill is an unverified physical polish/
-  contrast follow-up; assess it before promotion without claiming a measured contrast failure.
+  Test the smallest supported phone and large text. The 2026-08-28 owner-supplied Dark Mode
+  screenshot confirms that build 6's **Allow AI styling** title is approximately 21 points right of
+  center and its sampled `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore
+  non-promotable; close APP-025 only after the unnumbered replacement is distributed and passes a
+  clean physical visual retest.
 - [x] **APP-026 · Done · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
   SDK/backend errors and indefinite spinners. Preserve user input on failure and make destructive
   or privacy-impacting actions explicit.

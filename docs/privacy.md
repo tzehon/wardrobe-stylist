@@ -81,8 +81,10 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the styling-
-consent control presentation assessment remain release gates. Fly v9 deploys the targeted auth-
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the unnumbered
+styling-consent control replacement implementation/distribution/clean physical visual retest remain
+release gates. The 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-
+promotable. Fly v9 deploys the targeted auth-
 service INFO logger and production TestFlight allowlist for builds `4,5,6`; its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
@@ -190,8 +192,17 @@ active session, with zero pending or failed challenges, one completed challenge,
 registration marker. Signed runtime fields were absent as expected on iOS 26.6; this does not prove
 iOS 27+ category/build enforcement. No identifiers, raw logs, or payloads were retained. This closes
 deletion/reinstall/new enrollment only. Snapshot-list expiry and deletion-specific restore/non-return
-remain open. The separate owner-reported **Allow AI styling** alignment/light-fill presentation
-finding also remains unverified; do not claim a measured contrast failure without measurement.
+remain open. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot confirms that build 6's
+**Allow AI styling** title is approximately 21 points right of the button center and that the sampled
+`#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 is therefore non-promotable;
+its completed identity and notification evidence remains valid. The replacement remains unnumbered
+until a fresh signed-in App Store Connect inspection proves the next build unused.
+
+- [ ] Complete and verify the replacement control implementation.
+- [ ] Distribute only the newly numbered replacement after the live build-number precondition and
+  complete release loop pass.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 
 ## Secrets and release boundaries
 

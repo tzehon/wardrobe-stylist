@@ -50,8 +50,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   synchronized `main` `de7c540275fb16e61aabf1884538b18cf6edf76f`. Fly v9, the strict build-6
   archive, Xcode validation/upload through the normal App-Store-eligible route, Apple processing,
   `Family` assignment, and truthful tester-note save all passed. Build 6 is consumed and must never
-  be reused. The root `README.md` remains unchanged by design; this runbook and the release backlog
-  own live release state.
+  be reused. A later 2026-08-28 Dark Mode screenshot confirmed its styling-consent control
+  presentation failure, so build 6 is non-promotable and an unnumbered replacement is underway.
+  The root `README.md` remains unchanged by design; this runbook and the release backlog own live
+  release state.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
@@ -333,8 +335,10 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
 The historical build-5 path and build-6 replacement path are ordered. Build-5 Apple distribution,
 build-4 identity-safe recovery, partial clean build-5 physical QA, the build-6 availability check,
 review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6 physical QA, and
-the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry,
-deletion-specific recovery/non-return, and the visual-control assessment remain open:
+the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
+deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
+failed; unnumbered replacement implementation, distribution, and clean physical visual retest are
+now open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -426,8 +430,8 @@ deletion-specific recovery/non-return, and the visual-control assessment remain 
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, the visual-control assessment,
-  or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, the unnumbered replacement
+  implementation/distribution/clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -649,9 +653,11 @@ cleanly. This is not upgrade or migration evidence.
 
 The intermediate idle state before explicit cache restoration matches the no-network-call-on-tab-
 appearance design. The runbook wording and production process-relaunch automation should make the
-required explicit tap clear. Separately, the owner observed the **Allow AI styling** control as
-visually right-shifted with an unusually light fill; that presentation/contrast finding remains
-unverified and requires a new TestFlight build only if shipped UI is changed.
+required explicit tap clear. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot confirms
+that build 6's **Allow AI styling** title is approximately 21 points right of the button center and
+that the sampled `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 therefore
+fails the visual presentation gate and is non-promotable; this does not invalidate its completed
+identity or notification evidence.
 
 - [x] Retain historical build-4 signed production App Attest entitlement, matching embedded App
   Store profile and certificate, and strict artifact-verifier result. The verified uploaded archive
@@ -686,8 +692,19 @@ unverified and requires a new TestFlight build only if shipped UI is changed.
 - [ ] Finish the remaining observable operations evidence: eligible 14-day snapshot-list
   disappearance and deletion-specific recovery/non-return. The generic isolated restore-path
   rehearsal does not prove that a deleted production identity cannot return.
-- [ ] Triage the unverified **Allow AI styling** alignment/light-fill observation before promotion.
-  If the shipped UI changes, use a new unused build and repeat the release loop.
+- [x] Confirm that build 6 fails the **Allow AI styling** presentation gate. The 2026-08-28 owner-
+  supplied Dark Mode screenshot places the title approximately 21 points right of center and
+  measures the sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is consumed,
+  non-promotable, and must never be reused.
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] Distribute only a newly numbered replacement candidate. First inspect the live signed-in App
+  Store Connect Build Uploads list and prove the next build number unused; do not name or select the
+  replacement number before that check. Then repeat the exact backend/configuration, full regression,
+  signed archive, normal-route validation/upload, processing, `Family` assignment, and truthful
+  tester-note gates.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
@@ -695,10 +712,10 @@ unverified and requires a new TestFlight build only if shipped UI is changed.
 ## Promoting an internally tested build
 
 Build 4 is not promotable because of the Today offline-cache defect, and build 5 is not promotable
-because of the delivered-reminder tap crash. Build 6 passed the affected physical route but is not
-yet promotable while its remaining snapshot lifecycle evidence and visual-control assessment remain
-open. When the replacement candidate is fully approved for public
-release, do not rebuild unless something changed:
+because of the delivered-reminder tap crash. Build 6 passed the affected identity and notification
+routes but is non-promotable because it failed the styling-consent control presentation gate. The
+replacement remains unnumbered until live App Store Connect proves the next build unused. When that
+replacement candidate is fully approved for public release, do not rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
   screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not

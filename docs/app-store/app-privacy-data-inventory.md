@@ -148,6 +148,14 @@ The exact approved developer-controlled schedule and its current compliance stat
   notification tap without a crash, and preserved local state passed. The final deletion/reinstall/
   new-enrollment sequence completed on 2026-08-28 using only the coarse evidence above. Snapshot-
   list expiry and deletion-specific restore/non-return remain open.
-- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before
-  promotion. Do not claim a measured contrast failure without measurement. Any shipped UI change
-  requires a new unused build and the complete release loop.
+- [x] Confirm the build-6 **Allow AI styling** presentation failure. In the 2026-08-28 owner-supplied
+  Dark Mode screenshot, the title is approximately 21 points right of center and the sampled
+  `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is non-promotable; the retained
+  privacy, identity, and notification evidence remains valid.
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] Distribute only a newly numbered replacement after a fresh signed-in App Store Connect check
+  proves the next build unused. Do not name or select the replacement number before that check;
+  repeat the complete release loop.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
