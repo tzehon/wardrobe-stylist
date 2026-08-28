@@ -13,8 +13,11 @@
   complete. Clean build-5 QA exposed a notification-tap crash, so build 5 is consumed and non-
   promotable. Build 6 is strictly verified, processed, assigned only to the intended internal group,
   and clean-tested through the fixed reminder tap. Its final identity-safe deletion/reinstall and
-  new anonymous enrollment are complete. Snapshot-list expiry, deletion-specific restore/non-return,
-  and the styling-consent control presentation assessment remain incomplete.
+  new anonymous enrollment are complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately
+  confirmed that the **Allow AI styling** title is approximately 21 points right of center and its
+  sampled `#C2DFFC` fill against white is approximately `1.38:1`, making build 6 non-promotable.
+  Snapshot-list expiry, deletion-specific restore/non-return, and the unnumbered replacement
+  implementation/distribution/clean physical visual retest remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -697,11 +700,20 @@ Required before APP-009 can close:
   snapshot enabled the completed build-6 deletion/reinstall/new-enrollment handoff, but the handoff
   itself does not prove that the deleted production identity cannot return from retained snapshot
   copies. The generic isolated restore-path rehearsal above does not close that evidence.
-- [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before
-  promotion. Do not claim a measured contrast failure without measurement. Any shipped UI change
-  requires a new unused build and the complete release loop.
-- [x] Refresh App Store Connect and confirm the replacement build number before changing version
-  metadata or archiving. At `2026-08-22T10:02:31Z`, the signed-in TestFlight Build Uploads view
+- [x] Confirm the build-6 **Allow AI styling** presentation failure. The 2026-08-28 owner-supplied
+  Dark Mode screenshot places the title approximately 21 points right of center and measures the
+  sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is non-promotable; its
+  completed identity and notification evidence remains valid.
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] Distribute only a newly numbered replacement after a fresh signed-in App Store Connect check
+  proves the next build unused. Do not name or select the replacement number before that check;
+  repeat the complete backend/configuration, regression, archive, upload, processing, assignment,
+  and tester-note loop.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+- [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata
+  or archiving that replacement, the `2026-08-22T10:02:31Z` signed-in TestFlight Build Uploads view
   showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and
   selected; `MARKETING_VERSION` remains `1.0.0`. The subsequent completed normal-route upload
   consumes build 6; never reuse it.

@@ -159,10 +159,13 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   bounded registration marker. Expected signed runtime build/category fields remained absent on
   iOS 26.6. This closes deletion/reinstall/new-enrollment proof, not snapshot-list expiry or
   deletion-specific recovery/non-return.
-- The owner also observed that the **Allow AI styling** control appears visually right-shifted with
-  an unusually light fill. Treat this as an unverified presentation/contrast finding, separate from
-  the passed identity and notification checks. Any shipped UI correction requires a new unused
-  TestFlight build and the full release loop.
+- A 2026-08-28 owner-supplied Dark Mode screenshot confirms that the shipped build-6 **Allow AI
+  styling** control fails its visual presentation gate: the title is approximately 21 points right
+  of the button center, and the sampled `#C2DFFC` fill against the white title is approximately
+  `1.38:1`. This does not invalidate the passed identity or notification evidence, but build 6 is
+  non-promotable. Replacement implementation, distribution, and clean physical visual retest remain
+  open. Do not select or name the replacement build number until a fresh signed-in App Store Connect
+  inspection proves the next build unused; then repeat the complete release loop.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

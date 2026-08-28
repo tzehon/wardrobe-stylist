@@ -197,12 +197,13 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the styling-
-consent control presentation assessment remain release gates. Real registration, assertion, and
-deletion success markers have now been observed; build 5 is non-promotable, while clean build 6
-passed the fixed notification route and completed final deletion/reinstall/new enrollment.
-Historical Apple processing/internal assignment and a healthy `/health` response do not close the
-remaining gates.
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and unnumbered
+styling-consent control replacement implementation/distribution/clean physical visual retest remain
+release gates. Real registration, assertion, and deletion success markers have now been observed;
+build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
+final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
+build-6 visual-control failure, making build 6 non-promotable. Historical Apple processing/internal
+assignment and a healthy `/health` response do not close the remaining gates.
 
 ## TestFlight distribution
 
@@ -278,9 +279,18 @@ Every internal beta is built as an App Store candidate. Follow the
    Style at `2026-08-28 17:17 SGT` created one new anonymous installation and active session, with
    zero pending/failed challenges, one completed challenge, and one bounded registration marker.
    Signed runtime fields were absent on iOS 26.6, so do not claim iOS 27+ category/build enforcement.
-12. keep the owner-reported **Allow AI styling** alignment/light-fill presentation assessment open.
-   Do not claim a measured contrast failure without measurement. A shipped UI change requires a new
-   unused build and the complete release loop.
+12. retain the completed-failed build-6 **Allow AI styling** assessment. In the 2026-08-28 owner-
+   supplied Dark Mode screenshot, the title is approximately 21 points right of the button center,
+   and the sampled `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 is
+   non-promotable; its completed identity and notification evidence remains valid.
+
+- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
+  sufficiently contrasting enabled, pressed, and disabled states.
+- [ ] Refresh the live signed-in App Store Connect Build Uploads list and prove the next build unused
+  before naming or selecting the replacement number, then distribute it through the complete release
+  loop.
+- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all
