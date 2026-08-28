@@ -66,7 +66,9 @@ is consumed and non-promotable. A signed-in App Store Connect TestFlight Build U
 build 6 unused before replacement work. Build 6 has since completed strict verification, normal-
 route validation/upload, Apple processing, and `Family` Internal Testing assignment. It is consumed
 and must never be reused. Clean build-6 QA passed through the fixed delivered-reminder tap without
-a crash or local-state loss; final deletion/reinstall and snapshot lifecycle evidence remain open.
+a crash or local-state loss. Its final owner-controlled deletion/reinstall/new-enrollment handoff is
+also complete; snapshot-list expiry, deletion-specific recovery/non-return, and the visual-control
+assessment remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -203,10 +205,19 @@ a crash or local-state loss; final deletion/reinstall and snapshot lifecycle evi
   identity-safe handoff, build 6 was installed cleanly, and launch/offline/media/catalog,
   production registration/assertion, Today cache/failure, Wear/History, reminder delivery, and the
   delivered-reminder tap passed without a crash or local-state loss.
-- [ ] Keep clean build 6 installed with reminder and styling permission off until a successful
-  snapshot created after its `2026-08-24 20:25 SGT` enrollment exists. Then complete owner-
-  controlled server deletion, aggregate-zero confirmation, local deletion, uninstall, clean
-  reinstall/new enrollment, snapshot expiry, and deletion-specific recovery/non-return.
+- [x] Complete the final build-6 deletion/reinstall/new-enrollment handoff in owner-controlled order.
+  The eligible automatic snapshot created at `2026-08-25T07:35:53Z` reported `created` with 14-day
+  retention. The pre-deletion installation/session/challenge aggregate was `1/0/0`;
+  assertion-verified deletion emitted exactly one bounded success marker and returned it to
+  `0/0/0`, which persisted after local deletion and uninstall. Clean reinstall, launch, two local
+  additions, and styling-consent grant kept the backend at `0/0/0`. Explicit **Style a look** at
+  `2026-08-28 17:17 SGT` created one active installation and one active session, zero pending and
+  zero failed challenges, one completed challenge, exactly one registration-success marker, and
+  expected runtime category/build-field absence on iOS 26.6. No identifiers, payloads, credentials,
+  or raw log samples are retained.
+- [ ] Finish eligible 14-day snapshot-list disappearance and deletion-specific recovery/non-return.
+  The completed final-client handoff and generic isolated restore rehearsal do not prove that a
+  deleted production identity cannot return.
 - [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before
   promotion. Do not claim a contrast failure without measurement. A shipped UI correction requires
   a new unused build and the full release loop.
@@ -233,7 +244,8 @@ a crash or local-state loss; final deletion/reinstall and snapshot lifecycle evi
 
 The first checked item below preserves build-5 distribution evidence; it does not make build 5
 promotable after the physical reminder-tap crash. Build 6 distribution is also complete, and its
-clean physical matrix has passed through notification tap; deletion/reinstall remains open.
+clean physical matrix has passed through notification tap. Its final deletion/reinstall/new-
+enrollment handoff is complete; snapshot lifecycle and visual-control gates remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

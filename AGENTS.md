@@ -105,9 +105,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   **TestFlight & App Store** route; Apple processing reached **Ready to Submit**. Build 6 is assigned
   only to the `Family` Internal Testing group with one group tester, no individual testers, and the
   saved truthful What to Test notes. Build 6 is now used and must never be reused. This closes the
-  replacement distribution pipeline only. Build 5's identity-safe handoff and clean build-6 QA
-  through the delivered-reminder tap have since passed; build-6 deletion/reinstall and the
-  remaining snapshot recovery/expiry evidence remain open. The required Fly v9 post-deploy/pre-
+  replacement distribution pipeline only. Build 5's identity-safe handoff, clean build-6 QA
+  through the delivered-reminder tap, and build 6's final identity-safe deletion/reinstall/new-
+  enrollment sequence have since passed. Snapshot-list expiry and deletion-specific recovery/non-
+  return evidence remain open. The required Fly v9 post-deploy/pre-
   upload payload-free review was missed and is
   not backdated; a late full review passed at `2026-08-23T02:13:12Z`, restoring current operational
   evidence while retaining the process defect. Repeat it before any future archive/upload and after
@@ -148,10 +149,16 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   opened Today without crashing and preserved Wardrobe/History state. Today initially showing
   **Style a look** before the cached look is explicitly restored is the intended no-call-on-tab-
   appearance behavior, but the runbook wording and process-relaunch automation should make that
-  intermediate step explicit. The newest successful automatic snapshot observed after this run was
-  `2026-08-24T07:35:23Z`, status `created`, retention 14 days; it predates the clean build-6
-  enrollment at `2026-08-24 20:25 SGT`. Keep build 6 installed with its reminder and styling
-  permission off until a later eligible snapshot permits the manual deletion/reinstall gate.
+  intermediate step explicit. A later eligible automatic snapshot at `2026-08-25T07:35:53Z`, status
+  `created`, retention 14 days, cleared the final-client handoff gate. Before deletion, the live
+  installation/session/challenge aggregate was `1/0/0`. Owner-controlled server deletion produced
+  exactly one bounded deletion marker; post-deletion and post-uninstall aggregates were `0/0/0`.
+  Clean reinstall, first launch, local item additions, and styling consent alone remained `0/0/0`.
+  Explicit **Style a look** at `2026-08-28 17:17 SGT` then created one new anonymous installation
+  and one active session, with zero pending/failed challenges, one completed challenge, and one
+  bounded registration marker. Expected signed runtime build/category fields remained absent on
+  iOS 26.6. This closes deletion/reinstall/new-enrollment proof, not snapshot-list expiry or
+  deletion-specific recovery/non-return.
 - The owner also observed that the **Allow AI styling** control appears visually right-shifted with
   an unusually light fill. Treat this as an unverified presentation/contrast finding, separate from
   the passed identity and notification checks. Any shipped UI correction requires a new unused

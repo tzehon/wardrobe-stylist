@@ -80,8 +80,8 @@ delivery and tap routing: the app opened Today without crashing and preserved lo
 - Support: `https://blog.tth.dev/wardrobe/`
 - App Attest environment and tester OS/runtime fields:
   [PRODUCTION / OS VERSION / EXTENSIONS PRESENT OR EXPECTED ABSENT]
-- iOS 27+ App Attest category/build allowlist:
-  [TESTFLIGHT 2 OR APP STORE 4 / EXACT BUILD]
+- Configured App Attest category/build allowlist (configuration only; do not claim iOS 27+
+  enforcement without separate physical evidence): [TESTFLIGHT 2 OR APP STORE 4 / EXACT BUILD]
 - Durable auth-store/restore evidence: [REFERENCE]
 
 ## Non-obvious implementation assurances
@@ -114,10 +114,10 @@ builds 1–5 only, build 5 **Complete**, and no build 6, confirming build 6 unus
 work. PR #27 later merged the fix and build-6 metadata/allowlist; exact Fly v9, strict archive,
 normal-route Xcode validation/upload, Apple processing, `Family` assignment, and tester-note checks
 passed. Build 6 is consumed and must never be reused. Its later clean physical run passed through
-the fixed delivered-reminder tap; final-client deletion/reinstall, remaining snapshot lifecycle
-evidence, and the styling-consent control presentation decision remain open. Reviewed PR #23
-remains the historical
-build-5 source baseline. Historical build-5 pre-archive gates were green (221
+the fixed delivered-reminder tap. The final identity-safe deletion/reinstall and new anonymous
+enrollment completed on 2026-08-28; remaining snapshot lifecycle evidence and the styling-consent
+control presentation decision remain open. Reviewed PR #23 remains the historical build-5 source
+baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
 category `2`, builds `4,5`, and targeted auth-service INFO logging; its post-change review passed at
@@ -181,16 +181,22 @@ backend/configuration change.
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
   build-5 Style/Restyle observed `registration_succeeded`/`assertion_succeeded`, and the preceding
   identity-safe handoff observed exactly one `installation_deleted` plus `0/0/0` live aggregates.
-  Build 5's later identity-safe handoff also returned aggregates to zero; clean build-6 registration
-  and assertion renewal were corroborated by safe aggregate deltas. Protected `/recommend` remains
-  aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs, but
-  listing expiry and deletion-specific restore/non-return remain open. The former v5 image is only
-  a pre-build-4 abort because it re-exposes `/extract` and halts release.
-- [x] Confirm live server-security-data deletion against Fly v8 with only redacted evidence: one
-  success marker and aggregate `0/0/0` during the build-4 handoff.
-- [ ] Confirm snapshot-list expiry, deletion-specific restore/non-return, and the same safe deletion
-  ordering on clean build 6. Its newest successful snapshot predates the `20:25 SGT` enrollment, so
-  keep the app and live identity intact until an eligible later snapshot permits the manual gate.
+  Build 5's later identity-safe handoff also returned aggregates to zero. The eligible
+  `2026-08-25T07:35:53Z` snapshot enabled Build 6's final owner-controlled deletion/reinstall: the
+  pre-deletion aggregate was `1/0/0`, exactly one bounded deletion marker was observed, and post-
+  deletion/post-uninstall aggregates were `0/0/0`. Clean reinstall and local-only actions remained
+  at zero; explicit Style at `2026-08-28 17:17 SGT` created one new anonymous installation and
+  active session, with zero pending/failed challenges, one completed challenge, and one bounded
+  registration marker. Signed runtime fields were absent on iOS 26.6; do not claim iOS 27+
+  category/build enforcement. Protected `/recommend` remains aggregate/client-evidenced. Listing
+  expiry and deletion-specific restore/non-return remain open. The former v5 image is only a pre-
+  build-4 abort because it re-exposes `/extract` and halts release.
+- [x] Confirm live server-security-data deletion using only redacted evidence: build 4 and final
+  build 6 each produced exactly one bounded success marker and reached aggregate `0/0/0` before
+  local data/app removal. No identifiers, raw logs, or payloads were retained.
+- [ ] Confirm snapshot-list expiry and deletion-specific restore/non-return for the deleted Build 6
+  identity. The final handoff is complete, but it does not prove that retained snapshot copies have
+  disappeared or that the deleted identity cannot return through recovery.
 - [ ] Assess the owner-reported **Allow AI styling** alignment/light-fill presentation before using
   these notes for submission. Do not claim a measured contrast failure without measurement; any
   shipped UI change requires a new build and full release loop.
