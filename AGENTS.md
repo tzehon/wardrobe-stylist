@@ -163,9 +163,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   styling** control fails its visual presentation gate: the title is approximately 21 points right
   of the button center, and the sampled `#C2DFFC` fill against the white title is approximately
   `1.38:1`. This does not invalidate the passed identity or notification evidence, but build 6 is
-  non-promotable. Replacement implementation, distribution, and clean physical visual retest remain
-  open. Do not select or name the replacement build number until a fresh signed-in App Store Connect
-  inspection proves the next build unused; then repeat the complete release loop.
+  non-promotable. PR #31 rebase-merged app commit `b7e46e4` to clean `main` `e4a0ae2`, completing the
+  replacement implementation gate with a title-only, centered, full-width opaque control,
+  enabled/pressed/disabled contrast coverage, and a screenshot UI assertion. Merged verification
+  passed 221 backend tests plus the locked audit/Bandit/Ruff/mypy gates, 226 Swift unit tests, 9 UI
+  tests, and 43 release-script tests; both GitHub iOS checks are green. Distribution and clean
+  physical Dark Mode visual retest remain open. Do not select or name the replacement build number
+  until a fresh signed-in App Store Connect inspection proves the next build unused; then repeat the
+  complete release loop.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

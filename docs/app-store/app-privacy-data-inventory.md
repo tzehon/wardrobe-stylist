@@ -152,8 +152,11 @@ The exact approved developer-controlled schedule and its current compliance stat
   Dark Mode screenshot, the title is approximately 21 points right of center and the sampled
   `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is non-promotable; the retained
   privacy, identity, and notification evidence remains valid.
-- [ ] Complete and verify the replacement control implementation with a centered title and opaque,
-  sufficiently contrasting enabled, pressed, and disabled states.
+- [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
+  `b7e46e4` to clean `main` `e4a0ae2`. The title-only control is centered, full-width, and opaque;
+  enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
+  verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
+  9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [ ] Distribute only a newly numbered replacement after a fresh signed-in App Store Connect check
   proves the next build unused. Do not name or select the replacement number before that check;
   repeat the complete release loop.
