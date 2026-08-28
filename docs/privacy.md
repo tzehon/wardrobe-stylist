@@ -81,8 +81,8 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and final-client
-deletion/reinstall evidence remain release gates. Fly v9 deploys the targeted auth-
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the styling-
+consent control presentation assessment remain release gates. Fly v9 deploys the targeted auth-
 service INFO logger and production TestFlight allowlist for builds `4,5,6`; its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
@@ -91,9 +91,10 @@ flow had yet been exercised. Later physical flows observed bounded registration 
 successes from clean build 5 and exactly one deletion success during the build-4 identity-safe
 handoff. Protected `/recommend` remains aggregate/client-evidenced. Build 5 then crashed when its
 delivered local notification was tapped and is non-promotable. Build 5's identity-safe handoff and
-clean build-6 QA through the fixed notification tap later passed. Build 6 remains installed pending
-its own post-snapshot deletion/reinstall gate. The
-required v9 post-deploy/pre-upload payload-free review was missed and is not backdated; a late full
+clean build-6 QA through the fixed notification tap later passed. Build 6's final identity-safe
+deletion/reinstall and new anonymous enrollment completed on 2026-08-28 using only aggregate and
+bounded-marker evidence. The required v9 post-deploy/pre-upload payload-free review was missed and
+is not backdated; a late full
 review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining the
 process defect.
 
@@ -178,11 +179,19 @@ was confirmed post-enrollment with 14-day retention, server deletion returned li
 evidence, not migration support. Clean build-6 QA then passed Gmail-free launch, offline Demo and
 local catalog/media flows, production registration and cold assertion renewal, explicit cached-
 look restoration after offline relaunch, failed-Restyle preservation, Wear/History, and delivered-
-reminder tap without a crash or local-state loss. The reminder and styling permission are off. The
-newest successful snapshot, `2026-08-24T07:35:23Z`, status `created`, retention 14 days, predates
-the clean build-6 `20:25 SGT` enrollment, so keep the app and live identity intact until a later
-eligible snapshot permits final-client deletion/reinstall. Snapshot-list expiry and deletion-
-specific restore/non-return remain open.
+reminder tap without a crash or local-state loss.
+
+The eligible automatic snapshot at `2026-08-25T07:35:53Z` reported `created` with 14-day retention.
+Before the owner-controlled server deletion, the installation/session/challenge aggregate was
+`1/0/0`. Deletion produced exactly one bounded marker; post-deletion and post-uninstall aggregates
+were `0/0/0`. Clean reinstall, first launch, local item additions, and styling consent alone kept the
+zero baseline. Explicit Style at `2026-08-28 17:17 SGT` created one new anonymous installation and
+active session, with zero pending or failed challenges, one completed challenge, and one bounded
+registration marker. Signed runtime fields were absent as expected on iOS 26.6; this does not prove
+iOS 27+ category/build enforcement. No identifiers, raw logs, or payloads were retained. This closes
+deletion/reinstall/new enrollment only. Snapshot-list expiry and deletion-specific restore/non-return
+remain open. The separate owner-reported **Allow AI styling** alignment/light-fill presentation
+finding also remains unverified; do not claim a measured contrast failure without measurement.
 
 ## Secrets and release boundaries
 

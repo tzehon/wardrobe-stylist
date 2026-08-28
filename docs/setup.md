@@ -144,9 +144,10 @@ and verify them on a real device. App Attest is also a physical-device boundary.
    allow automatic signing to do so.
 3. Regenerate the Xcode project. Debug uses App Attest development/sandbox; TestFlight and App
    Store distributions use production.
-4. On a physical iPhone, exercise enrollment and session renewal. On iOS 27+, verify development
-   category `3` and the exact installed build. On iOS 18–26, record the expected absence of those
-   newer signed fields while proving the complete core flow.
+4. On a physical iPhone, exercise enrollment and session renewal. On iOS 18–26, record the expected
+   absence of the newer signed category/build fields while proving the complete core flow. If a
+   future iOS 27+ device supplies those fields, separately verify configured category/build rejection
+   behavior before claiming enforcement; Build 6's iOS 26.6 evidence does not prove it.
 5. Before distribution, inspect the archive's signed entitlement and embedded profile. TestFlight
    production accepts category `2` and the exact uploaded build; category `4` is reserved for App
    Store distribution.
@@ -196,10 +197,10 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and final-client
-deletion/reinstall proof remain release gates. Real registration, assertion, and deletion success
-markers have now been observed; build 5 is non-promotable, while clean build 6 passed the fixed
-notification route.
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, and the styling-
+consent control presentation assessment remain release gates. Real registration, assertion, and
+deletion success markers have now been observed; build 5 is non-promotable, while clean build 6
+passed the fixed notification route and completed final deletion/reinstall/new enrollment.
 Historical Apple processing/internal assignment and a healthy `/health` response do not close the
 remaining gates.
 
@@ -208,8 +209,8 @@ remaining gates.
 Every internal beta is built as an App Store candidate. Follow the
 [internal TestFlight runbook](app-store/internal-testflight-runbook.md):
 
-1. keep the remaining APP-009 physical/deletion/recovery evidence explicitly open and the
-   manual review current.
+1. keep the remaining APP-009 snapshot-list expiry and deletion-specific recovery/non-return
+   evidence explicitly open and the manual review current.
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards.
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`.
 4. treat processed candidates `1.0.0 (4)`, `1.0.0 (5)`, and `1.0.0 (6)` as consumed and never
@@ -263,20 +264,29 @@ Every internal beta is built as an App Store candidate. Follow the
    validation and normal-route upload succeeded; Apple processing reached **Ready to Submit**; and
    exactly `Family` is assigned with one group tester, no individual testers, and saved truthful
    tester notes.
-11. retain clean build-6 physical evidence through the fixed notification route. Build 6 initially
-   appeared in place and was not counted as QA. After the eligible build-5 snapshot and ordered
+11. retain clean build-6 physical evidence through the fixed notification route and final identity-
+   safe handoff. Build 6 initially appeared in place and was not counted as QA. After the eligible
+   build-5 snapshot and ordered
    server/local deletion plus app removal, build 6 was installed cleanly. Gmail-free launch,
    offline Demo, Camera/Library saves, catalog operations, production registration/cold assertion,
    online styling, explicit cached-look restoration after offline relaunch, failed-Restyle
    preservation, Wear/History, reminder delivery, and reminder tap passed without a crash or local-
-   state loss. Keep build 6 installed with reminder and styling permission off until an eligible
-   post-enrollment snapshot permits final deletion/reinstall.
+   state loss. The eligible automatic snapshot at `2026-08-25T07:35:53Z` reported `created` with
+   14-day retention. The owner-controlled final handoff moved from pre-deletion aggregate `1/0/0`
+   through exactly one bounded deletion marker to `0/0/0` after deletion and uninstall. Clean
+   reinstall, first launch, local item additions, and styling consent remained at zero; explicit
+   Style at `2026-08-28 17:17 SGT` created one new anonymous installation and active session, with
+   zero pending/failed challenges, one completed challenge, and one bounded registration marker.
+   Signed runtime fields were absent on iOS 26.6, so do not claim iOS 27+ category/build enforcement.
+12. keep the owner-reported **Allow AI styling** alignment/light-fill presentation assessment open.
+   Do not claim a measured contrast failure without measurement. A shipped UI change requires a new
+   unused build and the complete release loop.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all
-43 release-script tests. The exact build-6 archive, internal distribution, and clean physical proof
-through notification tap are retained above; deletion/reinstall remains gated on a successful
-post-enrollment snapshot.
+43 release-script tests. The exact build-6 archive, internal distribution, clean physical proof
+through notification tap, and final identity-safe deletion/reinstall/new enrollment are retained
+above. Snapshot-list expiry and deletion-specific restore/non-return remain open.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -306,10 +316,13 @@ registration/assertion markers, and the build-4 handoff observed exactly one del
 `0/0/0` live aggregates. Fly v9 is now live on the exact merged build-6 source with accepted builds
 `4,5,6`, matching release/running image references, and one healthy Singapore Machine. Protected
 `/recommend` intentionally has no developer success marker and
-remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs, but
-actual listing expiry and deletion-specific restore/non-return remain open. The newest successful
-snapshot, `2026-08-24T07:35:23Z`, status `created`, retention 14 days, predates clean build-6
-enrollment at `20:25 SGT`; retain the installed live identity until another eligible handoff.
+remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
+The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
+pre-deletion aggregate was `1/0/0`, exactly one bounded deletion marker was observed, post-deletion/
+post-uninstall aggregates were `0/0/0`, and the explicit `2026-08-28 17:17 SGT` Style action created
+a new anonymous installation/session after reinstall. Actual listing expiry and deletion-specific
+restore/non-return remain open; the handoff does not prove that the deleted identity cannot return
+from retained snapshot copies.
 
 The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining
