@@ -16,15 +16,21 @@
   new anonymous enrollment are complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately
   confirmed that the **Allow AI styling** title is approximately 21 points right of center and its
   sampled `#C2DFFC` fill against white is approximately `1.38:1`, making build 6 non-promotable.
-  PR #31 has since merged and verified the replacement control implementation. A signed-in
-  TestFlight **Build Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and
+  PR #31 has since merged and verified the replacement control implementation. At the earlier
+  build-selection checkpoint on 2026-08-29, a signed-in TestFlight **Build Uploads** view showed
+  build 6 as the highest upload and
   **Complete**, with build 7 absent. Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`,
   and source configuration is prepared for accepted builds `4,5,6,7`. PR #34 merged the runtime
   remediation; the exact merged Linux/AMD64 image deployed as completed Fly v10 at
   `2026-08-29T01:52:47Z`, and its health/configuration/storage/snapshot plus payload-free review
-  passed at `2026-08-29T02:21:41Z`. The build-7 exact-source regression has also passed. Snapshot-
-  list expiry, deletion-specific restore/non-return, the signed archive/distribution pipeline, and
-  clean physical Dark Mode visual retest remain incomplete.
+  passed at `2026-08-29T02:21:41Z`. The build-7 exact-source regression has also passed. The
+  `04:21:50Z` review and `07:15:57Z` archive are retained as timing-stale/non-uploadable evidence;
+  the earlier development-signed archive is separately invalid/non-uploadable. A fresh full review
+  completed at `11:02:18Z`, followed by the distinct final Apple Distribution archive at
+  `11:03:10Z` and strict verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads
+  refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. Snapshot-list expiry,
+  deletion-specific restore/non-return, build-7 validation/distribution, and clean physical Dark
+  Mode visual retest remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -303,6 +309,8 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-22T03:30:33Z | PASS · exact reviewed v8 Machine/image | PASS · 14d · all listed created · latest <36h | below-warning | PASS · no 5xx series · bounded failure-event classes zero · lifecycle success not exercised | PASS · public status operational · <80% of configured limit · current-month usage/cost only on expected Wardrobe model/key series · no saturation warning | PASS · pages/contact/target and retained rehearsal confirmed | PASS | None; resume monthly cadence | 2026-09-21 |
 | 2026-08-23T02:13:12Z | PASS · exact v9 Machine/image | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · current 1h HTTP view: 200/401/404 only, no 5xx series; bounded failure classes zero | PASS · public status operational · <80% of configured limit · production key on Opus 4.8 · no saturation warning | PASS · pages/contact/target and retained rehearsal confirmed | PASS | Required v9 post-deploy/pre-upload review was missed; late review not backdated; repeat before any future archive/upload | 2026-09-22 |
 | 2026-08-29T02:21:41Z | PASS · exact v10 Machine/image | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero; deployment-transition transport non-response reviewed | PASS · public status operational · <80% of configured limit · active Wardrobe use on Opus 4.8 · historical series inactive in 7d · no saturation warning | PASS · pages/contact/target/reciprocal links and retained rehearsal confirmed | PASS | None; repeat immediately before build-7 upload | 2026-09-28 |
+| 2026-08-29T04:21:50Z | PASS · exact v10 Machine/image | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero | PASS · public status operational · <80% of configured limit · expected Wardrobe key/model · no saturation warning | PASS · pages/contact/target/reciprocal links confirmed | PASS | Review passed but did not immediately precede archive; resulting intermediate archive is timing-stale/non-uploadable | 2026-08-29 |
+| 2026-08-29T11:02:18Z | PASS · exact v10 release/Machine/image · fresh registry match · zero High/Critical | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero | PASS · public status operational · <80% of configured limit · expected Wardrobe key/model · no saturation warning | PASS · pages/contact/target/reciprocal links confirmed | PASS | Final build-7 archive completed; repeat immediately before upload | before upload; otherwise 2026-09-28 |
 
 ### Processed build-4 aggregate evidence and identity-safe handoff — 2026-08-21/22
 
@@ -739,11 +747,21 @@ Required before APP-009 can close:
   independently proven, so it is ineligible for rollback or recovery. Exact v10 is the sole current
   recovery reference; any mismatch or scan failure blocks archive, upload, distribution, and
   physical QA until exact v10 is restored and reverified.
-- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
-  verify the signed archive, refresh App Store Connect to reconfirm build 7 is unused, repeat the
-  review immediately before upload, obtain explicit owner approval at that boundary, then complete
-  normal-route validation/upload, Apple processing, `Family` assignment, and the truthful tester-
-  note loop.
+- [x] Complete the build-7 pre-archive review and signed-archive gate. The `04:21:50Z` review and
+  `07:15:57Z` technically verified archive are retained as timing-stale/non-uploadable evidence;
+  the earlier automatic-signing archive is development-signed and separately invalid/non-uploadable.
+  A fresh full operations/recovery review against exact Fly v10 completed at
+  `2026-08-29T11:02:18Z`, including a fresh private-registry match and zero-High/Critical Docker
+  Scout scan. Clean synchronized main `0cc0fa7` then created the distinct final archive
+  `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` at `11:03:10Z`; strict
+  production App Attest/profile/identity, public-configuration, privacy, Gmail-free, non-emitting
+  credential, deep-signature, and matching arm64 app/dSYM verification passed at `11:04:02Z`. The
+  signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest and **Ready to
+  Submit**, with build 7 absent.
+- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
+  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
+  owner approval at that boundary, then complete normal-route validation/upload, Apple processing,
+  `Family` assignment, and the truthful tester-note loop.
 - [ ] Clean-install the processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata

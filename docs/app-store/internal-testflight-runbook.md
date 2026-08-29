@@ -52,16 +52,25 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `Family` assignment, and truthful tester-note save all passed. Build 6 is consumed and must never
   be reused. A later 2026-08-28 Dark Mode screenshot confirmed its styling-consent control
   presentation failure, so build 6 is non-promotable. PR #31 has since merged and verified the
-  replacement control implementation. On 2026-08-29, the signed-in TestFlight **Build Uploads** view
-  showed build 6 as the highest upload and **Complete**, with build 7 absent. Build `1.0.0 (7)` is
+  replacement control implementation. At the earlier build-selection checkpoint on 2026-08-29, the
+  signed-in TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**,
+  with build 7 absent. Build `1.0.0 (7)` is
   selected while `MARKETING_VERSION` remains `1.0.0`; source configuration is prepared with
   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. PR #34 rebase-merged the runtime
   remediation to clean main `162688ae72d07f06a7a8116249632aa0101e538f`; its exact Linux/AMD64
   image passed local and immutable-registry zero-High/Critical scans plus the runtime smoke gates,
   then deployed as completed Fly v10 at `2026-08-29T01:52:47Z`. The required post-change operational
-  review passed at `2026-08-29T02:21:41Z`. Archive, validation/upload, Apple processing, assignment,
-  tester notes, and clean physical visual retest remain open. The root `README.md` remains unchanged
-  by design; this runbook and the release backlog own live release state.
+  review passed at `2026-08-29T02:21:41Z`. The `04:21:50Z` review was too old to gate the archive
+  created at `07:15:57Z`, so that technically verified Apple Distribution archive is preserved as
+  timing-stale/non-uploadable; the earlier automatic-signing archive is development-signed and also
+  invalid/non-uploadable. A fresh full review against exact Fly v10, including a fresh private-
+  registry match and zero-High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`.
+  Clean main `0cc0fa7` then produced the distinct Apple Distribution-signed `1.0.0 (7)` archive at
+  `11:03:10Z`; strict verification passed at `11:04:02Z`, and the signed-in `11:05:38Z` post-archive
+  Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent.
+  Validation/upload, Apple processing, assignment, tester notes, and clean physical visual retest
+  remain open. The root `README.md` remains unchanged by design; this runbook and the release backlog
+  own live release state.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
@@ -227,8 +236,9 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `2026-08-21T11:09:20Z`; the build-5 pre-validation and post-distribution reviews passed at
   `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The late v9 review passed at
   `2026-08-23T02:13:12Z`; the current v10 post-change review passed at
-  `2026-08-29T02:21:41Z`. Repeat immediately before the build-7 archive/upload, after any backend
-  or production-configuration change, and otherwise no later than 2026-09-28.
+  `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
+  `2026-08-29T11:02:18Z`. Repeat immediately before build-7 upload, after any backend or production-
+  configuration change, and otherwise no later than 2026-09-28.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -358,8 +368,9 @@ the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapsh
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the exact Fly v10 backend deployment and post-change review pass.
-The build-7 exact-source regression has passed. Its signed archive/distribution pipeline and clean
-physical Dark Mode visual retest remain open:
+The build-7 exact-source regression and strict signed-archive verification have passed. Its
+validation/upload, Apple processing, assignment, tester-note, and clean physical Dark Mode visual
+retest gates remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -451,8 +462,8 @@ physical Dark Mode visual retest remain open:
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, the build-7 signed archive/
-  TestFlight distribution pipeline, clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 validation/TestFlight
+  distribution, clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -500,7 +511,9 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    a build number. The read-only live TestFlight **Build Uploads** inspection at
    `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6; build 6 is
    confirmed unused and selected with `MARKETING_VERSION = 1.0.0`. The later completed normal-route
-   upload consumes build 6; never reuse it.
+   upload consumes build 6; never reuse it. For build 7, the signed-in final post-archive Build
+   Uploads refresh at `2026-08-29T11:05:38Z` showed build 6 as the highest upload and **Ready to
+   Submit**, with build 7 absent. Build 7 remains unused; refresh again immediately before upload.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -515,6 +528,24 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    AppAuth/GTM bundles, Google client identifiers/callback scheme, Gmail permission/host/client
    paths, `/extract` client path, and receipt background-task identifier; and correct public URLs.
    Retain the archive entitlement and embedded-profile inspection as APP-009/APP-036 evidence.
+
+   Current build-7 signed-archive evidence: the `2026-08-29T04:21:50Z` review did not immediately
+   precede the archive created at `07:15:57Z`. That technically verified archive is retained as
+   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-7-0cc0fa7-prearchive-review-stale-nonuploadable.xcarchive`
+   and must not be uploaded. The first automatic-signing archive used a development profile and is
+   separately retained as invalid/non-uploadable. A fresh full operations/recovery review against
+   exact Fly v10, including a fresh private-registry match and zero-High/Critical Docker Scout scan,
+   completed at `2026-08-29T11:02:18Z`. Clean synchronized documentation-only successor main
+   `0cc0fa7eadac998d32022e3e6a9dba2a62db64c4` then produced
+   `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive`
+   at `11:03:10Z`. The final archive uses manual Apple Distribution signing with the existing App
+   Store profile. Xcode 26.6 and the iOS 26.5 SDK produced exact `1.0.0 (7)`, `iphoneos`, arm64, and
+   minimum iOS 18.0 metadata. At `11:04:02Z`, the strict artifact verifier, production App Attest/
+   profile/identity, public configuration, privacy manifest, Gmail-free removed-capability guards,
+   separate non-emitting credential scan, deep signature, and matching app/dSYM checks passed. The
+   `11:05:38Z` signed-in post-archive Build Uploads refresh showed build 6 highest and **Ready to
+   Submit**, with build 7 absent. This is archive evidence only; no validation, upload, processing,
+   group assignment, or tester-note gate has run for build 7.
 
    Current build-6 archive and distribution evidence: clean synchronized source context
    `de7c540275fb16e61aabf1884538b18cf6edf76f` produced
@@ -761,12 +792,20 @@ identity or notification evidence.
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates. This documentation-only recovery correction does not change the
   verified iOS, backend, or shared source.
-- [ ] Archive and distribute build 7. The current v10 recovery baseline is established, but repeat
-  the full operations/recovery review immediately before archive. Then create and strictly verify
-  the signed archive, refresh App Store Connect to reconfirm build 7 is unused, repeat the review
-  immediately before upload, obtain explicit owner approval at that boundary, use the normal App-
-  Store-eligible validation/upload route, wait for Apple processing, assign only `Family`, and save
-  truthful tester notes.
+- [x] Create and strictly verify the build-7 archive. The `04:21:50Z` review and `07:15:57Z`
+  technically verified archive are retained as timing-stale/non-uploadable evidence; the earlier
+  automatic-signing archive is development-signed and separately invalid/non-uploadable. The fresh
+  full operations/recovery review against exact Fly v10 completed at `2026-08-29T11:02:18Z`,
+  including a fresh private-registry match and zero-High/Critical Docker Scout scan. Clean
+  synchronized main `0cc0fa7` then produced the distinct final archive at `11:03:10Z`; strict Apple
+  Distribution, production App Attest/profile/identity, public-configuration, privacy, Gmail-free,
+  non-emitting credential, deep-signature, and matching arm64 app/dSYM verification passed at
+  `11:04:02Z`. The signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest
+  and **Ready to Submit**, with build 7 absent.
+- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
+  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
+  owner approval at that boundary, use the normal App-Store-eligible validation/upload route, wait
+  for Apple processing, assign only `Family`, and save truthful tester notes.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
