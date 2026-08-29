@@ -197,8 +197,8 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7 backend
-deployment/distribution, and clean physical Dark Mode visual retest remain release gates. Real
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
+regression/archive/distribution, and clean physical Dark Mode visual retest remain release gates. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the

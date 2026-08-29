@@ -366,7 +366,7 @@ Retain no raw identifiers, tokens, request bodies, database rows, wardrobe paylo
 
 ## Compliance and release evidence
 
-Verified as of 2026-08-28:
+Verified as of 2026-08-29:
 
 - [x] The auth-store schema excludes receipt/wardrobe payloads and raw IP addresses.
 - [x] Session bearers are stored only as hashes; rate subjects are stored only as keyed HMACs.
