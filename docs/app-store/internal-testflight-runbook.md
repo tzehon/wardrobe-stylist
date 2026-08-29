@@ -55,9 +55,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
   replacement control implementation. On 2026-08-29, the signed-in TestFlight **Build Uploads** view
   showed build 6 as the highest upload and **Complete**, with build 7 absent. Build `1.0.0 (7)` is
   selected while `MARKETING_VERSION` remains `1.0.0`; source configuration is prepared with
-  `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. Live Fly v9 remains on `4,5,6` until
-  the exact updated backend is deployed and verified. The root `README.md` remains unchanged by
-  design; this runbook and the release backlog own live release state.
+  `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. PR #34 rebase-merged the runtime
+  remediation to clean main `162688ae72d07f06a7a8116249632aa0101e538f`; its exact Linux/AMD64
+  image passed local and immutable-registry zero-High/Critical scans plus the runtime smoke gates,
+  then deployed as completed Fly v10 at `2026-08-29T01:52:47Z`. The required post-change operational
+  review passed at `2026-08-29T02:21:41Z`. Archive, validation/upload, Apple processing, assignment,
+  tester notes, and clean physical visual retest remain open. The root `README.md` remains unchanged
+  by design; this runbook and the release backlog own live release state.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
@@ -718,11 +722,28 @@ identity or notification evidence.
   and passes the non-root, no-new-privileges, logging, SQLite, and mounted-volume smoke gates. Full
   verification passed 222 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI
   tests, 43 release-script tests, and the clean `1.0.0 (7)` Release simulator artifact check. This is
-  local source/image evidence only; reviewed merge, registry re-scan, and deployment remain open.
-- [ ] Deploy and distribute only the selected build-7 candidate. Verify the exact live backend
-  release/configuration/image, health, and payload-free manual review, then repeat the full regression,
-  signed archive, normal-route validation/upload, Apple processing, `Family` assignment, and truthful
-  tester-note gates.
+  local source/image evidence only; deployment evidence is recorded separately below.
+- [x] Deploy and review only the selected build-7 backend candidate. PR #34 rebase-merged the
+  runtime remediation to clean main `162688ae72d07f06a7a8116249632aa0101e538f`. The exact merged
+  Linux/AMD64 image passed local and immutable-registry zero-High/Critical scans plus non-root,
+  no-new-privileges, logging, SQLite, and mounted-volume smoke gates. It deployed as completed Fly
+  v10 at `2026-08-29T01:52:47Z`; release and Machine image references match privately. One healthy
+  Singapore Machine runs the expected production App-Attest-only configuration with accepted builds
+  `4,5,6,7`, validation category `2`, schema-v4 auth-store integrity, zero foreign-key failures,
+  low-band encrypted-volume use, and safe aggregate `1/0/0`. `/health`, Gmail-free route absence,
+  fail-closed unauthenticated styling, and the exact reviewed route set pass. The newest automatic
+  snapshot remains `2026-08-28T07:37:13Z`, status `created`, retention 14 days. The payload-free
+  review passed at `2026-08-29T02:21:41Z`: the official two-day Fly metric has only `2xx`/`4xx`
+  classes and no `5xx`; the bounded log buffer has no application `5xx`, auth/App Attest,
+  Anthropic, or rate-limit failure class; Anthropic public status, configured monthly limit,
+  below-80%-spend band, expected active Wardrobe Opus 4.8 use, historical-key inactivity, and no
+  saturation pass; and the public Gmail-free support/privacy/Terms pages, contact route, response
+  target, and reciprocal links pass anonymously. No raw provider identifier, metric value, billing
+  amount, key, log, response body, or screenshot is retained.
+- [ ] Repeat the exact-source regression, then distribute build 7. Create and strictly verify the
+  signed archive, repeat the pre-upload review, obtain explicit owner approval immediately before
+  upload, use the normal App-Store-eligible validation/upload route, wait for Apple processing,
+  assign only `Family`, and save truthful tester notes.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
