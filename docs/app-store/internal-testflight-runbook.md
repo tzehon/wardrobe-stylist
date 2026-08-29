@@ -75,6 +75,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
   delivered-reminder-tap proof: the notification opened Today without a crash or local-state loss.
+- APP-014/APP-023 automation evidence from 2026-08-29: 222 backend tests plus locked dependency
+  audit/Bandit/Ruff/mypy, 236/236 iOS tests (226 Swift unit plus 10 UI), all 44 release-script tests,
+  and a clean Release simulator/artifact check passed. The new deterministic process-relaunch
+  harness and transport are DEBUG-only, and the Release-artifact guard proves their launch markers
+  are absent. This test-only change does not alter Release code paths or the preserved build-7
+  archive and does not require build 8.
 - Current production backend baseline: Fly release v10 completed at `2026-08-29T01:52:47Z` and
   serves exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as
   `linux/amd64`. Release and running image references match privately; local and immutable-registry
@@ -620,20 +626,26 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
 7. **Distribute internally.** Add the processed build only to the chosen Internal Testing group,
    enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
    gate is desired.
-8. **Run fresh-install QA.** Never install a fresh-reset candidate over an older app. Build 4 and
-   build 5 each completed an identity-safe handoff before the next clean install. Build 6 has passed
-   the replacement matrix through the fixed delivered-reminder tap and its final owner-controlled
-   server/local deletion, uninstall, clean reinstall, and new anonymous enrollment. The complete
-   matrix is: launch/icon, local
-   onboarding, offline Demo Mode, manual add, camera/photo library,
-   catalog edit/delete, App Attest enrollment/session renewal, styling consent/withdrawal,
-   Today/History, local reminders, Settings/privacy, local deletion, separate server-security
-   deletion, offline/relaunch, backend failure, and reinstall creating a new anonymous
-   installation. Confirm no Google/Gmail/receipt-import UI or request exists. Verify
-   local/demo behavior remains available when secure remote AI is unavailable. Through the
-   processed internal TestFlight build, retain production enrollment, assertion renewal, and a
-   protected API call. On iOS 18–26, record signed runtime-field absence without claiming
-   category/build enforcement.
+8. **Run automated regression, then a targeted fresh-install physical delta.** Never install a
+   fresh-reset candidate over an older app. The complete matrix remains the release inventory, not
+   a manual script to replay in full. Simulator/UI automation owns deterministic first launch and
+   Gmail-free UI, offline Demo, manual catalog operations, consent and Settings, Today/History,
+   reminder controls, isolated local/server deletion, and offline/relaunch/backend-failure behavior.
+   The deterministic process-relaunch journey styles against an isolated fake, terminates and
+   relaunches offline, proves the idle **Style a look** state makes no request, restores the cached
+   look only after an explicit tap without a request, preserves it through a failed Restyle, and
+   reaches Wear/History.
+
+   A processed TestFlight candidate still requires an owner-controlled identity-safe handoff and
+   clean installation plus boundaries simulator fakes cannot establish: production App Attest
+   enrollment/assertion and a protected API call; signed entitlements/runtime fields; any open live
+   deletion, snapshot, or recovery step; real Camera/Photo Library permission surfaces; delivered OS
+   notification routing; actual device connectivity behavior; and visual/assistive presentation.
+   Always test the candidate-specific delta. Repeat unchanged media, notification, offline, catalog,
+   cached-Today, or Wear/History rows only when their shipped source/configuration changed, retained
+   physical proof is missing, or the targeted smoke reveals a regression. Confirm no Google/Gmail/
+   receipt-import UI or request exists through automated artifact/network guards. On iOS 18–26,
+   record signed runtime-field absence without claiming category/build enforcement.
 9. **Retire the bridge.** If a legacy compatibility bridge was used, switch the validated backend
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
    the candidate still succeeds. After build 4 is distributed, recovery must use the exact current
@@ -708,8 +720,10 @@ cleanly. This is not upgrade or migration evidence.
 | Remaining lifecycle boundary | Eligible 14-day snapshot-list disappearance and deletion-specific recovery/non-return evidence remain open |
 
 The intermediate idle state before explicit cache restoration matches the no-network-call-on-tab-
-appearance design. The runbook wording and production process-relaunch automation should make the
-required explicit tap clear. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot confirms
+appearance design. A deterministic DEBUG-only process-relaunch XCUITest now pins that exact
+explicit-action sequence and its request count with fictional data and an isolated fake network; it
+does not substitute for production App Attest or other physical-device boundaries. Separately, the
+2026-08-28 owner-supplied Dark Mode screenshot confirms
 that build 6's **Allow AI styling** title is approximately 21 points right of the button center and
 that the sampled `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 therefore
 fails the visual presentation gate and is non-promotable; this does not invalidate its completed
@@ -806,8 +820,11 @@ identity or notification evidence.
   recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
   owner approval at that boundary, use the normal App-Store-eligible validation/upload route, wait
   for Apple processing, assign only `Family`, and save truthful tester notes.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7, make one
+  production App-Attest-protected styling request, and physically retest title centering, icon-slot
+  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion. When the current
+  automated suite is green and retained build-6 physical evidence still applies, do not repeat the
+  unchanged catalog, cached-Today, Wear/History, or reminder flows.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
@@ -873,6 +890,22 @@ Saved and reload-verified on processed build `1.0.0 (6)` for the `Family` Intern
 2026-08-23. The build has one group tester and no individual tester assignments. This preserves the
 pre-install identity-safe handoff instruction; the later clean physical evidence is recorded above
 and does not rewrite the historically saved note.
+
+## Draft truthful What to Test wording for build 7
+
+> Build 7 is a clean-install visual replacement for build 6. Keep build 6 installed until the owner
+> confirms its identity-safe handoff is complete; do not install or update build 7 over build 6.
+>
+> After approval and a clean install, use Dark Mode to open **Settings → Connected Features**. Confirm
+> **Allow AI styling** has a centered title, no empty icon slot, and legible enabled, pressed, and
+> disabled states. Grant styling and make one online **Style a look** request to verify the processed
+> build's production App Attest path. The green automated regression already covers unchanged local
+> catalog, cached-Today/offline-Restyle, Wear/History, reminder controls, and Gmail-free UI; do not
+> manually repeat those flows unless this targeted smoke exposes a regression.
+>
+> Do not perform local/server deletion, uninstall, or reinstall until the runbook clears those stages.
+
+This wording is a draft until build 7 is processed, assigned only to `Family`, saved, and reloaded.
 
 ## Official Apple references
 

@@ -55,12 +55,22 @@ fi
 
 readonly APP_EXECUTABLE="${APP_PATH}/Wardrobe"
 [[ -f "${APP_EXECUTABLE}" ]] || fail "built app executable is missing"
-if /usr/bin/strings "${APP_EXECUTABLE}" | /usr/bin/grep -F '/extract' >/dev/null; then
+if /usr/bin/grep -aF '/extract' "${APP_EXECUTABLE}" >/dev/null; then
   fail "built app contains the removed extraction route"
 fi
-if /usr/bin/strings "${APP_EXECUTABLE}" | /usr/bin/grep -F 'gmail.readonly' >/dev/null; then
+if /usr/bin/grep -aF 'gmail.readonly' "${APP_EXECUTABLE}" >/dev/null; then
   fail "built app contains the removed mail authorization scope"
 fi
+readonly -a DEBUG_UI_TEST_MARKERS=(
+  '--wardrobe-ui-testing-connected'
+  '--wardrobe-ui-testing-local'
+  '--wardrobe-ui-testing-today-relaunch'
+)
+for marker in "${DEBUG_UI_TEST_MARKERS[@]}"; do
+  if /usr/bin/grep -aF -- "${marker}" "${APP_EXECUTABLE}" >/dev/null; then
+    fail "built app contains a debug-only UI-test harness"
+  fi
+done
 
 # Xcode strips App Attest from simulator signatures because DeviceCheck isn't available there.
 # TestFlight and App Store device products must retain the production entitlement, so inspect the

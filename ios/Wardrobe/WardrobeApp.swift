@@ -7,6 +7,7 @@ struct WardrobeApp: App {
     @State private var demoMode: DemoModeController
 #if DEBUG
     @State private var connectedUITestExperience: ConnectedUITestExperience?
+    @State private var todayProcessRelaunchUITestExperience: TodayProcessRelaunchUITestExperience?
 #endif
 
     private static let isReviewerDemoLaunch = DemoLaunchPolicy.isRequested(
@@ -20,11 +21,17 @@ struct WardrobeApp: App {
     private static let isLocalUITestLaunch = LocalUITestLaunchPolicy.isRequested(
         arguments: ProcessInfo.processInfo.arguments
     )
+    private static let isTodayProcessRelaunchUITestLaunch =
+        TodayProcessRelaunchUITestLaunchPolicy.isRequested(
+            arguments: ProcessInfo.processInfo.arguments
+        )
 #endif
 
     init() {
 #if DEBUG
-        if !Self.isConnectedUITestLaunch && !Self.isLocalUITestLaunch {
+        if !Self.isConnectedUITestLaunch
+            && !Self.isLocalUITestLaunch
+            && !Self.isTodayProcessRelaunchUITestLaunch {
             DailyReminderNotificationRouter.shared.install()
         }
 #else
@@ -33,7 +40,9 @@ struct WardrobeApp: App {
 
         let shouldLoadProductionStore: Bool
 #if DEBUG
-        shouldLoadProductionStore = !Self.isReviewerDemoLaunch && !Self.isConnectedUITestLaunch
+        shouldLoadProductionStore = !Self.isReviewerDemoLaunch
+            && !Self.isConnectedUITestLaunch
+            && !Self.isTodayProcessRelaunchUITestLaunch
 #else
         shouldLoadProductionStore = !Self.isReviewerDemoLaunch
 #endif
@@ -44,6 +53,8 @@ struct WardrobeApp: App {
             storeController = PersistentStoreController(loader: {
                 try ModelContainerFactory.makeInMemory()
             })
+        } else if Self.isTodayProcessRelaunchUITestLaunch {
+            storeController = PersistentStoreController(automaticallyLoad: false)
         } else {
             storeController = PersistentStoreController(automaticallyLoad: shouldLoadProductionStore)
         }
@@ -57,6 +68,11 @@ struct WardrobeApp: App {
         _connectedUITestExperience = State(initialValue: Self.isConnectedUITestLaunch
             ? try? ConnectedUITestExperience()
             : nil)
+        _todayProcessRelaunchUITestExperience = State(
+            initialValue: Self.isTodayProcessRelaunchUITestLaunch
+                ? try? TodayProcessRelaunchUITestExperience()
+                : nil
+        )
 #endif
     }
 
@@ -67,7 +83,19 @@ struct WardrobeApp: App {
     @ViewBuilder
     private var launchContent: some View {
 #if DEBUG
-        if Self.isConnectedUITestLaunch {
+        if Self.isTodayProcessRelaunchUITestLaunch {
+            if let todayProcessRelaunchUITestExperience {
+                TodayProcessRelaunchUITestRootView(
+                    experience: todayProcessRelaunchUITestExperience
+                )
+            } else {
+                ContentUnavailableView(
+                    "Isolated Today UI test unavailable",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("The process-relaunch UI-test environment could not be created.")
+                )
+            }
+        } else if Self.isConnectedUITestLaunch {
             if let connectedUITestExperience {
                 ConnectedUITestRootView(experience: connectedUITestExperience)
             } else {

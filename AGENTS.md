@@ -148,8 +148,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Restyle preservation, offline Wear/History, and delivered-reminder routing. Tapping the reminder
   opened Today without crashing and preserved Wardrobe/History state. Today initially showing
   **Style a look** before the cached look is explicitly restored is the intended no-call-on-tab-
-  appearance behavior, but the runbook wording and process-relaunch automation should make that
-  intermediate step explicit. A later eligible automatic snapshot at `2026-08-25T07:35:53Z`, status
+  appearance behavior. Deterministic DEBUG-only process-relaunch UI automation now pins that idle
+  state, zero-request explicit cache restoration, failed-Restyle preservation, and Wear/History.
+  A later eligible automatic snapshot at `2026-08-25T07:35:53Z`, status
   `created`, retention 14 days, cleared the final-client handoff gate. Before deletion, the live
   installation/session/challenge aggregate was `1/0/0`. Owner-controlled server deletion produced
   exactly one bounded deletion marker; post-deletion and post-uninstall aggregates were `0/0/0`.
@@ -217,6 +218,20 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   absent. Repeat the full review and refresh App Store Connect immediately before upload, then obtain
   separate explicit owner approval. Validation/upload, Apple processing, `Family` assignment,
   truthful tester notes, and clean physical Dark Mode visual retest remain open.
+- The 2026-08-29 APP-014/APP-023 automation tranche passed 222 backend tests plus locked
+  audit/Bandit/Ruff/mypy, 236/236 iOS tests (226 Swift unit plus 10 UI), all 44 release-script tests,
+  and the clean Release simulator/artifact gate. The isolated process-relaunch harness and transport
+  are DEBUG-only; the Release verifier rejects any UI-test launch marker in a shipped executable.
+  This test-only change does not alter Release code paths or the preserved build-7 archive and does
+  not require build 8.
+- Treat the complete release matrix as an inventory, not a manual script to replay for every build.
+  Automation owns repeatable local/Gmail-free, Demo, catalog, consent/Settings, Today/History,
+  reminder-control, isolated deletion, offline/relaunch, and backend-failure behavior. A processed
+  TestFlight candidate still needs the owner-controlled identity-safe handoff, clean install,
+  production App Attest/protected-call proof, signed runtime fields, any open live deletion/snapshot/
+  recovery step, real system permission/notification/connectivity behavior, and the candidate-
+  specific visual or assistive delta. Repeat an unchanged physical row only when its source or
+  configuration changed, retained proof is missing, or targeted smoke exposes a regression.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

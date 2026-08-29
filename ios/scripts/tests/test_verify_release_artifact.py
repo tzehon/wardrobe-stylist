@@ -139,6 +139,14 @@ class ReleaseArtifactScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("removed mail authorization scope", result.stderr)
 
+    def test_rejects_debug_ui_test_harness_in_executable(self) -> None:
+        result = self._verify(
+            self._make_app(executable_marker="--wardrobe-ui-testing-today-relaunch")
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("debug-only UI-test harness", result.stderr)
+
     def test_rejects_forbidden_sdk_bundle_nested_in_app(self) -> None:
         result = self._verify(
             self._make_app(nested_forbidden_bundle="GoogleSignIn_GoogleSignIn.bundle")
