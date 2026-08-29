@@ -188,7 +188,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   no `5xx`; bounded logs have no application `5xx`, auth/App Attest, Anthropic, or rate-limit failure
   class; Anthropic status, configured-limit, below-80%-spend, production Opus 4.8, and no-saturation
   checks pass; and the public Gmail-free support/privacy/Terms pages pass anonymously. At the
-  `2026-08-29T03:31:57Z` pre-archive checkpoint, fresh private-registry authentication re-resolved
+  `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh private-registry authentication re-resolved
   the exact v10 recovery reference with the expected source identity and Linux/AMD64 architecture,
   and its zero-High/Critical scan passed. The former Gmail-free v6 reference remains timestamped
   historical evidence, but its current platform/source identity was not independently proven and
@@ -197,9 +197,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   physical QA until exact v10 is restored and reverified. Post-merge exact-source regression on
   clean synchronized main `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests
   plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, 9 UI tests, 43 release-script tests, and the
-  Release simulator/artifact gates. The signed archive, fresh App Store Connect build-absence
-  check, validation/upload, Apple processing, `Family` assignment, truthful tester notes, and clean
-  physical Dark Mode visual retest remain open.
+  Release simulator/artifact gates. A fresh full operations/recovery review before archive, the
+  signed archive, fresh App Store Connect build-absence check, validation/upload, Apple processing,
+  `Family` assignment, truthful tester notes, and clean physical Dark Mode visual retest remain open.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

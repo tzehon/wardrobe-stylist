@@ -98,7 +98,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
   is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
   review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
-  restored and reverified. At the `2026-08-29T03:31:57Z` pre-archive checkpoint, fresh private-
+  restored and reverified. At the `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh private-
   registry authentication re-resolved the exact v10 immutable recovery reference with the expected
   source identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former
   v6 reference's current platform/source identity was not independently proven, so it is ineligible
@@ -761,11 +761,12 @@ identity or notification evidence.
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates. This documentation-only recovery correction does not change the
   verified iOS, backend, or shared source.
-- [ ] Archive and distribute build 7. The immediate pre-archive v10 operations/recovery review
-  passed. Create and strictly verify the signed archive, refresh App Store Connect to reconfirm
-  build 7 is unused, repeat the review immediately before upload, obtain explicit owner approval at
-  that boundary, use the normal App-Store-eligible validation/upload route, wait for Apple
-  processing, assign only `Family`, and save truthful tester notes.
+- [ ] Archive and distribute build 7. The current v10 recovery baseline is established, but repeat
+  the full operations/recovery review immediately before archive. Then create and strictly verify
+  the signed archive, refresh App Store Connect to reconfirm build 7 is unused, repeat the review
+  immediately before upload, obtain explicit owner approval at that boundary, use the normal App-
+  Store-eligible validation/upload route, wait for Apple processing, assign only `Family`, and save
+  truthful tester notes.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final

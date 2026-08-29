@@ -226,10 +226,11 @@ backend/configuration change.
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
-  operations review immediately before upload, obtain explicit owner approval, then complete
-  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
-  loop. Update these notes with the exact verified evidence.
+- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
+  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
+  obtain explicit owner approval, then complete normal-route validation/upload, processing,
+  `Family` assignment, and the truthful tester-note loop. Update these notes with the exact verified
+  evidence.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The
