@@ -491,14 +491,16 @@ Required before APP-009 can close:
   single UID-10001 Uvicorn process uses the targeted non-propagating auth-service logger with access
   logging disabled. Health returns `200`, `/extract` returns `404`, unauthenticated `/recommend`
   returns `401`,
-  and the OpenAPI route set matches the reviewed source. Former v7 digest
+  and the OpenAPI route set matches the reviewed source. The exact v10 immutable recovery reference
+  is retained privately and passed the required local and registry scans. Former v9/v8 references,
+  the former v7 digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
   and Gmail-free v6 recovery digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
   freshly re-resolved and scanned across 90 packages with zero critical/high vulnerabilities. Both
-  are operational recovery only: using either reopens the exact-candidate deployment,
-  configuration, and manual-review gates and blocks build-6 physical QA until v9 is restored and
-  reverified.
+  are historical operational recovery only: using any former reference reopens the exact-candidate
+  deployment, configuration, and manual-review gates and blocks build-7 archive, distribution, or
+  physical QA until the exact v10 image is restored and reverified.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
