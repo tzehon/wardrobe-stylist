@@ -98,14 +98,16 @@ open.
   category `2` and builds `4,5`, targeted INFO logging, rollback/recovery checks, and the payload-
   free post-change review at `2026-08-21T11:09:20Z` passed. This is not lifecycle-event, upload,
   or physical-device proof.
-- [x] Build, verify locally, deploy, configure, and runtime-check the exact build-6 backend. Fly v9
-  serves clean merged source `de7c540275fb16e61aabf1884538b18cf6edf76f`; a local-only official
-  Alpine secdb comparison found zero unfixed advisories and locked `pip-audit` passed. Release and
-  running image references match; one Singapore Machine is healthy; and category `2`, accepted
+- [x] Build, verify locally, deploy, configure, and runtime-check the exact build-6 backend.
+  Historical Fly v9 served clean merged source `de7c540275fb16e61aabf1884538b18cf6edf76f`;
+  a local-only official Alpine secdb comparison found zero unfixed advisories and locked
+  `pip-audit` passed. Release and running image references matched; one Singapore Machine was
+  healthy; and category `2`, accepted
   builds `4,5,6`, storage, logging, route, and failure-boundary checks passed. No external private-
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
-  not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Repeat it before any future
-  archive/upload and after every backend/configuration change.
+  not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Current Fly v10 state is
+  recorded in the build-7 section below. Repeat its review before any future archive/upload and
+  after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
   at `2026-08-22T01:00:09Z`, and the exact-v8 pre-archive review passed at

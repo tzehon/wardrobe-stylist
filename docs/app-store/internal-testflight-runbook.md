@@ -220,8 +220,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `2026-08-21T06:00:21Z`; the required final pre-upload repeat passed against that exact deployment
   at `2026-08-21T08:12:46Z`. The v8 post-change review passed at
   `2026-08-21T11:09:20Z`; the build-5 pre-validation and post-distribution reviews passed at
-  `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The next routine review remains due no later
-  than 2026-09-21.
+  `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The late v9 review passed at
+  `2026-08-23T02:13:12Z`; the current v10 post-change review passed at
+  `2026-08-29T02:21:41Z`. Repeat immediately before the build-7 archive/upload, after any backend
+  or production-configuration change, and otherwise no later than 2026-09-28.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -442,8 +444,8 @@ Build-7 regression/archive/distribution and clean physical Dark Mode visual rete
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 backend distribution/
-  clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 regression/archive/
+  TestFlight distribution, clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
