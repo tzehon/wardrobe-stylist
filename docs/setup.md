@@ -352,7 +352,8 @@ from retained snapshot copies.
 The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining
 the process defect. Repeat the review before every future archive/upload, after every backend or
-production-configuration change, and otherwise no later than 2026-09-22.
+production-configuration change, and otherwise no later than 2026-09-28 under the current v10
+review cadence.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or
