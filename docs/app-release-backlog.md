@@ -35,12 +35,12 @@ kept “In progress.”
 | APP-014 | **In progress** | Clean build-6 QA passed Gmail-free first launch, offline Demo/local catalog, Camera and Photo Library saves, production styling/renewal, Today cache/failure recovery, Wear/History, reminder delivery, reminder-tap routing, final-client server/local deletion, clean reinstall, and explicit-action new enrollment. Automated production process-relaunch coverage still needs to prove the explicit cached-look restoration step |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads check selected `1.0.0 (7)` and its source metadata/allowlist preparation is complete; remaining operations evidence, build-7 backend deployment/distribution/clean visual retest, metadata, and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads check selected `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, and the required post-change review now pass. Build-7 regression/archive/distribution/clean visual retest, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **In progress** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The initial **Style a look** state before explicit cache restoration is intended, but runbook wording and process-relaunch automation need to make that intermediate step explicit |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution and clean physical Dark Mode retest remain open. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap and final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation is merged and build `1.0.0 (7)` is selected/prepared, while backend deployment/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and signed build-6 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, and post-change review pass. Build-7 distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -189,8 +189,13 @@ so build 6 is non-promotable. PR #31 has since merged the replacement implementa
 the signed-in TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**,
 with build 7 absent. This proves build 7 unused and selects `1.0.0 (7)` while keeping
 `MARKETING_VERSION = 1.0.0`. Source configuration now prepares `CURRENT_PROJECT_VERSION = 7` and
-accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6` until the updated backend is deployed and
-verified. Backend deployment/health/manual review, the complete distribution pipeline, and clean
+accepted builds `4,5,6,7`. PR #34 rebase-merged the runtime remediation to clean main
+`162688ae72d07f06a7a8116249632aa0101e538f`; the exact merged Linux/AMD64 image passed local and
+immutable-registry zero-High/Critical scans and the runtime smoke gates, then deployed as completed
+Fly v10 at `2026-08-29T01:52:47Z`. Exact image/configuration, health/routes, durable auth-store,
+volume, snapshot, safe aggregate, bounded logs, official two-day no-5xx metric, Anthropic, and
+anonymous public-page checks passed in the required payload-free review at
+`2026-08-29T02:21:41Z`. The repeat regression, signed archive and distribution pipeline, plus clean
 physical Dark Mode visual retest remain open.
 
 - [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
@@ -342,11 +347,20 @@ physical Dark Mode visual retest remain open.
   and passes the non-root, no-new-privileges, logging, SQLite, and mounted-volume smoke gates. Full
   verification passed 222 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI
   tests, 43 release-script tests, and the clean `1.0.0 (7)` Release simulator artifact check. This is
-  local source/image evidence only; reviewed merge, registry re-scan, and deployment remain open.
-- [ ] **Deploy and distribute only the selected build-7 candidate.** Deploy the exact prepared
-  backend configuration, verify the live release/configuration/image, health, and payload-free manual
-  review, then repeat the full regression, archive, validation, normal-route upload, Apple processing,
-  `Family` assignment, and truthful tester-note gates.
+  local source/image evidence only; deployment evidence is recorded separately below.
+- [x] **Deploy and review the selected build-7 backend candidate.** PR #34 rebase-merged the runtime
+  remediation to clean main `162688ae72d07f06a7a8116249632aa0101e538f`. The exact merged
+  Linux/AMD64 image passed local and immutable-registry zero-High/Critical scans and the runtime
+  smoke gates, then deployed as completed Fly v10 at `2026-08-29T01:52:47Z`. Live image/configuration,
+  health/routes, App-Attest-only auth, schema-v4 integrity, low-band volume use, automatic snapshot,
+  and safe aggregate `1/0/0` pass. The payload-free review passed at `2026-08-29T02:21:41Z`: the
+  official two-day metric has only `2xx`/`4xx` classes and no `5xx`; bounded failure classes,
+  Anthropic status/limit/spend/model/saturation, and anonymous public support/privacy/Terms checks
+  pass. No raw provider body, identifier, metric, billing amount, key, log, or screenshot is retained.
+- [ ] **Repeat regression and distribute only build 7.** Create and strictly verify the signed
+  archive, repeat the pre-upload review, obtain explicit owner approval immediately before upload,
+  validate/upload through the normal App-Store-eligible route, wait for Apple processing, assign
+  only `Family`, and save truthful tester notes.
 - [ ] **Clean-install and physically retest the build-7 control.** On the processed TestFlight build,
   confirm the title is centered with no invisible icon slot and that enabled, pressed,
   and disabled presentation remains legible in Dark Mode before promotion.

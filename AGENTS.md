@@ -171,17 +171,25 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   **Build Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**,
   with build 7 absent. Build `1.0.0 (7)` is therefore selected while `MARKETING_VERSION` remains
   `1.0.0`; source configuration is prepared with `CURRENT_PROJECT_VERSION = 7` and accepted builds
-  `4,5,6,7`. Live Fly v9 still accepts only `4,5,6` until the exact updated backend is deployed and
-  verified. A pre-deploy scan then found seven High-severity OpenSSL findings in the prior pinned
+  `4,5,6,7`. A pre-deploy scan then found seven High-severity OpenSSL findings in the prior pinned
   runtime; no candidate image was pushed or deployed. Commit `6186018` refreshes the digest-pinned
   official runtime and its two crypto libraries. The rebuilt Linux/AMD64 image passed Docker Scout
   with zero High/Critical findings plus the non-root, no-new-privileges, logging, SQLite, and mounted-
   volume smoke gates. Full verification passed 222 backend tests plus locked audit/Bandit/Ruff/mypy,
   226 Swift unit tests, 9 UI tests, 43 release-script tests, and the clean `1.0.0 (7)` Release
-  simulator artifact check. This closes only build-number selection, source preparation, and local
-  runtime remediation. Reviewed merge, exact immutable registry scan/deployment, live health/manual
-  review, archive, validation/upload, Apple processing, `Family` assignment, truthful tester notes,
-  and clean physical Dark Mode visual retest remain open.
+  simulator artifact check. PR #34 rebase-merged that remediation to clean main
+  `162688ae72d07f06a7a8116249632aa0101e538f`. The exact merged Linux/AMD64 image passed local and
+  immutable-registry zero-High/Critical scans and the runtime smoke gates, then deployed as completed
+  Fly v10 at `2026-08-29T01:52:47Z`. Live release and Machine image references match privately;
+  production accepts builds `4,5,6,7` in TestFlight validation category `2`; health, route,
+  App-Attest-only configuration, durable auth-store integrity, encrypted-volume use, automatic
+  snapshot policy, and safe aggregate `1/0/0` all pass. The required payload-free post-change review
+  passed at `2026-08-29T02:21:41Z`: the official two-day Fly metric has only `2xx`/`4xx` classes and
+  no `5xx`; bounded logs have no application `5xx`, auth/App Attest, Anthropic, or rate-limit failure
+  class; Anthropic status, configured-limit, below-80%-spend, production Opus 4.8, and no-saturation
+  checks pass; and the public Gmail-free support/privacy/Terms pages pass anonymously. Repeat the
+  exact-source regression, signed archive, validation/upload, Apple processing, `Family` assignment,
+  truthful tester notes, and clean physical Dark Mode visual retest remain open.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.
