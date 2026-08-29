@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current release status — 2026-08-28
+## Current release status — 2026-08-29
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -52,9 +52,12 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `Family` assignment, and truthful tester-note save all passed. Build 6 is consumed and must never
   be reused. A later 2026-08-28 Dark Mode screenshot confirmed its styling-consent control
   presentation failure, so build 6 is non-promotable. PR #31 has since merged and verified the
-  replacement control implementation; its distribution number remains unselected pending a fresh
-  live App Store Connect check. The root `README.md` remains unchanged by design; this runbook and
-  the release backlog own live release state.
+  replacement control implementation. On 2026-08-29, the signed-in TestFlight **Build Uploads** view
+  showed build 6 as the highest upload and **Complete**, with build 7 absent. Build `1.0.0 (7)` is
+  selected while `MARKETING_VERSION` remains `1.0.0`; source configuration is prepared with
+  `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. Live Fly v9 remains on `4,5,6` until
+  the exact updated backend is deployed and verified. The root `README.md` remains unchanged by
+  design; this runbook and the release backlog own live release state.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
@@ -338,8 +341,9 @@ build-4 identity-safe recovery, partial clean build-5 physical QA, the build-6 a
 review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6 physical QA, and
 the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
-failed, and PR #31 has merged the replacement implementation; unnumbered distribution and clean
-physical Dark Mode visual retest remain open:
+failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
+source configuration is prepared, while backend deployment/distribution and clean physical Dark
+Mode visual retest remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -431,8 +435,8 @@ physical Dark Mode visual retest remain open:
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, unnumbered replacement
-  distribution/clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 backend distribution/
+  clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -702,12 +706,16 @@ identity or notification evidence.
   focused coverage pins enabled, pressed, and disabled contrast plus the screenshot UI assertion.
   Merged verification passed 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests,
   all 9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
-- [ ] Distribute only a newly numbered replacement candidate. First inspect the live signed-in App
-  Store Connect Build Uploads list and prove the next build number unused; do not name or select the
-  replacement number before that check. Then repeat the exact backend/configuration, full regression,
-  signed archive, normal-route validation/upload, processing, `Family` assignment, and truthful
+- [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
+  **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
+  build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
+  configuration with `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9
+  remains on `4,5,6` until deployment.
+- [ ] Deploy and distribute only the selected build-7 candidate. Verify the exact live backend
+  release/configuration/image, health, and payload-free manual review, then repeat the full regression,
+  signed archive, normal-route validation/upload, Apple processing, `Family` assignment, and truthful
   tester-note gates.
-- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
@@ -718,8 +726,9 @@ identity or notification evidence.
 Build 4 is not promotable because of the Today offline-cache defect, and build 5 is not promotable
 because of the delivered-reminder tap crash. Build 6 passed the affected identity and notification
 routes but is non-promotable because it failed the styling-consent control presentation gate. The
-replacement remains unnumbered until live App Store Connect proves the next build unused. When that
-replacement candidate is fully approved for public release, do not rebuild unless something changed:
+replacement is selected as `1.0.0 (7)` but remains undistributed until its exact backend and complete
+release loop pass. When that replacement candidate is fully approved for public release, do not
+rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
   screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not
