@@ -32,6 +32,12 @@ final class WardrobeUITests: XCTestCase {
         static let saveAddedItem = "item.add.save"
         static let photoLibrary = "item.photo.library"
 
+        static let todayRelaunchRoot = "uiTest.today.root"
+        static let todayGenerate = "today.generate"
+        static let todayRestyle = "today.restyle"
+        static let todayRefreshFailure = "today.refreshFailure"
+        static let todayWear = "today.wear"
+
         static let connectedRoot = "uiTest.connected.root"
         static let connectedFeatures = "settings.hub.connected"
         static let wardrobeAndDemo = "settings.hub.wardrobe"
@@ -261,6 +267,86 @@ final class WardrobeUITests: XCTestCase {
     }
 
     @MainActor
+    func testTodayCacheRestoresWithoutNetworkAfterProcessRelaunchAndSurvivesOfflineRestyle() {
+        let app = launchTodayProcessRelaunchExperience(phase: .online, reset: true)
+        XCTAssertTrue(
+            element(in: app, identifier: Identifier.todayRelaunchRoot)
+                .waitForExistence(timeout: 5)
+        )
+
+        let generate = element(in: app, identifier: Identifier.todayGenerate)
+        XCTAssertTrue(generate.waitForExistence(timeout: 3))
+        assertTodayNetworkRequestCount(0, in: app)
+        generate.tap()
+
+        XCTAssertTrue(app.staticTexts["Weekday Layers"].waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label BEGINSWITH %@", "Styled ")
+            ).firstMatch.exists
+        )
+        assertLookItemsRemainVisible(in: app)
+        assertTodayNetworkRequestCount(1, in: app)
+
+        app.terminate()
+        configureTodayProcessRelaunchArguments(on: app, phase: .offline, reset: false)
+        app.launch()
+
+        XCTAssertTrue(
+            element(in: app, identifier: Identifier.todayRelaunchRoot)
+                .waitForExistence(timeout: 5)
+        )
+        let restoreCachedLook = element(in: app, identifier: Identifier.todayGenerate)
+        XCTAssertTrue(restoreCachedLook.waitForExistence(timeout: 3))
+        XCTAssertFalse(
+            app.staticTexts["Look details saved earlier today · available offline"].exists,
+            "Relaunch must stay idle until the user explicitly asks to restore today's look."
+        )
+        RunLoop.current.run(until: Date().addingTimeInterval(1))
+        assertTodayNetworkRequestCount(0, in: app)
+
+        restoreCachedLook.tap()
+        XCTAssertTrue(
+            app.staticTexts["Look details saved earlier today · available offline"]
+                .waitForExistence(timeout: 5)
+        )
+        assertLookItemsRemainVisible(in: app)
+        assertTodayNetworkRequestCount(0, in: app)
+
+        let restyle = element(in: app, identifier: Identifier.todayRestyle)
+        XCTAssertTrue(restyle.waitForExistence(timeout: 3))
+        restyle.tap()
+        XCTAssertTrue(
+            element(in: app, identifier: Identifier.todayRefreshFailure)
+                .waitForExistence(timeout: 5)
+        )
+        XCTAssertTrue(app.staticTexts["Couldn't refresh this look"].exists)
+        XCTAssertTrue(
+            app.staticTexts["Look details saved earlier today · available offline"].exists
+        )
+        assertLookItemsRemainVisible(in: app)
+        assertTodayNetworkRequestCount(1, in: app)
+
+        let wear = element(in: app, identifier: Identifier.todayWear)
+        XCTAssertTrue(scrollToElement(wear, in: app))
+        wear.tap()
+        XCTAssertTrue(app.buttons["Added to today"].waitForExistence(timeout: 3))
+
+        tab(in: app, identifier: Identifier.historyTab, fallbackLabel: "History").tap()
+        XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 3))
+        let wornLook = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@ AND label CONTAINS[c] %@",
+                "Weekday layers",
+                "Fictional Navy Overshirt",
+                "Fictional Stone Trousers"
+            )
+        ).firstMatch
+        XCTAssertTrue(wornLook.waitForExistence(timeout: 3))
+        assertTodayNetworkRequestCount(1, in: app)
+    }
+
+    @MainActor
     func testSettingsHubAndStylingConsentStayExplicitAndReversible() {
         let app = launchConnectedUITestExperience()
 
@@ -438,12 +524,84 @@ final class WardrobeUITests: XCTestCase {
 
     @MainActor
     private func launchConnectedUITestExperience() -> XCUIApplication {
-        let app = launchApp(arguments: ["--wardrobe-ui-testing-connected"])
+        let app = launchApp(arguments: [
+            "--wardrobe-ui-testing-connected",
+            "-AppleInterfaceStyle", "Dark",
+        ])
         XCTAssertTrue(
             element(in: app, identifier: Identifier.connectedRoot)
                 .waitForExistence(timeout: 5)
         )
         return app
+    }
+
+    private enum TodayProcessRelaunchPhase: Equatable {
+        case online
+        case offline
+    }
+
+    @MainActor
+    private func launchTodayProcessRelaunchExperience(
+        phase: TodayProcessRelaunchPhase,
+        reset: Bool
+    ) -> XCUIApplication {
+        let app = XCUIApplication()
+        configureTodayProcessRelaunchArguments(on: app, phase: phase, reset: reset)
+        app.launch()
+        return app
+    }
+
+    @MainActor
+    private func configureTodayProcessRelaunchArguments(
+        on app: XCUIApplication,
+        phase: TodayProcessRelaunchPhase,
+        reset: Bool
+    ) {
+        app.launchArguments = [
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US",
+            "--wardrobe-ui-testing-today-relaunch",
+        ]
+        if phase == .offline {
+            app.launchArguments.append("--wardrobe-ui-testing-today-offline")
+        }
+        if reset {
+            app.launchArguments.append("--wardrobe-ui-testing-today-reset")
+        }
+    }
+
+    @MainActor
+    private func assertTodayNetworkRequestCount(
+        _ expected: Int,
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let counter = app.staticTexts["UI test network requests: \(expected)"]
+        XCTAssertTrue(
+            counter.waitForExistence(timeout: 3),
+            "Expected exactly \(expected) isolated styling request(s).",
+            file: file,
+            line: line
+        )
+    }
+
+    @MainActor
+    private func assertLookItemsRemainVisible(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for name in [
+            "Fictional Navy Overshirt",
+            "Fictional Stone Trousers",
+            "Fictional Brown Loafers",
+        ] {
+            let item = app.descendants(matching: .any).matching(
+                NSPredicate(format: "label CONTAINS[c] %@", name)
+            ).firstMatch
+            XCTAssertTrue(item.waitForExistence(timeout: 3), file: file, line: line)
+        }
     }
 
     @MainActor

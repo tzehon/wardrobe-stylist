@@ -32,12 +32,12 @@ kept “In progress.”
 | APP-011 | **Done** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards remain implemented. Historical build-4/build-5/build-6 archives are retained; the exact final build-7 production-signed archive passed profile, entitlement, identity, and public-configuration verification |
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. The final build-7 signed archive passed the privacy-manifest and Gmail-free absence guards plus a separate non-emitting credential scan |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
-| APP-014 | **In progress** | Clean build-6 QA passed Gmail-free first launch, offline Demo/local catalog, Camera and Photo Library saves, production styling/renewal, Today cache/failure recovery, Wear/History, reminder delivery, reminder-tap routing, final-client server/local deletion, clean reinstall, and explicit-action new enrollment. Automated production process-relaunch coverage still needs to prove the explicit cached-look restoration step |
+| APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
 | APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification now pass. Validation/upload, processing, assignment, clean visual retest, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
-| APP-023 | **In progress** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The initial **Style a look** state before explicit cache restoration is intended, but runbook wording and process-relaunch automation need to make that intermediate step explicit |
+| APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution and clean physical Dark Mode retest remain open. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
 | APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification pass. Build-7 upload/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
@@ -113,6 +113,13 @@ delegate bridges with completion-handler delegates, snapshots only Sendable resp
 explicitly performs route publication and completion on the main queue. Focused tests passed
 17/17. Merged-source evidence retained 221 backend tests plus locked dependency audit, Bandit,
 Ruff, and mypy; 231/231 iOS tests (222 Swift unit plus 9 UI); and all 43 release-script tests.
+
+The 2026-08-29 APP-014/APP-023 automation tranche passed 222 backend tests plus locked
+dependency audit/Bandit/Ruff/mypy, 236/236 iOS tests (226 Swift unit plus 10 UI), all 44 release-
+script tests, and a clean Release simulator/artifact check. The new process-relaunch harness and
+transport are DEBUG-only; the Release-artifact guard proves their launch markers are absent. This
+test-only change does not alter Release code paths or the preserved build-7 archive and does not
+require build 8.
 
 The current production baseline is Fly release v10, completed at `2026-08-29T01:52:47Z`. It serves
 exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as `linux/amd64`;
@@ -393,9 +400,12 @@ open.
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
   wait for Apple processing, assign only `Family`, and save truthful tester notes.
-- [ ] **Clean-install and physically retest the build-7 control.** On the processed TestFlight build,
-  confirm the title is centered with no invisible icon slot and that enabled, pressed,
-  and disabled presentation remains legible in Dark Mode before promotion.
+- [ ] **Clean-install and physically retest the build-7 delta.** Complete the owner-controlled
+  identity-safe handoff, install the processed TestFlight build cleanly, make one production
+  App-Attest-protected styling request, and confirm the title is centered with no invisible icon slot
+  and that enabled, pressed, and disabled presentation remains legible in Dark Mode. When the current
+  automated suite is green and retained build-6 physical evidence still applies, do not repeat the
+  unchanged catalog, cached-Today, Wear/History, or reminder flows.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any replacement-candidate physical, deletion,
@@ -648,15 +658,20 @@ governed by APP-036's Gmail-free guards.
   fictional manual/photo data. It is visually distinct from real data, never calls the backend,
   and its catalog, Today, History, editing, deletion, relaunch, and offline behavior pass UI
   automation.
-- [ ] **APP-014 · In progress · Add end-to-end UI coverage.** Preserve first launch, styling
+- [x] **APP-014 · Done · Add end-to-end UI coverage.** Preserve first launch, styling
   disclosure/consent, demo entry, manual/photo add/edit/delete, catalog search/filter, Today/
   History, reminder controls, local deletion, server-security deletion, and offline/relaunch
   coverage. Add mandatory clean-uninstall/fresh-install plus signed-artifact/network absence checks
   for Google/Gmail/receipt import. Clean build-5 physical QA closed the former media-selection and
   Today-Restyle gaps but exposed a `SIGABRT` when a delivered reminder was tapped. Clean build 6
   passed the fixed delivered-tap route, preserved local state, and completed final deletion/
-  reinstall/new-enrollment proof. Automated coverage still lacks a production process-relaunch case
-  that proves the explicit cached-look restoration step.
+  reinstall/new-enrollment proof. A deterministic DEBUG-only journey now closes the remaining
+  repeatable process-relaunch gap using fictional data and the shipped Today/History views: it styles
+  online, terminates and relaunches offline, proves the idle **Style a look** state makes no request,
+  restores the cached look only after an explicit tap without a request, preserves it through a
+  failed Restyle, and records Wear in History. Production App Attest, the processed TestFlight
+  installation, real media permissions and notification delivery, live deletion, snapshot/recovery,
+  and uninstall/reinstall remain physical release boundaries rather than missing automation.
 - [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
   full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions. The clean complete
@@ -729,14 +744,15 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
 - [x] **APP-022 · Historical / partial carry-forward · Improve catalog information architecture.** Add clear local/imported and
   pending-review cues, useful empty/search-zero states, stable sorting, favorites, archive, and
   bulk review where it materially reduces effort.
-- [ ] **APP-023 · In progress · Polish Today.** Cache a recommendation for the day, let users refresh
+- [x] **APP-023 · Done · Polish Today.** Cache a recommendation for the day, let users refresh
   intentionally, accept occasion/context input, explain empty/error/offline states, and never
   make a backend call merely because a tab appeared. Saving “Wear this” must be transactional
   and acknowledged only after persistence succeeds. Build-4 physical QA found that a failed
   Restyle hid the usable cached look until relaunch. Clean builds 5 and 6 physically verified the
   fix: the cached look restored offline and remained visible through failed Restyle. After a
   process relaunch, build 6 intentionally showed **Style a look** until one explicit tap restored
-  the cached look locally; document and automate that intermediate explicit-action state.
+  the cached look locally. Deterministic process-relaunch UI automation now pins that intermediate
+  idle state, the zero-request explicit restoration, failed-Restyle preservation, and Wear/History.
 - [x] **APP-024 · Done · Add outfit history and feedback.** Show worn looks, dates, and
   item details. Let users rate/save/skip a recommendation and feed those preferences into future
   prompts without weakening the catalog-ID hallucination guard.

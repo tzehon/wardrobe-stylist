@@ -432,6 +432,20 @@ struct TodayView: View {
             await recommender.recommend(occasion: occasion)
             return
         }
+#if DEBUG
+        if let uiTestRecommenderFactory = TodayProcessRelaunchUITestRuntime.recommenderFactory {
+            do {
+                let made = try uiTestRecommenderFactory(modelContext, accountScope)
+                guard !Task.isCancelled else { return }
+                recommender = made
+                await made.recommend(occasion: occasion)
+            } catch {
+                guard !Task.isCancelled else { return }
+                configError = "The styling service isn’t configured for this build. Please try again after updating the app."
+            }
+            return
+        }
+#endif
         do {
             let baseURL = try BackendConfig.load()
             guard !Task.isCancelled else { return }
