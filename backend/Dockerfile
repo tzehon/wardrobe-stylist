@@ -19,7 +19,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
-FROM python:3.12-alpine@sha256:78098ea6a3a9c6a7727a5d4674e4a44e57e01fac878ee9cb4d24a86bd93916ff
+FROM python:3.12-alpine@sha256:d09d15e60962ca365d1cd544a48773bac9d33f2fb1b00f2aa0deec78ade7dc31
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -29,7 +29,8 @@ WORKDIR /app
 # The entrypoint starts with only enough privilege to prepare a root-owned Fly
 # volume, then irrevocably drops to this fixed unprivileged identity before it
 # executes Uvicorn (or an operator-supplied diagnostic command).
-RUN addgroup -S -g 10001 wardrobe \
+RUN apk upgrade --no-cache libcrypto3 libssl3 \
+    && addgroup -S -g 10001 wardrobe \
     && adduser -S -D -H -u 10001 -G wardrobe \
         -s /sbin/nologin wardrobe
 
