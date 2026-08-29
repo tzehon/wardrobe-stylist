@@ -78,9 +78,11 @@ exposes that server-only control. The exact live and retained-recovery digests a
 recorded in the internal-TestFlight runbook. The owner-approved payload-free manual operations
 review replaces automated alert delivery for this personal single-user release. The first manual
 review passed on 2026-08-20, and the v10 post-change review passed at `2026-08-29T02:21:41Z`. A
-fresh full operations/recovery review remains required immediately before build-7 archive and again
-immediately before upload. The Gmail-free public pages are live; snapshot-list expiry and deletion-
-specific recovery remain release gates.
+fresh full operations/recovery review against exact v10 completed at `2026-08-29T11:02:18Z`,
+including a fresh private-registry match and zero-High/Critical Docker Scout scan, immediately
+before the distinct final build-7 archive. Repeat the full review immediately before upload. The
+Gmail-free public pages are live; snapshot-list expiry and deletion-specific recovery remain release
+gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
 mechanism tuple. Live Fly v10 enables application `INFO` only for `app.auth.service`, routes it
@@ -94,9 +96,9 @@ cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner e
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
 flow. Required manual reviews through the live v10 deployment have passed, while the fresh build-7
-pre-archive and pre-upload repeats remain open. Snapshot-list expiry, final App Privacy publication,
-and deletion-specific recovery remain release gates; the manual review must remain current under
-the approved cadence.
+pre-archive repeat has passed and the pre-upload repeat remains open. Snapshot-list expiry, final App
+Privacy publication, and deletion-specific recovery remain release gates; the manual review must
+remain current under the approved cadence.
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.

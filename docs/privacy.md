@@ -81,15 +81,22 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, the build-7 signed
-archive/distribution pipeline, and clean physical Dark Mode visual retest remain release gates. The
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7 validation/
+upload/distribution, and clean physical Dark Mode visual retest remain release gates; the signed-
+archive creation gate itself is complete. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
-has since merged and verified the replacement implementation. A signed-in TestFlight **Build
-Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**, with build
+has since merged and verified the replacement implementation. At the earlier build-selection
+checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the
+highest upload and **Complete**, with build
 7 absent. Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`, and source configuration is
 prepared for accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed
 Fly v10 with the targeted auth-service INFO logger and production TestFlight allowlist for builds
-`4,5,6,7`; the required post-change review passed on 2026-08-29. Its predecessor v8
+`4,5,6,7`; the required post-change review passed on 2026-08-29. The `04:21:50Z` review and
+`07:15:57Z` archive are timing-stale/non-uploadable evidence, and the earlier development-signed
+archive is separately invalid/non-uploadable. A fresh full review completed at `11:02:18Z`,
+followed by the distinct final signed archive at `11:03:10Z` and strict verification at `11:04:02Z`.
+The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with
+build 7 absent. Its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
 `2026-08-22T03:19:20Z` through `03:30:33Z`. The first bounded query was zero because no lifecycle
@@ -200,8 +207,9 @@ deletion/reinstall/new enrollment only. Snapshot-list expiry and deletion-specif
 remain open. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot confirms that build 6's
 **Allow AI styling** title is approximately 21 points right of the button center and that the sampled
 `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 is therefore non-promotable;
-its completed identity and notification evidence remains valid. The 2026-08-29 signed-in Build
-Uploads check showed build 6 highest and **Complete**, with build 7 absent, selecting `1.0.0 (7)`
+its completed identity and notification evidence remains valid. The earlier 2026-08-29 signed-in
+Build Uploads selection check showed build 6 highest and **Complete**, with build 7 absent, selecting
+`1.0.0 (7)`
 while keeping `MARKETING_VERSION = 1.0.0`.
 
 - [x] Complete and verify the replacement control implementation. PR #31 rebase-merged app commit
@@ -218,10 +226,14 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
-  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
-  obtain explicit owner approval, then complete normal-route validation/upload, processing,
-  `Family` assignment, and the truthful tester-note gates.
+- [x] Repeat the full operations/recovery review immediately before archive and strictly verify the
+  distinct final archive. The exact-v10 review, including a fresh private-registry match and zero-
+  High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`; the final archive
+  `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` was created at `11:03:10Z`
+  and verified at `11:04:02Z`. Both earlier archives remain non-uploadable.
+- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
+  before upload, obtain separate explicit owner approval, then complete normal-route validation/
+  upload, processing, `Family` assignment, and the truthful tester-note gates.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 

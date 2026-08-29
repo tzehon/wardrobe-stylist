@@ -70,13 +70,18 @@ a crash or local-state loss. Its final owner-controlled deletion/reinstall/new-e
 also complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately confirmed that the
 **Allow AI styling** title is approximately 21 points right of center and its sampled `#C2DFFC` fill
 against white is approximately `1.38:1`; build 6 is therefore non-promotable. PR #31 has since merged
-and verified the replacement control implementation. On 2026-08-29, the signed-in TestFlight
-**Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7 absent.
+and verified the replacement control implementation. At the earlier build-selection checkpoint on
+2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the highest upload and
+**Complete**, with build 7 absent.
 Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`; source configuration records
 accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as Fly v10 and passed the
-required post-change review on 2026-08-29, and the exact-source regression passed. Snapshot-list
-expiry, deletion-specific recovery/non-return, the build-7 signed archive/distribution pipeline,
-and clean physical Dark Mode visual retest remain open.
+required post-change review on 2026-08-29, and the exact-source regression passed. The `04:21:50Z`
+review and `07:15:57Z` archive are timing-stale/non-uploadable evidence; the earlier development-
+signed archive is separately invalid/non-uploadable. A fresh full review completed at `11:02:18Z`,
+followed by the distinct final signed archive at `11:03:10Z` and strict verification at `11:04:02Z`.
+The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with
+build 7 absent. Snapshot-list expiry, deletion-specific recovery/non-return, build-7 validation/
+upload/distribution, and clean physical Dark Mode visual retest remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -249,12 +254,21 @@ and clean physical Dark Mode visual retest remain open.
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
-  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
-  obtain explicit owner approval at that boundary, then complete normal-route validation/upload,
-  Apple processing, `Family` assignment, and truthful tester-note gates. The current exact-v10
-  recovery baseline is established; the fresh pre-archive review, signed archive verification, and
-  build-absence check remain open.
+- [x] Complete the build-7 pre-archive review and strict signed-archive gate. The `04:21:50Z` review
+  and `07:15:57Z` technically verified archive are retained as timing-stale/non-uploadable evidence;
+  the earlier automatic-signing archive is development-signed and separately invalid/non-uploadable.
+  A fresh full operations/recovery review against exact Fly v10 completed at
+  `2026-08-29T11:02:18Z`, including a fresh private-registry match and zero-High/Critical Docker
+  Scout scan. Clean synchronized main `0cc0fa7` then created the distinct final archive
+  `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` at `11:03:10Z`; strict
+  production App Attest/profile/identity, public-configuration, privacy, Gmail-free, non-emitting
+  credential, deep-signature, and matching arm64 app/dSYM verification passed at `11:04:02Z`. The
+  signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest and **Ready to
+  Submit**, with build 7 absent.
+- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
+  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
+  owner approval at that boundary, then complete normal-route validation/upload, Apple processing,
+  `Family` assignment, and truthful tester-note gates.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
@@ -284,9 +298,9 @@ promotable after the physical reminder-tap crash. Build 6 distribution and its i
 physical evidence are also complete, but the confirmed styling-consent control presentation failure
 makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff remains valid. PR #31
 merged and verified the replacement implementation; build `1.0.0 (7)` is selected/source-prepared,
-and its exact Fly v10 backend deployment, post-change review, and exact-source regression pass.
-Snapshot lifecycle, the build-7 signed archive/distribution pipeline, and clean physical Dark Mode
-visual-retest gates remain open.
+and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact-source regression,
+and strict signed-archive verification pass. Snapshot lifecycle, build-7 validation/upload/
+distribution, and clean physical Dark Mode visual-retest gates remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

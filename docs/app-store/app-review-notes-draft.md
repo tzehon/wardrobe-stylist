@@ -118,13 +118,18 @@ the fixed delivered-reminder tap. The final identity-safe deletion/reinstall and
 enrollment completed on 2026-08-28. A same-day owner-supplied Dark Mode screenshot then confirmed
 that the **Allow AI styling** title is approximately 21 points right of center and its sampled
 `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore non-promotable. PR #31
-has since merged and verified the replacement control implementation. On 2026-08-29, the signed-in
-TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7
+has since merged and verified the replacement control implementation. At the earlier build-selection
+checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the
+highest upload and **Complete**, with build 7
 absent. Build `1.0.0 (7)` is selected while `MARKETING_VERSION` remains `1.0.0`; source configuration
 records accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed Fly
 v10 and passed the required post-change review on 2026-08-29; the exact-source regression also
-passed. Snapshot lifecycle evidence, the build-7 signed archive/distribution pipeline, and clean
-physical Dark Mode visual retest remain open. Reviewed
+passed. The `04:21:50Z` review and `07:15:57Z` archive are timing-stale/non-uploadable evidence, and
+the earlier development-signed archive is separately invalid/non-uploadable. A fresh full review
+completed at `11:02:18Z`, followed by the distinct final signed archive at `11:03:10Z` and strict
+verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest
+and **Ready to Submit**, with build 7 absent. Snapshot lifecycle evidence, build-7 validation/
+distribution, and clean physical Dark Mode visual retest remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
@@ -148,6 +153,11 @@ backend/configuration change.
   strict verifier and separate signing, production App Attest, privacy, public-configuration,
   credential-absence, and removed-capability checks passed for
   `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive`.
+- [x] Confirm the exact final build-7 signed archive has no Google/Gmail/receipt-import capability.
+  The strict verifier and separate Apple Distribution, production App Attest, privacy, public-
+  configuration, credential-absence, removed-capability, deep-signature, and app/dSYM checks passed
+  for `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` at
+  `2026-08-29T11:04:02Z`. Both earlier build-7 archives are explicitly non-uploadable.
 - [x] Confirm processed build 6 presents no human-login screen. Its clean first launch showed
   **Your wardrobe, your way** and an empty wardrobe, with no Google/Gmail/receipt-import path.
 - [x] Record the pre-upload transition. The installed development build disconnected Google,
@@ -226,11 +236,15 @@ backend/configuration change.
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
-  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
-  obtain explicit owner approval, then complete normal-route validation/upload, processing,
-  `Family` assignment, and the truthful tester-note loop. Update these notes with the exact verified
-  evidence.
+- [x] Repeat the full operations/recovery review immediately before archive and strictly verify the
+  distinct final archive. The exact-v10 review, including a fresh private-registry match and zero-
+  High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`; the final archive was
+  created at `11:03:10Z` and verified at `11:04:02Z`. The signed-in `11:05:38Z` refresh showed build
+  6 highest and **Ready to Submit**, with build 7 absent. The stale-review and development-signed
+  archives remain non-uploadable.
+- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
+  before upload, obtain separate explicit owner approval, then complete normal-route validation/
+  upload, processing, `Family` assignment, and the truthful tester-note loop.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The

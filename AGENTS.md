@@ -167,8 +167,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   replacement implementation gate with a title-only, centered, full-width opaque control,
   enabled/pressed/disabled contrast coverage, and a screenshot UI assertion. Merged verification
   passed 221 backend tests plus the locked audit/Bandit/Ruff/mypy gates, 226 Swift unit tests, 9 UI
-  tests, and 43 release-script tests; both GitHub iOS checks are green. A signed-in TestFlight
-  **Build Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**,
+  tests, and 43 release-script tests; both GitHub iOS checks are green. At the earlier build-selection
+  checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the
+  highest upload and **Complete**,
   with build 7 absent. Build `1.0.0 (7)` is therefore selected while `MARKETING_VERSION` remains
   `1.0.0`; source configuration is prepared with `CURRENT_PROJECT_VERSION = 7` and accepted builds
   `4,5,6,7`. A pre-deploy scan then found seven High-severity OpenSSL findings in the prior pinned
@@ -197,9 +198,25 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   physical QA until exact v10 is restored and reverified. Post-merge exact-source regression on
   clean synchronized main `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests
   plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, 9 UI tests, 43 release-script tests, and the
-  Release simulator/artifact gates. A fresh full operations/recovery review before archive, the
-  signed archive, fresh App Store Connect build-absence check, validation/upload, Apple processing,
-  `Family` assignment, truthful tester notes, and clean physical Dark Mode visual retest remain open.
+  Release simulator/artifact gates. The `2026-08-29T04:21:50Z` review was too old to satisfy the
+  immediate pre-archive gate for the archive created at `07:15:57Z`; that technically verified
+  Apple Distribution archive is preserved as
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-7-0cc0fa7-prearchive-review-stale-nonuploadable.xcarchive`
+  and must not be uploaded. The earlier automatic-signing archive used a development profile and is
+  separately retained as invalid/non-uploadable. A new full operations/recovery review against exact
+  Fly v10 completed at `2026-08-29T11:02:18Z`, including a fresh private-registry match and Docker
+  Scout scan with zero High/Critical findings. Clean synchronized documentation-only successor main
+  `0cc0fa7eadac998d32022e3e6a9dba2a62db64c4` then produced the distinct exact `1.0.0 (7)` archive
+  `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive`
+  at `2026-08-29T11:03:10Z` using Xcode 26.6 and the iOS 26.5 SDK. The archive uses manual Apple
+  Distribution signing with the existing App Store profile and passed the strict artifact verifier,
+  production App Attest/profile/identity, public configuration, privacy, Gmail-free and non-emitting
+  credential guards, deep signature verification, and matching arm64 app/dSYM evidence at
+  `2026-08-29T11:04:02Z`; its minimum OS is iOS 18.0. A signed-in post-archive Build Uploads refresh
+  at `2026-08-29T11:05:38Z` showed build 6 as the highest upload and **Ready to Submit**, with build 7
+  absent. Repeat the full review and refresh App Store Connect immediately before upload, then obtain
+  separate explicit owner approval. Validation/upload, Apple processing, `Family` assignment,
+  truthful tester notes, and clean physical Dark Mode visual retest remain open.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.

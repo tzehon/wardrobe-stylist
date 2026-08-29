@@ -39,9 +39,11 @@ The exact approved developer-controlled schedule and its current compliance stat
   evidence.
 - [x] Verify the signed candidate and its generated configuration contain no Google Sign-In SDK,
   Google client identifier/callback scheme, Gmail permission/host/client path, `/extract` client
-  path, receipt-import UI, or receipt-background-task identifier. The exact build-6 source guards,
-  strict signed-archive verifier, and separate non-emitting credential/removed-capability scan
-  passed for `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive`.
+  path, receipt-import UI, or receipt-background-task identifier. The exact build-6 source guards
+  and archive passed historically. The strict verifier and separate non-emitting credential/
+  removed-capability scan passed for the final build-7 archive
+  `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` at
+  `2026-08-29T11:04:02Z`; both earlier build-7 archives are non-uploadable.
 - [x] Confirm the application security-event schema is bounded and excludes payloads, credentials,
   IPs, and installation identifiers; confirm raw IP is absent from SQLite.
 - [x] Disable application access logs in the production container command and pin that command with
@@ -65,6 +67,11 @@ The exact approved developer-controlled schedule and its current compliance stat
   profile/certificate match, and scalar production entitlement. The strict verifier matched the
   prefix, team, bundle, certificate, and production grant; `get-task-allow` is false and no
   devices/all-devices are provisioned.
+- [x] Confirm the exact final build-7 signed archive's production App Attest, App Store profile/
+  certificate identity, public configuration, privacy manifest, and scalar production entitlement.
+  Strict and deep verification passed, and the arm64 app/dSYM identifiers match. The
+  `2026-08-29T11:05:38Z` signed-in Build Uploads refresh showed build 6 highest and **Ready to
+  Submit**, with build 7 absent.
 - [ ] From the final processed client, retain tester OS, signed runtime-field behavior, and the
   exact Apple receipt field set retained. Clean build-6 QA on iPhone 16 Pro/iOS 26.6 proved the
   expected runtime-field absence plus physical registration/assertion, but it does not prove iOS
@@ -172,9 +179,14 @@ The exact approved developer-controlled schedule and its current compliance stat
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
-  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
-  obtain explicit owner approval, then complete normal-route validation/upload, processing,
-  `Family` assignment, and the truthful tester-note loop.
+- [x] Repeat the full operations/recovery review immediately before archive and strictly verify the
+  distinct final archive. The exact-v10 review, including a fresh private-registry match and zero-
+  High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`; the final archive was
+  created at `11:03:10Z` and verified at `11:04:02Z`. The `04:21:50Z` review and `07:15:57Z`
+  archive are timing-stale/non-uploadable; the earlier development-signed archive is separately
+  invalid/non-uploadable.
+- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
+  before upload, obtain separate explicit owner approval, then complete normal-route validation/
+  upload, processing, `Family` assignment, and the truthful tester-note loop.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
