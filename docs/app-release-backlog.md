@@ -335,6 +335,14 @@ physical Dark Mode visual retest remain open.
   absent. Select `1.0.0 (7)` and keep `MARKETING_VERSION = 1.0.0`. Source configuration now records
   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6` until
   the exact updated backend is deployed and verified.
+- [x] **Remediate the build-7 runtime scan before publication or deployment.** The first local
+  Linux/AMD64 candidate scan found seven High-severity OpenSSL findings in the prior pinned runtime,
+  so no image was pushed or deployed. Commit `6186018` refreshes the digest-pinned official runtime
+  and its two crypto libraries. The rebuilt image reports zero High/Critical Docker Scout findings
+  and passes the non-root, no-new-privileges, logging, SQLite, and mounted-volume smoke gates. Full
+  verification passed 222 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI
+  tests, 43 release-script tests, and the clean `1.0.0 (7)` Release simulator artifact check. This is
+  local source/image evidence only; reviewed merge, registry re-scan, and deployment remain open.
 - [ ] **Deploy and distribute only the selected build-7 candidate.** Deploy the exact prepared
   backend configuration, verify the live release/configuration/image, health, and payload-free manual
   review, then repeat the full regression, archive, validation, normal-route upload, Apple processing,

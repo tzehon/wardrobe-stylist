@@ -172,9 +172,16 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   with build 7 absent. Build `1.0.0 (7)` is therefore selected while `MARKETING_VERSION` remains
   `1.0.0`; source configuration is prepared with `CURRENT_PROJECT_VERSION = 7` and accepted builds
   `4,5,6,7`. Live Fly v9 still accepts only `4,5,6` until the exact updated backend is deployed and
-  verified. This closes only build-number selection and source-configuration preparation. Backend
-  deployment/health/manual review, full regression, archive, validation/upload, Apple processing,
-  `Family` assignment, truthful tester notes, and clean physical Dark Mode visual retest remain open.
+  verified. A pre-deploy scan then found seven High-severity OpenSSL findings in the prior pinned
+  runtime; no candidate image was pushed or deployed. Commit `6186018` refreshes the digest-pinned
+  official runtime and its two crypto libraries. The rebuilt Linux/AMD64 image passed Docker Scout
+  with zero High/Critical findings plus the non-root, no-new-privileges, logging, SQLite, and mounted-
+  volume smoke gates. Full verification passed 222 backend tests plus locked audit/Bandit/Ruff/mypy,
+  226 Swift unit tests, 9 UI tests, 43 release-script tests, and the clean `1.0.0 (7)` Release
+  simulator artifact check. This closes only build-number selection, source preparation, and local
+  runtime remediation. Reviewed merge, exact immutable registry scan/deployment, live health/manual
+  review, archive, validation/upload, Apple processing, `Family` assignment, truthful tester notes,
+  and clean physical Dark Mode visual retest remain open.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.
