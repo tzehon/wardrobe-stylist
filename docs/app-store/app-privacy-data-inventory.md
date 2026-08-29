@@ -99,7 +99,7 @@ The exact approved developer-controlled schedule and its current compliance stat
   critical/high scans across 90 packages. An isolated old/new/old schema-v4 rehearsal retained
   integrity and zero foreign-key errors; live `/extract` now returns `404`, `/recommend` rejects
   missing authorization, and the obsolete shared bearer remains rejected. The v5 digest is an
-  emergency pre-build-4 abort only; v6 is the retained Gmail-free recovery baseline.
+  emergency pre-build-4 abort only, and v6 is timestamped historical evidence only.
 - [ ] Confirm Anthropic API retention, training/model-improvement, human access, subprocessors and
   contract configuration in writing.
 - [ ] Match every item above to the exact in-app notice and public policy wording.
@@ -163,7 +163,18 @@ The exact approved developer-controlled schedule and its current compliance stat
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
-- [ ] Repeat regression and distribute build 7 through archive, validation/upload, processing,
-  `Family` assignment, and the truthful tester-note loop.
+- [x] Verify the current recovery reference. At `2026-08-29T03:31:57Z`, fresh private-registry
+  authentication re-resolved the exact v10 immutable reference with the expected source identity
+  and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former v6 reference's
+  current identity was not independently proven, so it is ineligible; exact v10 is the sole current
+  recovery reference.
+- [x] Complete the build-7 exact-source regression. Clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
+  operations review immediately before upload, obtain explicit owner approval, then complete
+  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
+  loop.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.

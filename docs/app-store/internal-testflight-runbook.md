@@ -98,8 +98,13 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
   is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
   review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
-  restored and reverified. The exact v10 immutable recovery reference is retained privately and
-  passed the required local and registry scans.
+  restored and reverified. At the `2026-08-29T03:31:57Z` pre-archive checkpoint, fresh private-
+  registry authentication re-resolved the exact v10 immutable recovery reference with the expected
+  source identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former
+  v6 reference's current platform/source identity was not independently proven, so it is ineligible
+  for rollback or recovery. Exact v10 is the sole current recovery reference; any mismatch or scan
+  failure blocks archive, upload, distribution, and physical QA until exact v10 is restored and
+  reverified.
   The emergency pre-build-4 image that re-exposes `/extract` remains a release halt, never a
   public-v1 rollback.
 - The historical payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
@@ -259,9 +264,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   registry digest, then deploy only that digest. At this historical build-4 gate, Fly v7 served
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
   from source `d4637f4b2adf14cd533594aec6060c385f8a5e2b`; both scans covered 90
-  packages and found no critical/high vulnerability. Gmail-free v6 digest
+  packages and found no critical/high vulnerability. At that historical build-4 gate, Gmail-free v6
+  digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  remains the recovery baseline and passed a fresh registry scan. The emergency v5 rollback digest
+  was the recovery baseline and passed a fresh registry scan. The emergency v5 rollback digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
   was restored to the registry, re-scanned, and passed an isolated old/new/old schema-v4
   round-trip. The locked Python audit is already enforced in CI; the local Docker Scout command is
@@ -352,7 +358,8 @@ the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapsh
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the exact Fly v10 backend deployment and post-change review pass.
-Build-7 regression/archive/distribution and clean physical Dark Mode visual retest remain open:
+The build-7 exact-source regression has passed. Its signed archive/distribution pipeline and clean
+physical Dark Mode visual retest remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -444,8 +451,8 @@ Build-7 regression/archive/distribution and clean physical Dark Mode visual rete
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 regression/archive/
-  TestFlight distribution, clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, the build-7 signed archive/
+  TestFlight distribution pipeline, clean physical visual retest, or final Google retirement.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -479,9 +486,11 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
 1. **Freeze the candidate.** Use a clean, reviewed commit. Record its hash, the backend image that
    will serve it, App Attest environment/category/build allowlist, iOS-version compatibility policy,
    durable auth-store version, and the policy-compliance evidence linked from
-   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Re-resolve the v6
-   Gmail-free recovery digest after fresh private-registry authentication immediately before
-   archive/upload.
+   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Immediately before
+   archive/upload, freshly authenticate, re-resolve the privately retained exact v10 immutable
+   recovery reference, verify its expected source identity and Linux/AMD64 architecture, and repeat
+   the zero-High/Critical scan. Former references, including v6 whose current identity is not
+   independently proven, are ineligible. Any mismatch or failure blocks archive/upload.
 2. **Confirm version/build from App Store Connect.** The archive-time inspection at
    `2026-08-21T06:34:50Z` and final pre-validation refresh at `2026-08-21T08:12:46Z` showed builds
    1-3 only, so the replacement archive correctly preserved `1.0.0 (4)`. Its completed upload now
@@ -596,10 +605,12 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    category/build enforcement.
 9. **Retire the bridge.** If a legacy compatibility bridge was used, switch the validated backend
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
-   the candidate still succeeds. After build 4 is distributed, recovery must use the retained v6
-   Gmail-free digest or a later validated Gmail-free App-Attest-only image while preserving the auth
-   store. The former v5 image is a pre-build-4 abort only: it re-exposes `/extract` and must halt the
-   release. Rolling back to the shared bearer is never acceptable.
+   the candidate still succeeds. After build 4 is distributed, recovery must use the exact current
+   validated Gmail-free App-Attest-only image while preserving the auth store. For build 7 that is
+   the privately retained v10 immutable reference. The former v6 reference's current identity is
+   not independently proven and it is ineligible; the former v5 image is a pre-build-4 abort only,
+   re-exposes `/extract`, and must halt the release. Rolling back to the shared bearer is never
+   acceptable.
 10. **Record evidence.** Retain the commit, archive, build/version, Xcode and SDK, test results,
    validation/upload logs, processed-build metadata, backend image/config, exact App ID prefix,
    entitlement/profile, tester OS/runtime-field presence, category/build values when supplied,
@@ -745,10 +756,16 @@ identity or notification evidence.
   saturation pass; and the public Gmail-free support/privacy/Terms pages, contact route, response
   target, and reciprocal links pass anonymously. No raw provider identifier, metric value, billing
   amount, key, log, response body, or screenshot is retained.
-- [ ] Repeat the exact-source regression, then distribute build 7. Create and strictly verify the
-  signed archive, repeat the pre-upload review, obtain explicit owner approval immediately before
-  upload, use the normal App-Store-eligible validation/upload route, wait for Apple processing,
-  assign only `Family`, and save truthful tester notes.
+- [x] Complete the build-7 exact-source regression. Post-merge regression on clean
+  synchronized main `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates. This documentation-only recovery correction does not change the
+  verified iOS, backend, or shared source.
+- [ ] Archive and distribute build 7. The immediate pre-archive v10 operations/recovery review
+  passed. Create and strictly verify the signed archive, refresh App Store Connect to reconfirm
+  build 7 is unused, repeat the review immediately before upload, obtain explicit owner approval at
+  that boundary, use the normal App-Store-eligible validation/upload route, wait for Apple
+  processing, assign only `Family`, and save truthful tester notes.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final

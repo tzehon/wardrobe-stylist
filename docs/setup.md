@@ -197,8 +197,8 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
-regression/archive/distribution, and clean physical Dark Mode visual retest remain release gates. Real
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, the build-7
+signed archive/distribution pipeline, and clean physical Dark Mode visual retest remain release gates. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
@@ -302,8 +302,14 @@ Every internal beta is built as an App Store candidate. Follow the
   claiming backend deployment or Apple distribution.
 - [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
-- [ ] Repeat regression and distribute build 7 through archive, validation/upload, processing,
-  `Family` assignment, and the truthful tester-note loop.
+- [x] Complete the build-7 exact-source regression. Clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
+  operations review immediately before upload, obtain explicit owner approval, then complete
+  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
+  loop.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 

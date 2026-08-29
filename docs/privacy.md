@@ -81,8 +81,8 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
-regression/archive/distribution, and clean physical Dark Mode visual retest remain release gates. The
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, the build-7 signed
+archive/distribution pipeline, and clean physical Dark Mode visual retest remain release gates. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
 has since merged and verified the replacement implementation. A signed-in TestFlight **Build
 Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**, with build
@@ -214,8 +214,14 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   selection time.
 - [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
-- [ ] Repeat regression and distribute build 7 through archive, validation/upload, processing,
-  `Family` assignment, and the truthful tester-note gates.
+- [x] Complete the build-7 exact-source regression. Clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
+  operations review immediately before upload, obtain explicit owner approval, then complete
+  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
+  gates.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 
