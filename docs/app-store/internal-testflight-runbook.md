@@ -197,7 +197,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   the explicit Style action at `2026-08-28 17:17 SGT` created the new anonymous installation and
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v9 deploys
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v10 deploys
   its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -347,8 +347,8 @@ review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6
 the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
-source configuration is prepared, while backend deployment/distribution and clean physical Dark
-Mode visual retest remain open:
+source configuration is prepared; the exact Fly v10 backend deployment and post-change review pass.
+Build-7 regression/archive/distribution and clean physical Dark Mode visual retest remain open:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build

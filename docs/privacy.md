@@ -81,15 +81,15 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7 backend
-deployment/distribution, and clean physical Dark Mode visual retest remain release gates. The
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
+regression/archive/distribution, and clean physical Dark Mode visual retest remain release gates. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
 has since merged and verified the replacement implementation. A signed-in TestFlight **Build
 Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**, with build
 7 absent. Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`, and source configuration is
-prepared for accepted builds `4,5,6,7`. Fly v9 still deploys the targeted auth-service INFO logger
-and production TestFlight allowlist for builds `4,5,6` until the updated backend is deployed and
-verified; its predecessor v8
+prepared for accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed
+Fly v10 with the targeted auth-service INFO logger and production TestFlight allowlist for builds
+`4,5,6,7`; the required post-change review passed on 2026-08-29. Its predecessor v8
 payload-free post-change review passed at `2026-08-21T11:09:20Z`, and the fresh build-5 post-
 distribution review passed from
 `2026-08-22T03:19:20Z` through `03:30:33Z`. The first bounded query was zero because no lifecycle
@@ -173,7 +173,8 @@ until the later eligible identity-safe handoff completed.
 
 The notification-router fix merged through PR #27. Focused tests passed 17/17; merged-source
 verification retained 221 backend tests plus the locked audit/security/type gates, 231/231 iOS
-tests, and all 43 release-script tests. Fly v9 is compatible with accepted builds `4,5,6`; the exact
+tests, and all 43 release-script tests. Historical Fly v9 was compatible with accepted builds
+`4,5,6`; the exact
 production-signed `1.0.0 (6)` archive passed strict privacy, signing, production App Attest, public-
 configuration, and Gmail-free checks, then completed normal-route validation/upload, Apple
 processing, and `Family` Internal Testing assignment.
@@ -209,10 +210,12 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
   9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [x] Prepare the selected build-7 source configuration without claiming deployment. Source records
-  `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6`.
-- [ ] Deploy and distribute build 7 only after its exact backend/configuration, live health/manual
-  review, full regression, archive, validation/upload, processing, `Family` assignment, and tester-
-  note gates pass.
+  `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; Fly v9 still accepted `4,5,6` at
+  selection time.
+- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
+  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
+- [ ] Repeat regression and distribute build 7 through archive, validation/upload, processing,
+  `Family` assignment, and the truthful tester-note gates.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 

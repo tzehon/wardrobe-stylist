@@ -28,7 +28,7 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, the exact Gmail-free Fly v9 runtime, the late non-backdated v9 operational review, historical reviews, an isolated read-only restore rehearsal, and the build-4/build-5 identity-safe handoffs are retained. Build 6's final server/local deletion, uninstall, clean reinstall, and explicit-action new anonymous enrollment passed after an eligible snapshot. Snapshot-list expiry and deletion-specific recovery/non-return remain open |
+| APP-009 | **External gate** | Repository enforcement, the exact Gmail-free Fly v10 runtime and post-change review, the late non-backdated historical v9 review, earlier reviews, an isolated read-only restore rehearsal, and the build-4/build-5 identity-safe handoffs are retained. Build 6's final server/local deletion, uninstall, clean reinstall, and explicit-action new anonymous enrollment passed after an eligible snapshot. Snapshot-list expiry and deletion-specific recovery/non-return remain open |
 | APP-011 | **Done** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards remain implemented. Historical build-4/build-5 archives are retained; the exact build-6 production-signed archive passed profile, entitlement, identity, and public-configuration verification |
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. The build-6 signed archive passed the privacy-manifest and Gmail-free absence guards plus a separate non-emitting credential scan |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
@@ -659,9 +659,9 @@ governed by APP-036's Gmail-free guards.
   truthful tester-note checks. Build 5's handoff and clean build-6 proof through delivered-reminder
   tap plus final deletion/reinstall/new enrollment are complete, but the confirmed styling-consent
   control presentation failure makes build 6 non-promotable. The replacement implementation is
-  merged and verified; build `1.0.0 (7)` is selected and source-prepared, but finish snapshot lifecycle
-  evidence plus build-7 backend deployment/distribution and clean visual retest, then keep backend
-  health available through review.
+  merged and verified; build `1.0.0 (7)` is selected/source-prepared, and its exact Fly v10 backend
+  deployment plus post-change review pass. Finish snapshot lifecycle evidence, build-7 regression/
+  archive/distribution, and the clean visual retest, then keep backend health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -676,8 +676,9 @@ governed by APP-036's Gmail-free guards.
   historical simulator-artifact, regression, production-backend, signed-archive, upload, and
   physical evidence is retained. Build-4 and build-5 handoffs completed; clean build 5 provided
   broad Gmail-free proof and production markers before its notification-tap crash. The fix is
-  merged, Fly v9 is compatible, and clean build 6 passed broad Gmail-free physical QA through the
-  fixed notification tap and final identity-safe deletion/reinstall/new enrollment. Deletion-
+  merged, historical Fly v9 compatibility and the current Fly v10 deployment pass, and clean build 6
+  passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
+  deletion/reinstall/new enrollment. Deletion-
   specific recovery/non-return, final Google retirement, and public submission remain open.
 
 ## P1 — core experience polish

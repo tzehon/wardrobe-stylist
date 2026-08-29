@@ -205,9 +205,10 @@ final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separ
 build-6 visual-control failure, making build 6 non-promotable; PR #31 has since merged and verified
 the replacement implementation. A signed-in TestFlight **Build Uploads** inspection on 2026-08-29
 showed build 6 as the highest upload and **Complete**, with build 7 absent. Build `1.0.0 (7)` is
-selected while `MARKETING_VERSION` remains `1.0.0`; source configuration is prepared for accepted
-builds `4,5,6,7`, while live Fly v9 remains on `4,5,6` until deployment. Historical Apple
-processing/internal assignment and a healthy `/health` response do not close the remaining gates.
+selected while `MARKETING_VERSION` remains `1.0.0`; source configuration records accepted builds
+`4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed Fly v10 and passed the
+required post-change review on 2026-08-29. Historical Apple processing/internal assignment and a
+healthy `/health` response do not close the remaining gates.
 
 ## TestFlight distribution
 
@@ -227,8 +228,9 @@ Every internal beta is built as an App Store candidate. Follow the
    accepted builds `4,5,6` while keeping `MARKETING_VERSION = 1.0.0`; the completed upload now
    consumes build 6. On 2026-08-29, a fresh signed-in view showed build 6 as the highest upload and
    **Complete**, with build 7 absent. Select `1.0.0 (7)` and prepare source configuration with
-   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6`
-   until the exact updated backend is deployed and verified.
+   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. At selection time, Fly v9 still
+   accepted `4,5,6`; the exact merged backend subsequently deployed as completed Fly v10 and passed
+   its required post-change review on 2026-08-29.
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical
    pre-archive build-5 evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift
    unit tests, 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and an exact
@@ -266,9 +268,9 @@ Every internal beta is built as an App Store candidate. Follow the
    `didReceive` async-bridge frame. Do not repeat the tap. Build 5 later completed an eligible
    identity-safe handoff before the replacement was installed cleanly.
 10. retain the completed build-6 candidate/distribution evidence. Clean synchronized source
-   `de7c540275fb16e61aabf1884538b18cf6edf76f` passed the merged-source gates; Fly v9 serves accepted
-   builds `4,5,6`; and `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed strict signing,
-   production App Attest, privacy, public-configuration, and Gmail-free verification. Xcode
+   `de7c540275fb16e61aabf1884538b18cf6edf76f` passed the merged-source gates; historical Fly v9
+   served accepted builds `4,5,6`; and `Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` passed strict
+   signing, production App Attest, privacy, public-configuration, and Gmail-free verification. Xcode
    validation and normal-route upload succeeded; Apple processing reached **Ready to Submit**; and
    exactly `Family` is assigned with one group tester, no individual testers, and saved truthful
    tester notes.
@@ -298,9 +300,10 @@ Every internal beta is built as an App Store candidate. Follow the
   9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [x] Retain the 2026-08-29 build-number selection and source-preparation evidence above without
   claiming backend deployment or Apple distribution.
-- [ ] Deploy and distribute build 7 through the exact backend/configuration, live health/manual-
-  review, full regression, archive, validation/upload, processing, `Family` assignment, and truthful
-  tester-note loop.
+- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
+  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
+- [ ] Repeat regression and distribute build 7 through archive, validation/upload, processing,
+  `Family` assignment, and the truthful tester-note loop.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 
@@ -335,8 +338,8 @@ health, recent snapshots, schema/integrity, endpoint surface, zero failure bands
 support checks remained green. The first bounded query returned zero registration, assertion, and
 deletion successes because none had yet been exercised; later clean build-5 Style/Restyle observed
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
-`0/0/0` live aggregates. Fly v9 is now live on the exact merged build-6 source with accepted builds
-`4,5,6`, matching release/running image references, and one healthy Singapore Machine. Protected
+`0/0/0` live aggregates. Fly v10 is now live on exact merged build-7 backend source with accepted
+builds `4,5,6,7`, matching release/running image references, and one healthy Singapore Machine. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
