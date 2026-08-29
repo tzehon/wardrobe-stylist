@@ -197,14 +197,17 @@ Production operations follow the
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, unnumbered
-styling-consent control replacement distribution, and clean physical Dark Mode visual retest remain
-release gates. Real registration, assertion, and deletion success markers have now been observed;
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7 backend
+deployment/distribution, and clean physical Dark Mode visual retest remain release gates. Real
+registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
 build-6 visual-control failure, making build 6 non-promotable; PR #31 has since merged and verified
-the replacement implementation. Historical Apple processing/internal assignment and a healthy
-`/health` response do not close the remaining gates.
+the replacement implementation. A signed-in TestFlight **Build Uploads** inspection on 2026-08-29
+showed build 6 as the highest upload and **Complete**, with build 7 absent. Build `1.0.0 (7)` is
+selected while `MARKETING_VERSION` remains `1.0.0`; source configuration is prepared for accepted
+builds `4,5,6,7`, while live Fly v9 remains on `4,5,6` until deployment. Historical Apple
+processing/internal assignment and a healthy `/health` response do not close the remaining gates.
 
 ## TestFlight distribution
 
@@ -222,7 +225,10 @@ Every internal beta is built as an App Store candidate. Follow the
    `2026-08-22T10:02:31Z` showed builds 1–5 only, build 5 **Complete**, and no build 6, confirming
    build 6 unused before the replacement. PR #27 later merged `CURRENT_PROJECT_VERSION = 6` and
    accepted builds `4,5,6` while keeping `MARKETING_VERSION = 1.0.0`; the completed upload now
-   consumes build 6.
+   consumes build 6. On 2026-08-29, a fresh signed-in view showed build 6 as the highest upload and
+   **Complete**, with build 7 absent. Select `1.0.0 (7)` and prepare source configuration with
+   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6`
+   until the exact updated backend is deployed and verified.
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical
    pre-archive build-5 evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift
    unit tests, 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and an exact
@@ -290,10 +296,12 @@ Every internal beta is built as an App Store candidate. Follow the
   enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
   verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
   9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
-- [ ] Refresh the live signed-in App Store Connect Build Uploads list and prove the next build unused
-  before naming or selecting the replacement number, then distribute it through the complete release
-  loop.
-- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+- [x] Retain the 2026-08-29 build-number selection and source-preparation evidence above without
+  claiming backend deployment or Apple distribution.
+- [ ] Deploy and distribute build 7 through the exact backend/configuration, live health/manual-
+  review, full regression, archive, validation/upload, processing, `Family` assignment, and truthful
+  tester-note loop.
+- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source

@@ -70,8 +70,12 @@ a crash or local-state loss. Its final owner-controlled deletion/reinstall/new-e
 also complete. A 2026-08-28 owner-supplied Dark Mode screenshot separately confirmed that the
 **Allow AI styling** title is approximately 21 points right of center and its sampled `#C2DFFC` fill
 against white is approximately `1.38:1`; build 6 is therefore non-promotable. PR #31 has since merged
-and verified the replacement control implementation. Snapshot-list expiry, deletion-specific
-recovery/non-return, unnumbered distribution, and clean physical Dark Mode visual retest remain open.
+and verified the replacement control implementation. On 2026-08-29, the signed-in TestFlight
+**Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7 absent.
+Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`; source configuration is prepared for
+accepted builds `4,5,6,7`, while live Fly v9 remains on `4,5,6` until deployment. Snapshot-list
+expiry, deletion-specific recovery/non-return, build-7 backend deployment/distribution, and clean
+physical Dark Mode visual retest remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -231,12 +235,15 @@ recovery/non-return, unnumbered distribution, and clean physical Dark Mode visua
   focused coverage pins enabled, pressed, and disabled contrast plus the screenshot UI assertion.
   Merged verification passed 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests,
   all 9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
-- [ ] Distribute only a newly numbered replacement candidate. First refresh the live signed-in App
-  Store Connect Build Uploads list and prove the next build number unused; do not name or select the
-  replacement number before that check. Then repeat the backend/configuration, full regression,
-  signed archive, normal-route validation/upload, processing, `Family` assignment, and tester-note
-  gates.
-- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+- [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
+  **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
+  build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
+  configuration for accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6` until deployment.
+- [ ] Deploy and distribute only the selected build-7 candidate. Verify the exact live backend
+  release/configuration/image, health, and payload-free manual review, then repeat the full regression,
+  signed archive, normal-route validation/upload, Apple processing, `Family` assignment, and truthful
+  tester-note gates.
+- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
@@ -264,8 +271,9 @@ The first checked item below preserves build-5 distribution evidence; it does no
 promotable after the physical reminder-tap crash. Build 6 distribution and its identity/notification
 physical evidence are also complete, but the confirmed styling-consent control presentation failure
 makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff remains valid. PR #31
-merged and verified the replacement implementation; snapshot lifecycle, unnumbered distribution,
-and clean physical Dark Mode visual-retest gates remain open.
+merged and verified the replacement implementation; build `1.0.0 (7)` is selected/source-prepared,
+while snapshot lifecycle, backend deployment/distribution, and clean physical Dark Mode visual-retest
+gates remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

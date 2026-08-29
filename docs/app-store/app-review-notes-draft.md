@@ -118,9 +118,12 @@ the fixed delivered-reminder tap. The final identity-safe deletion/reinstall and
 enrollment completed on 2026-08-28. A same-day owner-supplied Dark Mode screenshot then confirmed
 that the **Allow AI styling** title is approximately 21 points right of center and its sampled
 `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore non-promotable. PR #31
-has since merged and verified the replacement control implementation; snapshot lifecycle evidence,
-unnumbered distribution, and clean physical Dark Mode visual retest remain open. Reviewed PR #23
-remains the historical build-5 source
+has since merged and verified the replacement control implementation. On 2026-08-29, the signed-in
+TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7
+absent. Build `1.0.0 (7)` is selected while `MARKETING_VERSION` remains `1.0.0`; source configuration
+is prepared for accepted builds `4,5,6,7`, while live Fly v9 remains on `4,5,6` until deployment.
+Snapshot lifecycle evidence, build-7 backend deployment/distribution, and clean physical Dark Mode
+visual retest remain open. Reviewed PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
@@ -210,10 +213,14 @@ backend/configuration change.
   enabled/pressed/disabled contrast coverage and the screenshot UI assertion passed. Merged
   verification retained 221 backend tests plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all
   9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
-- [ ] After a fresh signed-in App Store Connect check proves the next build unused, distribute only
-  that newly numbered replacement through the complete release loop and update these notes with its
-  exact verified evidence. Do not name or select the replacement number before that check.
-- [ ] Clean-install the processed replacement and physically retest title centering, icon-slot
+- [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
+  **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
+  build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
+  configuration for accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6` until deployment.
+- [ ] Deploy and distribute build 7 through the complete backend/configuration, live health/manual-
+  review, regression, archive, normal-route validation/upload, processing, `Family` assignment, and
+  tester-note loop, then update these notes with exact verified evidence.
+- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The
   signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds 1–5 only,

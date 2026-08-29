@@ -167,10 +167,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   replacement implementation gate with a title-only, centered, full-width opaque control,
   enabled/pressed/disabled contrast coverage, and a screenshot UI assertion. Merged verification
   passed 221 backend tests plus the locked audit/Bandit/Ruff/mypy gates, 226 Swift unit tests, 9 UI
-  tests, and 43 release-script tests; both GitHub iOS checks are green. Distribution and clean
-  physical Dark Mode visual retest remain open. Do not select or name the replacement build number
-  until a fresh signed-in App Store Connect inspection proves the next build unused; then repeat the
-  complete release loop.
+  tests, and 43 release-script tests; both GitHub iOS checks are green. A signed-in TestFlight
+  **Build Uploads** inspection on 2026-08-29 showed build 6 as the highest upload and **Complete**,
+  with build 7 absent. Build `1.0.0 (7)` is therefore selected while `MARKETING_VERSION` remains
+  `1.0.0`; source configuration is prepared with `CURRENT_PROJECT_VERSION = 7` and accepted builds
+  `4,5,6,7`. Live Fly v9 still accepts only `4,5,6` until the exact updated backend is deployed and
+  verified. This closes only build-number selection and source-configuration preparation. Backend
+  deployment/health/manual review, full regression, archive, validation/upload, Apple processing,
+  `Family` assignment, truthful tester notes, and clean physical Dark Mode visual retest remain open.
 - The root `README.md` remains unchanged by design: it is the stable project overview, while live
   release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
   runbook.
