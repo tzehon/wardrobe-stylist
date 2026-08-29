@@ -597,7 +597,8 @@ Required before APP-009 can close:
   seven-day view; its earlier-month Haiku cost was reviewed as historical non-production usage, not
   current backend behavior. No raw metric, identifier, exact billing amount, key name/value, log
   sample, screenshot, or provider response is retained. Repeat the review before every future
-  archive/upload, after every backend/configuration change, and otherwise no later than 2026-09-22.
+  archive/upload, after every backend/configuration change, and otherwise no later than 2026-09-28
+  under the current v10 review cadence.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
