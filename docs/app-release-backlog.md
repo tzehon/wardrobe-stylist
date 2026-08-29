@@ -147,7 +147,7 @@ backend/configuration change.
 Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
 is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
 review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
-restored and reverified. At the `2026-08-29T03:31:57Z` pre-archive checkpoint, fresh authentication
+restored and reverified. At the `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh authentication
 re-resolved the privately retained exact v10 immutable recovery reference with the expected source
 identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former v6
 reference's current platform/source identity was not independently proven, so it is ineligible for
@@ -370,11 +370,12 @@ pipeline plus clean physical Dark Mode visual retest remain open.
   plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates. This documentation-only recovery correction does not change the
   verified iOS, backend, or shared source.
-- [ ] **Archive and distribute only build 7.** The immediate pre-archive v10 operations/recovery
-  review passed. Create and strictly verify the signed archive, refresh App Store Connect to reconfirm
-  build 7 is unused, repeat the review immediately before upload, obtain explicit owner approval
-  at that boundary, validate/upload through the normal App-Store-eligible route, wait for Apple
-  processing, assign only `Family`, and save truthful tester notes.
+- [ ] **Archive and distribute only build 7.** The current v10 recovery baseline is established, but
+  the full operations/recovery review must be repeated immediately before archive. Then create and
+  strictly verify the signed archive, refresh App Store Connect to reconfirm build 7 is unused,
+  repeat the review immediately before upload, obtain explicit owner approval at that boundary,
+  validate/upload through the normal App-Store-eligible route, wait for Apple processing, assign
+  only `Family`, and save truthful tester notes.
 - [ ] **Clean-install and physically retest the build-7 control.** On the processed TestFlight build,
   confirm the title is centered with no invisible icon slot and that enabled, pressed,
   and disabled presentation remains legible in Dark Mode before promotion.

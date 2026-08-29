@@ -218,10 +218,10 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates.
-- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
-  operations review immediately before upload, obtain explicit owner approval, then complete
-  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
-  gates.
+- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
+  verify the signed archive, refresh App Store Connect, repeat the review immediately before upload,
+  obtain explicit owner approval, then complete normal-route validation/upload, processing,
+  `Family` assignment, and the truthful tester-note gates.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 

@@ -732,17 +732,18 @@ Required before APP-009 can close:
   226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the Release simulator/artifact
   gates passed. The later documentation-only recovery correction does not change the verified iOS,
   backend, or shared source.
-- [x] Verify the current recovery reference immediately before archive. At
+- [x] Establish the current build-7 recovery reference. At
   `2026-08-29T03:31:57Z`, fresh private-registry authentication re-resolved the exact v10 immutable
   reference with the expected source identity and Linux/AMD64 architecture, and its zero-High/
   Critical scan passed. The former v6 reference's current platform/source identity was not
   independently proven, so it is ineligible for rollback or recovery. Exact v10 is the sole current
   recovery reference; any mismatch or scan failure blocks archive, upload, distribution, and
   physical QA until exact v10 is restored and reverified.
-- [ ] Create and strictly verify the signed archive, refresh App Store Connect to reconfirm build 7
-  is unused, repeat the operations review immediately before upload, obtain explicit owner approval
-  at that boundary, then complete normal-route validation/upload, Apple processing, `Family`
-  assignment, and the truthful tester-note loop.
+- [ ] Repeat the full operations/recovery review immediately before archive, create and strictly
+  verify the signed archive, refresh App Store Connect to reconfirm build 7 is unused, repeat the
+  review immediately before upload, obtain explicit owner approval at that boundary, then complete
+  normal-route validation/upload, Apple processing, `Family` assignment, and the truthful tester-
+  note loop.
 - [ ] Clean-install the processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata
