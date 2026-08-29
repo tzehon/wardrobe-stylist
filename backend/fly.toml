@@ -15,7 +15,7 @@ primary_region = 'sin'
   APP_ATTEST_APP_ID_PREFIX = '29NT767Y9P'
   APP_ATTEST_BUNDLE_ID = 'com.tth.Wardrobe'
   APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES = '2'
-  APP_ATTEST_ALLOWED_BUNDLE_VERSIONS = '4,5,6'
+  APP_ATTEST_ALLOWED_BUNDLE_VERSIONS = '4,5,6,7'
 
 [mounts]
   source = 'wardrobe_auth_data'
