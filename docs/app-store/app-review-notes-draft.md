@@ -122,8 +122,9 @@ has since merged and verified the replacement control implementation. On 2026-08
 TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7
 absent. Build `1.0.0 (7)` is selected while `MARKETING_VERSION` remains `1.0.0`; source configuration
 records accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed Fly
-v10 and passed the required post-change review on 2026-08-29. Snapshot lifecycle evidence, build-7
-regression/archive/distribution, and clean physical Dark Mode visual retest remain open. Reviewed
+v10 and passed the required post-change review on 2026-08-29; the exact-source regression also
+passed. Snapshot lifecycle evidence, the build-7 signed archive/distribution pipeline, and clean
+physical Dark Mode visual retest remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
@@ -221,9 +222,14 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
-- [ ] Repeat regression and distribute build 7 through archive, normal-route validation/upload,
-  processing, `Family` assignment, and the truthful tester-note loop, then update these notes with
-  exact verified evidence.
+- [x] Complete the build-7 exact-source regression. Clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the
+  operations review immediately before upload, obtain explicit owner approval, then complete
+  normal-route validation/upload, processing, `Family` assignment, and the truthful tester-note
+  loop. Update these notes with the exact verified evidence.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The

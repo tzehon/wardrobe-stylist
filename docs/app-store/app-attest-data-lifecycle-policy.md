@@ -22,9 +22,9 @@
   and source configuration is prepared for accepted builds `4,5,6,7`. PR #34 merged the runtime
   remediation; the exact merged Linux/AMD64 image deployed as completed Fly v10 at
   `2026-08-29T01:52:47Z`, and its health/configuration/storage/snapshot plus payload-free review
-  passed at `2026-08-29T02:21:41Z`. Snapshot-list expiry, deletion-specific restore/non-return,
-  build-7 regression/archive/distribution, and clean physical Dark Mode visual retest remain
-  incomplete.
+  passed at `2026-08-29T02:21:41Z`. The build-7 exact-source regression has also passed. Snapshot-
+  list expiry, deletion-specific restore/non-return, the signed archive/distribution pipeline, and
+  clean physical Dark Mode visual retest remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, application logs, manual operations, and Fly volume snapshots. It is the
@@ -449,9 +449,10 @@ Required before APP-009 can close:
   was restored to the registry, re-scanned clean, and passed an isolated old/new/old schema-v4
   rehearsal as an emergency pre-build-4 rollback only; using it would re-expose `/extract` and halt
   release. Both exact digests resolved after fresh private-registry authentication at
-  `2026-08-21T01:20:25Z`. The v6 digest is the required Gmail-free recovery baseline and resolved
-  again after fresh authentication during the `2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive
-  window. The payload-free post-deploy manual review passed at `2026-08-21T01:11:43Z`.
+  `2026-08-21T01:20:25Z`. At that recorded 2026-08-21 checkpoint, the v6 digest was the required
+  Gmail-free recovery baseline and resolved again after fresh authentication during the
+  `2026-08-21T03:14:10Z`–`03:30:06Z` pre-archive window. The payload-free post-deploy manual review
+  passed at `2026-08-21T01:11:43Z`.
 - [x] PR #19 rebase-merged the reviewed fixes as
   `d4637f4b2adf14cd533594aec6060c385f8a5e2b`. Its exact local `linux/amd64` image ID
   `sha256:ac409ec2e687b96f718aeffd27dd244814919483f86e4af2dea3d97e9a80c643`
@@ -466,9 +467,10 @@ Required before APP-009 can close:
   quota order. Source configuration for builds `4,5` and registration/assertion INFO success-marker
   logging was locally validated but not live at that time; the following v8 entry supersedes that
   production state.
-  Gmail-free v6 digest `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  remains the freshly scan-clean recovery baseline; both exact v7 and v6 digests resolved after
-  fresh registry authentication at `2026-08-21T06:06:01Z`.
+  At that historical v7 gate, Gmail-free v6 digest
+  `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
+  was treated as the freshly scan-clean recovery baseline; both exact v7 and v6 digests resolved
+  after fresh registry authentication at `2026-08-21T06:06:01Z`.
 - [x] Reviewed PR #23 merged at `2026-08-21T10:29:56Z`; frozen shipped-code/backend source was
   `4a75b99dcd49e818ad1d5b198e8c49abba702e18`. Later docs-only evidence does not change the
   deployed image or iOS bundle. A fresh no-cache
@@ -490,17 +492,14 @@ Required before APP-009 can close:
   is recorded above. The
   single UID-10001 Uvicorn process uses the targeted non-propagating auth-service logger with access
   logging disabled. Health returns `200`, `/extract` returns `404`, unauthenticated `/recommend`
-  returns `401`,
-  and the OpenAPI route set matches the reviewed source. The exact v10 immutable recovery reference
-  is retained privately and passed the required local and registry scans. Former v9 and v8
-  references remain historical operational evidence. Separately, the former v7 digest
+  returns `401`, and the OpenAPI route set matches the reviewed source. Former v9 and v8 references
+  remain historical operational evidence. Separately, the former v7 digest
   `sha256:360e1351e36e782dcb375f6bffd25f1e633014f347734694759e61cea59d62a0`
   and Gmail-free v6 recovery digest
   `sha256:0550dc9004a49711bd7346f750e62d1946fc13249b3ef0a5b11dc1480a40b5c5`
-  were freshly re-resolved and scanned across 90 packages with zero critical/high vulnerabilities.
-  Those two digests are historical recovery references only. Using any former reference reopens
-  the exact-candidate deployment, configuration, and manual-review gates and blocks build-7
-  archive, distribution, or physical QA until the exact v10 image is restored and reverified.
+  were freshly re-resolved and scanned across 90 packages with zero critical/high vulnerabilities
+  at their recorded historical checkpoint. Those former references are timestamped historical
+  evidence only.
 - [x] Rehearse the isolated snapshot-restore control path. At `2026-08-19T14:31:01Z`, a
   secret-free, non-serving temporary app restored the newest completed snapshot to an encrypted
   volume. The verifier remounted it read-only and reported schema v4, SQLite integrity `ok`, zero
@@ -728,9 +727,22 @@ Required before APP-009 can close:
 - [x] Deploy and review the exact selected build-7 backend candidate. Fly v10 now accepts
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
   2026-08-29.
-- [ ] Repeat the complete regression, create and strictly verify the signed archive, obtain explicit
-  owner approval immediately before normal-route validation/upload, then complete processing,
-  `Family` assignment, and the truthful tester-note loop.
+- [x] Complete the build-7 exact-source regression. On clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd`, 222 backend tests plus audit/Bandit/Ruff/mypy,
+  226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the Release simulator/artifact
+  gates passed. The later documentation-only recovery correction does not change the verified iOS,
+  backend, or shared source.
+- [x] Verify the current recovery reference immediately before archive. At
+  `2026-08-29T03:31:57Z`, fresh private-registry authentication re-resolved the exact v10 immutable
+  reference with the expected source identity and Linux/AMD64 architecture, and its zero-High/
+  Critical scan passed. The former v6 reference's current platform/source identity was not
+  independently proven, so it is ineligible for rollback or recovery. Exact v10 is the sole current
+  recovery reference; any mismatch or scan failure blocks archive, upload, distribution, and
+  physical QA until exact v10 is restored and reverified.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect to reconfirm build 7
+  is unused, repeat the operations review immediately before upload, obtain explicit owner approval
+  at that boundary, then complete normal-route validation/upload, Apple processing, `Family`
+  assignment, and the truthful tester-note loop.
 - [ ] Clean-install the processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata

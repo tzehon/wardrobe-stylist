@@ -74,9 +74,9 @@ and verified the replacement control implementation. On 2026-08-29, the signed-i
 **Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7 absent.
 Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`; source configuration records
 accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as Fly v10 and passed the
-required post-change review on 2026-08-29. Snapshot-list expiry, deletion-specific recovery/non-
-return, build-7 regression/archive/distribution, and clean physical Dark Mode visual retest remain
-open.
+required post-change review on 2026-08-29, and the exact-source regression passed. Snapshot-list
+expiry, deletion-specific recovery/non-return, the build-7 signed archive/distribution pipeline,
+and clean physical Dark Mode visual retest remain open.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -245,9 +245,15 @@ open.
 - [x] Deploy and review only the exact selected build-7 backend candidate. Fly v10 now accepts
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
   2026-08-29.
-- [ ] Repeat the full regression, create and strictly verify the signed archive, obtain explicit
-  owner approval immediately before normal-route upload, then complete Apple processing, `Family`
-  assignment, and truthful tester-note gates.
+- [x] Complete the build-7 exact-source regression. Clean synchronized main
+  `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
+  audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
+  Release simulator/artifact gates.
+- [ ] Create and strictly verify the signed archive, refresh App Store Connect, repeat the exact-v10
+  operations/recovery review immediately before upload, obtain explicit owner approval at that
+  boundary, then complete normal-route validation/upload, Apple processing, `Family` assignment,
+  and truthful tester-note gates. The immediate pre-archive review passed; signed archive
+  verification and the fresh build-absence check remain open.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
@@ -277,8 +283,9 @@ promotable after the physical reminder-tap crash. Build 6 distribution and its i
 physical evidence are also complete, but the confirmed styling-consent control presentation failure
 makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff remains valid. PR #31
 merged and verified the replacement implementation; build `1.0.0 (7)` is selected/source-prepared,
-and its exact Fly v10 backend deployment plus post-change review pass. Snapshot lifecycle, build-7
-regression/archive/distribution, and clean physical Dark Mode visual-retest gates remain open.
+and its exact Fly v10 backend deployment, post-change review, and exact-source regression pass.
+Snapshot lifecycle, the build-7 signed archive/distribution pipeline, and clean physical Dark Mode
+visual-retest gates remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
