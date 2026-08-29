@@ -98,8 +98,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   signed-in TestFlight **Build Uploads** inspection at `2026-08-22T10:02:31Z` showed builds 1–5
   only, build 5 **Complete**, and no build 6, confirming build 6 unused before replacement work.
   Reviewed PR #27 then merged the notification fix and build-6 metadata/allowlist to clean
-  synchronized `main` `de7c540275fb16e61aabf1884538b18cf6edf76f`. Fly v9 deploys that exact
-  source with validation category `2` and accepted builds `4,5,6`. The exact production-signed
+  synchronized `main` `de7c540275fb16e61aabf1884538b18cf6edf76f`. Historical Fly v9 deployed
+  that exact source with validation category `2` and accepted builds `4,5,6`. The exact production-signed
   `1.0.0 (6)` archive passed strict artifact, signing, dSYM, production App Attest, privacy, public-
   configuration, and Gmail-free checks. Xcode validated and uploaded it through the normal
   **TestFlight & App Store** route; Apple processing reached **Ready to Submit**. Build 6 is assigned

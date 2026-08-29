@@ -121,9 +121,10 @@ that the **Allow AI styling** title is approximately 21 points right of center a
 has since merged and verified the replacement control implementation. On 2026-08-29, the signed-in
 TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**, with build 7
 absent. Build `1.0.0 (7)` is selected while `MARKETING_VERSION` remains `1.0.0`; source configuration
-is prepared for accepted builds `4,5,6,7`, while live Fly v9 remains on `4,5,6` until deployment.
-Snapshot lifecycle evidence, build-7 backend deployment/distribution, and clean physical Dark Mode
-visual retest remain open. Reviewed PR #23 remains the historical build-5 source
+records accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed Fly
+v10 and passed the required post-change review on 2026-08-29. Snapshot lifecycle evidence, build-7
+regression/archive/distribution, and clean physical Dark Mode visual retest remain open. Reviewed
+PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
 and Release simulator/artifact checks). Historical Fly v8 deployed that source with production
@@ -131,8 +132,8 @@ category `2`, builds `4,5`, and targeted auth-service INFO logging; its post-cha
 `2026-08-21T11:09:20Z`, the pre-archive repeat passed at `2026-08-22T01:07:45Z`, the pre-validation
 review passed at `2026-08-22T02:37:08Z`, and the separate post-distribution review passed at
 `2026-08-22T03:30:33Z`. Later physical flows observed bounded registration, assertion, and deletion
-success markers against v8. Fly v9 now deploys the exact merged build-6 source with category `2`,
-accepted builds `4,5,6`, and matching healthy release/runtime image references. The required v9
+success markers against v8. Historical Fly v9 deployed the exact merged build-6 source with category
+`2`, accepted builds `4,5,6`, and matching healthy release/runtime image references. The required v9
 post-deploy/pre-upload review was missed and is not backdated; a late full operational review
 passed at `2026-08-23T02:13:12Z`. Repeat it before any future archive/upload and after every
 backend/configuration change.
@@ -183,8 +184,9 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  Fly v9 deploys the targeted logger and `4,5,6` allowlist; predecessor v8's payload-free review
-  passed, and the late non-backdated v9 review passed at `2026-08-23T02:13:12Z`. The first post-
+  Fly v10 deploys the targeted logger and `4,5,6,7` allowlist; its post-change review passed on
+  2026-08-29. Predecessor v8's payload-free review passed, and the late non-backdated historical v9
+  review passed at `2026-08-23T02:13:12Z`. The first historical v9 post-
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
   build-5 Style/Restyle observed `registration_succeeded`/`assertion_succeeded`, and the preceding
   identity-safe handoff observed exactly one `installation_deleted` plus `0/0/0` live aggregates.
@@ -216,10 +218,12 @@ backend/configuration change.
 - [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
   **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
   build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
-  configuration for accepted builds `4,5,6,7`; live Fly v9 remains on `4,5,6` until deployment.
-- [ ] Deploy and distribute build 7 through the complete backend/configuration, live health/manual-
-  review, regression, archive, normal-route validation/upload, processing, `Family` assignment, and
-  tester-note loop, then update these notes with exact verified evidence.
+  configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
+- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
+  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
+- [ ] Repeat regression and distribute build 7 through archive, normal-route validation/upload,
+  processing, `Family` assignment, and the truthful tester-note loop, then update these notes with
+  exact verified evidence.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The
