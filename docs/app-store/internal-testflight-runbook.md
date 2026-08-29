@@ -66,14 +66,15 @@ an App Store release candidate from the moment it is archived. This prevents a s
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected
   delivered-reminder-tap proof: the notification opened Today without a crash or local-state loss.
-- Current production backend baseline: Fly release v9 completed at `2026-08-22T11:14:25Z` and
-  serves the exact merged build-6 source as `linux/amd64`. The release and running image references
-  match; a local-only official Alpine secdb comparison found zero unfixed advisories; and locked
-  `pip-audit` passed. One healthy Singapore Machine runs with `min_machines_running = 1`;
-  production App Attest uses category `2` and accepted builds `4,5,6`; and the encrypted auth store
-  and bounded logging configuration remain healthy. `/health` returns `200`, `/extract` returns
-  `404`, unauthenticated `/recommend` returns `401`, and the OpenAPI route set matches the reviewed
-  source. Build 5 completed its identity-safe handoff, and build 6 then passed clean physical QA.
+- Current production backend baseline: Fly release v10 completed at `2026-08-29T01:52:47Z` and
+  serves exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as
+  `linux/amd64`. Release and running image references match privately; local and immutable-registry
+  Docker Scout scans report zero High/Critical findings; and locked `pip-audit` passed. One healthy
+  Singapore Machine runs with `min_machines_running = 1`; production App Attest uses category `2`
+  and accepted builds `4,5,6,7`; and the encrypted auth store and bounded logging configuration
+  remain healthy. `/health` returns `200`, `/extract` returns `404`, unauthenticated `/recommend`
+  returns `401`, and the OpenAPI route set matches the reviewed source. Build 5 completed its
+  identity-safe handoff, and build 6 then passed clean physical QA.
   A later automatic snapshot created at `2026-08-25T07:35:53Z` reported `created` with 14-day
   retention and was eligible for the final build-6 handoff. The pre-deletion aggregate was one
   installation, zero sessions, and zero challenges. Assertion-verified deletion emitted
@@ -713,8 +714,8 @@ identity or notification evidence.
 - [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
   **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
   build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
-  configuration with `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; live Fly v9
-  remains on `4,5,6` until deployment.
+  configuration with `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. At selection time,
+  live Fly v9 still accepted `4,5,6`; the completed v10 deployment is recorded separately below.
 - [x] Remediate the build-7 runtime scan before publication or deployment. The first local
   Linux/AMD64 candidate scan found seven High-severity OpenSSL findings in the prior pinned runtime,
   so no image was pushed or deployed. Commit `6186018` refreshes the digest-pinned official runtime
