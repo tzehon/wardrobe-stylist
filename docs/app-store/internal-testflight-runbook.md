@@ -95,9 +95,11 @@ an App Store release candidate from the moment it is archived. This prevents a s
   identifier, exact billing amount, key name/value, log sample, screenshot, or provider body is
   retained. Repeat the review before any future archive/upload and after every backend/configuration
   change.
-- Former v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None is
-  the exact build-6-compatible candidate: using one reopens deployment/configuration/manual-review
-  gates and blocks promotion or further build-6 lifecycle QA until v9 is restored and reverified.
+- Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
+  is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
+  review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
+  restored and reverified. The exact v10 immutable recovery reference is retained privately and
+  passed the required local and registry scans.
   The emergency pre-build-4 image that re-exposes `/extract` remains a release halt, never a
   public-v1 rollback.
 - The historical payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view

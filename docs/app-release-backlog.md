@@ -144,10 +144,12 @@ raw metric, provider identifier, exact billing amount, key name/value, log sampl
 provider body is retained. Repeat this review before every future archive/upload and after every
 backend/configuration change.
 
-Former v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None is
-the exact build-6-compatible candidate: using one reopens deployment/configuration/manual-review
-gates and blocks build-6 physical QA until v9 is restored and reverified. The emergency pre-build-4
-image is App-Attest-only and scan-clean, but it re-exposes `/extract`; using it must halt the release.
+Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
+is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
+review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
+restored and reverified. The exact v10 immutable recovery reference is retained privately and passed
+the required local and registry scans. The emergency pre-build-4 image is App-Attest-only and scan-
+clean, but it re-exposes `/extract`; using it must halt the release.
 The payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`: the two-day HTTP view had
 only `401`/`404` and no 5xx series; the bounded ten-minute view had no auth-rejection/rate-limit,
 Anthropic/stylist, maintenance, unhandled, malformed-lifecycle, or access-log event. Anthropic
