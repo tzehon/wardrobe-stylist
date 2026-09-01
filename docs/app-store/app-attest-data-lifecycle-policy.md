@@ -103,6 +103,43 @@ identifiers, credentials, exact billing data, screenshots, or provider response 
 automated monitoring before multi-user distribution, paid operation, or any availability
 commitment.
 
+An owner-triggered local helper may automate repeatable read-only collection without reversing the
+decision against continuous alerting. `backend/verify_production_operations.py` can pass only from
+clean synchronized `main`; a different or dirty source remains `OPEN` while the other read-only
+checks continue. It compares the locked archive and deployment source, captures supported Fly,
+Docker, SQLite, and public HTTPS responses in memory, and emits only fixed check/result codes plus
+the newest safe snapshot UTC/status/retention. Missing, malformed, stale, timed-out, or weaker
+evidence is `OPEN`; raw provider output is never copied into the report. The helper does not probe
+unauthenticated `/recommend`, because that path consumes durable abuse-rate state, and it never
+deploys, scales, restores, deletes, uploads, or changes App Store assignment.
+
+The helper cannot convert the whole review into an offline test. Fly's official response-class
+metric remains a signed-in live check when no supported aggregate API is available, and a current
+log-buffer scan alone remains insufficient. Anthropic's configured limit, spend band, expected
+model/key series, and saturation state and App Store Connect's current Build Uploads state likewise
+remain signed-in live checks. A same-session fixed-field TOML may combine those observations with
+the automated report; its maximum age is 30 minutes, it is gitignored, and it contains exactly:
+
+```toml
+checked_at_utc = "REPLACE_WITH_CURRENT_UTC"
+marketing_version = "COPY_EXACT_LOCKED_VALUE"
+build_number = "COPY_EXACT_LOCKED_VALUE"
+archive_cdhash = "COPY_EXACT_LOCKED_VALUE"
+deployed_revision = "COPY_EXACT_LOCKED_VALUE"
+official_fly_metrics = "pass"
+anthropic_console = "pass" # or "warning", which blocks upload
+app_store_connect = "pass"
+```
+
+Copy the four candidate fields exactly from `backend/production-operations.toml`; the helper rejects
+evidence for any other archive or deployed revision. The file is an operator attestation, not proof
+that the consoles were inspected. Never create it before the checks, add raw values or screenshots,
+or add an owner-approval field. Explicit upload
+approval remains a separate action after the combined preflight passes. After a pass, retain one
+identifier-free row in the [Manual review register](#manual-review-register), including the fixed
+results, remediation outcome, and next due. The gitignored TOML is only same-session input and does
+not replace that long-lived compliance record.
+
 For this review, volume usage below 70% is `PASS`, 70–84% is `WARNING`, and 85% or more is `OPEN`
 until remediated. Snapshot state is `PASS` only when automatic snapshots remain enabled with the
 14-day listing setting, a completed snapshot is no older than 36 hours, and no failed or unknown

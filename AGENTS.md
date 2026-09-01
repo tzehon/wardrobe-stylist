@@ -241,6 +241,16 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Repository `fly.toml`, container/logging configuration, local tests, and a planned Fly release
   number are not production truth; confirm the live release, configuration, and digest before
   updating release evidence.
+- Use `python3 backend/verify_production_operations.py --refresh-registry-auth` from clean,
+  synchronized `main` to automate the repeatable read-only part of that live review. It verifies
+  the locked archive, exact Fly runtime/source/configuration, read-only auth-store integrity and
+  safe aggregate bands, encrypted-volume and snapshot policy, public backend/pages, Claude public
+  status, and the exact recovery image's Linux/AMD64 identity plus zero-High/Critical Docker Scout
+  result without emitting provider identifiers, digests, raw output, or secrets. This is an owner-
+  triggered live preflight, not an offline regression or background monitor. Fly's official
+  aggregate HTTP metric, signed-in Anthropic limit/spend/model/key/saturation state, and signed-in
+  App Store Connect Build Uploads remain fresh manual inputs; a log-buffer check cannot substitute
+  for the Fly metric. The command never accepts or performs upload approval.
 - Before uploading, run the full backend and iOS regression suites, regenerate the Xcode project, create a signed Release archive, validate it, upload it to App Store Connect, add it to the internal TestFlight group, and confirm processing succeeds. Never reuse a build number.
 - Before an App Attest build can ship, confirm the exact App ID prefix from Certificates, Identifiers & Profiles (do not assume it equals the Team ID), enable the capability for `com.tth.Wardrobe`, regenerate signing profiles, provision durable production auth storage, and configure explicit production allowlists for validation category (`2` for TestFlight, `4` for App Store) and accepted bundle builds. Apple adds those signed runtime fields on iOS 27+; iOS 18–26 still requires the complete core App Attest proof but cannot be build/category-gated. Retain the archive's entitlement, tester OS version, runtime-field presence, and physical-device evidence.
 - If release impact, the next unused build number, signing state, or distribution intent is uncertain, ask the user before changing version metadata or uploading a build.

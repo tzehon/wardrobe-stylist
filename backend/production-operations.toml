@@ -1,0 +1,40 @@
+schema_version = 1
+
+# This is the reviewed deployment context, not the current repository HEAD. Documentation and
+# tests may advance after a deploy, but any production runtime input change must be deployed and
+# this lock updated before an archive or upload can pass the operational preflight.
+expected_deployed_revision = "162688ae72d07f06a7a8116249632aa0101e538f"
+expected_source_repository = "https://github.com/tzehon/wardrobe-stylist"
+expected_fly_app = "wardrobe-backend-faithful-silence-9494"
+expected_fly_release_version = 10
+expected_region = "sin"
+
+expected_archive_basename = "Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive"
+expected_marketing_version = "1.0.0"
+expected_build_number = "7"
+expected_app_cdhash = "8d8b6dbc61e2d517fc8e2f9bd4b4ad0206089e64"
+expected_dsym_uuid = "81849d80-b84a-379d-b84f-7b13d580c385"
+expected_backend_url = "https://wardrobe-backend-faithful-silence-9494.fly.dev"
+
+expected_auth_schema_version = 4
+expected_app_attest_app_id_prefix = "29NT767Y9P"
+expected_app_attest_bundle_id = "com.tth.Wardrobe"
+expected_validation_categories = ["2"]
+expected_bundle_versions = ["4", "5", "6", "7"]
+required_secret_names = ["ANTHROPIC_API_KEY", "APP_ATTEST_SESSION_SECRET"]
+
+expected_routes = [
+  "/auth/app-attest/challenge",
+  "/auth/app-attest/delete",
+  "/auth/app-attest/register",
+  "/auth/app-attest/session",
+  "/health",
+  "/recommend",
+]
+
+terms_url = "https://blog.tth.dev/wardrobe/terms/"
+anthropic_status_url = "https://status.claude.com/api/v2/status.json"
+
+# "Immediately before upload" remains a same-session live gate. This limit applies only to the
+# helper's manual-evidence file; it does not weaken the separate owner approval requirement.
+manual_evidence_max_age_minutes = 30

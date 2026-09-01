@@ -99,6 +99,27 @@ flow. Required manual reviews through the live v10 deployment have passed, while
 pre-archive repeat has passed and the pre-upload repeat remains open. Snapshot-list expiry, final App
 Privacy publication, and deletion-specific recovery remain release gates; the manual review must
 remain current under the approved cadence.
+
+Run the repeatable read-only part of the fresh pre-upload review from clean synchronized `main`:
+
+```bash
+python3 backend/verify_production_operations.py --refresh-registry-auth
+```
+
+The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
+only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
+fresh private-registry resolution, and never probes the write-affecting unauthenticated
+`/recommend` path. It deliberately returns nonzero until the official Fly response-class metric,
+signed-in Anthropic usage/limit/model/key/saturation state, and signed-in App Store Connect Build
+Uploads state are reviewed in the same session. Those fixed manual results may be supplied through
+the gitignored `backend/production-operations-evidence.toml`; explicit owner upload approval is
+always separate and is neither stored nor accepted by the command. See the TestFlight runbook for
+the exact fields and sequence, including the four lock-copied fields that bind the observation to
+the selected archive and deployment. Supply `--refresh-registry-auth` again on the combined rerun because
+each registry credential directory is intentionally ephemeral. After a pass, retain the approved
+fixed fields, remediation outcome, and next due in the lifecycle policy's manual-review register;
+the temporary TOML is not the long-lived review record.
+
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations
 gate, so the backend does not claim that the receipt blob itself is verified.
