@@ -19,7 +19,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
 
-## Current release status — 2026-08-29
+## Current release status — 2026-09-01
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -508,6 +508,41 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    recovery reference, verify its expected source identity and Linux/AMD64 architecture, and repeat
    the zero-High/Critical scan. Former references, including v6 whose current identity is not
    independently proven, are ineligible. Any mismatch or failure blocks archive/upload.
+
+   From clean synchronized `main`, run the owner-triggered read-only helper immediately before
+   upload:
+
+   ```bash
+   python3 backend/verify_production_operations.py --refresh-registry-auth
+   ```
+
+   This automates exact archive/source/runtime/configuration checks, the payload-free read-only
+   auth-store and volume/snapshot review, public route/page and Claude-status checks, and a fresh
+   exact recovery-image Linux/AMD64 plus zero-High/Critical scan. It emits only fixed results and
+   safe snapshot UTC/status/retention; it does not call `/recommend`, mutate Fly, or authorize an
+   upload. The official Fly response-class metric, signed-in Anthropic console state, and signed-in
+   App Store Connect Build Uploads view remain live manual checks. Record only those same-session
+   outcomes in the gitignored `backend/production-operations-evidence.toml`:
+
+   ```toml
+   checked_at_utc = "REPLACE_WITH_CURRENT_UTC"
+   marketing_version = "COPY_EXACT_LOCKED_VALUE"
+   build_number = "COPY_EXACT_LOCKED_VALUE"
+   archive_cdhash = "COPY_EXACT_LOCKED_VALUE"
+   deployed_revision = "COPY_EXACT_LOCKED_VALUE"
+   official_fly_metrics = "pass"
+   anthropic_console = "pass" # "warning" blocks upload
+   app_store_connect = "pass"
+   ```
+
+   Copy those four candidate fields exactly from `backend/production-operations.toml`; they bind the
+   signed-in observations to the locked archive and deployment. Rerun the helper with
+   `--refresh-registry-auth --manual-evidence
+   backend/production-operations-evidence.toml`. It must pass within 30 minutes of those
+   observations. Missing, malformed, stale, timed-out, or weaker evidence stays `OPEN`. After a
+   pass, add one identifier-free fixed-field row—including remediation outcome and next due—to the
+   policy's long-lived manual-review register; the gitignored TOML is only same-session input and is
+   not the retained review record. Explicit owner upload approval is still a separate gate.
 2. **Confirm version/build from App Store Connect.** The archive-time inspection at
    `2026-08-21T06:34:50Z` and final pre-validation refresh at `2026-08-21T08:12:46Z` showed builds
    1-3 only, so the replacement archive correctly preserved `1.0.0 (4)`. Its completed upload now
@@ -816,6 +851,14 @@ identity or notification evidence.
   non-emitting credential, deep-signature, and matching arm64 app/dSYM verification passed at
   `11:04:02Z`. The signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest
   and **Ready to Submit**, with build 7 absent.
+- [x] Automate the repeatable read-only portion of the fresh operational review. The locked
+  production contract, redacted owner-triggered helper, and focused fail-closed tests
+  cover exact source/archive/runtime/configuration, auth-store/volume/snapshot state, public
+  endpoints, Claude public status, and exact recovery-image identity/security scanning. The helper
+  fails closed on incomplete evidence and deliberately leaves the official Fly metric, signed-in
+  Anthropic console, signed-in Build Uploads view, and separate owner upload approval as live gates.
+  This release-operations tooling/test/documentation change does not alter the preserved build-7
+  archive or shipped iOS/backend behavior and does not require build 8.
 - [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
   recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
   owner approval at that boundary, use the normal App-Store-eligible validation/upload route, wait

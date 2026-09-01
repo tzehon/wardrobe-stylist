@@ -21,7 +21,7 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-08-29**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-01**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -396,6 +396,14 @@ open.
   Gmail-free, non-emitting credential, deep-signature, and matching arm64 app/dSYM verification
   passed at `11:04:02Z`. The signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6
   highest and **Ready to Submit**, with build 7 absent.
+- [x] **Automate the repeatable read-only part of the fresh operational review.** The locked
+  production contract, redacted owner-triggered helper, and focused tests cover exact
+  source/archive/runtime/configuration, payload-free auth-store/volume/snapshot state, public
+  endpoints, Claude public status, and exact recovery-image identity/security scanning. Incomplete
+  or stale evidence fails closed. The official Fly metric, signed-in Anthropic console, signed-in
+  Build Uploads view, and separate owner upload approval remain live gates. This tooling/test/docs-
+  only change does not alter the preserved build-7 archive or shipped behavior and does not require
+  build 8.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
