@@ -715,7 +715,13 @@ def check_source(
     head = runner.run(["git", "rev-parse", "HEAD"])
     origin = runner.run(["git", "rev-parse", "refs/remotes/origin/main"])
     remote_main = runner.run(
-        ["git", "ls-remote", "--exit-code", "origin", "refs/heads/main"]
+        [
+            "git",
+            "ls-remote",
+            "--exit-code",
+            config.source_repository,
+            "refs/heads/main",
+        ]
     )
     head_revision = head.stdout.strip()
     if (
