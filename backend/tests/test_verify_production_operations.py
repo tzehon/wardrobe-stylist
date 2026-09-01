@@ -392,7 +392,7 @@ def source_responses(remote_revision: str) -> dict[tuple[str, ...], Any]:
             "git",
             "ls-remote",
             "--exit-code",
-            "origin",
+            config().source_repository,
             "refs/heads/main",
         ): f"{remote_revision}\trefs/heads/main\n",
         (
@@ -411,8 +411,9 @@ def source_responses(remote_revision: str) -> dict[tuple[str, ...], Any]:
 
 def test_source_requires_current_remote_main_not_only_tracking_ref() -> None:
     head = "2" * 40
+    passing_runner = FakeRunner(source_responses(head))
     passing, passing_revision = MODULE.check_source(
-        FakeRunner(source_responses(head)),
+        passing_runner,
         repo_root=Path.cwd(),
         config=config(),
     )
@@ -424,6 +425,20 @@ def test_source_requires_current_remote_main_not_only_tracking_ref() -> None:
 
     assert passing.status is MODULE.Status.PASS
     assert passing_revision == head
+    assert (
+        "git",
+        "ls-remote",
+        "--exit-code",
+        config().source_repository,
+        "refs/heads/main",
+    ) in passing_runner.calls
+    assert (
+        "git",
+        "ls-remote",
+        "--exit-code",
+        "origin",
+        "refs/heads/main",
+    ) not in passing_runner.calls
     assert stale == MODULE._open("source", "local-source-open")
     assert stale_revision is None
 
