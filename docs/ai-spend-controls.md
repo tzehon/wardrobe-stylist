@@ -33,7 +33,7 @@ are $2 per million uncached input tokens and $10 per million output tokens.
 One internal accounting unit is $0.000001 of pre-tax API usage. Before contacting the
 provider, SQLite atomically charges `1000000 × 2 + 10 × max_output_tokens` units and one admission.
 The full 1,000,000-token context is reserved even though actual input is much smaller; UTF-8
-size estimates are not treated as a proof of provider token count. Default output is 1,024,
+size estimates are not treated as a proof of provider token count. Approved output is pinned to 1,024,
 so one reservation is 2,010,240 units ($2.010240). A valid completed recommendation refunds
 only the difference between this reservation and checked usage. Failures retain the full
 reservation, including failures that may actually be unbilled. This is intentionally conservative.
@@ -76,8 +76,12 @@ the ledger retains current aggregate counters and unresolved reservations only.
 `AI_MONTHLY_REQUEST_LIMIT` default to zero, meaning no approved budget. These are private
 runtime values, never committed actual launch amounts. General code safety upper bounds are
 100,000,000 units, 100,000 admissions, four concurrent calls, and 2,048 output tokens; these
-upper bounds are not an approved launch policy. The default concurrency is one. The selected
-limits must match the immutable policy stored at first provisioning.
+upper bounds are not an approved launch policy. Runtime admission and production preflight
+separately require integer `AI_MAX_OUTPUT_TOKENS=1024` and the matching stylist default; even
+an in-range setting such as 256 or 2,048 fails closed before ledger/provider access. This pins
+the selected evaluated cap without reinterpreting the v2 ledger's broader storage bound.
+The default concurrency is one. The selected limits must match the immutable policy stored at
+first provisioning.
 
 The existing root container entrypoint prepares only the App Attest directory. For the one-time
 approved budget provisioning, prepare the separate directory with the existing

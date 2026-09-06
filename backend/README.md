@@ -6,7 +6,8 @@ metadata (public keys, opaque Apple receipts, assertion counters, session hashes
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
 The local candidate selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
-thinking/cache/retries off, and a default 1,024-token response cap. A separate durable v2
+thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
+configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
 policy mismatch, or uncertain accounting. Styling defaults to disabled. The owner approved
 the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored

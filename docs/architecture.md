@@ -171,8 +171,9 @@ See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
 The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
 The local candidate uses pinned `claude-sonnet-5` through one synchronous Messages API
 call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
-`propose_outfit` output is limited to 1,024 tokens by default. The supported configuration range is
-256–2,048 tokens; the accepted evaluation used 1,024. All automatic checks passed, followed by
+`propose_outfit` output is pinned to the evaluated 1,024 tokens. The configuration parser and
+ledger retain broader safety bounds, but runtime admission and preflight reject any other
+configured output limit or stylist default before storage/provider access. All automatic checks passed, followed by
 owner qualitative acceptance with the numeric rubric explicitly left incomplete. Prompt
 caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn

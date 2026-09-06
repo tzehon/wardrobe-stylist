@@ -258,8 +258,26 @@ def automatic_decision(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {"passed": passed, "counts": counts, "p95_latency_seconds": p95}
 
 
-def score_review(report: dict[str, Any], scores: list[dict[str, Any]]) -> dict[str, Any]:
-    """Require one complete, blinded human score card per quality call before acceptance."""
+def _validate_report_manifest(report: dict[str, Any], model: str) -> None:
+    """Saved results can establish acceptance only for this exact source and profile."""
+    current = manifest(model)
+    saved = report.get("manifest") if isinstance(report, dict) else None
+    if not isinstance(saved, dict):
+        raise ValueError("The saved evaluation requires a complete source-bound manifest.")
+    payload = {key: value for key, value in saved.items() if key != "manifest_sha256"}
+    if saved.get("manifest_sha256") != hashlib.sha256(canonical(payload)).hexdigest():
+        raise ValueError("The saved evaluation manifest hash is missing or invalid.")
+    # Compare canonical JSON, including every field, rather than Python values: saved JSON
+    # turns tuples into lists, while Python equality treats booleans and integers as equal.
+    if canonical(saved) != canonical(current):
+        raise ValueError("The saved evaluation manifest does not match current source and profile.")
+
+
+def score_review(
+    report: dict[str, Any], scores: list[dict[str, Any]], *, model: str = PINNED_MODEL,
+) -> dict[str, Any]:
+    """Require current source provenance and a complete, blinded score card per quality call."""
+    _validate_report_manifest(report, model)
     expected = {row["blind_id"] for row in report["rows"] if row["purpose"] == "quality"}
     supplied = [row.get("blind_id") for row in scores]
     if len(expected) != QUALITY_CALLS or len(supplied) != len(set(supplied)):
@@ -510,6 +528,7 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error("score requires the saved report and completed blinded scores")
             result = score_review(
                 json.loads(args.report.read_text()), json.loads(args.scores.read_text()),
+                model=args.model,
             )
     except KeyboardInterrupt:
         parser.exit(130, "Evaluation interrupted. Retain the accounting journal; do not retry.\n")

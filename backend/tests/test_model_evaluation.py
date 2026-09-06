@@ -1,5 +1,6 @@
 """The acceptance workflow's safety/cost/quality gates use fictional SDK responses only."""
 
+import hashlib
 import json
 from copy import deepcopy
 from dataclasses import replace
@@ -558,7 +559,7 @@ def test_fake_profile_run_is_bounded_and_uses_selected_costs(
     for row in scores:
         row.update(dict.fromkeys(run.HUMAN_DIMENSIONS, 4))
     report["rows"][0]["checks"]["complete_outfits"] = False
-    decision = run.score_review(report, scores)
+    decision = run.score_review(report, scores, model=model)
     assert not decision["accepted"]
     assert "Sonnet" not in decision["next_step"]
     assert "separately approved" in decision["next_step"]
@@ -748,6 +749,148 @@ def test_human_floor_cannot_be_skipped_or_pass_with_a_weak_dimension(monkeypatch
     assert not run.score_review(report, scores)["accepted"]
     with pytest.raises(ValueError):
         run.score_review(report, scores[:-1] + [scores[0]])
+
+
+def completed_fake_review(monkeypatch, tmp_path, model=run.PINNED_MODEL):
+    _, _, output = fake_run(monkeypatch, tmp_path, model=model)
+    report = json.loads((output / "report.json").read_text())
+    scores = json.loads((output / "scores.json").read_text())
+    for row in scores:
+        row.update(dict.fromkeys(run.HUMAN_DIMENSIONS, 4))
+    return report, scores, output
+
+
+@pytest.mark.parametrize("model", [run.PINNED_MODEL, run.HAIKU_MODEL])
+def test_scoring_saved_json_requires_the_explicit_matching_profile(
+    monkeypatch, tmp_path, capsys, model,
+):
+    report, scores, output = completed_fake_review(monkeypatch, tmp_path, model)
+
+    def forbidden(**kwargs):
+        pytest.fail("Scoring must never construct an API client.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    assert run.score_review(report, scores, model=model)["accepted"]
+    (output / "scores.json").write_text(json.dumps(scores))
+    assert run.main([
+        "score", "--model", model, "--report", str(output / "report.json"),
+        "--scores", str(output / "scores.json"),
+    ]) == 0
+    assert json.loads(capsys.readouterr().out)["accepted"]
+    other = run.HAIKU_MODEL if model == run.PINNED_MODEL else run.PINNED_MODEL
+    with pytest.raises(ValueError, match="manifest"):
+        run.score_review(report, scores, model=other)
+    with pytest.raises(SystemExit) as rejected:
+        run.main([
+            "score", "--model", other, "--report", str(output / "report.json"),
+            "--scores", str(output / "scores.json"),
+        ])
+    assert rejected.value.code == 2
+    assert capsys.readouterr().out == ""
+    with pytest.raises(ValueError, match="allowlisted"):
+        run.score_review(report, scores, model="claude-sonnet-latest")
+
+
+def test_scoring_rejects_missing_or_malformed_manifest_and_hash(monkeypatch, tmp_path):
+    report, scores, _ = completed_fake_review(monkeypatch, tmp_path)
+    missing = deepcopy(report)
+    del missing["manifest"]
+    with pytest.raises(ValueError, match="manifest"):
+        run.score_review(missing, scores)
+    for malformed in (None, [], "manifest", {}, True):
+        with pytest.raises(ValueError, match="manifest"):
+            run.score_review({**report, "manifest": malformed}, scores)
+    for wrong_hash in (None, "wrong", "0" * 64, True, 1):
+        invalid = deepcopy(report)
+        invalid["manifest"]["manifest_sha256"] = wrong_hash
+        with pytest.raises(ValueError, match="manifest hash"):
+            run.score_review(invalid, scores)
+
+
+def test_scoring_requires_every_manifest_field_and_rejects_extra_fields(monkeypatch, tmp_path):
+    report, scores, _ = completed_fake_review(monkeypatch, tmp_path)
+    saved = report["manifest"]
+    for key in saved:
+        altered = {field: value for field, value in saved.items() if field != key}
+        with pytest.raises(ValueError, match="manifest"):
+            run.score_review({**report, "manifest": altered}, scores)
+        # Even a valid rehash cannot bless a manifest missing current source/profile fields.
+        payload = {field: value for field, value in altered.items() if field != "manifest_sha256"}
+        if key != "manifest_sha256":
+            altered["manifest_sha256"] = hashlib.sha256(run.canonical(payload)).hexdigest()
+            with pytest.raises(ValueError, match="current source and profile"):
+                run.score_review({**report, "manifest": altered}, scores)
+    for extra in ({"unapproved": True}, {"quality_floor": {**saved["quality_floor"], "extra": 1}}):
+        altered = {**saved, **extra}
+        payload = {key: value for key, value in altered.items() if key != "manifest_sha256"}
+        altered["manifest_sha256"] = hashlib.sha256(run.canonical(payload)).hexdigest()
+        with pytest.raises(ValueError, match="current source and profile"):
+            run.score_review({**report, "manifest": altered}, scores)
+
+
+def test_scoring_does_not_trust_a_copied_hash_or_python_boolean_equality(monkeypatch, tmp_path):
+    report, scores, _ = completed_fake_review(monkeypatch, tmp_path)
+    saved = report["manifest"]
+    saved["concurrency"] = True  # Python considers True == 1; exact JSON must not.
+    with pytest.raises(ValueError, match="manifest hash"):
+        run.score_review(report, scores)
+    payload = {key: value for key, value in saved.items() if key != "manifest_sha256"}
+    saved["manifest_sha256"] = hashlib.sha256(run.canonical(payload)).hexdigest()
+    with pytest.raises(ValueError, match="current source and profile"):
+        run.score_review(report, scores)
+
+
+@pytest.mark.parametrize("relative_path", [
+    "evaluation/run.py", "evaluation/fixtures.py", "app/agents/stylist.py",
+    "app/routes/recommend.py", "app/schemas/recommendation.py", "uv.lock", "pyproject.toml",
+    "../shared/schemas/outfit.schema.json",
+])
+def test_scoring_rejects_reports_from_changed_source_schema_or_sdk(
+    monkeypatch, tmp_path, relative_path,
+):
+    report, scores, _ = completed_fake_review(monkeypatch, tmp_path)
+    changed = (Path(run.__file__).resolve().parents[1] / relative_path).resolve()
+    original = Path.read_bytes
+
+    def changed_read(path):
+        content = original(path)
+        return content + b"\nfictional source change" if path.resolve() == changed else content
+
+    monkeypatch.setattr(Path, "read_bytes", changed_read)
+    with pytest.raises(ValueError, match="current source and profile"):
+        run.score_review(report, scores)
+
+
+@pytest.mark.parametrize("change", [
+    "prompt", "tool", "fixture_request", "fixture_expectations", "quality_floor",
+    "human_dimensions", "pricing", "pricing_date",
+])
+def test_scoring_rejects_changed_requests_expectations_or_pricing(monkeypatch, tmp_path, change):
+    report, scores, _ = completed_fake_review(monkeypatch, tmp_path)
+    if change == "prompt":
+        monkeypatch.setattr(run.stylist, "SYSTEM_PROMPT", run.stylist.SYSTEM_PROMPT + " Changed.")
+    elif change == "tool":
+        tool = deepcopy(run.stylist.PROPOSE_OUTFIT_TOOL)
+        tool["description"] += " Changed."
+        monkeypatch.setattr(run.stylist, "PROPOSE_OUTFIT_TOOL", tool)
+    elif change in {"fixture_request", "fixture_expectations"}:
+        fixtures = list(cases())
+        if change == "fixture_request":
+            fixtures[0].request["occasion"] = "A changed fictional occasion."
+        else:
+            fixtures[0] = replace(fixtures[0], minimum_alternates=2)
+        monkeypatch.setattr(run, "cases", lambda: tuple(fixtures))
+    elif change == "quality_floor":
+        monkeypatch.setattr(run, "QUALITY_FLOOR", {**run.QUALITY_FLOOR, "known_ids": 23})
+    elif change == "human_dimensions":
+        monkeypatch.setattr(run, "HUMAN_DIMENSIONS", (*run.HUMAN_DIMENSIONS, "extra"))
+    elif change == "pricing":
+        profile = replace(run.model_profile(run.PINNED_MODEL), input_rate=Decimal("3"))
+        monkeypatch.setitem(run.MODEL_PROFILES, run.PINNED_MODEL, profile)
+    else:
+        monkeypatch.setattr(run, "PRICING_DATE", "2026-09-07")
+    with pytest.raises(ValueError, match="current source and profile"):
+        run.score_review(report, scores)
 
 
 def test_automatic_floor_recomputed_during_scoring_and_p95_is_enforced(monkeypatch, tmp_path):

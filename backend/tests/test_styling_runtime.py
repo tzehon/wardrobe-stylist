@@ -53,6 +53,9 @@ def test_success_charges_actual_tokens_without_persisting_payload(
 
 @pytest.mark.parametrize("target,field,value", [
     (stylist, "MODEL", "claude-haiku-4-5-20251001"),
+    (stylist, "MAX_TOKENS", 512),
+    (stylist, "MAX_TOKENS", 2048),
+    (stylist, "MAX_TOKENS", 1024.0),
     (styling_budget, "BUDGET_MODEL", "claude-haiku-4-5-20251001"),
     (styling_budget, "INPUT_UNIT_PRICE", 1),
     (styling_budget, "OUTPUT_UNIT_PRICE", 5),
@@ -83,12 +86,32 @@ def test_model_or_pricing_drift_blocks_admission_and_preflight_before_store_acce
     assert styling_runtime.production_styling_status() == {"unavailable": "yes"}
 
 
-@pytest.mark.parametrize("output_limit,reserved_units", [(1024, 2_010_240), (2048, 2_020_480)])
-def test_spend_band_requires_full_sonnet_reservation_at_configured_output_limit(
-    monkeypatch, output_limit, reserved_units,
+@pytest.mark.parametrize("output_limit", [256, 512, 1023, 1025, 2048, 1024.0, "1024", True, None])
+def test_unevaluated_output_limit_blocks_admission_and_preflight_before_store_access(
+    client, fake_anthropic, auth_headers, monkeypatch, output_limit,
 ):
     snapshot = get_styling_budget().snapshot()
     monkeypatch.setattr(settings, "ai_max_output_tokens", output_limit)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("An unevaluated output limit must fail before budget-store access.")
+
+    monkeypatch.setattr(styling_runtime, "StylingBudget", forbidden)
+    response = client.post("/recommend", json=_request_body(), headers=auth_headers)
+    assert response.status_code == 503
+    assert response.json() == {"detail": "The AI service is temporarily unavailable."}
+    assert fake_anthropic.messages.last_call is None
+    assert styling_runtime.spend_band(snapshot) == "exhausted"
+
+    monkeypatch.setattr(settings, "environment", "production")
+    monkeypatch.setattr(settings, "ai_budget_database_path", "/data/ai-budget/budget.sqlite3")
+    monkeypatch.setattr(styling_runtime, "inspect_budget_database", forbidden)
+    assert styling_runtime.production_styling_status() == {"unavailable": "yes"}
+
+
+def test_spend_band_requires_full_sonnet_reservation_at_approved_output_limit():
+    snapshot = get_styling_budget().snapshot()
+    reserved_units = 2_010_240
     exact = replace(snapshot, unit_limit=reserved_units)
     assert styling_runtime.spend_band(exact) == "below-warning"
     assert styling_runtime.spend_band(replace(exact, unit_limit=reserved_units - 1)) == "exhausted"

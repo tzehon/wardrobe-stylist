@@ -511,6 +511,13 @@ open.
   source review; it was created as a draft and immediately marked ready. Passing checks and
   current-head Codex approval are prerequisites for rebase-merge; the PR records their final state.
   This source approval does not authorize production provisioning, deployment, or distribution.
+  PR #41 review required pinning the configured output cap to the evaluated integer 1,024 and
+  binding numeric score acceptance to the complete current source/profile manifest and hash.
+  Both safeguards are implemented; all 28 accepted request hashes remain unchanged. Final
+  verification passed 583 backend tests, locked audit/Bandit/Ruff/mypy, 236 iOS tests,
+  44 release-script tests, and fresh Release simulator/artifact checks. No historical report or
+  rating changed, no paid call ran, and no new TestFlight build is required. The PR records the
+  required review of these fixes and final merge state.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,

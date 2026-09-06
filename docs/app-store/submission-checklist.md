@@ -73,6 +73,11 @@ later be promoted to customers.
   [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41), created as a draft and immediately
   marked ready. The PR records its checks, current-head Codex review, and final merge state;
   those source gates confer no production or distribution approval.
+  Review fixes now pin runtime/preflight output to integer 1,024 and reject numeric scoring
+  against a stale or altered source/model manifest. Final verification passed 583 backend tests,
+  full security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release
+  simulator/artifact checks. All accepted request hashes remain unchanged; no new paid call or
+  TestFlight build is required. The PR records the fixes' required review and merge outcome.
 
 ## 2. Public pages and truthful data declarations
 

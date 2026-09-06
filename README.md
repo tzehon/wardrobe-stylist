@@ -69,7 +69,8 @@ reviewed future release.
 The local backend candidate uses pinned `claude-sonnet-5` with Anthropic SDK 1.4.0,
 the synchronous Messages API at the standard service tier, strict forced tool output,
 no extended thinking or retries, and
-a default 1,024-token response limit. Prompt caching is off until measured reads justify it.
+the evaluated 1,024-token response limit. Runtime admission and preflight reject any different
+output cap before ledger/provider access. Prompt caching is off until measured reads justify it.
 A separate SQLite accounting store reserves worst-case cost before each request, enforces a
 global monthly admission/spend ceiling and concurrency, and retains uncertain charges across
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
@@ -101,10 +102,12 @@ The preserved Build 7 archive still needs fresh operational review, owner-approv
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Final capacity-preflight verification on 6 September 2026 passed 551 backend tests plus
+Final PR-review verification on 6 September 2026 passed 583 backend tests plus
 dependency/security/lint/type checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
 and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
 signature/privacy verification remains recorded in the release evidence.
+Numeric scoring now rejects reports whose complete manifest/hash differs from the current
+source and selected model; historical ratings and qualitative approval remain separate evidence.
 These results do not substitute for fresh production release evidence.
 
 For current candidate status, consumed build numbers, clean-install requirements, and physical
