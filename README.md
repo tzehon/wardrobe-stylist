@@ -110,6 +110,18 @@ Numeric scoring now rejects reports whose complete manifest/hash differs from th
 source and selected model; historical ratings and qualitative approval remain separate evidence.
 These results do not substitute for fresh production release evidence.
 
+PR #41 rebase-merged on 6 September 2026 to `e3a837b`; the reviewed source and merged tree
+match. A subsequent Linux/AMD64 image scan found four High-severity findings in the inherited
+`util-linux` package. The local follow-up requires `libuuid>=2.42.3-r1` while preserving the
+pinned base images and crypto updates. Its rebuilt image contains `libuuid 2.42.3-r1` and passes
+the zero-High/Critical scan, native UUID loading, non-root/no-new-privileges, bounded logging,
+separate storage, and restart-persistence checks. This follow-up remains local; its source
+publication/review and the exact merged-image deployment gates are still open. Production and
+the preserved Build 7 archive are unchanged. The remediation passed all 583 backend tests and
+security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release artifact
+checks. No new TestFlight build is required. See the
+[runtime security checkpoint](docs/app-store/internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
+
 For current candidate status, consumed build numbers, clean-install requirements, and physical
 TestFlight QA evidence, see [`docs/app-release-backlog.md`](docs/app-release-backlog.md) and
 [`docs/app-store/internal-testflight-runbook.md`](docs/app-store/internal-testflight-runbook.md).
