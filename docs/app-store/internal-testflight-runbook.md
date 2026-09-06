@@ -32,7 +32,9 @@ source are unchanged, so this work does not require Build 8 or replace the prese
 archive. Keep README current with these changes.
 
 The [fictional model evaluation](../model-evaluation.md) and local implementation are accepted;
-source review and verified rollout remain open. The following retains the evaluation history.
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
+checks, Codex review, and merge state. Verified rollout remains open.
+The following retains the evaluation history.
 The first owner-approved Haiku run, with at most 28 paid calls and a $6 pre-tax ceiling,
 stopped on 2026-09-06 on its first request after 30.046 seconds with `APITimeoutError`.
 No response or usage returned; uncertain cost is bounded by $0.205120 before tax. A separately
@@ -75,7 +77,7 @@ The owner expects up to 10 initial AI users and approved the private spend/admis
 and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled configuration
 are retained in ignored private release records and have not been applied. Both failed Haiku runs and the failed Sonnet run
 remain failed and retain unfilled human scores.
-The remaining gates are public-capacity preflight and alert-delivery verification, source review,
+The remaining gates are public-capacity preflight and alert-delivery verification,
 approved [spend-controls provisioning](../ai-spend-controls.md), approved immutable-image
 deployment, and fresh operational review.
 The [public-capacity preflight profile](../ai-spend-controls.md#public-launch-observed-capacity-preflight)

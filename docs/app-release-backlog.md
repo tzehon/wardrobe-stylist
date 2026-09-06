@@ -496,7 +496,7 @@ open.
   AI users. Exact limits and the disabled configuration are retained in ignored private release
   files, not tracked source, and have not been applied. This closes the budget/cadence decision
   only. Alert delivery, public capacity acceptance (including replacement of the historical
-  single-user aggregate preflight band), source review, approved provisioning, and verified
+  single-user aggregate preflight band), approved provisioning, and verified
   deployment remain open.
   Local tooling now supports an explicitly selected public-launch preflight profile with strict
   private installation/session bounds and an active-session ownership check. The historical

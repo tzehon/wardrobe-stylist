@@ -62,7 +62,7 @@ later be promoted to customers.
   The owner expects up to 10 AI users in month one and approved the private spend/admission
   limits and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled
   configuration remain in ignored private release records and have not been applied. Alert
-  delivery, public-capacity preflight, source review, approved provisioning, and verified
+  delivery, public-capacity preflight, approved provisioning, and verified
   deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
   The later local capacity-preflight extension passed 551 backend tests, full security/type/lint

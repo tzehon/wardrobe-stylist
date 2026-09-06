@@ -10,8 +10,10 @@ production deployment claim. The retained Fly v10 evidence describes the earlier
 The selected Sonnet request passed automatic evaluation and received qualitative owner acceptance.
 The owner approved the private launch limits and daily monitoring policy on 2026-09-06;
 the values remain private and unapplied. Public-capacity preflight, alert-delivery verification,
-source review, approved provisioning/deployment, and a fresh operational review remain gates in
+approved provisioning/deployment, and a fresh operational review remain gates in
 the [release backlog](app-release-backlog.md).
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
+checks, Codex review, and merge state.
 
 Public v1 does not connect to Google, read Gmail, import purchase receipts, or require a human
 account. The earlier read-only Gmail/receipt-import implementation remains only in Git history and

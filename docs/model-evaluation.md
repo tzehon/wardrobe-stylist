@@ -528,11 +528,14 @@ first-month AI users. On 2026-09-06 the owner replied **"approve and proceed"** 
 spend/admission-limit and daily-monitoring proposal. The approved record and disabled
 configuration are retained in ignored private release files; no exact private limit is published
 here and no setting has been applied. This closes the budget/operating-policy decision.
-Public-capacity preflight, alert-delivery verification, source review, approved provisioning,
+Public-capacity preflight, alert-delivery verification, approved provisioning,
 and actual deployment/operational gates remain open before distribution. This approval does
 not authorize another paid evaluation, provider-console changes, or deployment.
 
 ## PR #41 review safeguards — verified
+
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
+checks, Codex review, and merge state.
 
 PR #41 review added two acceptance safeguards. Runtime admission/preflight now pin the configured
 output cap and stylist default to integer 1,024 before ledger/provider access. Numeric scoring
