@@ -39,6 +39,22 @@ The release contract is:
 The current release work and remaining blockers are tracked in
 [`app-release-backlog.md`](app-release-backlog.md).
 
+## Local candidate: aggregate AI budget accounting
+
+The September 2026 backend candidate adds a separate durable budget database before public
+launch. It stores one current UTC-month unit/admission total, approved policy limits, a safety
+halt flag, and unresolved random reservation IDs with bounded token amounts and month. No
+installation ID, wardrobe attribute, prompt, or model response enters that database. Completed
+reservations are removed; uncertain reservations remain conservatively charged until separately
+approved reconciliation. The ledger cannot connect spending to a person or installation, and
+in-app server-security deletion does not reset this global aggregate ceiling.
+
+The database will use the existing encrypted volume and its snapshot policy after an approved
+deployment. This is local implementation, not a claim that production or hosted privacy copy
+has changed. Reconcile the final public declarations and provider terms under APP-016 before
+launch. The fictional evaluation uses no real wardrobes and never shadows production requests.
+See [spend controls and recovery](ai-spend-controls.md) for exact persistence and failure rules.
+
 ## Anonymous backend authorization
 
 Remote AI uses App Attest rather than a human login. One installation enrolls an Apple-certified

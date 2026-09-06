@@ -1456,6 +1456,13 @@ def test_run_review_rechecks_source_and_manual_evidence_at_completion(
     )
     monkeypatch.setattr(
         MODULE,
+        "check_styling_budget",
+        lambda *_args, **_kwargs: MODULE._pass(
+            "styling_budget", "bounded-enabled-below-warning"
+        ),
+    )
+    monkeypatch.setattr(
+        MODULE,
         "check_public_backend",
         lambda *_args, **_kwargs: MODULE._pass(
             "public_backend", "health-and-routes"
@@ -1631,6 +1638,7 @@ def _open_detail(name: str) -> str:
         "fly_configuration": "configuration-evidence-open",
         "auth_store": "auth-store-evidence-open",
         "auth_aggregate": "auth-aggregate-open",
+        "styling_budget": "styling-budget-evidence-open",
         "volume": "volume-evidence-open",
         "snapshot": "snapshot-evidence-open",
         "bounded_events": "event-evidence-open",

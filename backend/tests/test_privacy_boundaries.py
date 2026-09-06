@@ -69,6 +69,10 @@ EXPECTED_AUTH_SCHEMA = {
 # route/auth tests separately inject private sentinels to prove these reviewed
 # exception and validation paths remain payload-free at runtime.
 EXPECTED_LOG_CALLS = {
+    ("styling_runtime.py", "warning", "'styling_budget_event code=store_unavailable'"),
+    ("styling_runtime.py", "warning", "'styling_budget_event code=admission_closed'"),
+    ("styling_runtime.py", "warning", "'styling_budget_event code=settlement_failed'"),
+    ("styling_runtime.py", "warning", "'styling_budget_event code=review_required'"),
     (
         "anthropic_safety.py",
         "warning",
@@ -238,7 +242,7 @@ def _persistence_violations(relative_path: str, source: str) -> list[str]:
     violations: list[str] = []
     tree = ast.parse(source, filename=relative_path)
     aliases = _import_aliases(tree)
-    is_store = relative_path == "auth/store.py"
+    is_store = relative_path in {"auth/store.py", "styling_budget.py"}
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -347,7 +351,7 @@ def test_auth_store_schema_is_exactly_reviewed_security_metadata(tmp_path: Path)
     assert actual_schema == EXPECTED_AUTH_SCHEMA
 
 
-def test_auth_store_remains_the_only_developer_controlled_persistence_sink() -> None:
+def test_only_reviewed_security_and_budget_stores_are_persistence_sinks() -> None:
     violations: list[str] = []
     for path in _app_sources():
         relative_path = _relative(path)

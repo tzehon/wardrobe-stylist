@@ -4,7 +4,9 @@ A **personal, privacy-first** iOS app for cataloging clothing manually or from p
 local wardrobe, and optionally asking **Aria** for a non-repeating daily outfit. Public v1 does not
 connect to Google, read Gmail, import receipts, or require an account.
 
-> Working title — "Wardrobe" (app) with stylist agent persona "Aria". Single-user / personal use.
+The approved launch is **Free, Singapore only, version 1.0.0 / Build 7**, with no in-app
+purchases or subscriptions. Transparent freemium in Singapore comes next; country expansion
+follows only after its pricing, budget controls, and operations are proven.
 
 ## Non-negotiable constraints
 
@@ -48,6 +50,8 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 |---|---|
 | [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, App Attest, Anthropic key, Fly.io) |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
+| [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional Haiku quality, latency, cost, and cache evaluation; paid-call approval procedure |
+| [`docs/ai-spend-controls.md`](docs/ai-spend-controls.md) | Durable monthly AI ceiling, private provisioning, alerts, and disable/recovery procedure |
 | [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
 | [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
 | [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
@@ -61,6 +65,29 @@ The approved public-v1 cut is manual/photo cataloging, browse/edit/history, loca
 offline Demo Mode, and optional AI styling protected by App Attest. The earlier read-only Gmail/
 receipt-import subsystem has been removed from active v1 source and is deferred to a separately
 reviewed future release.
+
+The local backend candidate uses pinned `claude-haiku-4-5-20251001` with Anthropic SDK 1.4.0,
+the synchronous Messages API at the standard service tier, strict forced tool output,
+no extended thinking or retries, and
+a default 1,024-token response limit. Prompt caching is off until measured reads justify it.
+A separate SQLite accounting store reserves worst-case cost before each request, enforces a
+global monthly admission/spend ceiling and concurrency, and retains uncertain charges across
+restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
+disabled by default until an explicit private budget is provisioned and enabled.
+
+This candidate is **local and not deployed**. Live synthetic model quality/cache/cost evaluation,
+owner budget approval, public capacity/operations acceptance, source review, and verified deployment
+remain open before Build 7 distribution. The evaluation plan is at most 28 fictional-data calls,
+with a US$6 estimated API usage ceiling before tax, and requires separate owner approval.
+No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
+The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
+processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
+separate deletion/recovery evidence gate.
+
+Local verification on 6 September 2026 passed 438 backend tests plus dependency/security/lint/type
+checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
+and artifact checks, and local signature/privacy verification of the preserved Build 7 archive.
+These results do not substitute for live model acceptance or fresh production release evidence.
 
 For current candidate status, consumed build numbers, clean-install requirements, and physical
 TestFlight QA evidence, see [`docs/app-release-backlog.md`](docs/app-release-backlog.md) and

@@ -8,6 +8,7 @@ import logging
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024
+MAX_RECOMMEND_BODY_BYTES = 128 * 1024
 logger = logging.getLogger(__name__)
 
 _CACHE_HEADER_NAMES = {b"cache-control", b"pragma"}
@@ -35,8 +36,11 @@ class HTTPSecurityMiddleware:
             await self.app(scope, receive, send)
             return
 
+        limit = self.max_body_bytes
+        if scope.get("path") == "/recommend":
+            limit = min(limit, MAX_RECOMMEND_BODY_BYTES)
         declared_length = _declared_content_length(scope)
-        if declared_length is not None and declared_length > self.max_body_bytes:
+        if declared_length is not None and declared_length > limit:
             await _send_too_large(send)
             return
 
@@ -48,7 +52,7 @@ class HTTPSecurityMiddleware:
             message = await receive()
             if message["type"] == "http.request":
                 received_bytes += len(message.get("body", b""))
-                if received_bytes > self.max_body_bytes:
+                if received_bytes > limit:
                     raise _RequestBodyTooLarge
             return message
 

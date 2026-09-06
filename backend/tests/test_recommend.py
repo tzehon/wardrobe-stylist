@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 import anthropic
-import httpx
+import httpx2
 import jsonschema
 import pytest
 
@@ -77,10 +77,15 @@ def test_recommend_returns_structured_outfit(client, fake_anthropic, auth_header
 
     # Verify the call shape — model, cache marker, forced tool choice, catalog in user turn.
     call = fake_anthropic.messages.last_call
-    assert call["model"] == "claude-opus-4-8"
-    assert call["max_tokens"] == 2048
-    assert call["system"][0]["cache_control"] == {"type": "ephemeral"}
-    assert call["tool_choice"] == {"type": "tool", "name": "propose_outfit"}
+    assert call["model"] == "claude-haiku-4-5-20251001"
+    assert call["service_tier"] == "standard_only"
+    assert call["max_tokens"] == 1024
+    assert "cache_control" not in call["system"][0]
+    assert call["thinking"] == {"type": "disabled"}
+    assert call["tool_choice"] == {
+        "type": "tool", "name": "propose_outfit", "disable_parallel_tool_use": True,
+    }
+    assert call["tools"][0]["strict"] is True
     assert call["tools"][0]["name"] == "propose_outfit"
     user_content = call["messages"][0]["content"]
     assert A in user_content and "Oversized Tee" in user_content
@@ -379,13 +384,13 @@ def test_recommend_redacts_anthropic_status_error(
 ):
     private_api_key = "PRIVATE_ANTHROPIC_KEY_VALUE"
     private_catalog = "PRIVATE_WARDROBE_PAYLOAD_VALUE"
-    request = httpx.Request(
+    request = httpx2.Request(
         "POST",
         "https://api.anthropic.com/v1/messages",
         headers={"x-api-key": private_api_key},
         content=private_catalog,
     )
-    response = httpx.Response(
+    response = httpx2.Response(
         500,
         headers={"request-id": "req_safe_123"},
         request=request,

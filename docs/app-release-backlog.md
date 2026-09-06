@@ -21,7 +21,7 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-09-01**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-06**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -424,6 +424,18 @@ open.
   does not require build 8, but it does require focused tests, the full backend/security regression,
   exact deployment/image verification, and a fresh post-change operational review before Build 7
   distribution.
+  Local work on 2026-09-06 prepares pinned `claude-haiku-4-5-20251001`, locked SDK 1.4.0
+  (`httpx2` for SDK transport), strict forced tool output, thinking/cache off, and a default
+  1,024-token output cap. The [fictional evaluation](model-evaluation.md) prepares 28 calls
+  with a conservative $6 pre-tax API ceiling and source-bound approval manifest; no live call
+  has run. Keep this gate unchecked until live quality, human review, cost/cache measurement,
+  source review, deployment, and the fresh operational review pass. Shared schemas and iOS
+  source remain unchanged; Build 8 is not required.
+  Final local verification passed 438 backend tests, locked pip-audit with no known vulnerabilities,
+  Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
+  44 release-script tests, a fresh Release simulator build/artifact check, and local strict
+  signature/profile/privacy verification of the preserved Build 7 archive. No paid call, public
+  push, deployment, upload, or phone/snapshot mutation occurred.
 - [ ] **Establish the free Singapore launch spend envelope.** Before public distribution, approve a
   private maximum monthly AI budget and prove a hard, fail-closed global ceiling whose worst-case
   exposure fits it. Bound request input, output, concurrency, and retry exposure; lock the selected
@@ -431,6 +443,12 @@ open.
   emergency-disable handling; and replace the personal/single-user monitoring assumption with an
   explicitly accepted Singapore public-launch capacity and response cadence. Do not record exact
   billing or secret values in release evidence, and do not describe AI styling as unlimited.
+  Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
+  atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
+  input/output limits, zero retries, default-disabled server switch, redacted preflight, and
+  explicit charge-preserving recovery. No private launch budget is selected or configured.
+  Owner budget approval, alert delivery/cadence, public capacity acceptance (including replacement
+  of the historical single-user aggregate preflight band), and actual deployment remain open.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,

@@ -83,6 +83,17 @@ _DETAILS: dict[str, frozenset[str]] = {
     "auth_aggregate": frozenset(
         {"single-user-band", "auth-aggregate-open"}
     ),
+    "styling_budget": frozenset(
+        {
+            "bounded-enabled-below-warning",
+            "spend-warning",
+            "spend-critical",
+            "spend-exhausted",
+            "styling-disabled",
+            "requests-pending",
+            "styling-budget-evidence-open",
+        }
+    ),
     "volume": frozenset(
         {
             "below-70-percent",
@@ -132,6 +143,7 @@ _PASS_DETAILS = {
     "fly_configuration": "app-attest-only",
     "auth_store": "schema-integrity-and-runtime-guards",
     "auth_aggregate": "single-user-band",
+    "styling_budget": "bounded-enabled-below-warning",
     "volume": "below-70-percent",
     "snapshot": "automatic-14-day-fresh",
     "bounded_events": "below-policy-threshold",
@@ -147,6 +159,8 @@ _WARNING_RESULTS = frozenset(
     {
         ("volume", "70-to-84-percent"),
         ("anthropic_console", "fresh-signed-in-warning"),
+        ("styling_budget", "spend-warning"),
+        ("styling_budget", "spend-critical"),
     }
 )
 
@@ -1371,6 +1385,77 @@ print(json.dumps(result, separators=(",", ":")))
 """
 
 
+_REMOTE_STYLING_DIAGNOSTIC = r"""
+import json
+
+try:
+    from app.styling_runtime import production_styling_status
+    result = production_styling_status()
+except Exception:
+    result = {"unavailable": True}
+print(json.dumps(result, separators=(",", ":")))
+"""
+
+_STYLING_DIAGNOSTIC_VALUES = {
+    "model": frozenset({"pinned-haiku"}),
+    "policy": frozenset({"bounded"}),
+    "ledger": frozenset({"ready"}),
+    "spend_band": frozenset({"below-warning", "warning", "critical", "exhausted"}),
+    "enabled": frozenset({"yes", "no"}),
+    "concurrency": frozenset({"clear", "pending"}),
+}
+
+
+def check_styling_budget(
+    runner: CommandRunning,
+    *,
+    runtime: RuntimeContext | None,
+) -> CheckResult:
+    """Read only fixed budget bands from the verified runtime; never emit limits."""
+    fallback = _open("styling_budget", "styling-budget-evidence-open")
+    if runtime is None:
+        return fallback
+    encoded = base64.b64encode(_REMOTE_STYLING_DIAGNOSTIC.encode("utf-8")).decode("ascii")
+    remote_command = (
+        "/app/.venv/bin/python -c \"import base64;"
+        f"exec(base64.b64decode('{encoded}'))\""
+    )
+    output = runner.run(
+        [
+            "flyctl", "ssh", "console", "--app", runtime.app,
+            "--machine", runtime.machine_id, "--quiet", "--command", remote_command,
+        ],
+        timeout=45,
+    )
+    if output.returncode != 0 or output.timed_out:
+        return fallback
+    diagnostic: dict[str, Any] | None = None
+    for line in reversed(output.stdout.splitlines()):
+        try:
+            candidate = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(candidate, dict):
+            diagnostic = candidate
+            break
+    if diagnostic is None or set(diagnostic) != set(_STYLING_DIAGNOSTIC_VALUES):
+        return fallback
+    if any(
+        not isinstance(diagnostic[key], str) or diagnostic[key] not in allowed
+        for key, allowed in _STYLING_DIAGNOSTIC_VALUES.items()
+    ):
+        return fallback
+    if diagnostic["enabled"] != "yes":
+        return _open("styling_budget", "styling-disabled")
+    if diagnostic["spend_band"] == "exhausted":
+        return _open("styling_budget", "spend-exhausted")
+    if diagnostic["spend_band"] in {"warning", "critical"}:
+        return _warning("styling_budget", "spend-" + diagnostic["spend_band"])
+    if diagnostic["concurrency"] != "clear":
+        return _open("styling_budget", "requests-pending")
+    return _pass("styling_budget", "bounded-enabled-below-warning")
+
+
 def collect_diagnostics(
     runner: CommandRunning,
     *,
@@ -1495,6 +1580,7 @@ _AUTH_FAILURE_MARKERS = (
 _SERVICE_FAILURE_MARKERS = (
     "anthropic_concurrency_rejected",
     "anthropic_request_failed",
+    "styling_budget_event",
     "event=auth_maintenance_failed",
     "stylist_failure",
     "Tool input failed schema validation",
@@ -1951,6 +2037,7 @@ def run_review(
     auth_store, auth_aggregate, volume = collect_diagnostics(
         runner, runtime=runtime, config=config
     )
+    styling_budget = check_styling_budget(runner, runtime=runtime)
     bounded_events = check_bounded_events(
         runner, app=app, now=_clock_utc(clock)
     )
@@ -1988,6 +2075,7 @@ def run_review(
             configuration,
             auth_store,
             auth_aggregate,
+            styling_budget,
             volume,
             snapshot_result,
             bounded_events,

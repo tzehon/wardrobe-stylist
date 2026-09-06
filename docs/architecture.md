@@ -3,7 +3,12 @@
 Wardrobe Stylist is a **local-first, privacy-first** personal app. Public v1 builds a wardrobe from
 manual entries and user-selected photos, keeps the catalog on the iPhone, and offers optional AI
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
-minimum App Attest authentication/security metadata needed to authorize remote requests.
+minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
+
+The Haiku/SDK and budget controls described below are the **local migration candidate**, not a
+production deployment claim. The retained Fly v10 evidence describes the earlier Opus 4.8 runtime.
+Quality evaluation, private budget approval, deployment verification, and a fresh operational review
+remain release gates in the [release backlog](app-release-backlog.md).
 
 Public v1 does not connect to Google, read Gmail, import purchase receipts, or require a human
 account. The earlier read-only Gmail/receipt-import implementation remains only in Git history and
@@ -42,8 +47,10 @@ flowchart TB
     subgraph Cloud["Backend on Fly.io — content-stateless"]
         API["FastAPI<br/>/auth · /recommend"]
         AuthDB[("Durable auth state<br/>public key · Apple receipt · counters<br/>challenges · session hashes")]
+        BudgetDB[("Separate durable AI budget<br/>global counters · pending reservations<br/>no installation or wardrobe IDs")]
         Key[["ANTHROPIC_API_KEY<br/>never on device"]]
         API <--> AuthDB
+        API <--> BudgetDB
         API -. reads .- Key
     end
 
@@ -79,6 +86,7 @@ flowchart LR
     OnDevice -->|"compaction / proof"| Leaves
     Leaves -->|"HTTPS"| Backend["Backend<br/>payloads transient"]
     Backend --> AuthStore[("Durable auth/security metadata only")]
+    Backend --> BudgetStore[("Separate aggregate budget metadata<br/>no user or wardrobe payload")]
     Backend --> LLM["Anthropic"]
 ```
 
@@ -91,6 +99,7 @@ flowchart LR
 | App Attest key ID, opaque Apple attestation receipt, counters and session metadata | Keychain + backend auth store | Yes, security/authorization only |
 | Compact item attributes and recent-wear summaries | Backend → Anthropic for a requested suggestion | Yes, request lifetime only in the developer application |
 | Optional occasion | Backend → Anthropic for that request | Yes |
+| Monthly AI charge/admission counters and random pending-reservation metadata | Separate private backend budget ledger | Generated on the backend; no installation or wardrobe identifiers |
 
 The anonymous installation identifier is not a Wardrobe, Apple, or Google account. It survives
 normal app updates but is recreated after reinstall, migration, or restore. The approved retention,
@@ -157,23 +166,33 @@ See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
 ## Daily recommendation flow
 
 The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
-Public v1 uses one Claude Opus 4.8 call with a forced `propose_outfit` tool. The app sends only a
-compact, text-only snapshot—item IDs and selected attributes, not images—plus recent-worn IDs,
-bounded rating summaries, and an optional occasion. The backend does not persist that payload.
+The local candidate uses pinned `claude-haiku-4-5-20251001` through one synchronous Messages API
+call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
+`propose_outfit` output is limited to 1,024 tokens by default. The supported configuration range is
+256–2,048 tokens; production selection still requires the fictional quality evaluation. Prompt
+caching is off until measured cache reads justify it; evaluation can opt into a five-minute marker
+on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
+IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
 
 ```mermaid
 sequenceDiagram
     actor User
     participant App as iOS app
     participant API as FastAPI /recommend
-    participant Aria as Claude Opus 4.8 — Aria
+    participant Budget as Durable global budget
+    participant Aria as Pinned Claude Haiku 4.5 — candidate
 
     User->>App: Request a suggestion in Today
     App->>App: Compact catalog + recent-worn summaries
     App->>API: POST /recommend (short-lived App Attest session)
-    API->>Aria: propose_outfit (forced tool · cached rubric)
+    API->>API: Validate input and operational size limits
+    API->>Budget: Atomically reserve worst-case tokens + admission + slot
+    Note over API,Budget: Disabled, exhausted, missing, or unsafe ledger fails closed
+    API->>Aria: One strict forced tool call; no thinking or retries
     Aria-->>API: Outfit + alternates + rationale
     API->>API: Reject any ID absent from submitted catalog
+    API->>API: Apply authoritative local schema bounds
+    API->>Budget: Settle checked usage after validated success
     API-->>App: Validated suggestion
     App->>App: Resolve IDs to local items; render look
     User->>App: Wear this
@@ -186,6 +205,22 @@ alternates without another network call. The last successful look is cached loca
 if an explicit Restyle fails, the usable look remains visible with bounded retry feedback, and the
 transient failure is not persisted in that cache. Weather, calendar context, and multi-agent
 composition are deferred.
+
+The strict provider schema omits unsupported array-length constraints; the existing shared schema,
+Pydantic validation, and catalog-ID sanitizer remain authoritative. `/recommend` retains its Build 7
+request/response shape. Operational admission caps separately bound the raw body to 128 KiB,
+normalized request JSON to 32 KiB, catalog to 200 items, and each color to 64 characters. Larger
+requests fail before an AI call using existing error handling. This backend-only migration does
+not require Build 8.
+
+The budget reserves the full Haiku 200,000-token input-context ceiling plus the configured output
+ceiling before each call; it does not rely on a local token estimate or resend a wardrobe for
+token counting. Only a successful validated response with checked uncached usage can refund the
+unused amount. Terminal failed output keeps its full charge; uncertain calls keep both charge and
+concurrency slot across restarts and month boundaries until explicit owner recovery. No automatic
+retry, timeout refund, or fresh-database recreation can reopen the approved allowance. See
+[AI spend controls](ai-spend-controls.md) for private provisioning, alerts, disable/recovery, and
+the remaining public-launch capacity and monitoring decisions.
 
 ## Data model
 
@@ -231,8 +266,9 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Backend auth | DeviceCheck App Attest + short-lived anonymous installation sessions |
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
-| Backend | FastAPI + Anthropic SDK (uv, Ruff, mypy, pytest) |
-| AI | Claude Opus 4.8 stylist “Aria”; tool use + prompt caching |
+| Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
+| AI candidate | Pinned Haiku 4.5 “Aria”; strict forced tool, no thinking, cache off pending evaluation |
+| Budget candidate | Separate durable SQLite ledger; atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
 
@@ -246,6 +282,7 @@ flowchart LR
     Fly -->|"HTTPS"| Anthropic["Anthropic API"]
     Phone <-->|"attest key / sign assertions"| Apple["Apple App Attest"]
     Fly <--> AuthDB[("Private durable auth volume")]
+    Fly <--> BudgetDB[("Separate budget database<br/>on the same durable volume")]
 ```
 
 - Fly secrets hold `ANTHROPIC_API_KEY` and the App Attest session-signing secret. A shared
@@ -253,11 +290,20 @@ flowchart LR
 - The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
   anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived
   sessions, and coarse rate windows. It contains no wardrobe, prompt, or recommendation payload.
+- The candidate's separate `/data/ai-budget/budget.sqlite3` stores only aggregate counters and
+  random reservation metadata. Its private limits must match the approved runtime configuration.
+  Keep server AI styling disabled until explicit first provisioning and verification succeed.
+  Every application process must use the same ledger on the verified single-Machine volume;
+  independent per-replica budgets would not enforce a global ceiling.
 - Backend auth state, logs, snapshots, deletion, and manual operations follow the
   [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). Fly's fixed seven-day
   customer-visible stream and undisclosed provider-internal in-service retention are accepted and
   publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
 - Public v1 has no Google OAuth dependency or Gmail network route.
+- The new preflight requires the bounded budget to be enabled, ready, below its warning band, and
+  free of pending requests. Its retained auth aggregate check still assumes a single user; a passing
+  personal review does not establish public-launch capacity or an accepted public monitoring cadence.
+  Those decisions remain open in [AI spend controls](ai-spend-controls.md).
 
 ## Historical build 4 clean-install transition
 
