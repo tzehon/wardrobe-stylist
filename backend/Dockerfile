@@ -30,6 +30,7 @@ WORKDIR /app
 # volume, then irrevocably drops to this fixed unprivileged identity before it
 # executes Uvicorn (or an operator-supplied diagnostic command).
 RUN apk upgrade --no-cache libcrypto3 libssl3 \
+    && apk add --no-cache --upgrade 'libuuid>=2.42.3-r1' \
     && addgroup -S -g 10001 wardrobe \
     && adduser -S -D -H -u 10001 -G wardrobe \
         -s /sbin/nologin wardrobe
