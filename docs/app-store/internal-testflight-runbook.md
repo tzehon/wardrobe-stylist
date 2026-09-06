@@ -34,9 +34,12 @@ archive. Keep README current with these changes.
 The first open launch gate remains the [fictional model evaluation](../model-evaluation.md):
 at most 28 paid calls and an estimated $6 pre-tax API ceiling. The first owner-approved run
 on 2026-09-06 stopped on its first request after 30.046 seconds with `APITimeoutError`.
-No response or usage returned; uncertain cost is bounded by $0.205120 before tax. No retry
-ran, and further paid work needs fresh approval. Live quality/cost/cache proof and human
-scores are absent; this timeout is not a model-quality verdict. Follow acceptance with the private
+No response or usage returned; uncertain cost is bounded by $0.205120 before tax. A separately
+approved single-call diagnostic with a 90-second read timeout succeeded in 5.86 seconds,
+passed that office case's automated checks, and cost $0.004222 before tax. No automatic retry
+ran. The full evaluation thresholds remain unchanged and further paid work needs fresh approval.
+Full quality/cost/cache acceptance and human scores remain absent; the timeout's cause remains
+unconfirmed. Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
 The new required budget preflight will fail on old v10. Do not rewrite its locked deployment

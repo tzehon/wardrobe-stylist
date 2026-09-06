@@ -31,8 +31,9 @@ later be promoted to customers.
   Local model/SDK migration, synthetic evaluation tooling, and durable spend controls are
   prepared; see [model evaluation](../model-evaluation.md) and
   [spend controls](../ai-spend-controls.md). The first approved evaluation stopped after its
-  first request timed out, with no returned output/usage or retry. A completed paid evaluation,
-  blinded human scores, private budget,
+  first request timed out, with no returned output/usage or automatic retry. A separately approved
+  office-case diagnostic succeeded in 5.86 seconds at $0.004222 before tax; it does not close
+  the full acceptance gate. A completed paid evaluation, blinded human scores, private budget,
   alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
 

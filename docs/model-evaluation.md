@@ -8,9 +8,10 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: the first owner-approved live run stopped on its first request after a
-30-second timeout; model quality, measured cost, and cache behavior remain unproven.**
-No model output or usage returned, and no retry ran. Mocked tests do not close those gates.
+**Status: the first owner-approved evaluation stopped on its first request after a
+30-second timeout. A separately approved single-call diagnostic then succeeded in
+5.86 seconds at US$0.004222 before tax. Full quality, cost, and cache acceptance remain open.**
+The diagnostic is not a replacement quality sample or a completed human review.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
 
@@ -49,11 +50,51 @@ also used by [strict tools](https://platform.claude.com/docs/en/agents-and-tools
 Cold schema compilation is a plausible explanation, not a confirmed diagnosis.
 The bounded error record does not distinguish the timed-out network phase.
 
-The next paid action requires a separate bounded plan and fresh approval. A single
-longer-timeout diagnostic can investigate response completion, but cannot replace
-the full acceptance run or waive its original latency/quality floor. Keep this
-run's uncertain cost in cumulative accounting. No timeout, request, model, or
-acceptance threshold has been changed following this result.
+No automatic retry ran. The owner subsequently approved the separate single-call
+diagnostic below. Keep this first run's uncertain cost in cumulative accounting;
+the full evaluation's timeout, request, model, and acceptance thresholds are unchanged.
+
+## Single-call diagnostic — 2026-09-06
+
+The owner explicitly approved one additional fictional request with a 90-second
+timeout and a US$0.21 pre-tax ceiling. The diagnostic used the exact first office
+request from the original manifest, on documentation-only successor `ecbec4b`:
+request SHA-256
+`0d79b62433f23f6af8c9649bb79007933f4fab54ea9001799b9e6e91b860712c`.
+Pinned Haiku, standard service tier, strict forced tool, thinking/cache off,
+1,024 output tokens, one call, and zero retries were unchanged. Only this separate
+diagnostic used a 90-second read timeout, with connect/write/pool limits of
+5/10/1 seconds. The full evaluation still uses its original 30-second SDK timeout.
+
+The request completed in **5.86 seconds**, stopped with `tool_use`, and passed the
+office case's shared-schema, known-ID, outfit-completeness, distinct-alternate,
+alternate-count, and occasion checks. Recent-wear avoidance and preference targets
+do not apply to this case. Usage was **2,122 input tokens and 420 output tokens**,
+with no cache writes or reads. Calculated standard-tier API cost is
+`2122 × $1/1000000 + 420 × $5/1000000 = US$0.004222 before tax`.
+This is one observed case's cost, not an accepted average cost per recommendation.
+
+Across both attempts, known token cost is US$0.004222 plus the original uncertain
+charge of at most US$0.205120: a conservative combined upper bound of
+**US$0.209342 before tax**. The successful diagnostic's observed usage settles its
+own reservation; it does not settle or erase the earlier timeout's liability.
+
+The successful response verifies current authenticated request/model/SDK
+compatibility. It is consistent with a transient delay or cold schema compilation,
+but proves neither explanation and cannot establish the original timeout phase.
+Do not pool this differently timed diagnostic into the 24 quality samples, use it
+as a cache probe, or count it as a blinded human review. It cannot close the full
+acceptance floor, authorize a private launch budget, or justify production changes.
+
+Private diagnostic artifacts remain in
+`/private/tmp/wardrobe-fictional-diagnostic-20260906-ecbec4b/`: the manifest,
+aggregate report and durable journal, plus the fictional request/output. The
+temporary diagnostic runner is outside the repository; production and evaluation
+source were not changed. No raw headers, provider identifiers, or SDK errors were
+persisted. A fresh unchanged 28-call acceptance run still needs explicit owner
+approval for its additional US$6 pre-tax ceiling; it retains the evaluation
+manifest recorded under the first approved run. Its calculated US$5.843360 maximum
+would bring the conservative cumulative exposure across all attempts to US$6.052702.
 
 ## Fixed paid-call plan and approval
 
