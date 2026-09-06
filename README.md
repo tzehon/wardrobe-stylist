@@ -112,11 +112,13 @@ These results do not substitute for fresh production release evidence.
 
 PR #41 rebase-merged on 6 September 2026 to `e3a837b`; the reviewed source and merged tree
 match. A subsequent Linux/AMD64 image scan found four High-severity findings in the inherited
-`util-linux` package. The local follow-up requires `libuuid>=2.42.3-r1` while preserving the
+`util-linux` package. The follow-up requires `libuuid>=2.42.3-r1` while preserving the
 pinned base images and crypto updates. Its rebuilt image contains `libuuid 2.42.3-r1` and passes
 the zero-High/Critical scan, native UUID loading, non-root/no-new-privileges, bounded logging,
-separate storage, and restart-persistence checks. This follow-up remains local; its source
-publication/review and the exact merged-image deployment gates are still open. Production and
+separate storage, and restart-persistence checks.
+[PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
+publication, required checks, Codex review, and merge state. Production rollout remains open
+and must use a verified image of the merged source. Production and
 the preserved Build 7 archive are unchanged. The remediation passed all 583 backend tests and
 security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release artifact
 checks. No new TestFlight build is required. See the
