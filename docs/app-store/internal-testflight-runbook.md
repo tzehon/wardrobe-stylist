@@ -122,6 +122,45 @@ Release simulator/artifact checks. The result bundle is
 call or production change occurred; the v2 ledger and preserved Build 7 archive are unchanged.
 The PR remains the record of the fixes' required Codex review and merge outcome.
 
+## Runtime security follow-up — 2026-09-06
+
+PR #41 received current-head Codex approval with no findings and green checks, then rebase-merged
+at `2026-09-06T10:31:28Z` to `e3a837bf4d5c3c3afbee1431b4b69b36b213c431`.
+The merged tree matched reviewed head `0c2f80c`; its code matched the full-regression head
+`9edb9c3`. The remote/local feature branches were removed after tree-equivalence and worktree
+checks, and main was synchronized cleanly.
+
+The merged Linux/AMD64 image built successfully, but its fresh Docker Scout scan found four
+High-severity findings in `util-linux 2.42.1-r0` (CVE-2026-76642, CVE-2026-78408,
+CVE-2026-78410, CVE-2026-78409). The affected installed subpackage was `libuuid`; no image was
+published or deployed. Local fix `970089d` requires `libuuid>=2.42.3-r1` in the final runtime
+stage, preserving both digest-pinned bases and the existing crypto-library refresh. The rebuilt
+image contains `libuuid 2.42.3-r1` and passes a fresh zero-High/Critical Scout scan, native UUID
+loading, UID/GID 10001, no-new-privileges, SQLite, bounded logging, separate auth/budget storage,
+and uncertain-reservation persistence across restart. Every smoke container had no network or
+provider key; only the newly created synthetic Docker volume was removed after success.
+Private image evidence is retained under `.fly/sonnet-image-validation-20260906T104140Z-2iAXp1/`.
+The follow-up remains local pending its own source publication/review and exact merged-image
+validation. It changes no iOS/shared source, version, signed archive, or live release lock.
+
+The remediation passed 12 focused container tests, all 583 backend tests, locked dependency
+audit with no known vulnerabilities, Bandit, Ruff, and mypy. Full iOS regression passed 236/236
+unique tests (226 Swift across 34 suites plus 10 UI), with zero failures, skips, or expected
+failures on iPhone 17 / iOS 26.5. All 44 release-script tests and a fresh `1.0.0 (7)` Release
+simulator/artifact check passed. The result bundle is
+`ios/DerivedData/RuntimeSecurityRegression-20260906.xcresult`; the Release build uses
+`ios/DerivedData/RuntimeSecurityRelease-20260906`, and logs use
+`/private/tmp/wardrobe-runtime-security-*`. These checks require no new TestFlight build and
+do not replace source review or live deployment/recovery evidence.
+
+A read-only production preflight at `2026-09-06T10:36:26Z` passed the retained archive, live
+runtime/health/configuration, auth integrity and historical single-user bands, volume/snapshot
+policy, bounded events, public backend/pages, and public Anthropic status. Source alignment,
+budget evidence, recovery scan, and the three manual inputs remained OPEN. This was not a
+completed operational review, public-capacity acceptance, zero-liability proof, or deployment
+approval. Production provisioning, registry publication/deployment, AI enablement, and Build 7
+upload remain separate gates; no paid call, production change, or phone/snapshot action occurred.
+
 ## Retained release evidence — 2026-09-01
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`

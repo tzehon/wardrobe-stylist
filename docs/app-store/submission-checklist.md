@@ -79,6 +79,17 @@ later be promoted to customers.
   simulator/artifact checks. All accepted request hashes remain unchanged; no new paid call or
   TestFlight build is required. The PR records the fixes' required review and merge outcome.
 
+PR #41 merged to `e3a837b`; the subsequent local image scan found four High-severity findings
+in inherited `util-linux`. The local `libuuid>=2.42.3-r1` remediation preserves the pinned bases
+and crypto refresh, and its rebuilt image passes the zero-High/Critical scan and isolated runtime,
+logging, separate-storage and restart checks. Its source publication/review, exact merged-image
+validation and approved rollout remain open. The latest read-only production preflight also
+retained OPEN source, budget, recovery-scan and manual gates. See the
+[runtime security checkpoint](internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
+The remediation passed all 583 backend tests and security/type/lint gates, 236 iOS tests,
+44 release-script tests, and fresh Release simulator/artifact checks.
+Production and the preserved Build 7 archive are unchanged; no new TestFlight build is required.
+
 ## 2. Public pages and truthful data declarations
 
 - [x] Republish the homepage, support page, privacy policy, Terms, and deletion/help instructions

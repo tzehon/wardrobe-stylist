@@ -13,7 +13,11 @@ policy mismatch, or uncertain accounting. Styling defaults to disabled. The owne
 the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored
 private release records, remain unapplied, and must not be committed. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
-Source review, approved provisioning/deployment, and fresh live operational checks remain open.
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
+Approved provisioning/deployment and fresh live operational checks remain open. A subsequent
+local security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
+base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
+runtime/storage checks; that follow-up's publication/review and merged-image rollout remain open.
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 
 ## Setup
