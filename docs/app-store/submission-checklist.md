@@ -51,7 +51,8 @@ later be promoted to customers.
   and p95 latency 12.665 seconds. Its quality-call cost was $0.012839 per mechanically usable
   recommendation, with human acceptance still pending. The cache pair saved about 20.85% on
   input, but real production reuse remains unproven and caching stays off. All prior failures
-  remain recorded. The next action is the owner's 24 blank blinded scorecards; no further paid
+  remain recorded. The owner's saved progress contains 1 complete blinded scorecard and 23
+  remaining; the next action is to finish them in the resumed form. No further paid
   run is needed for this review. This result does not change the production model, private
   budget, or Haiku-priced candidate controls.
   Model acceptance, blinded human scores, private budget,

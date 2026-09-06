@@ -64,7 +64,8 @@ The 24 quality calls cost $0.308128, or $0.012839 per mechanically usable recomm
 human acceptance has not been established. The cache pair wrote and read 1,798 tokens each,
 with input cost $0.008871 versus $0.011208 uncached (about 20.85% savings). Production reuse
 remains unproven, so production caching stays off. The next action is the owner's 24 blinded
-scorecards using the local review form; every card remains blank, and no further paid run is
+scorecards using the local review form. The owner supplied valid saved progress with 1 complete
+card and 23 remaining; a resumed form preserves those five ratings. No further paid run is
 needed for this step. See [evaluation instructions](../model-evaluation.md).
 This automatic pass does not accept Sonnet for production or change the private budget or
 Haiku-priced candidate ledger/preflight. Both failed Haiku runs and the failed Sonnet run

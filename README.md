@@ -78,8 +78,8 @@ disabled by default until an explicit private budget is provisioned and enabled.
 This candidate is **local and not deployed**. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
 passed 4/4, preferred items passed 3/4, and p95 latency was 12.665 seconds. All 28 calls completed
-for US$0.360167 before tax, with no provider errors or retries. The 24-proposal human review
-is the next required step; Sonnet is not yet accepted. Both earlier Haiku failures and the first
+for US$0.360167 before tax, with no provider errors or retries. The human review has 1 of 24
+proposals completed and 23 remaining; Sonnet is not yet accepted. Both earlier Haiku failures and the first
 Sonnet failure remain recorded, and no threshold was changed. Sonnet's revised warm cache pair
 saved about 20.9% of input cost, but production reuse remains unproven and caching stays off.
 No paid call is running.
