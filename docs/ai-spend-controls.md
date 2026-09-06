@@ -1,10 +1,16 @@
 # Singapore launch AI spend controls
 
 Status: local candidate, not deployed or enabled. The private monthly launch budget is
-**not chosen**. First complete the [fictional Haiku evaluation](model-evaluation.md), including
+**not chosen**. First pass the [fictional model evaluation](model-evaluation.md), including
 human review, then recommend a private envelope from measured cost per usable recommendation,
 expected demand, failed-call exposure, tax, and operating headroom. The 5 Free / 60 Plus figures
 remain post-v1 proposals. This ledger is a global safety ceiling, not a customer's paid quota.
+
+Both complete Haiku pilots failed the fixed quality floor; a Sonnet 5 evaluation is next.
+Evaluation profile selection does not change this Haiku-priced production implementation.
+If Sonnet is accepted, first align the runtime model, token rates, full-context reservation,
+and redacted preflight, and repeat required validation before approving/provisioning a budget.
+Never deploy Sonnet behind the current Haiku-specific accounting constants.
 
 ## Admission and maximum exposure
 

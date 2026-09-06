@@ -31,9 +31,9 @@ spend/admission ledger and default-disabled styling switch. The shared wire sche
 source are unchanged, so this work does not require Build 8 or replace the preserved Build 7
 archive. Keep README current with these changes.
 
-The first open launch gate remains the [fictional model evaluation](../model-evaluation.md):
-at most 28 paid calls and an estimated $6 pre-tax API ceiling. The first owner-approved run
-on 2026-09-06 stopped on its first request after 30.046 seconds with `APITimeoutError`.
+The first open launch gate remains the [fictional model evaluation](../model-evaluation.md).
+The first owner-approved Haiku run, with at most 28 paid calls and a $6 pre-tax ceiling,
+stopped on 2026-09-06 on its first request after 30.046 seconds with `APITimeoutError`.
 No response or usage returned; uncertain cost is bounded by $0.205120 before tax. A separately
 approved single-call diagnostic with a 90-second read timeout succeeded in 5.86 seconds,
 passed that office case's automated checks, and cost $0.004222 before tax. No automatic retry
@@ -44,8 +44,14 @@ $0.136602 before tax but failed the automatic floor: completeness 23/24 and dist
 sets 22/24; schema and known IDs passed 24/24, with p95 latency 15.872 seconds. Cache
 reads/writes were zero, so caching stays off. The two duplicate-look failures and one missing
 top/dress are genuine; no human scores or model acceptance follow from this run. General
-prompt clarification and full local regressions are complete; a newly approved full evaluation
-is next.
+prompt clarification and full local regressions completed. Its newly approved full 28-call run
+on `43f3e0e` cost $0.133243 before tax but also failed: distinct looks and required alternates
+each passed 23/24, while completeness reached 24/24 and p95 was 12.369 seconds. Caching again
+had zero reads/writes. Sonnet 5 evaluation support is prepared and tested with the same prompt and
+fixed quality floor; its 28 calls need separate approval of an additional $58 pre-tax ceiling.
+No Sonnet generation has run. This support does not switch the Haiku-priced
+production model, ledger, or preflight. Both failed Haiku runs and their unfilled human scores
+remain intact.
 Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
@@ -54,7 +60,7 @@ identity without live deployment evidence. Snapshot expiry/deletion-specific rec
 After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
 pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
 
-Prompt iteration 2 verification passed 441 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
+Sonnet evaluation-profile verification passed 469 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
 check. The unchanged preserved Build 7 archive's earlier signature/profile/privacy verification
 remains recorded. No public source push, production change,

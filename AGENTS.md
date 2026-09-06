@@ -280,9 +280,12 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   plus authoritative local/shared validation, and retain caching only after measured cache reads
   justify it. Sonnet 5 evaluation is eligible only if Haiku fails the recorded quality floor.
   Do not deploy or claim migration complete before paid evaluation and the release gates pass.
-  The complete 2026-09-06 Haiku pilot failed completeness (23/24) and distinct looks (22/24);
-  cache reads/writes were zero. General prompt clarification is local and remains unaccepted
-  until a newly approved full evaluation and human review pass; see `docs/model-evaluation.md`.
+  Both complete 2026-09-06 Haiku pilots failed the fixed floor. General prompt clarification
+  improved completeness to 24/24, but distinct looks and required alternates each remained
+  23/24; cache reads/writes were zero. Sonnet 5 comparison is the next model gate; see
+  `docs/model-evaluation.md`. Evaluation profile selection does not change production: a future
+  accepted Sonnet migration must align model, pricing, full-context reservations, and preflight
+  before budget approval/deployment. Never use Haiku-priced controls for a Sonnet runtime.
   Once the budgeted candidate is enabled, recovery must use a verified budget-aware image with
   the same ledger and limits. Pre-budget v10 ignores these controls and must not become a normal
   rollback target after cutover; its retained recovery evidence describes the earlier baseline.
