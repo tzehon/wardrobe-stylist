@@ -507,8 +507,9 @@ open.
   The approved disabled configuration passed local settings validation without provisioning a
   ledger or making a provider call. No runtime auth, iOS/shared source, or live release lock
   changed; no new TestFlight build is required. The owner separately approved publication and the
-  full review/merge cycle. [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) is open and
-  ready for review; checks and current-head Codex approval remain required before rebase-merge.
+  full review/merge cycle. [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) tracks that
+  source review; it was created as a draft and immediately marked ready. Passing checks and
+  current-head Codex approval are prerequisites for rebase-merge; the PR records their final state.
   This source approval does not authorize production provisioning, deployment, or distribution.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
