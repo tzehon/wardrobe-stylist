@@ -32,8 +32,11 @@ source are unchanged, so this work does not require Build 8 or replace the prese
 archive. Keep README current with these changes.
 
 The first open launch gate remains the [fictional model evaluation](../model-evaluation.md):
-at most 28 paid calls, an estimated $6 pre-tax API ceiling, and explicit owner approval before
-running. Live quality/cost/cache proof and human scores are absent. Follow it with the private
+at most 28 paid calls and an estimated $6 pre-tax API ceiling. The first owner-approved run
+on 2026-09-06 stopped on its first request after 30.046 seconds with `APITimeoutError`.
+No response or usage returned; uncertain cost is bounded by $0.205120 before tax. No retry
+ran, and further paid work needs fresh approval. Live quality/cost/cache proof and human
+scores are absent; this timeout is not a model-quality verdict. Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
 The new required budget preflight will fail on old v10. Do not rewrite its locked deployment
@@ -44,8 +47,9 @@ pre-budget v10 ignores the new controls and is not a normal rollback target afte
 Local verification passed 438 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
 check. The preserved Build 7 archive also passed local signature/profile/privacy verification.
-No paid model call, public source push, production change, upload, or phone/snapshot mutation
-occurred. Local signed-artifact validity is separate from the fresh operational/upload gates.
+The paid evaluation above followed that verification. No public source push, production change,
+upload, or phone/snapshot mutation occurred. Local signed-artifact validity is separate from
+the fresh operational/upload gates.
 
 ## Retained release evidence — 2026-09-01
 

@@ -8,10 +8,52 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: local harness prepared; zero live calls made; model quality, measured
-cost, and cache behavior remain unproven.** Mocked tests do not close those gates.
+**Status: the first owner-approved live run stopped on its first request after a
+30-second timeout; model quality, measured cost, and cache behavior remain unproven.**
+No model output or usage returned, and no retry ran. Mocked tests do not close those gates.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
+
+## First approved run — 2026-09-06
+
+The owner approved one run of at most 28 fictional requests under the US$6 pre-tax
+API ceiling, using the existing configured key. It ran against local source
+`1b31495` and manifest
+`276fe51f6b79b12c3046c84d9210f9774a3457b4a68e7c35ec20996976cca8dc`.
+The first office-case request raised `APITimeoutError` after 30.046 seconds, with
+no HTTP status, model output, or usage returned. The runner stopped immediately;
+one request was attempted and the remaining 27 were not sent.
+
+Known usage-derived cost is $0 only as a **lower bound**, not proof of no charge.
+The uncertain attempt retains its full conservative **US$0.205120 before-tax
+maximum exposure**. There are no usable recommendations, human review cards, or
+cache probes, so cost per usable recommendation and model acceptance cannot be
+determined. The report's single-row latency is not a completed 24-case p95 result.
+Preserve this incomplete run; do not classify it as poor model quality, use it to
+select Sonnet, or derive a private launch budget from it.
+
+Private artifacts remain in
+`/private/tmp/wardrobe-fictional-evaluation-20260906-1b31495/`: the aggregate
+`report.json`, durable `accounting.jsonl`, and empty review/score files. The operator
+captured only the fixed error class and absent HTTP status; no raw SDK error or
+provider response was retained. These artifacts are outside Git.
+
+Subsequent credential-free checks using the same installed HTTP transport reached
+the API's model-list endpoint with the expected HTTP 401 in 0.338 seconds and
+[Claude public status](https://status.claude.com/) with HTTP 200 and indicator
+`none`. Those checks show reachability at that later instant; they do not prove
+the authenticated Messages path, account/model access, or the original timeout's
+cause. Anthropic documents additional first-request schema compilation latency
+for [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs),
+also used by [strict tools](https://platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use).
+Cold schema compilation is a plausible explanation, not a confirmed diagnosis.
+The bounded error record does not distinguish the timed-out network phase.
+
+The next paid action requires a separate bounded plan and fresh approval. A single
+longer-timeout diagnostic can investigate response completion, but cannot replace
+the full acceptance run or waive its original latency/quality floor. Keep this
+run's uncertain cost in cumulative accounting. No timeout, request, model, or
+acceptance threshold has been changed following this result.
 
 ## Fixed paid-call plan and approval
 
