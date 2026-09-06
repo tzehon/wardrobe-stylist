@@ -434,15 +434,21 @@ open.
   then succeeded in 5.86 seconds, passed that case's automated checks, and cost $0.004222
   before tax. This verifies current request compatibility, not the original timeout's cause
   or the full model-quality floor. The original evaluation thresholds remain unchanged.
+  A separately approved fresh 28-call run on `aa314ca` completed at $0.136602 before tax,
+  with no provider error, but failed the fixed quality gate: completeness 23/24 and distinct
+  item sets 22/24. Schema/known IDs/occasion passed 24/24, targeted avoidance/preferences
+  passed 4/4 each, and p95 latency was 15.872 seconds. Both black-palette repeats duplicated
+  the primary look; one all-recent response omitted a top/dress. Cache reads/writes were zero,
+  so caching stays off. General prompt clarification now passes full local regressions;
+  its newly bound paid evaluation needs fresh approval. No human scores were fabricated.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
-  Final local verification passed 438 backend tests, locked pip-audit with no known vulnerabilities,
+  Prompt iteration 2 verification passed 441 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
-  44 release-script tests, a fresh Release simulator build/artifact check, and local strict
-  signature/profile/privacy verification of the preserved Build 7 archive. The paid evaluation
-  above followed that verification. No public push, deployment, upload, or phone/snapshot
-  mutation occurred.
+  44 release-script tests, and a fresh Release simulator build/artifact check. The preserved
+  Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain
+  recorded. No public push, deployment, upload, or phone/snapshot mutation occurred.
 - [ ] **Establish the free Singapore launch spend envelope.** Before public distribution, approve a
   private maximum monthly AI budget and prove a hard, fail-closed global ceiling whose worst-case
   exposure fits it. Bound request input, output, concurrency, and retry exposure; lock the selected

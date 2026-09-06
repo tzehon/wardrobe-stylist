@@ -33,7 +33,11 @@ later be promoted to customers.
   [spend controls](../ai-spend-controls.md). The first approved evaluation stopped after its
   first request timed out, with no returned output/usage or automatic retry. A separately approved
   office-case diagnostic succeeded in 5.86 seconds at $0.004222 before tax; it does not close
-  the full acceptance gate. A completed paid evaluation, blinded human scores, private budget,
+  the full acceptance gate. A fresh approved 28-call run subsequently completed for $0.136602
+  before tax but failed completeness (23/24) and distinct looks (22/24). Caching had no reads
+  and stays off. Prompt clarification now passes full local regressions; a separately approved
+  full rerun is next.
+  Model acceptance, blinded human scores, private budget,
   alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
 

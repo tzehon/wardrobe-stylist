@@ -39,7 +39,14 @@ approved single-call diagnostic with a 90-second read timeout succeeded in 5.86 
 passed that office case's automated checks, and cost $0.004222 before tax. No automatic retry
 ran. The full evaluation thresholds remain unchanged and further paid work needs fresh approval.
 Full quality/cost/cache acceptance and human scores remain absent; the timeout's cause remains
-unconfirmed. Follow acceptance with the private
+unconfirmed. A separately approved fresh full run on `aa314ca` completed all 28 calls for
+$0.136602 before tax but failed the automatic floor: completeness 23/24 and distinct item
+sets 22/24; schema and known IDs passed 24/24, with p95 latency 15.872 seconds. Cache
+reads/writes were zero, so caching stays off. The two duplicate-look failures and one missing
+top/dress are genuine; no human scores or model acceptance follow from this run. General
+prompt clarification and full local regressions are complete; a newly approved full evaluation
+is next.
+Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
 The new required budget preflight will fail on old v10. Do not rewrite its locked deployment
@@ -47,10 +54,10 @@ identity without live deployment evidence. Snapshot expiry/deletion-specific rec
 After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
 pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
 
-Local verification passed 438 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
+Prompt iteration 2 verification passed 441 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
-check. The preserved Build 7 archive also passed local signature/profile/privacy verification.
-The paid evaluation above followed that verification. No public source push, production change,
+check. The unchanged preserved Build 7 archive's earlier signature/profile/privacy verification
+remains recorded. No public source push, production change,
 upload, or phone/snapshot mutation occurred. Local signed-artifact validity is separate from
 the fresh operational/upload gates.
 

@@ -33,17 +33,17 @@ The iOS app sends you a compact snapshot of the catalog (each item has an id, na
 
 Rules:
 
-1. Build a real, wearable outfit from the items provided. A complete look is usually a top + bottom + shoes, or a dress + shoes, plus optional outerwear, bag, and jewelry/accessories. Use at least two items.
+1. Every primary and alternate look must be complete: include a shoe plus either a top and a bottom, or a dress. Use the catalog categories to check this coverage. Outerwear never replaces a top, bottom, or dress; bags, jewelry, and accessories are optional additions, not substitutes for required clothing or shoes. Include each item id only once in a look.
 
 2. Reference items only by the exact `id` strings from the catalog — never invent an id, and never reference an item that isn't in the snapshot.
 
-3. Don't repeat recent looks. Favor items the user hasn't worn recently (the `recently_worn_ids` list); it's fine to reuse a staple when the catalog is small, but vary the overall combination from day to day.
+3. The `recently_worn_ids` list describes individual items only; past outfit combinations are unknown. Favor items outside that list when practical, but reuse recent items when needed for a complete, suitable look, including when all items are recent or the catalog is small. Never sacrifice completeness to avoid reuse. Do not claim that particular items were previously paired together or that a combination has or has not been worn.
 
 4. Treat `item_preferences` as a soft taste signal, never as a hard rule. Favor combinations containing items with consistently high ratings and be cautious with consistently low-rated items, while still respecting the occasion, catalog size, recent wear, and completeness. A missing rating means unknown—not disliked.
 
 5. Make it cohesive: colors should work together, the formality should match the occasion (when one is given), and the pieces should plausibly be worn together.
 
-6. Provide 1–3 `alternates` — distinct alternative looks (different mood, formality, or palette) so the user can shuffle to another option. Each alternate is a complete outfit (at least two items) with a one-line note on what makes it different. If the catalog is too small to vary meaningfully, return fewer (or no) alternates rather than near-duplicates.
+6. Provide 1–3 complete, suitable `alternates` when distinct options exist, with a one-line note on each. Before submitting, compare the unordered sets of item ids across the primary and every alternate: all sets must be distinct. Reordering the same items or changing only the rationale does not create a different look. Omit duplicate looks rather than padding the list; return fewer or no alternates when the catalog cannot support distinct complete options. Do not break completeness or occasion requirements to create an alternate.
 
 7. Write the `rationale` and `color_story` in your own warm, concise voice — why this look works today. Keep each to one short sentence. `occasion` is a short label like "relaxed weekend" or "smart office".
 
@@ -132,7 +132,7 @@ def build_user_message(
     if occasion:
         lines.append(f"Occasion: {occasion}")
     lines.append(
-        "Recently worn item ids (avoid repeating these looks): "
+        "Recently worn item ids (item history only; past combinations unknown): "
         + (", ".join(recently_worn_ids) if recently_worn_ids else "none")
     )
     lines.append("Rated item preferences (soft signal; average out of 5):")

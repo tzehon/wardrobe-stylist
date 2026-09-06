@@ -71,6 +71,15 @@ def test_locked_sdk_sends_one_synchronous_bounded_messages_request():
     }
     assert body["tools"][0]["strict"] is True
     assert "cache_control" not in body["system"][0]
+    assert body["system"] == [{"type": "text", "text": stylist.SYSTEM_PROMPT}]
+    for rule in (
+        "Every primary and alternate look must be complete",
+        "Outerwear never replaces",
+        "unordered sets of item ids",
+        "past outfit combinations are unknown",
+    ):
+        assert rule in body["system"][0]["text"]
+    assert "item history only; past combinations unknown" in body["messages"][0]["content"]
     assert "stream" not in body or body["stream"] is False
     assert result["tool_input"] == OUTFIT
     assert result["usage"] == {

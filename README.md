@@ -75,24 +75,26 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **local and not deployed**. Live synthetic model quality/cache/cost evaluation,
-owner budget approval, public capacity/operations acceptance, source review, and verified deployment
-remain open before Build 7 distribution. The owner-approved evaluation on 6 September 2026
-stopped on its first request after a 30-second timeout, with no response or usage returned.
-A separately approved single-call diagnostic with a 90-second read timeout then succeeded in
-5.86 seconds, passed that case's automated checks, and cost US$0.004222 in tokens before tax.
-The original attempt's cost remains unconfirmed, conservatively bounded by US$0.205120.
-The diagnostic confirms current request compatibility; it does not establish the original
-timeout's cause or close the full quality/human/cache evaluation. Further paid runs need fresh
-approval. See the [evaluation record](docs/model-evaluation.md#single-call-diagnostic--2026-09-06).
+This candidate is **local and not deployed**. The complete owner-approved 28-call evaluation on
+6 September 2026 cost US$0.136602 before tax but **failed the automatic quality gate**: one
+response lacked a complete outfit and two repeated an outfit combination. All 24 quality
+responses passed schema/known-ID checks; p95 latency was 15.872 seconds. Cache probes returned
+zero cache reads or writes, so caching stays off. The prompt now explicitly requires complete
+clothing coverage and distinct item sets; full local regressions pass. The original fixtures
+and acceptance floor remain fixed, and another paid run needs fresh approval.
+Human quality acceptance, owner budget approval, public capacity/operations acceptance, source
+review, and verified deployment remain open before Build 7 distribution. The earlier timeout's
+cost remains unconfirmed, conservatively bounded by US$0.205120; a separate successful diagnostic
+cost US$0.004222. See the [evaluation record](docs/model-evaluation.md#completed-run--2026-09-06).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Local verification on 6 September 2026 passed 438 backend tests plus dependency/security/lint/type
+Prompt-iteration verification on 6 September 2026 passed 441 backend tests plus dependency/security/lint/type
 checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
-and artifact checks, and local signature/privacy verification of the preserved Build 7 archive.
+and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
+signature/privacy verification remains recorded in the release evidence.
 These results do not substitute for live model acceptance or fresh production release evidence.
 
 For current candidate status, consumed build numbers, clean-install requirements, and physical
