@@ -506,7 +506,10 @@ open.
   236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   The approved disabled configuration passed local settings validation without provisioning a
   ledger or making a provider call. No runtime auth, iOS/shared source, or live release lock
-  changed; no new TestFlight build is required. Source remains local pending publication approval.
+  changed; no new TestFlight build is required. The owner separately approved publication and the
+  full review/merge cycle. [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) is open and
+  ready for review; checks and current-head Codex approval remain required before rebase-merge.
+  This source approval does not authorize production provisioning, deployment, or distribution.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
