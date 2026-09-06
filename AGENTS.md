@@ -285,8 +285,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   23/24; cache reads/writes were zero. The first Sonnet 5 run passed completeness/distinctness
   24/24 but failed required alternates 23/24. Its warm cache pair saved input cost; real reuse
   remains unproven and production caching stays off. The optional-item clarification's revised
-  Sonnet run passed all automatic gates on 2026-09-06; all 24 human scorecards remain blank and
-  owner quality/model acceptance is still required. Preserve the earlier failures and fixed
+  Sonnet run passed all automatic gates on 2026-09-06; the owner has completed 1 of 24 human
+  scorecards, with 23 remaining. Owner quality/model acceptance is still required. Preserve the earlier failures and fixed
   floor; see `docs/model-evaluation.md`.
   Evaluation profile selection does not change production: a future
   accepted Sonnet migration must align model, pricing, full-context reservations, and preflight

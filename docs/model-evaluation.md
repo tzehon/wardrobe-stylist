@@ -9,7 +9,7 @@ production catalog or replays a real request. The package is outside the product
 application and is not a runtime shadow evaluator.
 
 **Status: the revised Sonnet 5 run passed every automatic gate on 2026-09-06. All 28 calls
-completed for US$0.360167 before tax; the 24-proposal human review is pending.**
+completed for US$0.360167 before tax; the human review has 1 of 24 proposals complete.**
 Both complete Haiku failures and the first Sonnet failure remain recorded. No acceptance
 threshold was changed and no human scores have been fabricated. Sonnet's warm cache probes
 saved input cost, but production reuse remains unproven and caching stays off.
@@ -439,9 +439,24 @@ five existing dimensions. The offline form is
 `/private/tmp/wardrobe-fictional-quality-review-20260906.html`, generated only from
 this run's `blinded-review.json` and blank `scores.json`. It preserves the randomized
 order and contains no model, cost, latency, token-count, or automatic-score metadata.
-All 120 ratings are unfilled. The form runs offline, supports downloading/importing
+The original score template remains blank. The form runs offline, supports downloading/importing
 partial progress, and exports the runner's exact completed-score format. The owner
 must supply the ratings; an agent must not substitute its own scores.
+
+On 2026-09-06 the owner supplied `/Users/tth/Downloads/scores-progress.json`.
+Its exact flat schema and all 24 unique IDs match this passing run. It contains
+**one complete proposal (5 ratings), with 23 proposals and 115 ratings still blank**.
+All entered values are valid integers from 1 through 5. The acceptance scorer
+correctly rejects the incomplete file; no human-pass decision or model acceptance
+was made, and no missing ratings were inferred.
+
+The owner's exact progress is preserved privately at
+`/private/tmp/wardrobe-human-review-progress-20260906/scores.json`. A resumed form at
+`/private/tmp/wardrobe-fictional-quality-review-resume-20260906.html` preloads those
+five ratings while preserving the original blinded order and all 23 remaining blank
+cards. The original run report, blank score template, review packet, and first form
+are unchanged. Continue in the resumed form and return a completed export; no new
+paid evaluation or production change is needed to finish this review.
 
 Open the form in a browser, rate every proposal in all five dimensions, then choose
 **Download completed scores** and return that file. Use **Save progress** before

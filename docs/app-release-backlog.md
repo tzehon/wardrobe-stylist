@@ -464,7 +464,8 @@ open.
   that is not a human-accepted recommendation cost. The cache pair wrote and read 1,798 tokens
   each, costing $0.008871 for input against $0.011208 uncached (about 20.85% savings).
   Production reuse remains unproven and caching stays off. All prior failures remain recorded.
-  The next action is the owner's 24 blinded scorecards, which remain blank; no new paid run
+  The owner supplied valid saved progress: 1 blinded scorecard is complete and 23 remain blank.
+  The next action is to finish those 23 scorecards in the resumed form; no new paid run
   is needed for that review. Automatic success does not accept the model or change the
   production model, private budget, or Haiku-priced candidate accounting.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
