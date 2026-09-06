@@ -43,7 +43,7 @@ def test_production_container_pins_payload_free_uvicorn_command() -> None:
     assert "COPY uvicorn-logging.json ./uvicorn-logging.json" in dockerfile
 
 
-def test_production_container_refreshes_runtime_crypto_libraries() -> None:
+def test_production_container_refreshes_runtime_security_libraries() -> None:
     dockerfile = (BACKEND_ROOT / "Dockerfile").read_text(encoding="utf-8")
     runtime_bases = [
         line
@@ -52,7 +52,9 @@ def test_production_container_refreshes_runtime_crypto_libraries() -> None:
     ]
 
     assert len(runtime_bases) == 1
-    assert "RUN apk upgrade --no-cache libcrypto3 libssl3" in dockerfile
+    runtime_stage = dockerfile.split(runtime_bases[0], maxsplit=1)[1]
+    assert "RUN apk upgrade --no-cache libcrypto3 libssl3" in runtime_stage
+    assert "apk add --no-cache --upgrade 'libuuid>=2.42.3-r1'" in runtime_stage
 
 
 def test_prepare_database_parent_creates_private_owned_directory(tmp_path: Path) -> None:
