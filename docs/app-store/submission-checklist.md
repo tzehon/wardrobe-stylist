@@ -70,8 +70,9 @@ later be promoted to customers.
   No shared-contract/iOS/runtime-auth source or live release lock changed in that extension;
   the preserved Build 7 archive remains unchanged and no new TestFlight build is required.
   Source publication and the review/merge cycle are separately owner-approved in
-  [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41), now ready for review. Required checks
-  and current-head Codex approval remain open; no production or distribution approval follows.
+  [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41), created as a draft and immediately
+  marked ready. The PR records its checks, current-head Codex review, and final merge state;
+  those source gates confer no production or distribution approval.
 
 ## 2. Public pages and truthful data declarations
 

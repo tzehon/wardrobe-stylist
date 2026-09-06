@@ -106,8 +106,9 @@ deployment, and upload still require their respective gates and approvals.
 
 The owner subsequently approved source publication and the complete review/merge cycle.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) was created as a draft and immediately
-marked ready. Required checks and current-head Codex review are pending; production, ledger
-provisioning, capacity-policy activation, and distribution remain unchanged and unapproved.
+marked ready. The PR records the checks, Codex review of its current commit, and merge state.
+Passing checks and current-head approval are prerequisites for rebase-merge; this publication
+checkpoint does not authorize production provisioning, capacity-policy activation, or distribution.
 
 ## Retained release evidence — 2026-09-01
 
