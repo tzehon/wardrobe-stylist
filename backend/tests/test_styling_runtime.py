@@ -10,7 +10,8 @@ import httpx2
 import pytest
 from pydantic import ValidationError
 
-from app import styling_runtime
+from app import styling_budget, styling_runtime
+from app.agents import stylist
 from app.config import Settings, settings
 from app.styling_runtime import get_styling_budget
 from tests.conftest import FakeResponse, FakeUsage, make_tool_use_block
@@ -44,10 +45,89 @@ def test_success_charges_actual_tokens_without_persisting_payload(
     response = client.post("/recommend", json=_request_body(), headers=auth_headers)
     assert response.status_code == 200
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units == 350
+    assert snapshot.charged_units == 700
     assert snapshot.admitted_requests == 1
     assert snapshot.active_reservations == 0
     assert b"Oversized Tee" not in Path(settings.ai_budget_database_path).read_bytes()
+
+
+@pytest.mark.parametrize("target,field,value", [
+    (stylist, "MODEL", "claude-haiku-4-5-20251001"),
+    (styling_budget, "BUDGET_MODEL", "claude-haiku-4-5-20251001"),
+    (styling_budget, "INPUT_UNIT_PRICE", 1),
+    (styling_budget, "OUTPUT_UNIT_PRICE", 5),
+    (styling_budget, "INPUT_UNIT_PRICE", 2.0),
+    (styling_budget, "MAX_INPUT_TOKEN_BOUND", 200_000),
+    (styling_runtime, "INPUT_TOKEN_RESERVATION", 200_000),
+    (styling_budget, "MAX_OUTPUT_TOKEN_BOUND", 64_000),
+    (styling_budget, "BUDGET_UNIT", "input_token"),
+    (styling_budget, "BUDGET_PRICING_POLICY", "cached"),
+])
+def test_model_or_pricing_drift_blocks_admission_and_preflight_before_store_access(
+    client, fake_anthropic, auth_headers, monkeypatch, target, field, value,
+):
+    monkeypatch.setattr(target, field, value)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("A mismatched model/pricing policy must fail before budget-store access.")
+
+    monkeypatch.setattr(styling_runtime, "StylingBudget", forbidden)
+    response = client.post("/recommend", json=_request_body(), headers=auth_headers)
+    assert response.status_code == 503
+    assert response.json() == {"detail": "The AI service is temporarily unavailable."}
+    assert fake_anthropic.messages.last_call is None
+
+    monkeypatch.setattr(settings, "environment", "production")
+    monkeypatch.setattr(settings, "ai_budget_database_path", "/data/ai-budget/budget.sqlite3")
+    monkeypatch.setattr(styling_runtime, "inspect_budget_database", forbidden)
+    assert styling_runtime.production_styling_status() == {"unavailable": "yes"}
+
+
+@pytest.mark.parametrize("output_limit,reserved_units", [(1024, 2_010_240), (2048, 2_020_480)])
+def test_spend_band_requires_full_sonnet_reservation_at_configured_output_limit(
+    monkeypatch, output_limit, reserved_units,
+):
+    snapshot = get_styling_budget().snapshot()
+    monkeypatch.setattr(settings, "ai_max_output_tokens", output_limit)
+    exact = replace(snapshot, unit_limit=reserved_units)
+    assert styling_runtime.spend_band(exact) == "below-warning"
+    assert styling_runtime.spend_band(replace(exact, unit_limit=reserved_units - 1)) == "exhausted"
+    remaining_one_call = replace(snapshot, charged_units=snapshot.unit_limit - reserved_units)
+    assert styling_runtime.spend_band(remaining_one_call) == "below-warning"
+    assert styling_runtime.spend_band(
+        replace(remaining_one_call, charged_units=remaining_one_call.charged_units + 1)
+    ) == "exhausted"
+
+
+def test_exact_reservation_envelope_exhausts_after_one_successful_charge(
+    client, fake_anthropic, auth_headers, monkeypatch, tmp_path,
+):
+    path = tmp_path / "exact-envelope" / "budget.sqlite3"
+    styling_budget.initialize_budget_database(
+        path, monthly_unit_limit=2_010_240, monthly_request_limit=10, max_concurrency=1,
+    )
+    monkeypatch.setattr(settings, "ai_budget_database_path", str(path))
+    monkeypatch.setattr(settings, "ai_monthly_unit_limit", 2_010_240)
+    monkeypatch.setattr(settings, "ai_monthly_request_limit", 10)
+    monkeypatch.setattr(settings, "ai_max_concurrency", 1)
+    queue_look(fake_anthropic)
+    assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 200
+    fake_anthropic.messages.last_call = None
+    assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 503
+    assert fake_anthropic.messages.last_call is None
+    snapshot = get_styling_budget().snapshot()
+    assert snapshot.charged_units == 700
+    assert snapshot.admitted_requests == 1
+    assert snapshot.active_reservations == 0
+    assert styling_runtime.spend_band(snapshot) == "exhausted"
+
+
+def test_full_sonnet_context_is_charged_at_sonnet_rates(client, fake_anthropic, auth_headers):
+    queue_look(fake_anthropic, input_tokens=1_000_000, output_tokens=1024)
+    assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 200
+    snapshot = get_styling_budget().snapshot()
+    assert snapshot.charged_units == 2_010_240
+    assert snapshot.active_reservations == 0
 
 
 @pytest.mark.parametrize(
@@ -124,7 +204,7 @@ def test_connection_uncertainty_keeps_charge_and_slot(
     monkeypatch.setattr(fake_anthropic.messages, "create", fail)
     assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 503
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units == 205_120
+    assert snapshot.charged_units == 2_010_240
     assert snapshot.active_reservations == 1
     assert snapshot.uncertain_reservations == 1
 
@@ -135,14 +215,14 @@ def test_terminal_unusable_output_keeps_charge_but_releases_slot(
     fake_anthropic.messages.queue(FakeResponse(content=[], stop_reason="max_tokens"))
     assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 502
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units == 205_120
+    assert snapshot.charged_units == 2_010_240
     assert snapshot.active_reservations == 0
 
 
 @pytest.mark.parametrize(
     "usage",
     [
-        {"input_tokens": 200_001},
+        {"input_tokens": 1_000_001},
         {"output_tokens": 1025},
         {"cache_creation_input_tokens": 1},
         {"cache_read_input_tokens": 1},
@@ -153,7 +233,7 @@ def test_unexpected_usage_cannot_refund_reservation(client, fake_anthropic, auth
     queue_look(fake_anthropic, **usage)
     assert client.post("/recommend", json=_request_body(), headers=auth_headers).status_code == 503
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units >= 205_120
+    assert snapshot.charged_units >= 2_010_240
     assert snapshot.active_reservations == 1
 
 
@@ -193,7 +273,7 @@ def test_terminal_provider_error_retains_cost_releases_slot(
     assert response.status_code == 503
     assert "PRIVATE" not in response.text
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units == 205_120
+    assert snapshot.charged_units == 2_010_240
     assert snapshot.active_reservations == 0
 
 
@@ -208,7 +288,7 @@ def test_missing_or_malformed_usage_never_refunds(
     response = client.post("/recommend", json=_request_body(), headers=auth_headers)
     assert response.status_code == 502
     snapshot = get_styling_budget().snapshot()
-    assert snapshot.charged_units == 205_120
+    assert snapshot.charged_units == 2_010_240
     assert snapshot.active_reservations == 0
 
 
@@ -219,7 +299,7 @@ def test_production_diagnostic_is_redacted_read_only_and_flags_small_rollover(mo
     monkeypatch.setattr(styling_runtime, "inspect_budget_database", lambda *a, **kw: snapshot)
     result = styling_runtime.production_styling_status()
     assert result == {
-        "model": "pinned-haiku", "policy": "bounded", "ledger": "ready",
+        "model": "pinned-sonnet", "policy": "bounded", "ledger": "ready",
         "spend_band": "below-warning", "enabled": "yes", "concurrency": "clear",
     }
     old = replace(snapshot, month=200001, unit_limit=100_000)

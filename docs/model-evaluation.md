@@ -1,6 +1,6 @@
 # Fictional Wardrobe model acceptance
 
-The candidate is pinned `claude-haiku-4-5-20251001`, synchronous Messages, thinking
+The selected local candidate is pinned `claude-sonnet-5`, synchronous Messages, thinking
 disabled, explicit standard service tier, forced strict `propose_outfit`, and 1,024 output tokens.
 The evaluation
 imports the production request builder and response extractor and checks both the
@@ -8,12 +8,13 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: the revised Sonnet 5 run passed every automatic gate on 2026-09-06. All 28 calls
-completed for US$0.360167 before tax; the human review has 1 of 24 proposals complete.**
-Both complete Haiku failures and the first Sonnet failure remain recorded. No acceptance
-threshold was changed and no human scores have been fabricated. Sonnet's warm cache probes
-saved input cost, but production reuse remains unproven and caching stays off.
-No model is accepted until the human quality floor and owner decision also pass.
+**Status: the revised Sonnet 5 run passed every automatic gate on 2026-09-06. The owner
+subsequently approved all proposals qualitatively and directed the migration to proceed.**
+All 28 calls cost US$0.360167 before tax. Both complete Haiku failures and the first Sonnet
+failure remain recorded. The numeric rubric remains incomplete and is not reported as passed;
+the owner's qualitative acceptance is recorded separately. No scores were fabricated and no
+automatic threshold changed. The selected Sonnet model, accounting, and preflight are aligned
+and fully tested locally. Warm cache savings do not prove production reuse, so caching stays off.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
 
@@ -295,7 +296,8 @@ manifest, and numeric ceiling before constructing an API client; a Haiku
 approval cannot authorize Sonnet, or vice versa. A token-boundary violation
 stops before cost settlement or review-card creation and leaves usage uncertain.
 
-The default command remains a local-only Haiku dry run. Preview the current Sonnet
+At that historical checkpoint the default was Haiku; it now follows the selected Sonnet candidate.
+Preview the current Sonnet
 plan without making any API call; it reflects the current source and does not
 recreate an earlier historical manifest:
 
@@ -357,7 +359,7 @@ original timeout's US$0.205120 uncertainty gives a cumulative conservative bound
 of **US$0.812492**. There is no unresolved charge from this completed Sonnet run.
 All paid calls are finished. Any revised or repeated run needs new explicit approval.
 
-## Optional-item clarification — automatic pass, human review pending
+## Optional-item clarification — automatic pass and owner qualitative acceptance
 
 This prompt revision explicitly checks suitable substitutions and optional
 bag/jewelry/accessory additions or removals before returning no alternates. A valid
@@ -434,7 +436,7 @@ timeout still contributes up to US$0.205120 of unresolved exposure, giving a cum
 conservative upper bound of **US$1.172659**. This revised run has no missing usage or
 unresolved charge. All paid calls are finished; its approval is consumed.
 
-The next gate is the owner's human review of all 24 randomized proposals across the
+The original human-review procedure requested all 24 randomized proposals across the
 five existing dimensions. The offline form is
 `/private/tmp/wardrobe-fictional-quality-review-20260906.html`, generated only from
 this run's `blinded-review.json` and blank `scores.json`. It preserves the randomized
@@ -455,10 +457,22 @@ The owner's exact progress is preserved privately at
 `/private/tmp/wardrobe-fictional-quality-review-resume-20260906.html` preloads those
 five ratings while preserving the original blinded order and all 23 remaining blank
 cards. The original run report, blank score template, review packet, and first form
-are unchanged. Continue in the resumed form and return a completed export; no new
-paid evaluation or production change is needed to finish this review.
+are unchanged. This partial-file checkpoint is retained as historical evidence.
 
-Open the form in a browser, rate every proposal in all five dimensions, then choose
+The owner then said **"all are ok, proceed"** and accepted all 24 proposals qualitatively.
+That instruction selects Sonnet for the local migration without requiring completion of
+the numeric scorecards. It is an explicit owner acceptance exception to the numeric-only
+review workflow, not proof that all 120 ratings were entered or that the numeric thresholds
+passed. The one completed card and 115 blank ratings remain unchanged; the scorer still
+rejects the partial file. The automatic floor and all previous failures remain unchanged.
+The separate decision record is
+`/private/tmp/wardrobe-fictional-sonnet-evaluation-20260906-10e837b/owner-qualitative-acceptance.json`.
+The owner also supplied the first-month planning assumption of **up to 10 AI users**.
+Budget policy, public-capacity/operations acceptance, source publication, deployment, and
+distribution remain separate gates. No additional paid evaluation is needed merely to
+align the production request with the already evaluated Sonnet request.
+
+If numeric review is resumed later, open the form in a browser, rate every proposal in all five dimensions, then choose
 **Download completed scores** and return that file. Use **Save progress** before
 closing or reloading; the form deliberately has no browser-storage persistence.
 Validate the owner's actual exported file using this run's report:
@@ -471,17 +485,49 @@ uv run --locked python -m evaluation.run score \
 
 Inspect the returned `accepted` value and retain that decision separately: a successful
 command exit only confirms valid scoring input, and the command does not rewrite the
-original report. Human acceptance requires every rating at least 3/5 and every dimension
-mean at least 4/5. Then obtain the owner model decision, align any Sonnet runtime/pricing/
-full-context accounting/preflight changes, repeat validation, and derive the private
-launch budget. This automatic pass authorizes none of those later decisions or deployment.
+original report. The unchanged numeric rubric requires every rating at least 3/5 and every
+dimension mean at least 4/5; it remains unproven for this run. The qualitative owner exception
+above authorizes local model selection and implementation. Align Sonnet runtime/pricing/
+full-context accounting/preflight together, repeat validation, and propose the private
+launch budget. The owner's quality acceptance does not approve a spend amount or deployment.
+
+## Local Sonnet runtime alignment — verified
+
+The runtime now selects `claude-sonnet-5`; its exact prompt, tools, service tier,
+thinking setting, and 1,024-output limit are unchanged from the accepted request.
+Independent reconstruction matched **all 28 request hashes** to the saved passing run.
+The current evaluation default follows Sonnet, while legacy Haiku remains an explicit
+comparison profile. The implementation-bound manifest changed, so no previous paid
+approval can authorize another run. No paid call was needed for this local alignment.
+
+The separate v2 ledger stores the model, micro-USD unit, pricing policy, 2-input/10-output
+rates, and full 1M context bound. Default admission reserves 2,010,240 units. Old Haiku,
+relabeled schemas, mismatched pricing/context, and underpriced pending reservations fail
+closed without upgrade, recreation, reset, or refund. Runtime admission and redacted
+production preflight both require matching Sonnet policy; the prior live Fly release/source
+lock and historical single-user auth-aggregate policy remain unchanged.
+
+Final verification passed **505 backend tests**, locked dependency audit with no known
+vulnerabilities, Bandit including evaluation tooling, Ruff, mypy, **236/236 iOS tests**
+(226 Swift + 10 UI; zero failures or skips), **44 release-script tests**, and a fresh
+Release simulator build/artifact check. The iOS result is
+`ios/DerivedData/SonnetMigrationRegression-20260906.xcresult`; local logs use
+`/private/tmp/wardrobe-sonnet-migration-*`. No shared-contract or iOS source changed,
+and Build 8 is not required. No public source push, provisioning, provider-console change,
+deployment, upload, or physical-device action occurred.
+
+The private launch-policy proposal uses the measured cost and the owner's expectation of
+up to 10 first-month AI users. It remains unapproved, outside the repository, and unapplied.
+Budget/operating-policy approval, public-capacity preflight, source review, and actual
+deployment/operational gates remain open before distribution.
 
 ## Fixed paid-call plan and approval
 
-The commands and US$6 bound in this section are the **Haiku defaults**. The Sonnet
-comparison above requires explicit `--model claude-sonnet-5`, its own current
-manifest, and the additional US$58 ceiling. A hash or approval for one profile
-cannot authorize the other model.
+The default profile now follows the selected **Sonnet 5 candidate**, with a US$58
+ceiling for a newly approved 28-call evaluation. The legacy Haiku profile remains available
+only through explicit `--model claude-haiku-4-5-20251001` and its separate US$6 ceiling.
+The following commands default to Sonnet. A hash or approval for one profile cannot
+authorize the other, and all previous paid approvals are consumed.
 
 Twelve hand-authored cases each run twice: office, wedding, humid walking, black
 palette, recent rotation, positive ratings, negative ratings, a two-item dress
@@ -493,14 +539,14 @@ SDK timeout per operation** (not an absolute wall-clock deadline). A provider er
 the run; an uncertain charge is never
 retried automatically. Cache probes are excluded from the 24 quality scores.
 
-Prices verified on 2026-09-06 are USD per million tokens: Haiku input $1, output
-$5, five-minute cache write $1.25, cache read $0.10. This is the first-party global
+Prices verified on 2026-09-06 are USD per million tokens: Sonnet input $2, output
+$10, five-minute cache write $2.50, cache read $0.20. This is the first-party global
 API, with no batch, priority, regional, or server-tool surcharge. The approval
-estimate uses the full 200,000-token context ceiling as a conservative input cap
+estimate uses the full 1,000,000-token context ceiling as a conservative input cap
 for every call, plus the 1,024 output cap. It assumes every input token of both
 cached probes incurs the write premium:
-`26 × (200000 × 1 + 1024 × 5)/1000000 + 2 × (200000 × 1.25 + 1024 × 5)/1000000`
-= **$5.843360 maximum estimated API usage**, rounded up to a proposed **$6.00
+`26 × (1000000 × 2 + 1024 × 10)/1000000 + 2 × (1000000 × 2.50 + 1024 × 10)/1000000`
+= **$57.286720 maximum estimated API usage**, rounded up to a proposed **$58.00
 API usage ceiling for owner approval**, before tax. The manifest also reports a much smaller heuristic
 estimate using complete request UTF-8 bytes plus 4,096 overhead; that estimate is
 not a proven token bound. See [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
@@ -528,7 +574,7 @@ Only after that approval:
 ```bash
 uv run --locked python -m evaluation.run live \
   --approved-manifest-sha256 OWNER_APPROVED_HASH \
-  --approved-max-usd 6.00 \
+  --approved-max-usd 58.00 \
   --output-dir /tmp/wardrobe-fictional-evaluation-UNIQUE_RUN
 ```
 

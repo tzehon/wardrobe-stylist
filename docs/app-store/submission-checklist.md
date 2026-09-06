@@ -51,12 +51,16 @@ later be promoted to customers.
   and p95 latency 12.665 seconds. Its quality-call cost was $0.012839 per mechanically usable
   recommendation, with human acceptance still pending. The cache pair saved about 20.85% on
   input, but real production reuse remains unproven and caching stays off. All prior failures
-  remain recorded. The owner's saved progress contains 1 complete blinded scorecard and 23
-  remaining; the next action is to finish them in the resumed form. No further paid
-  run is needed for this review. This result does not change the production model, private
-  budget, or Haiku-priced candidate controls.
-  Model acceptance, blinded human scores, private budget,
-  alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
+  remain recorded. After providing one complete numeric scorecard, the owner said "all are ok,
+  proceed" and accepted all proposals qualitatively. Preserve that decision separately from
+  the incomplete numeric rubric; no scores were inferred and no numeric pass is claimed.
+  The selected local candidate is now Sonnet with aligned 2-input/10-output micro-USD pricing,
+  full-context reservations, and a v2 model/rate-bound ledger. All 28 request hashes match the
+  accepted run; full migration regression passed (505 backend, 236 iOS, 44 release-script
+  tests, security/type/lint checks, and Release simulator/artifact checks). No additional
+  paid call was required.
+  The owner expects up to 10 AI users in month one. Private budget and operating-policy approval,
+  alert/capacity acceptance, source review, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
 
 ## 2. Public pages and truthful data declarations

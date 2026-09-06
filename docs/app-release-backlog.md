@@ -424,7 +424,7 @@ open.
   does not require build 8, but it does require focused tests, the full backend/security regression,
   exact deployment/image verification, and a fresh post-change operational review before Build 7
   distribution.
-  Local work on 2026-09-06 prepares pinned `claude-haiku-4-5-20251001`, locked SDK 1.4.0
+  Initial local work on 2026-09-06 prepared pinned `claude-haiku-4-5-20251001`, locked SDK 1.4.0
   (`httpx2` for SDK transport), strict forced tool output, thinking/cache off, and a default
   1,024-token output cap. The [fictional evaluation](model-evaluation.md) prepares 28 calls
   with a conservative $6 pre-tax API ceiling and source-bound approval manifest. The first
@@ -464,14 +464,19 @@ open.
   that is not a human-accepted recommendation cost. The cache pair wrote and read 1,798 tokens
   each, costing $0.008871 for input against $0.011208 uncached (about 20.85% savings).
   Production reuse remains unproven and caching stays off. All prior failures remain recorded.
-  The owner supplied valid saved progress: 1 blinded scorecard is complete and 23 remain blank.
-  The next action is to finish those 23 scorecards in the resumed form; no new paid run
-  is needed for that review. Automatic success does not accept the model or change the
-  production model, private budget, or Haiku-priced candidate accounting.
+  The owner supplied valid saved progress with 1 complete numeric scorecard, then explicitly
+  said "all are ok, proceed" and accepted all proposals qualitatively. Preserve the partial
+  scorecard and record this owner exception separately; the numeric rubric is not claimed to
+  have passed. No missing score was inferred and no automatic threshold changed.
+  The local candidate now selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
+  Runtime admission, spend bands, and preflight use Sonnet's full 1M context at 2 input / 10
+  output micro-USD per token; the default reservation is $2.010240. The v2 ledger binds model,
+  units, prices, and token bounds and rejects old/mismatched storage without upgrade or reset.
+  Full migration regression passed. No new paid call was needed for this alignment.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
-  Optional-alternate prompt verification passed 472 backend tests, locked pip-audit with no known vulnerabilities,
+  Sonnet migration verification passed 505 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
   44 release-script tests, and a fresh Release simulator build/artifact check. The preserved
   Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain
@@ -487,6 +492,8 @@ open.
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
   explicit charge-preserving recovery. No private launch budget is selected or configured.
+  The owner expects up to 10 AI users in the first month. A private, measured-cost launch-policy
+  proposal is ready outside the repository; no amount is approved or configured.
   Owner budget approval, alert delivery/cadence, public capacity acceptance (including replacement
   of the historical single-user aggregate preflight band), and actual deployment remain open.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,

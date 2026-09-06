@@ -66,7 +66,7 @@ offline Demo Mode, and optional AI styling protected by App Attest. The earlier 
 receipt-import subsystem has been removed from active v1 source and is deferred to a separately
 reviewed future release.
 
-The local backend candidate uses pinned `claude-haiku-4-5-20251001` with Anthropic SDK 1.4.0,
+The local backend candidate uses pinned `claude-sonnet-5` with Anthropic SDK 1.4.0,
 the synchronous Messages API at the standard service tier, strict forced tool output,
 no extended thinking or retries, and
 a default 1,024-token response limit. Prompt caching is off until measured reads justify it.
@@ -78,22 +78,25 @@ disabled by default until an explicit private budget is provisioned and enabled.
 This candidate is **local and not deployed**. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
 passed 4/4, preferred items passed 3/4, and p95 latency was 12.665 seconds. All 28 calls completed
-for US$0.360167 before tax, with no provider errors or retries. The human review has 1 of 24
-proposals completed and 23 remaining; Sonnet is not yet accepted. Both earlier Haiku failures and the first
+for US$0.360167 before tax, with no provider errors or retries. The owner approved all 24
+proposals qualitatively and selected Sonnet; the partial numeric scorecards remain unchanged
+and are not reported as a numeric-rubric pass. Both earlier Haiku failures and the first
 Sonnet failure remain recorded, and no threshold was changed. Sonnet's revised warm cache pair
 saved about 20.9% of input cost, but production reuse remains unproven and caching stays off.
 No paid call is running.
-Its evaluation profile does not switch the production model or the Haiku-priced budget controls.
-Human quality acceptance, owner budget approval, public capacity/operations acceptance, source
+The local runtime and durable budget are aligned with Sonnet pricing and its full context;
+the v2 ledger rejects old or mismatched pricing policy without resetting charges. This work
+has not been deployed. A private launch-policy proposal is ready for the owner's estimate of
+up to 10 initial AI users. Owner budget approval, public capacity/operations acceptance, source
 review, and verified deployment remain open before Build 7 distribution. The earlier timeout's
 cost remains unconfirmed, conservatively bounded by US$0.205120; a separate successful diagnostic
-cost US$0.004222. See the [evaluation and human-review record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-human-review-pending).
+cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Optional-alternate prompt verification on 6 September 2026 passed 472 backend tests plus dependency/security/lint/type
+Sonnet migration verification on 6 September 2026 passed 505 backend tests plus dependency/security/lint/type
 checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
 and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
 signature/privacy verification remains recorded in the release evidence.

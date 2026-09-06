@@ -104,9 +104,10 @@ def test_default_command_never_constructs_client(monkeypatch, capsys):
     monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
     assert run.main([]) == 0
     manifest = json.loads(capsys.readouterr().out)
+    assert manifest["model"] == run.stylist.MODEL == "claude-sonnet-5"
     assert manifest["maximum_calls"] == 28
-    assert manifest["maximum_estimated_usd"] == "5.843360"
-    assert manifest["approval_ceiling_usd"] == "6.00"
+    assert manifest["maximum_estimated_usd"] == "57.286720"
+    assert manifest["approval_ceiling_usd"] == "58.00"
     assert manifest["max_output_tokens_per_call"] == 1024
     assert manifest["maximum_calls"] == len(manifest["calls"])
     assert len({row["case"] for row in manifest["calls"]}) == 12
@@ -114,25 +115,30 @@ def test_default_command_never_constructs_client(monkeypatch, capsys):
 
 def test_plan_uses_exact_production_builder_without_thinking_or_retries():
     assert run.manifest() == run.manifest()
-    for _, _, params in run.plans():
-        assert params["model"] == "claude-haiku-4-5-20251001"
+    for fixture, purpose, params in run.plans():
+        assert params["model"] == "claude-sonnet-5"
+        assert params == run.stylist.build_message_params(
+            **run.RecommendRequest.model_validate(fixture.request).model_dump(),
+            max_tokens=1024,
+            cache_mode="ephemeral" if purpose == "cache_ephemeral" else "off",
+        )
         assert params["thinking"] == {"type": "disabled"}
         assert params["max_tokens"] == 1024
         assert params["tools"][0]["strict"] is True
         assert params["tool_choice"]["name"] == "propose_outfit"
 
 
-def test_sonnet_is_an_explicit_evaluation_only_model_override():
-    haiku = run.plans()
-    sonnet = run.plans("claude-sonnet-5")
+def test_haiku_is_an_explicit_legacy_override_without_mutating_production():
+    sonnet = run.plans()
+    haiku = run.plans(run.HAIKU_MODEL)
     for (old_case, old_purpose, old_params), (new_case, new_purpose, new_params) in zip(
-        haiku, sonnet, strict=True,
+        sonnet, haiku, strict=True,
     ):
         assert old_case == new_case
         assert old_purpose == new_purpose
-        assert new_params == {**old_params, "model": "claude-sonnet-5"}
+        assert new_params == {**old_params, "model": run.HAIKU_MODEL}
     assert run.stylist.MODEL == run.PINNED_MODEL
-    assert run.plans() == haiku
+    assert run.plans() == sonnet
 
 
 def test_sonnet_dry_run_binds_full_context_pricing_and_ceiling_without_client(monkeypatch, capsys):
@@ -142,7 +148,7 @@ def test_sonnet_dry_run_binds_full_context_pricing_and_ceiling_without_client(mo
     monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
     assert run.main(["dry-run", "--model", "claude-sonnet-5"]) == 0
     approved = json.loads(capsys.readouterr().out)
-    haiku = run.manifest()
+    haiku = run.manifest(run.HAIKU_MODEL)
     assert approved["model"] == "claude-sonnet-5"
     assert approved["provider_context_input_ceiling_per_call"] == 1_000_000
     assert approved["maximum_estimated_usd"] == "57.286720"
@@ -184,8 +190,8 @@ def test_unlisted_model_cannot_prepare_or_start_an_evaluation(monkeypatch, tmp_p
 
 
 @pytest.mark.parametrize("approved_model,selected_model,ceiling", [
-    (run.PINNED_MODEL, "claude-sonnet-5", "58.00"),
-    ("claude-sonnet-5", run.PINNED_MODEL, "6.00"),
+    (run.HAIKU_MODEL, "claude-sonnet-5", "58.00"),
+    ("claude-sonnet-5", run.HAIKU_MODEL, "6.00"),
     ("claude-sonnet-5", "claude-sonnet-5", "6.00"),
 ])
 def test_model_approval_cannot_cross_profiles_or_reuse_haiku_ceiling(
@@ -246,7 +252,7 @@ def test_manifest_binds_local_model_and_locked_sdk_sources(monkeypatch, relative
     assert updated["manifest_sha256"] != baseline["manifest_sha256"]
 
 
-@pytest.mark.parametrize("model", [run.PINNED_MODEL, "claude-sonnet-5"])
+@pytest.mark.parametrize("model", [run.HAIKU_MODEL, "claude-sonnet-5"])
 def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(
     monkeypatch, tmp_path, model,
 ):
@@ -294,7 +300,7 @@ def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(
     assert report["automatic"]["passed"]
 
 
-@pytest.mark.parametrize("bad_hash,bad_budget", [("wrong", "6.00"), (None, "7.00"), (None, "6")])
+@pytest.mark.parametrize("bad_hash,bad_budget", [("wrong", "58.00"), (None, "6.00"), (None, "58")])
 def test_approval_mismatch_cannot_construct_client(monkeypatch, tmp_path, bad_hash, bad_budget):
     def forbidden(**kwargs):
         pytest.fail("Approval must be verified before constructing an API client.")
@@ -309,10 +315,10 @@ def test_production_key_is_never_used(monkeypatch, tmp_path):
     monkeypatch.delenv("EVAL_ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "production-key-must-not-be-used")
     with pytest.raises(ValueError, match="EVAL_ANTHROPIC_API_KEY"):
-        run.live_run(run.manifest()["manifest_sha256"], "6.00", tmp_path / "unused")
+        run.live_run(run.manifest()["manifest_sha256"], "58.00", tmp_path / "unused")
 
 
-@pytest.mark.parametrize("maximum", ["6.000001", "7", "NaN", "Infinity", "0", "-1"])
+@pytest.mark.parametrize("maximum", ["58.000001", "59", "NaN", "Infinity", "0", "-1"])
 def test_hash_cannot_bypass_independent_numeric_cost_ceiling(monkeypatch, tmp_path, maximum):
     approved = run.manifest()
     approved["maximum_estimated_usd"] = maximum
@@ -323,23 +329,23 @@ def test_hash_cannot_bypass_independent_numeric_cost_ceiling(monkeypatch, tmp_pa
 
     monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
     with pytest.raises(ValueError, match="approval ceiling"):
-        run.live_run(approved["manifest_sha256"], "6.00", tmp_path / "unused")
+        run.live_run(approved["manifest_sha256"], "58.00", tmp_path / "unused")
     assert not (tmp_path / "unused").exists()
 
 
-@pytest.mark.parametrize("maximum", ["58.000001", "NaN"])
-def test_sonnet_hash_cannot_bypass_its_independent_numeric_ceiling(monkeypatch, tmp_path, maximum):
-    model = "claude-sonnet-5"
+@pytest.mark.parametrize("maximum", ["6.000001", "NaN"])
+def test_haiku_hash_cannot_bypass_its_independent_numeric_ceiling(monkeypatch, tmp_path, maximum):
+    model = run.HAIKU_MODEL
     approved = run.manifest(model)
     approved["maximum_estimated_usd"] = maximum
     monkeypatch.setattr(run, "manifest", lambda model=run.PINNED_MODEL: approved)
 
     def forbidden(**kwargs):
-        pytest.fail("Sonnet's numeric ceiling must be enforced before client construction.")
+        pytest.fail("Haiku's numeric ceiling must be enforced before client construction.")
 
     monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
     with pytest.raises(ValueError, match="approval ceiling"):
-        run.live_run(approved["manifest_sha256"], "58.00", tmp_path / "unused", model=model)
+        run.live_run(approved["manifest_sha256"], "6.00", tmp_path / "unused", model=model)
     assert not (tmp_path / "unused").exists()
 
 
@@ -485,7 +491,8 @@ def test_two_item_dress_capsule_still_allows_no_alternates():
 def test_cost_uses_disjoint_counters_and_cache_probe_requires_read_savings():
     usage = {"input_tokens": 1000, "output_tokens": 1000,
              "cache_creation_input_tokens": 1000, "cache_read_input_tokens": 1000}
-    assert run.usage_cost(usage) == Decimal("0.00735")
+    assert run.usage_cost(usage) == Decimal("0.0147")
+    assert run.usage_cost(usage, run.HAIKU_MODEL) == Decimal("0.00735")
     rows = [{"purpose": purpose, "status": "ok", "usage": usage} for purpose in (
         "cache_off", "cache_off", "cache_ephemeral", "cache_ephemeral",
     )]
@@ -524,23 +531,29 @@ def test_sonnet_cache_counterfactual_uses_selected_input_rate():
     assert not run.cache_decision(rows, "claude-sonnet-5")["retain_caching"]
 
 
-def test_fake_sonnet_run_is_bounded_and_uses_sonnet_costs(monkeypatch, tmp_path):
-    state, report, output = fake_run(monkeypatch, tmp_path, model="claude-sonnet-5")
+@pytest.mark.parametrize("model,maximum,total_cost,unit_cost", [
+    ("claude-sonnet-5", "57.286720", "0.039200", "0.001400"),
+    (run.HAIKU_MODEL, "5.843360", "0.019600", "0.000700"),
+])
+def test_fake_profile_run_is_bounded_and_uses_selected_costs(
+    monkeypatch, tmp_path, model, maximum, total_cost, unit_cost,
+):
+    state, report, output = fake_run(monkeypatch, tmp_path, model=model)
     assert len(state["calls"]) == 28
-    assert all(params["model"] == "claude-sonnet-5" for params in state["calls"])
+    assert all(params["model"] == model for params in state["calls"])
     assert state["client_options"]["max_retries"] == 0
     assert state["client_options"]["timeout"] == 30
     assert state["client_options"]["base_url"] == "https://api.anthropic.com"
     assert report["complete"] and report["usage_complete"]
     assert report["automatic"]["passed"]
     assert not report["quality_accepted"]
-    assert report["maximum_attempted_cost_usd"] == "57.286720"
-    assert report["known_cost_usd"] == "0.039200"
-    assert report["known_quality_cost_per_usable_recommendation_usd"] == "0.001400"
+    assert report["maximum_attempted_cost_usd"] == maximum
+    assert report["known_cost_usd"] == total_cost
+    assert report["known_quality_cost_per_usable_recommendation_usd"] == unit_cost
     assert report["human_review"] == "pending"
     journal = [json.loads(line) for line in (output / "accounting.jsonl").read_text().splitlines()]
     assert journal[-1]["attempted_calls"] == 28
-    assert journal[-1]["maximum_attempted_cost_usd"] == "57.286720"
+    assert journal[-1]["maximum_attempted_cost_usd"] == maximum
     scores = json.loads((output / "scores.json").read_text())
     for row in scores:
         row.update(dict.fromkeys(run.HUMAN_DIMENSIONS, 4))
@@ -572,7 +585,7 @@ def test_sonnet_live_cli_uses_explicit_profile_and_stops_on_provider_error(
     assert not report["usage_complete"]
 
 
-@pytest.mark.parametrize("model", [run.PINNED_MODEL, "claude-sonnet-5"])
+@pytest.mark.parametrize("model", [run.HAIKU_MODEL, "claude-sonnet-5"])
 @pytest.mark.parametrize("boundary", ["input", "combined_input", "output"])
 def test_profile_token_boundary_stops_with_uncertain_charge_and_no_review(
     monkeypatch, tmp_path, model, boundary,
@@ -625,25 +638,25 @@ def test_fake_live_run_is_bounded_and_produces_blinded_packet(monkeypatch, tmp_p
     assert report["automatic"]["passed"]
     assert not report["quality_accepted"]
     assert report["human_review"] == "pending"
-    assert report["maximum_attempted_cost_usd"] == "5.843360"
-    assert report["known_cost_usd"] == "0.019600"
+    assert report["maximum_attempted_cost_usd"] == "57.286720"
+    assert report["known_cost_usd"] == "0.039200"
     packet = json.loads((output / "blinded-review.json").read_text())
     assert len(packet["cases"]) == 24
     assert all(set(row) == {"blind_id", "fictional_request", "outfit"} for row in packet["cases"])
-    assert "claude-haiku" not in (output / "blinded-review.json").read_text()
+    assert "claude-" not in (output / "blinded-review.json").read_text()
     assert (output / "report.json").stat().st_mode & 0o777 == 0o600
     journal_text = (output / "accounting.jsonl").read_text()
     journal = [json.loads(line) for line in journal_text.splitlines()]
     assert len(journal) == 58  # header + 28 durable reservations/settlements + final aggregate
     assert journal[-1]["event"] == "run_finished"
     assert journal[-1]["attempted_calls"] == 28
-    assert journal[-1]["maximum_attempted_cost_usd"] == "5.843360"
+    assert journal[-1]["maximum_attempted_cost_usd"] == "57.286720"
     assert "fictional_request" not in journal_text
     assert "rationale" not in journal_text
     assert "fictional-evaluation-test-key" not in journal_text
     assert (output / "accounting.jsonl").stat().st_mode & 0o777 == 0o600
     with pytest.raises(FileExistsError):
-        run.live_run(run.manifest()["manifest_sha256"], "6.00", output)
+        run.live_run(run.manifest()["manifest_sha256"], "58.00", output)
     assert len(state["calls"]) == 28
 
 
@@ -653,19 +666,19 @@ def test_provider_error_stops_run_and_reserves_uncertain_charge(monkeypatch, tmp
     assert not report["complete"]
     assert not report["usage_complete"]
     assert report["known_cost_usd"] == "0.000000"
-    assert report["maximum_attempted_cost_usd"] == "0.205120"
+    assert report["maximum_attempted_cost_usd"] == "2.010240"
     assert report["rows"][0]["status"] == "provider_error_run_stopped"
     journal = [json.loads(line) for line in (output / "accounting.jsonl").read_text().splitlines()]
     assert journal[-2]["event"] == "attempt_finished"
     assert journal[-2]["latest_status"] == "provider_error_run_stopped"
-    assert journal[-2]["maximum_attempted_cost_usd"] == "0.205120"
+    assert journal[-2]["maximum_attempted_cost_usd"] == "2.010240"
 
 
 def test_ctrl_c_stops_after_one_uncertain_attempt_and_retains_aggregate(monkeypatch, tmp_path):
     state, report, output = fake_run(monkeypatch, tmp_path, failure="interrupt")
     assert len(state["calls"]) == 1
     assert not report["complete"]
-    assert report["maximum_attempted_cost_usd"] == "0.205120"
+    assert report["maximum_attempted_cost_usd"] == "2.010240"
     assert report["rows"][0]["status"] == "interrupted_run_stopped"
     journal = [json.loads(line) for line in (output / "accounting.jsonl").read_text().splitlines()]
     assert journal[-1]["latest_status"] == "interrupted_run_stopped"
@@ -676,7 +689,7 @@ def test_cli_interrupt_returns_failure_after_saving_report(monkeypatch, tmp_path
     output = tmp_path / "new-run"
     assert run.main([
         "live", "--approved-manifest-sha256", run.manifest()["manifest_sha256"],
-        "--approved-max-usd", "6.00", "--output-dir", str(output),
+        "--approved-max-usd", "58.00", "--output-dir", str(output),
     ]) == 130
     assert len(state["calls"]) == 1
     assert (output / "report.json").exists()
@@ -691,7 +704,7 @@ def test_abrupt_exit_keeps_durable_charge_even_without_final_report(monkeypatch,
     text = (output / "accounting.jsonl").read_text()
     journal = [json.loads(line) for line in text.splitlines()]
     assert journal[-1]["attempted_calls"] == 1
-    assert journal[-1]["maximum_attempted_cost_usd"] == "0.205120"
+    assert journal[-1]["maximum_attempted_cost_usd"] == "2.010240"
     assert journal[-1]["event"] == "attempt_uncertain"
     assert "private-error-text" not in text
 
@@ -707,7 +720,7 @@ def test_accounting_flush_failure_blocks_provider_attempt(monkeypatch, tmp_path)
 
     monkeypatch.setattr(run, "_append_accounting", fail_before_call)
     with pytest.raises(OSError):
-        run.live_run(run.manifest()["manifest_sha256"], "6.00", tmp_path / "new-run")
+        run.live_run(run.manifest()["manifest_sha256"], "58.00", tmp_path / "new-run")
     assert state["calls"] == []
 
 
@@ -716,7 +729,7 @@ def test_truncation_cannot_count_as_success_even_when_json_looks_complete(monkey
     assert not report["automatic"]["passed"]
     assert not report["complete"]
     assert report["usage_complete"]
-    assert report["known_cost_usd"] == "0.019600"
+    assert report["known_cost_usd"] == "0.039200"
 
 
 def test_human_floor_cannot_be_skipped_or_pass_with_a_weak_dimension(monkeypatch, tmp_path):

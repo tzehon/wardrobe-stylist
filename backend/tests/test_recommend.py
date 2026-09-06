@@ -77,7 +77,7 @@ def test_recommend_returns_structured_outfit(client, fake_anthropic, auth_header
 
     # Verify the call shape — model, cache marker, forced tool choice, catalog in user turn.
     call = fake_anthropic.messages.last_call
-    assert call["model"] == "claude-haiku-4-5-20251001"
+    assert call["model"] == "claude-sonnet-5"
     assert call["service_tier"] == "standard_only"
     assert call["max_tokens"] == 1024
     assert "cache_control" not in call["system"][0]

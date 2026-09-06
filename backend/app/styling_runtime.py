@@ -12,26 +12,49 @@ from pathlib import Path
 import anthropic
 from fastapi import HTTPException
 
+from app import styling_budget as budget_policy
 from app.config import settings
 from app.styling_budget import BudgetSnapshot, Reservation, StylingBudget, inspect_budget_database
 
 logger = logging.getLogger(__name__)
 
-# Haiku 4.5's entire 200K context is reserved, even though the admitted text is
+# Sonnet 5's entire 1M context is reserved, even though the admitted text is
 # much smaller. This avoids treating a local tokenizer estimate as a cost proof.
 # No counting endpoint re-transmits the user's catalog. No retries or cache writes.
-INPUT_TOKEN_RESERVATION = 200_000
+INPUT_TOKEN_RESERVATION = budget_policy.MAX_INPUT_TOKEN_BOUND
 MAX_CATALOG_ITEMS = 200
 MAX_COLOR_CHARACTERS = 64
 MAX_INPUT_BYTES = 32_768
 
 
+def _pricing_policy_ready() -> bool:
+    """Reject source/configuration drift before admission or a green owner preflight."""
+    from app.agents.stylist import MODEL
+
+    return (
+        MODEL == budget_policy.BUDGET_MODEL == "claude-sonnet-5"
+        and budget_policy.BUDGET_UNIT == "usd_microdollar"
+        and budget_policy.BUDGET_PRICING_POLICY == "global-standard-uncached-v1"
+        and INPUT_TOKEN_RESERVATION == budget_policy.MAX_INPUT_TOKEN_BOUND == 1_000_000
+        and budget_policy.MAX_OUTPUT_TOKEN_BOUND == 2048
+        and (budget_policy.INPUT_UNIT_PRICE, budget_policy.OUTPUT_UNIT_PRICE) == (2, 10)
+        and all(type(value) is int for value in (
+            INPUT_TOKEN_RESERVATION, budget_policy.MAX_INPUT_TOKEN_BOUND,
+            budget_policy.MAX_OUTPUT_TOKEN_BOUND, budget_policy.INPUT_UNIT_PRICE,
+            budget_policy.OUTPUT_UNIT_PRICE,
+        ))
+    )
+
+
 def spend_band(snapshot: BudgetSnapshot) -> str:
-    if snapshot.halted:
+    if snapshot.halted or not _pricing_policy_ready():
         return "exhausted"
+    reservation_units = (
+        INPUT_TOKEN_RESERVATION * budget_policy.INPUT_UNIT_PRICE
+        + settings.ai_max_output_tokens * budget_policy.OUTPUT_UNIT_PRICE
+    )
     if (
-        snapshot.charged_units + INPUT_TOKEN_RESERVATION + settings.ai_max_output_tokens * 5
-        > snapshot.unit_limit
+        snapshot.charged_units + reservation_units > snapshot.unit_limit
         or snapshot.admitted_requests >= snapshot.request_limit
     ):
         return "exhausted"
@@ -46,7 +69,6 @@ def spend_band(snapshot: BudgetSnapshot) -> str:
 
 def production_styling_status() -> dict[str, str]:
     """Read-only owner preflight; output fixed bands and no private budget values."""
-    from app.agents.stylist import MODEL
     from app.dependencies import _ANTHROPIC_MAX_RETRIES
 
     path = Path(settings.ai_budget_database_path)
@@ -54,7 +76,7 @@ def production_styling_status() -> dict[str, str]:
         settings.environment != "production"
         or path != Path("/data/ai-budget/budget.sqlite3")
         or path.resolve() != path
-        or MODEL != "claude-haiku-4-5-20251001"
+        or not _pricing_policy_ready()
         or _ANTHROPIC_MAX_RETRIES != 0
         or not 256 <= settings.ai_max_output_tokens <= 2048
         or not 1 <= settings.ai_max_concurrency <= 4
@@ -80,7 +102,7 @@ def production_styling_status() -> dict[str, str]:
             # The next admission rolls an empty pending set forward atomically.
             band = spend_band(replace(snapshot, charged_units=0, admitted_requests=0))
         return {
-            "model": "pinned-haiku",
+            "model": "pinned-sonnet",
             "policy": "bounded",
             "ledger": "ready",
             "spend_band": band,
@@ -96,7 +118,7 @@ def unavailable() -> HTTPException:
 
 
 def get_styling_budget() -> StylingBudget:
-    if not settings.ai_styling_enabled:
+    if not settings.ai_styling_enabled or not _pricing_policy_ready():
         raise unavailable()
     path = Path(settings.ai_budget_database_path)
     if not settings.ai_budget_database_path or not path.is_absolute():

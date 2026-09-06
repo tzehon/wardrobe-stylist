@@ -17,7 +17,7 @@ from tests.test_verify_production_operations import (
 )
 
 READY = {
-    "model": "pinned-haiku",
+    "model": "pinned-sonnet",
     "policy": "bounded",
     "ledger": "ready",
     "spend_band": "below-warning",
@@ -81,6 +81,7 @@ def test_budget_bands_and_disabled_or_pending_state_block_preflight(
 
 @pytest.mark.parametrize("value", [
     {}, {"unavailable": True},
+    READY | {"model": "pinned-haiku"},
     READY | {"model": "claude-opus-4-8"},
     READY | {"policy": "unbounded"},
     READY | {"ledger": "missing"},

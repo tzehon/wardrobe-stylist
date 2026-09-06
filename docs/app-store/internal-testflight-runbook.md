@@ -25,7 +25,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
 
 ## Local launch preparation — 2026-09-06
 
-The local backend candidate prepares pinned Haiku 4.5, SDK 1.4.0, synchronous strict tool output,
+The local backend candidate prepares pinned Sonnet 5, SDK 1.4.0, synchronous strict tool output,
 no thinking/cache/retries, and a 1,024-token output cap, plus a separate durable global monthly
 spend/admission ledger and default-disabled styling switch. The shared wire schemas and iOS
 source are unchanged, so this work does not require Build 8 or replace the preserved Build 7
@@ -63,12 +63,15 @@ for $0.360167 before tax. It passed the unchanged automatic floor: all six hard 
 The 24 quality calls cost $0.308128, or $0.012839 per mechanically usable recommendation;
 human acceptance has not been established. The cache pair wrote and read 1,798 tokens each,
 with input cost $0.008871 versus $0.011208 uncached (about 20.85% savings). Production reuse
-remains unproven, so production caching stays off. The next action is the owner's 24 blinded
-scorecards using the local review form. The owner supplied valid saved progress with 1 complete
-card and 23 remaining; a resumed form preserves those five ratings. No further paid run is
-needed for this step. See [evaluation instructions](../model-evaluation.md).
-This automatic pass does not accept Sonnet for production or change the private budget or
-Haiku-priced candidate ledger/preflight. Both failed Haiku runs and the failed Sonnet run
+remains unproven, so production caching stays off. After supplying one completed numeric
+scorecard, the owner said "all are ok, proceed" and accepted all proposals qualitatively.
+The partial scorecard remains unchanged, and the numeric rubric is not claimed to have passed.
+See [evaluation and owner acceptance](../model-evaluation.md). The local model, runtime, and
+preflight now select Sonnet; the v2 budget binds its prices/context and reserves $2.010240 at
+the default 1,024-output limit. Old or mismatched ledgers fail closed without upgrade or reset.
+The 28 request hashes match the accepted run; full migration regression passed.
+The owner expects up to 10 initial AI users; the private budget and operating policy are the
+next decision, with no amount approved or configured. Both failed Haiku runs and the failed Sonnet run
 remain failed and retain unfilled human scores.
 Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
@@ -78,7 +81,7 @@ identity without live deployment evidence. Snapshot expiry/deletion-specific rec
 After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
 pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
 
-Optional-alternate prompt verification passed 472 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
+Sonnet migration verification passed 505 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
 check. The unchanged preserved Build 7 archive's earlier signature/profile/privacy verification
 remains recorded. No public source push, production change,

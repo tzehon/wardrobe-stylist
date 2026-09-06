@@ -10,7 +10,7 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-The current local candidate migrates the backend to pinned Haiku 4.5 and a durable global AI
+The current local candidate migrates the backend to pinned Sonnet 5 and a durable global AI
 budget. It has not been deployed; retained Fly v10 evidence still describes the earlier Opus 4.8
 runtime. Follow [AI spend controls](ai-spend-controls.md) and the release backlog before enabling
 connected styling or treating any historical production check as candidate evidence.
@@ -102,10 +102,12 @@ the retained charges with independent evidence.
 
 The synchronous Messages API remains the interactive endpoint. The locked SDK is `anthropic==1.4.0`
 within the declared `>=1.4,<2` range, using `httpx2` for provider HTTP objects; FastAPI's test client
-continues to use `httpx`. The candidate model is `claude-haiku-4-5-20251001`, with thinking disabled,
+continues to use `httpx`. The candidate model is `claude-sonnet-5`, with thinking disabled,
 strict forced tool output, zero retries, and a 1,024-token output ceiling. Shared-schema validation
-and the catalog-ID guard remain in place. Caching stays off until the fictional evaluation measures
-useful reads. Live evaluation requires an explicit call-count/cost approval and must never use or
+and the catalog-ID guard remain in place. The evaluation passed all automatic checks and received
+owner qualitative acceptance; the numeric review remains incomplete and is not claimed as passed.
+Caching stays off until production request cadence supports the measured warm-cache reuse.
+Live evaluation requires an explicit call-count/cost approval and must never use or
 shadow a real user's wardrobe.
 
 ## iOS app
@@ -182,7 +184,7 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 ## Anthropic key
 
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
-secret in production. The private launch budget remains an owner decision after measured Haiku
+secret in production. The private launch budget remains an owner decision after measured Sonnet
 cost per successful recommendation. The application ledger supplies a hard admission ceiling;
 provider-side workspace limits can provide an additional boundary. Console warnings and the
 existing hourly abuse limits do not substitute for it. Changing provider settings, creating a
