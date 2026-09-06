@@ -76,9 +76,9 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **not deployed**. Source publication and review are tracked in
-[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41); publication is owner-approved and
-the required checks/review must pass before merge. The revised Sonnet 5 evaluation on 6 September 2026
+This candidate is **not deployed**.
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
+checks, Codex review, and merge state. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
 passed 4/4, preferred items passed 3/4, and p95 latency was 12.665 seconds. All 28 calls completed
 for US$0.360167 before tax, with no provider errors or retries. The owner approved all 24
@@ -93,7 +93,7 @@ has not been deployed. On 6 September 2026 the owner approved the private launch
 limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
 limits remain in ignored private release records and have not been applied. The release checker
 supports a separate private public-capacity profile; its bounds still need review and approval.
-That operational gate, alert-delivery verification, source review, and verified deployment remain
+That operational gate, alert-delivery verification, and verified deployment remain
 open before Build 7 distribution. The earlier timeout's cost remains unconfirmed, conservatively
 bounded by US$0.205120; a separate successful diagnostic
 cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).
