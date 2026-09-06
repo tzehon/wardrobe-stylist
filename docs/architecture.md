@@ -8,8 +8,10 @@ minimum App Attest authentication/security metadata and anonymous aggregate AI-b
 The Sonnet/SDK and budget controls described below are the **local migration candidate**, not a
 production deployment claim. The retained Fly v10 evidence describes the earlier Opus 4.8 runtime.
 The selected Sonnet request passed automatic evaluation and received qualitative owner acceptance.
-Private budget approval, public capacity/operations acceptance, deployment verification, and a fresh operational review
-remain release gates in the [release backlog](app-release-backlog.md).
+The owner approved the private launch limits and daily monitoring policy on 2026-09-06;
+the values remain private and unapplied. Public-capacity preflight, alert-delivery verification,
+source review, approved provisioning/deployment, and a fresh operational review remain gates in
+the [release backlog](app-release-backlog.md).
 
 Public v1 does not connect to Google, read Gmail, import purchase receipts, or require a human
 account. The earlier read-only Gmail/receipt-import implementation remains only in Git history and

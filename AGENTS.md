@@ -294,6 +294,12 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   reserves the full 1M input context. The v2 ledger binds the model/rates/units/bounds and rejects
   old or mismatched storage without reset, upgrade, or refund. Never use Haiku-priced controls
   for a Sonnet runtime.
+  The owner approved the private launch spend/admission limits and owner-operated daily
+  monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
+  in ignored private release records; do not publish them or ask for the same policy approval
+  again. The policy is not yet applied and does not authorize source publication, provisioning,
+  provider-console changes, deployment, or distribution. Public-capacity preflight and alert
+  delivery remain open operational gates.
   Once the budgeted candidate is enabled, recovery must use a verified budget-aware image with
   the same ledger and limits. Pre-budget v10 ignores these controls and must not become a normal
   rollback target after cutover; its retained recovery evidence describes the earlier baseline.

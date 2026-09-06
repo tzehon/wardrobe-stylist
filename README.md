@@ -86,21 +86,24 @@ saved about 20.9% of input cost, but production reuse remains unproven and cachi
 No paid call is running.
 The local runtime and durable budget are aligned with Sonnet pricing and its full context;
 the v2 ledger rejects old or mismatched pricing policy without resetting charges. This work
-has not been deployed. A private launch-policy proposal is ready for the owner's estimate of
-up to 10 initial AI users. Owner budget approval, public capacity/operations acceptance, source
-review, and verified deployment remain open before Build 7 distribution. The earlier timeout's
-cost remains unconfirmed, conservatively bounded by US$0.205120; a separate successful diagnostic
+has not been deployed. On 6 September 2026 the owner approved the private launch spend/admission
+limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
+limits remain in ignored private release records and have not been applied. The release checker
+supports a separate private public-capacity profile; its bounds still need review and approval.
+That operational gate, alert-delivery verification, source review, and verified deployment remain
+open before Build 7 distribution. The earlier timeout's cost remains unconfirmed, conservatively
+bounded by US$0.205120; a separate successful diagnostic
 cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Sonnet migration verification on 6 September 2026 passed 505 backend tests plus dependency/security/lint/type
-checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
+Final capacity-preflight verification on 6 September 2026 passed 551 backend tests plus
+dependency/security/lint/type checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
 and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
 signature/privacy verification remains recorded in the release evidence.
-These results do not substitute for live model acceptance or fresh production release evidence.
+These results do not substitute for fresh production release evidence.
 
 For current candidate status, consumed build numbers, clean-install requirements, and physical
 TestFlight QA evidence, see [`docs/app-release-backlog.md`](docs/app-release-backlog.md) and

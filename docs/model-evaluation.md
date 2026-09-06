@@ -516,10 +516,14 @@ Release simulator build/artifact check. The iOS result is
 and Build 8 is not required. No public source push, provisioning, provider-console change,
 deployment, upload, or physical-device action occurred.
 
-The private launch-policy proposal uses the measured cost and the owner's expectation of
-up to 10 first-month AI users. It remains unapproved, outside the repository, and unapplied.
-Budget/operating-policy approval, public-capacity preflight, source review, and actual
-deployment/operational gates remain open before distribution.
+The private launch policy uses the measured cost and the owner's expectation of up to 10
+first-month AI users. On 2026-09-06 the owner replied **"approve and proceed"** to the concrete
+spend/admission-limit and daily-monitoring proposal. The approved record and disabled
+configuration are retained in ignored private release files; no exact private limit is published
+here and no setting has been applied. This closes the budget/operating-policy decision.
+Public-capacity preflight, alert-delivery verification, source review, approved provisioning,
+and actual deployment/operational gates remain open before distribution. This approval does
+not authorize another paid evaluation, provider-console changes, or deployment.
 
 ## Fixed paid-call plan and approval
 

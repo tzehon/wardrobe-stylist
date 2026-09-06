@@ -491,11 +491,22 @@ open.
   Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
-  explicit charge-preserving recovery. No private launch budget is selected or configured.
-  The owner expects up to 10 AI users in the first month. A private, measured-cost launch-policy
-  proposal is ready outside the repository; no amount is approved or configured.
-  Owner budget approval, alert delivery/cadence, public capacity acceptance (including replacement
-  of the historical single-user aggregate preflight band), and actual deployment remain open.
+  explicit charge-preserving recovery. On 2026-09-06 the owner approved the private launch
+  spend/admission limits and owner-operated daily monitoring policy, based on up to 10 initial
+  AI users. Exact limits and the disabled configuration are retained in ignored private release
+  files, not tracked source, and have not been applied. This closes the budget/cadence decision
+  only. Alert delivery, public capacity acceptance (including replacement of the historical
+  single-user aggregate preflight band), source review, approved provisioning, and verified
+  deployment remain open.
+  Local tooling now supports an explicitly selected public-launch preflight profile with strict
+  private installation/session bounds and an active-session ownership check. The historical
+  single-user profile remains the default; no public limits are inferred from ten expected people
+  or approved by the budget decision. See the [private capacity-policy procedure](ai-spend-controls.md#public-launch-observed-capacity-preflight).
+  Final approval/capacity verification passed 551 backend tests, locked audit/Bandit/Ruff/mypy,
+  236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
+  The approved disabled configuration passed local settings validation without provisioning a
+  ledger or making a provider call. No runtime auth, iOS/shared source, or live release lock
+  changed; no new TestFlight build is required. Source remains local pending publication approval.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,

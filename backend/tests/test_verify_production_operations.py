@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import sqlite3
 import sys
 import tempfile
 import time
@@ -318,6 +320,7 @@ def diagnostics(**overrides: object) -> dict[str, object]:
         "process_runtime": True,
         "active_installations": 1,
         "active_sessions": 0,
+        "invalid_active_session_memberships": 0,
         "pending_challenges": 0,
         "failed_challenges": 0,
         "rate_windows": 4,
@@ -1017,6 +1020,253 @@ def test_diagnostics_rejects_session_without_active_installation() -> None:
     )
 
     assert aggregate.status is MODULE.Status.OPEN
+
+
+def capacity_policy_file(tmp_path: Path, **overrides: object) -> Path:
+    values: dict[str, object] = {
+        "schema_version": 1,
+        "profile": "public-launch",
+        "max_active_installations": 91,
+        "max_active_sessions": 137,
+    }
+    values.update(overrides)
+    path = tmp_path / f"{SECRET_CANARY}.toml"
+    path.write_text(
+        "\n".join(f"{key} = {json.dumps(value)}" for key, value in values.items()),
+        encoding="utf-8",
+    )
+    path.chmod(0o600)
+    return path
+
+
+def test_capacity_policy_requires_explicit_selection_and_private_file(tmp_path: Path) -> None:
+    path = capacity_policy_file(tmp_path)
+
+    assert MODULE.load_auth_capacity_policy(profile="single-user", path=None) is None
+    for profile, candidate in (
+        ("single-user", path), ("public-launch", None), ("unknown", path)
+    ):
+        with pytest.raises(MODULE.ReviewConfigurationError):
+            MODULE.load_auth_capacity_policy(profile=profile, path=candidate)
+
+    policy = MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+    assert policy.max_active_installations == 91
+    assert policy.max_active_sessions == 137
+    assert "91" not in repr(policy)
+    assert "137" not in repr(policy)
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"schema_version": True}, {"schema_version": 2},
+        {"profile": "single-user"}, {"extra": SECRET_CANARY},
+        {"max_active_installations": True}, {"max_active_sessions": False},
+        {"max_active_installations": 0}, {"max_active_sessions": -1},
+        {"max_active_installations": 1.0}, {"max_active_sessions": "137"},
+        {"max_active_installations": MODULE.MAX_AUTH_CAPACITY_BOUND + 1},
+        {"max_active_sessions": MODULE.MAX_AUTH_CAPACITY_BOUND + 1},
+    ],
+)
+def test_capacity_policy_rejects_untrusted_schema_and_bounds(
+    tmp_path: Path, overrides: dict[str, object]
+) -> None:
+    path = capacity_policy_file(tmp_path, **overrides)
+
+    with pytest.raises(MODULE.ReviewConfigurationError) as caught:
+        MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+
+    assert str(caught.value) == "auth capacity policy is invalid"
+    assert SECRET_CANARY not in str(caught.value)
+
+
+@pytest.mark.parametrize(
+    "contents", [b"", b"\xff", b"schema_version = 1", b"[invalid", b"#" * 4097]
+)
+def test_capacity_policy_rejects_incomplete_malformed_or_oversized_files(
+    tmp_path: Path, contents: bytes
+) -> None:
+    path = capacity_policy_file(tmp_path)
+    path.write_bytes(contents)
+
+    with pytest.raises(MODULE.ReviewConfigurationError, match="auth capacity policy is invalid"):
+        MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+
+
+@pytest.mark.parametrize("kind", ["public", "symlink", "hardlink", "directory", "missing"])
+def test_capacity_policy_rejects_nonprivate_or_aliased_storage(tmp_path: Path, kind: str) -> None:
+    path = capacity_policy_file(tmp_path)
+    if kind == "public":
+        path.chmod(0o644)
+    elif kind == "symlink":
+        link = tmp_path / "link.toml"
+        link.symlink_to(path)
+        path = link
+    elif kind == "hardlink":
+        os.link(path, tmp_path / "hardlink.toml")
+    elif kind == "directory":
+        path = tmp_path
+    else:
+        path.unlink()
+
+    with pytest.raises(MODULE.ReviewConfigurationError, match="auth capacity policy is invalid"):
+        MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+
+
+def test_capacity_policy_accepts_parser_bounds_without_inferring_population(tmp_path: Path) -> None:
+    path = capacity_policy_file(
+        tmp_path, max_active_installations=MODULE.MAX_AUTH_CAPACITY_BOUND, max_active_sessions=1
+    )
+    policy = MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+
+    assert policy.max_active_installations == MODULE.MAX_AUTH_CAPACITY_BOUND
+    assert policy.max_active_sessions == 1
+
+
+def test_capacity_policy_rejects_another_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = capacity_policy_file(tmp_path)
+    other_uid = os.getuid() + 1
+    monkeypatch.setattr(MODULE.os, "getuid", lambda: other_uid)
+
+    with pytest.raises(MODULE.ReviewConfigurationError, match="auth capacity policy is invalid"):
+        MODULE.load_auth_capacity_policy(profile="public-launch", path=path)
+
+
+@pytest.mark.parametrize(
+    ("overrides", "expected"),
+    [
+        ({"active_installations": 0, "active_sessions": 0}, MODULE.Status.PASS),
+        (
+            {"active_installations": 3, "active_sessions": 5, "rate_windows": 552},
+            MODULE.Status.PASS,
+        ),
+        ({"active_installations": 4}, MODULE.Status.OPEN),
+        ({"active_sessions": 6}, MODULE.Status.OPEN),
+        ({"active_installations": 0, "active_sessions": 1}, MODULE.Status.OPEN),
+        ({"invalid_active_session_memberships": 1}, MODULE.Status.OPEN),
+        ({"invalid_active_session_memberships": None}, MODULE.Status.OPEN),
+        ({"invalid_active_session_memberships": False}, MODULE.Status.OPEN),
+        ({"pending_challenges": 1}, MODULE.Status.OPEN),
+        ({"failed_challenges": 1}, MODULE.Status.OPEN),
+        ({"rate_windows": 553}, MODULE.Status.OPEN),
+        ({"active_installations": True}, MODULE.Status.OPEN),
+        ({"active_sessions": -1}, MODULE.Status.OPEN),
+        ({"active_sessions": 1.0}, MODULE.Status.OPEN),
+    ],
+)
+def test_public_capacity_uses_independent_bounds_and_preserves_integrity_gates(
+    overrides: dict[str, object], expected: Any
+) -> None:
+    runtime, _ = valid_runtime()
+    policy = MODULE.AuthCapacityPolicy(max_active_installations=3, max_active_sessions=5)
+
+    _, aggregate, _ = MODULE.collect_diagnostics(
+        diagnostic_runner(diagnostics(**overrides)), runtime=runtime, config=config(),
+        capacity_policy=policy,
+    )
+
+    assert aggregate.status is expected
+    assert aggregate.detail == (
+        "configured-public-band" if expected is MODULE.Status.PASS else "auth-aggregate-open"
+    )
+
+
+def test_historical_profile_retains_one_session_and_requires_membership_evidence() -> None:
+    runtime, _ = valid_runtime()
+    for overrides in (
+        {"active_sessions": 2}, {"invalid_active_session_memberships": 1},
+        {"invalid_active_session_memberships": None},
+    ):
+        _, aggregate, _ = MODULE.collect_diagnostics(
+            diagnostic_runner(diagnostics(**overrides)), runtime=runtime, config=config(),
+        )
+        assert aggregate.status is MODULE.Status.OPEN
+
+
+def test_active_session_membership_query_detects_orphans_and_revoked_installations() -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        connection.executescript(
+            "CREATE TABLE installations (installation_id TEXT PRIMARY KEY, revoked_at INTEGER);"
+            "CREATE TABLE sessions (installation_id TEXT, expires_at INTEGER, revoked_at INTEGER);"
+            "INSERT INTO installations VALUES ('valid', NULL), ('revoked', 1);"
+            "INSERT INTO sessions VALUES ('valid', 200, NULL), ('valid', 200, NULL),"
+            "('revoked', 200, NULL), ('missing', 200, NULL),"
+            "('missing', 99, NULL), ('missing', 200, 1);"
+        )
+        assert connection.execute(
+            MODULE._ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
+        ).fetchone() == (2,)
+        connection.execute("DELETE FROM sessions WHERE installation_id IN ('revoked', 'missing')")
+        assert connection.execute(
+            MODULE._ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
+        ).fetchone() == (0,)
+    finally:
+        connection.close()
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["--auth-capacity-profile", "public-launch"],
+        ["--auth-capacity-policy", SECRET_CANARY],
+        ["--auth-capacity-profile", "public-launch", "--auth-capacity-policy", SECRET_CANARY],
+    ],
+)
+def test_main_rejects_untrusted_public_profile_before_any_live_review(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], arguments: list[str]
+) -> None:
+    monkeypatch.setattr(
+        MODULE, "run_review", lambda **_kwargs: pytest.fail("live review attempted")
+    )
+
+    assert MODULE.main(["preflight", *arguments]) == 2
+    output_text = capsys.readouterr()
+    assert output_text.out == ""
+    assert output_text.err == (
+        "Production operational preflight could not load trusted local configuration.\n"
+    )
+
+
+def test_main_selects_private_public_policy_without_rendering_values(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = capacity_policy_file(tmp_path)
+    captured: dict[str, Any] = {}
+
+    def fake_review(**kwargs: Any) -> Any:
+        captured.update(kwargs)
+        return MODULE.ReviewReport(
+            checked_at=NOW,
+            results=tuple(MODULE._pass(
+                name, "configured-public-band" if name == "auth_aggregate" else detail
+            ) for name, detail in MODULE._PASS_DETAILS.items()),
+        )
+
+    monkeypatch.setattr(MODULE, "run_review", fake_review)
+    monkeypatch.setattr(MODULE.ReviewConfig, "load", classmethod(lambda _cls, _path: config()))
+
+    assert MODULE.main([
+        "preflight", "--auth-capacity-profile", "public-launch",
+        "--auth-capacity-policy", str(path),
+    ]) == 0
+    assert captured["capacity_policy"].max_active_installations == 91
+    assert captured["capacity_policy"].max_active_sessions == 137
+    output_text = capsys.readouterr()
+    for private_value in (str(path), SECRET_CANARY, "91", "137"):
+        assert private_value not in output_text.out + output_text.err
+    assert "auth_aggregate=PASS configured-public-band" in output_text.out
+
+
+def test_argument_errors_do_not_render_private_values(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as caught:
+        MODULE.main(["preflight", "--auth-capacity-profile", SECRET_CANARY])
+    assert caught.value.code == 2
+    output_text = capsys.readouterr()
+    assert output_text.out == ""
+    assert output_text.err == "Production operational preflight received invalid command options.\n"
 
 
 @pytest.mark.parametrize(
