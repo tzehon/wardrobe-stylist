@@ -50,7 +50,7 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 |---|---|
 | [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, App Attest, Anthropic key, Fly.io) |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
-| [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional Haiku quality, latency, cost, and cache evaluation; paid-call approval procedure |
+| [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional model quality, latency, cost, and cache evaluation; paid-call approval procedure |
 | [`docs/ai-spend-controls.md`](docs/ai-spend-controls.md) | Durable monthly AI ceiling, private provisioning, alerts, and disable/recovery procedure |
 | [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
 | [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
@@ -75,23 +75,24 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **local and not deployed**. The complete owner-approved 28-call evaluation on
-6 September 2026 cost US$0.136602 before tax but **failed the automatic quality gate**: one
-response lacked a complete outfit and two repeated an outfit combination. All 24 quality
-responses passed schema/known-ID checks; p95 latency was 15.872 seconds. Cache probes returned
-zero cache reads or writes, so caching stays off. The prompt now explicitly requires complete
-clothing coverage and distinct item sets; full local regressions pass. The original fixtures
-and acceptance floor remain fixed, and another paid run needs fresh approval.
+This candidate is **local and not deployed**. Both full Haiku evaluations failed the fixed
+automatic quality gate. The revised-prompt run on 6 September 2026 completed all 28 calls for
+US$0.133243 before tax: complete outfits and known IDs passed 24/24, but distinct looks and
+required alternates each passed only 23/24. P95 latency was 12.369 seconds. Cache probes again
+returned zero reads/writes, so caching stays off. The Sonnet 5 comparison is prepared and tested
+with the same prompt, fixtures, and acceptance floor; its 28 calls require separate approval of
+an additional US$58 pre-tax ceiling. No Sonnet generation has run.
+Its evaluation profile does not switch the production model or the Haiku-priced budget controls.
 Human quality acceptance, owner budget approval, public capacity/operations acceptance, source
 review, and verified deployment remain open before Build 7 distribution. The earlier timeout's
 cost remains unconfirmed, conservatively bounded by US$0.205120; a separate successful diagnostic
-cost US$0.004222. See the [evaluation record](docs/model-evaluation.md#completed-run--2026-09-06).
+cost US$0.004222. See the [evaluation record](docs/model-evaluation.md#prompt-iteration-2--completed-and-failed).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Prompt-iteration verification on 6 September 2026 passed 441 backend tests plus dependency/security/lint/type
+Sonnet evaluation-profile verification on 6 September 2026 passed 469 backend tests plus dependency/security/lint/type
 checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
 and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
 signature/privacy verification remains recorded in the release evidence.

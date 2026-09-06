@@ -8,11 +8,10 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: a fresh owner-approved 28-call run completed at US$0.136602 before tax,
-but failed the fixed automatic quality floor. Caching produced no reads and stays off.**
-General prompt clarification is implemented locally and passes full regressions; a separately
-approved full rerun remains required.
-The failed run and original thresholds remain unchanged; human and model acceptance are open.
+**Status: both complete Haiku runs failed the fixed automatic quality floor. The revised
+prompt's 28-call run cost US$0.133243 before tax; caching again produced no reads and stays off.**
+The Sonnet 5 comparison is prepared and tested, awaiting separate paid approval. Historical results and original thresholds
+remain unchanged; no model is accepted and no human scores have been fabricated.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
 
@@ -163,7 +162,7 @@ This failed Haiku run also makes a separately pinned/priced Sonnet 5 evaluation
 eligible; there is no automatic production fallback. Do not select or provision
 the private launch budget before full model acceptance.
 
-## Prompt iteration 2 — awaiting paid approval
+## Prompt iteration 2 — completed and failed
 
 The general prompt now requires shoe + top + bottom or shoe + dress in every look,
 rejects outerwear as a substitute for required clothing, and explicitly compares
@@ -178,7 +177,8 @@ selections pass the unchanged evaluator. These are offline checks of the contrac
 and evaluation; they do not demonstrate improved live model quality. The original
 run remains failed, with no rewritten results or fabricated human scores.
 
-The proposed next full run has manifest
+The owner approved an additional US$6 pre-tax ceiling for the full run on source
+`43f3e0e`, with manifest
 `92eabf7e62796a4686ebeb4c29eac14b0acc31b054c8988fdd5d25185f0cd961`.
 Only prompt/request and implementation identity change: the fictional cases,
 schema, quality floor, 30-second SDK timeout, zero retries, one call in flight,
@@ -189,16 +189,138 @@ estimate at full output is US$0.441638, not a guaranteed token bound. Adding its
 conservative maximum to previous usage/uncertainty would give a cumulative upper
 bound of US$6.189304 before tax across all attempts.
 
-The new plan has not run. Verification passed **441 backend tests**, locked
+The approved run completed with the unchanged criteria above. Pre-run verification passed **441 backend tests**, locked
 pip-audit with no known vulnerabilities, Bandit, Ruff, mypy, **236 iOS tests**
 (226 Swift + 10 UI), all **44 release-script tests**, and a fresh Release simulator
 build/artifact check. The iOS result bundle is
 `ios/DerivedData/HaikuPromptRegression-20260906.xcresult`; bounded local logs are
 `/private/tmp/wardrobe-haiku-prompt-*.log`. No shared schema or iOS source changed,
 so Build 8 is not required. This does not substitute for live quality acceptance.
-Do not start a paid call until this source-bound plan is approved.
+No additional run or retry is authorized beyond this approved plan.
+
+The run attempted exactly 28 calls, all with completed `tool_use` responses,
+complete usage, and no provider error or retry. Its result is **failed**, because
+two hard requirements missed their fixed 24/24 threshold:
+
+| Fixed criterion | Revised prompt result | Required |
+|---|---|---|
+| Shared schema / known IDs / complete outfits / occasion exclusions | 24 / 24 each | 24 / 24 |
+| Distinct item sets | **23 / 24** | 24 / 24 |
+| Sufficient alternates | **23 / 24** | 24 / 24 |
+| Targeted avoidance | 4 / 4 | At least 3 / 4 |
+| Targeted preferred items | 3 / 4 | At least 3 / 4 |
+| Nearest-rank p95 latency | 12.369 seconds | At most 20 seconds |
+| Highest output usage | 664 tokens | At most 1,024 tokens |
+| Human review | Not performed | All 24 scorecards pass |
+
+Quality call 5 (`humid_walk`) repeats its primary item set in an alternate; its
+rationale also contains tool-like markup and an embedded item-ID array, and
+describes sandals while selecting sneakers. That prose defect is retained as an
+observation, not a fabricated human rating or a changed automatic criterion.
+Quality call 8 (`black_palette`) omits the required alternate even though removing
+its optional tote yields a distinct complete look. The preferred-item result of 3/4
+passes its deliberately softer threshold; it is not an additional gate failure.
+Do not waive the duplicate or alternate requirement, count this run as accepted,
+or replace human review with model-generated scores.
+
+All 28 calls used **67,148 input and 13,219 output tokens**, costing
+**US$0.133243 before tax**. The 24 quality calls cost US$0.114567, averaging
+US$0.004773625 per attempted quality call. Quality inputs ranged from 1,706 to
+4,651 tokens and outputs from 204 to 664; median latency was 10.055 seconds and
+maximum latency 13.273 seconds. The report's 24 mechanically `usable` results
+still include both hard failures and are not 24 accepted recommendations.
+
+The four cache probes all completed. Marked requests again reported zero writes
+and reads; their combined US$0.004428 input cost equals the uncached
+counterfactual. Keep caching off for this Haiku candidate.
+
+Known cost across all attempts is now **US$0.274067 before tax**. The original
+timeout still carries up to US$0.205120 of unconfirmed exposure, so the cumulative
+conservative upper bound is **US$0.479187 before tax**. This completed run does
+not resolve the original timeout's cause or charge.
+
+Private artifacts are in
+`/private/tmp/wardrobe-fictional-evaluation-20260906-43f3e0e/`. The 24 scorecards
+remain unfilled and no human-review form was generated. No paid call is still
+running. After two failed Haiku pilots, proceed to the separately approved
+Sonnet 5 comparison below, without automatic production fallback or a private
+launch-budget decision.
+
+## Sonnet 5 comparison — awaiting paid approval
+
+The comparison will use pinned `claude-sonnet-5`; its dateless ID is a fixed
+model snapshot, not a moving alias. It keeps the revised production prompt,
+fictional cases, shared schema, quality floor, 1,024 output cap, synchronous
+Messages, forced strict tool, explicit `thinking={"type":"disabled"}`,
+`service_tier="standard_only"`, zero retries, one call in flight, and 30-second
+SDK timeout. Only the evaluation profile changes; the production stylist,
+Haiku budget constants, and preflight remain unchanged.
+[Model versioning](https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions),
+[Sonnet 5 behavior](https://platform.claude.com/docs/en/models/sonnet-5/whats-new-sonnet-5).
+
+Official pricing rechecked on 2026-09-06 is **US$2 input / US$10 output per
+million tokens**, with five-minute cache writes at US$2.50 and reads at US$0.20.
+The earlier scheduled increase to US$3/15 was cancelled; US$2/10 is the standard
+price. Sonnet's context is **1,000,000 tokens by default and maximum**, with no
+smaller variant. Its cache minimum is 1,024 tokens, so Haiku's zero-read result
+does not settle Sonnet caching.
+[Current prices](https://platform.claude.com/docs/en/about-claude/pricing),
+[Context](https://platform.claude.com/docs/en/models/sonnet-5/whats-new-sonnet-5),
+[Cache minimums](https://platform.claude.com/docs/en/build-with-claude/prompt-caching).
+
+For the same 26 uncached and two marked requests, the conservative bound is
+`26 × (1000000 × 2 + 1024 × 10)/1000000 + 2 × (1000000 × 2.50 + 1024 × 10)/1000000`
+= **US$57.286720**, rounded up to a proposed **additional US$58 pre-tax ceiling**.
+This intentionally uses the full model context; it is not the expected cost of
+these small fictional requests. The source-bound manifest reports a smaller,
+explicitly unproven byte-based planning estimate of **US$0.882705** at full output.
+Including previous
+usage and uncertainty, this plan's conservative cumulative maximum would be
+US$57.765907 before tax. No Sonnet generation call is authorized or has run yet.
+
+A read-only Models API lookup with the existing configured key on 2026-09-06
+returned the requested `claude-sonnet-5` ID and 1,000,000-token input limit in
+0.511 seconds. This metadata lookup made no generation call and does not prove
+Messages compatibility or model quality.
+
+The implemented evaluation-only profile has manifest
+`e1972ee4f9162b5f50a6ff3f9bd558143dc5f5feda410a3844f95a41aca05678`.
+It independently validates the selected model, priced context/rates, exact
+manifest, and numeric ceiling before constructing an API client; a Haiku
+approval cannot authorize Sonnet, or vice versa. A token-boundary violation
+stops before cost settlement or review-card creation and leaves usage uncertain.
+
+The default command remains a local-only Haiku dry run. Preview the Sonnet plan
+without making any API call:
+
+```bash
+uv run --locked python -m evaluation.run dry-run --model claude-sonnet-5
+```
+
+Only after explicit owner approval of this exact plan:
+
+```bash
+uv run --locked python -m evaluation.run live --model claude-sonnet-5 \
+  --approved-manifest-sha256 e1972ee4f9162b5f50a6ff3f9bd558143dc5f5feda410a3844f95a41aca05678 \
+  --approved-max-usd 58.00 \
+  --output-dir /tmp/wardrobe-fictional-sonnet-evaluation-UNIQUE_RUN
+```
+
+Full local verification passed on 2026-09-06: **469 backend tests** (including
+all 80 evaluation tests), locked dependency audit with no known vulnerabilities,
+Bandit including evaluation tooling, Ruff, mypy, **236/236 iOS tests** (226 Swift
+and 10 UI), **44 release-script tests**, and the Release simulator build/artifact
+checks. No Sonnet generation has run. If Sonnet
+passes automatic and human review, the production model/accounting/preflight
+must be aligned and validated together before private budget approval and
+deployment. A comparison result never authorizes a production switch by itself.
 
 ## Fixed paid-call plan and approval
+
+The commands and US$6 bound in this section are the **Haiku defaults**. The Sonnet
+comparison above requires explicit `--model claude-sonnet-5`, its own current
+manifest, and the additional US$58 ceiling. A hash or approval for one profile
+cannot authorize the other model.
 
 Twelve hand-authored cases each run twice: office, wedding, humid walking, black
 palette, recent rotation, positive ratings, negative ratings, a two-item dress
@@ -318,8 +440,9 @@ needs its own manifest and owner approval.
 
 ## Cache decision and cost accounting
 
-Haiku's cache minimum is 4,096 tokens. The current short static prefix may not
-qualify; do not pad it merely to manufacture a cache hit. Read the four probe rows'
+Haiku's cache minimum is 4,096 tokens; Sonnet 5's is 1,024. Haiku's measured zero
+reads do not predict Sonnet's behavior; do not pad the prefix merely to manufacture
+a cache hit. Read the selected model's four probe rows'
 input, cache-write, cache-read, output, and latency fields. The cached pair passes
 the initial cost test only when it has positive cache reads and lower measured
 input cost than its uncached counterfactual. Compare input cost separately from

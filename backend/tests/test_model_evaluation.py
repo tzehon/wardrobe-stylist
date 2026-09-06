@@ -2,6 +2,7 @@
 
 import json
 from copy import deepcopy
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -37,7 +38,11 @@ def outfit(fixture: Case) -> dict[str, Any]:
 
 
 def install_fake(monkeypatch: pytest.MonkeyPatch, *, failure: str | None = None) -> dict[str, Any]:
-    state: dict[str, Any] = {"calls": [], "client_options": {}}
+    state: dict[str, Any] = {
+        "calls": [], "client_options": {},
+        "usage": {"input_tokens": 200, "output_tokens": 100,
+                  "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0},
+    }
 
     class Client:
         def __init__(self, **kwargs: Any):
@@ -65,13 +70,12 @@ def install_fake(monkeypatch: pytest.MonkeyPatch, *, failure: str | None = None)
                 raise KeyboardInterrupt
             if failure == "exit":
                 raise SystemExit("private-error-text-must-not-enter-journal")
-            fixture, _, _ = run.plans()[index]
+            fixture, _, _ = run.plans(params["model"])[index]
             return SimpleNamespace(
                 stop_reason="max_tokens" if failure == "truncation" else "tool_use",
                 content=[ToolUseBlock(type="tool_use", id="fake", name="propose_outfit",
                                       input=outfit(fixture))],
-                usage=SimpleNamespace(input_tokens=200, output_tokens=100,
-                                      cache_creation_input_tokens=0, cache_read_input_tokens=0),
+                usage=SimpleNamespace(**state["usage"]),
             )
 
     monkeypatch.setattr(run.anthropic, "Anthropic", Client)
@@ -79,11 +83,17 @@ def install_fake(monkeypatch: pytest.MonkeyPatch, *, failure: str | None = None)
     return state
 
 
-def fake_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, **kwargs: Any):
+def fake_run(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, *,
+    model: str = run.PINNED_MODEL, **kwargs: Any,
+):
     state = install_fake(monkeypatch, **kwargs)
     output = tmp_path / "new-run"
     state["journal_path"] = output / "accounting.jsonl"
-    report = run.live_run(run.manifest()["manifest_sha256"], "6.00", output)
+    approved = run.manifest(model)
+    report = run.live_run(
+        approved["manifest_sha256"], approved["approval_ceiling_usd"], output, model=model,
+    )
     return state, report, output
 
 
@@ -112,8 +122,114 @@ def test_plan_uses_exact_production_builder_without_thinking_or_retries():
         assert params["tool_choice"]["name"] == "propose_outfit"
 
 
+def test_sonnet_is_an_explicit_evaluation_only_model_override():
+    haiku = run.plans()
+    sonnet = run.plans("claude-sonnet-5")
+    for (old_case, old_purpose, old_params), (new_case, new_purpose, new_params) in zip(
+        haiku, sonnet, strict=True,
+    ):
+        assert old_case == new_case
+        assert old_purpose == new_purpose
+        assert new_params == {**old_params, "model": "claude-sonnet-5"}
+    assert run.stylist.MODEL == run.PINNED_MODEL
+    assert run.plans() == haiku
+
+
+def test_sonnet_dry_run_binds_full_context_pricing_and_ceiling_without_client(monkeypatch, capsys):
+    def forbidden(**kwargs):
+        pytest.fail("Preparing a Sonnet profile must not create an API client.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    assert run.main(["dry-run", "--model", "claude-sonnet-5"]) == 0
+    approved = json.loads(capsys.readouterr().out)
+    haiku = run.manifest()
+    assert approved["model"] == "claude-sonnet-5"
+    assert approved["provider_context_input_ceiling_per_call"] == 1_000_000
+    assert approved["maximum_estimated_usd"] == "57.286720"
+    assert approved["approval_ceiling_usd"] == "58.00"
+    assert approved["pricing_usd_per_million"] == {
+        "input": "2", "output": "10", "cache_write": "2.50", "cache_read": "0.20",
+    }
+    assert [row["maximum_estimated_usd"] for row in approved["calls"]] == (
+        ["2.010240"] * 26 + ["2.510240"] * 2
+    )
+    for key in (
+        "maximum_calls", "quality_calls", "cache_probe_calls", "quality_floor",
+        "sdk_retries", "concurrency", "timeout_seconds", "max_output_tokens_per_call",
+        "fixture_expectations_sha256", "authoritative_outfit_schema_sha256",
+        "implementation_sha256",
+    ):
+        assert approved[key] == haiku[key]
+    assert approved["manifest_sha256"] != haiku["manifest_sha256"]
+    assert haiku["maximum_estimated_usd"] == "5.843360"
+    assert haiku["provider_context_input_ceiling_per_call"] == 200_000
+    assert haiku["approval_ceiling_usd"] == "6.00"
+
+
+def test_unlisted_model_cannot_prepare_or_start_an_evaluation(monkeypatch, tmp_path, capsys):
+    def forbidden(**kwargs):
+        pytest.fail("An unlisted model must fail before API client construction.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    for prepare in (run.plans, run.manifest):
+        with pytest.raises(ValueError, match="allowlisted"):
+            prepare("claude-sonnet-latest")
+    with pytest.raises(ValueError, match="allowlisted"):
+        run.live_run("unused", "58.00", tmp_path / "unused", model="claude-sonnet-latest")
+    with pytest.raises(SystemExit) as rejected:
+        run.main(["dry-run", "--model", "claude-sonnet-latest"])
+    assert rejected.value.code == 2
+    assert "invalid choice" in capsys.readouterr().err
+    assert not (tmp_path / "unused").exists()
+
+
+@pytest.mark.parametrize("approved_model,selected_model,ceiling", [
+    (run.PINNED_MODEL, "claude-sonnet-5", "58.00"),
+    ("claude-sonnet-5", run.PINNED_MODEL, "6.00"),
+    ("claude-sonnet-5", "claude-sonnet-5", "6.00"),
+])
+def test_model_approval_cannot_cross_profiles_or_reuse_haiku_ceiling(
+    monkeypatch, tmp_path, approved_model, selected_model, ceiling,
+):
+    def forbidden(**kwargs):
+        pytest.fail("Model and ceiling approval must be checked before client construction.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    approved = run.manifest(approved_model)
+    with pytest.raises(ValueError, match="approval"):
+        run.live_run(
+            approved["manifest_sha256"], ceiling, tmp_path / "unused", model=selected_model,
+        )
+    assert not (tmp_path / "unused").exists()
+
+
+@pytest.mark.parametrize("field,value", [
+    ("context_limit", 200_000), ("input_rate", Decimal("3")),
+    ("cache_read_rate", Decimal("0.30")), ("approval_ceiling_usd", "59.00"),
+])
+def test_changed_sonnet_profile_invalidates_source_bound_approval(
+    monkeypatch, tmp_path, field, value,
+):
+    model = "claude-sonnet-5"
+    approved = run.manifest(model)
+    profile = replace(run.model_profile(model), **{field: value})
+    monkeypatch.setitem(run.MODEL_PROFILES, model, profile)
+    assert run.manifest(model)["manifest_sha256"] != approved["manifest_sha256"]
+
+    def forbidden(**kwargs):
+        pytest.fail("Changed profile must require fresh approval before client construction.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    with pytest.raises(ValueError, match="approval"):
+        run.live_run(
+            approved["manifest_sha256"], profile.approval_ceiling_usd, tmp_path / "unused",
+            model=model,
+        )
+    assert not (tmp_path / "unused").exists()
+
+
 @pytest.mark.parametrize("relative_path", [
-    "app/schemas/recommendation.py", "uv.lock", "pyproject.toml",
+    "app/schemas/recommendation.py", "uv.lock", "pyproject.toml", "evaluation/run.py",
 ])
 def test_manifest_binds_local_model_and_locked_sdk_sources(monkeypatch, relative_path):
     baseline = run.manifest()
@@ -130,10 +246,13 @@ def test_manifest_binds_local_model_and_locked_sdk_sources(monkeypatch, relative
     assert updated["manifest_sha256"] != baseline["manifest_sha256"]
 
 
-def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(monkeypatch, tmp_path):
+@pytest.mark.parametrize("model", [run.PINNED_MODEL, "claude-sonnet-5"])
+def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(
+    monkeypatch, tmp_path, model,
+):
     real_client = anthropic.Anthropic
     observed = []
-    plan = run.plans()
+    plan = run.plans(model)
     monkeypatch.setenv("EVAL_ANTHROPIC_API_KEY", "fictional-explicit-eval-key")
     monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "hostile-environment-bearer")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "hostile-environment-api-key")
@@ -145,13 +264,13 @@ def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(monkey
         assert "authorization" not in request.headers
         body = json.loads(request.content)
         assert body["service_tier"] == "standard_only"
-        assert body["model"] == run.PINNED_MODEL
+        assert body["model"] == model
         assert body["thinking"] == {"type": "disabled"}
         fixture, _, _ = plan[len(observed)]
         observed.append(body)
         return httpx2.Response(200, json={
             "id": "msg_fictional", "type": "message", "role": "assistant",
-            "model": run.PINNED_MODEL, "stop_reason": "tool_use", "stop_sequence": None,
+            "model": model, "stop_reason": "tool_use", "stop_sequence": None,
             "content": [{"type": "tool_use", "id": "tool_fictional", "name": "propose_outfit",
                          "input": outfit(fixture)}],
             "usage": {"input_tokens": 200, "output_tokens": 100,
@@ -165,7 +284,11 @@ def test_real_sdk_transport_uses_only_explicit_eval_key_and_standard_tier(monkey
         )
 
     monkeypatch.setattr(run.anthropic, "Anthropic", factory)
-    report = run.live_run(run.manifest()["manifest_sha256"], "6.00", tmp_path / "new-run")
+    approved = run.manifest(model)
+    report = run.live_run(
+        approved["manifest_sha256"], approved["approval_ceiling_usd"], tmp_path / "new-run",
+        model=model,
+    )
     assert len(observed) == 28
     assert report["complete"]
     assert report["automatic"]["passed"]
@@ -193,7 +316,7 @@ def test_production_key_is_never_used(monkeypatch, tmp_path):
 def test_hash_cannot_bypass_independent_numeric_cost_ceiling(monkeypatch, tmp_path, maximum):
     approved = run.manifest()
     approved["maximum_estimated_usd"] = maximum
-    monkeypatch.setattr(run, "manifest", lambda: approved)
+    monkeypatch.setattr(run, "manifest", lambda model=run.PINNED_MODEL: approved)
 
     def forbidden(**kwargs):
         pytest.fail("Cost must fit the approval before client construction.")
@@ -201,6 +324,22 @@ def test_hash_cannot_bypass_independent_numeric_cost_ceiling(monkeypatch, tmp_pa
     monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
     with pytest.raises(ValueError, match="approval ceiling"):
         run.live_run(approved["manifest_sha256"], "6.00", tmp_path / "unused")
+    assert not (tmp_path / "unused").exists()
+
+
+@pytest.mark.parametrize("maximum", ["58.000001", "NaN"])
+def test_sonnet_hash_cannot_bypass_its_independent_numeric_ceiling(monkeypatch, tmp_path, maximum):
+    model = "claude-sonnet-5"
+    approved = run.manifest(model)
+    approved["maximum_estimated_usd"] = maximum
+    monkeypatch.setattr(run, "manifest", lambda model=run.PINNED_MODEL: approved)
+
+    def forbidden(**kwargs):
+        pytest.fail("Sonnet's numeric ceiling must be enforced before client construction.")
+
+    monkeypatch.setattr(run.anthropic, "Anthropic", forbidden)
+    with pytest.raises(ValueError, match="approval ceiling"):
+        run.live_run(approved["manifest_sha256"], "58.00", tmp_path / "unused", model=model)
     assert not (tmp_path / "unused").exists()
 
 
@@ -312,6 +451,126 @@ def test_cost_uses_disjoint_counters_and_cache_probe_requires_read_savings():
     usage["cache_read_input_tokens"] = 0
     assert not run.cache_decision(rows)["retain_caching"]
     assert not run.cache_decision(rows[:3])["retain_caching"]
+
+
+@pytest.mark.parametrize("counter,tokens,expected", [
+    ("input_tokens", 3, "0.000006"),
+    ("output_tokens", 7, "0.000070"),
+    ("cache_creation_input_tokens", 3, "0.0000075"),
+    ("cache_read_input_tokens", 3, "0.0000006"),
+])
+def test_sonnet_usage_cost_preserves_fractional_rates_for_every_counter(counter, tokens, expected):
+    usage = dict.fromkeys((
+        "input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens",
+    ), 0)
+    usage[counter] = tokens
+    assert run.usage_cost(usage, "claude-sonnet-5") == Decimal(expected)
+
+
+def test_sonnet_cache_counterfactual_uses_selected_input_rate():
+    usage = {"input_tokens": 1000, "output_tokens": 1000,
+             "cache_creation_input_tokens": 1000, "cache_read_input_tokens": 1000}
+    assert run.usage_cost(usage, "claude-sonnet-5") == Decimal("0.0147")
+    rows = [{"purpose": purpose, "status": "ok", "usage": usage} for purpose in (
+        "cache_off", "cache_off", "cache_ephemeral", "cache_ephemeral",
+    )]
+    measured = run.cache_decision(rows, "claude-sonnet-5")
+    assert measured["cached_input_cost_usd"] == "0.009400"
+    assert measured["uncached_counterfactual_usd"] == "0.012000"
+    assert measured["retain_caching"]
+    usage["cache_read_input_tokens"] = 0
+    assert not run.cache_decision(rows, "claude-sonnet-5")["retain_caching"]
+
+
+def test_fake_sonnet_run_is_bounded_and_uses_sonnet_costs(monkeypatch, tmp_path):
+    state, report, output = fake_run(monkeypatch, tmp_path, model="claude-sonnet-5")
+    assert len(state["calls"]) == 28
+    assert all(params["model"] == "claude-sonnet-5" for params in state["calls"])
+    assert state["client_options"]["max_retries"] == 0
+    assert state["client_options"]["timeout"] == 30
+    assert state["client_options"]["base_url"] == "https://api.anthropic.com"
+    assert report["complete"] and report["usage_complete"]
+    assert report["automatic"]["passed"]
+    assert not report["quality_accepted"]
+    assert report["maximum_attempted_cost_usd"] == "57.286720"
+    assert report["known_cost_usd"] == "0.039200"
+    assert report["known_quality_cost_per_usable_recommendation_usd"] == "0.001400"
+    assert report["human_review"] == "pending"
+    journal = [json.loads(line) for line in (output / "accounting.jsonl").read_text().splitlines()]
+    assert journal[-1]["attempted_calls"] == 28
+    assert journal[-1]["maximum_attempted_cost_usd"] == "57.286720"
+    scores = json.loads((output / "scores.json").read_text())
+    for row in scores:
+        row.update(dict.fromkeys(run.HUMAN_DIMENSIONS, 4))
+    report["rows"][0]["checks"]["complete_outfits"] = False
+    decision = run.score_review(report, scores)
+    assert not decision["accepted"]
+    assert "Sonnet" not in decision["next_step"]
+    assert "separately approved" in decision["next_step"]
+
+
+def test_sonnet_live_cli_uses_explicit_profile_and_stops_on_provider_error(
+    monkeypatch, tmp_path, capsys,
+):
+    model = "claude-sonnet-5"
+    state = install_fake(monkeypatch, failure="connection")
+    approved = run.manifest(model)
+    output = tmp_path / "new-run"
+    assert run.main([
+        "live", "--model", model, "--approved-manifest-sha256", approved["manifest_sha256"],
+        "--approved-max-usd", "58.00", "--output-dir", str(output),
+    ]) == 2
+    assert len(state["calls"]) == 1
+    assert state["calls"][0]["model"] == model
+    assert state["client_options"]["max_retries"] == 0
+    aggregate = json.loads(capsys.readouterr().out)
+    assert aggregate["maximum_attempted_cost_usd"] == "2.010240"
+    report = json.loads((output / "report.json").read_text())
+    assert report["manifest"]["model"] == model
+    assert not report["usage_complete"]
+
+
+@pytest.mark.parametrize("model", [run.PINNED_MODEL, "claude-sonnet-5"])
+@pytest.mark.parametrize("boundary", ["input", "combined_input", "output"])
+def test_profile_token_boundary_stops_with_uncertain_charge_and_no_review(
+    monkeypatch, tmp_path, model, boundary,
+):
+    state = install_fake(monkeypatch)
+    profile = run.model_profile(model)
+    if boundary == "input":
+        state["usage"]["input_tokens"] = profile.context_limit + 1
+    elif boundary == "combined_input":
+        state["usage"]["input_tokens"] = profile.context_limit
+        state["usage"]["cache_read_input_tokens"] = 1
+    else:
+        state["usage"]["output_tokens"] = run.OUTPUT_LIMIT + 1
+    approved = run.manifest(model)
+    output = tmp_path / "new-run"
+    report = run.live_run(
+        approved["manifest_sha256"], profile.approval_ceiling_usd, output, model=model,
+    )
+    assert len(state["calls"]) == 1
+    assert not report["complete"] and not report["usage_complete"]
+    assert not report["automatic"]["passed"]
+    assert report["rows"][0]["status"] == "token_boundary_breach_run_stopped"
+    assert "calculated_cost_usd" not in report["rows"][0]
+    assert "checks" not in report["rows"][0]
+    assert report["known_cost_usd"] == "0.000000"
+    assert report["maximum_attempted_cost_usd"] == approved["calls"][0]["maximum_estimated_usd"]
+    assert json.loads((output / "blinded-review.json").read_text())["cases"] == []
+
+
+def test_sonnet_accepts_full_profile_context_above_haiku_bound(monkeypatch, tmp_path):
+    model = "claude-sonnet-5"
+    state = install_fake(monkeypatch)
+    state["usage"]["input_tokens"] = 1_000_000
+    approved = run.manifest(model)
+    report = run.live_run(
+        approved["manifest_sha256"], "58.00", tmp_path / "new-run", model=model,
+    )
+    assert len(state["calls"]) == 28
+    assert report["complete"] and report["usage_complete"]
+    assert report["known_cost_usd"] == "56.028000"
 
 
 def test_fake_live_run_is_bounded_and_produces_blinded_packet(monkeypatch, tmp_path):

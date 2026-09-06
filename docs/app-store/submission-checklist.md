@@ -35,8 +35,11 @@ later be promoted to customers.
   office-case diagnostic succeeded in 5.86 seconds at $0.004222 before tax; it does not close
   the full acceptance gate. A fresh approved 28-call run subsequently completed for $0.136602
   before tax but failed completeness (23/24) and distinct looks (22/24). Caching had no reads
-  and stays off. Prompt clarification now passes full local regressions; a separately approved
-  full rerun is next.
+  and stays off. Prompt clarification passed full local regressions, but its separately approved
+  28-call rerun also failed: distinct looks and required alternates each passed 23/24, at
+  $0.133243 before tax. Sonnet 5 comparison support is prepared and tested; its 28 calls need
+  separate approval of an additional $58 pre-tax ceiling. No Sonnet generation has run, and
+  evaluation support alone does not change the production model or Haiku-priced controls.
   Model acceptance, blinded human scores, private budget,
   alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.

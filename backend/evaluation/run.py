@@ -8,6 +8,7 @@ import os
 import secrets
 import statistics
 import time
+from dataclasses import dataclass
 from decimal import ROUND_CEILING, Decimal
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,36 @@ HUMAN_DIMENSIONS = ("wearability", "occasion_fit", "preference_fit", "cohesion",
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "shared/schemas/outfit.schema.json"
 
 
+@dataclass(frozen=True)
+class ModelProfile:
+    model: str
+    context_limit: int
+    approval_ceiling_usd: str
+    input_rate: Decimal
+    output_rate: Decimal
+    cache_write_rate: Decimal
+    cache_read_rate: Decimal
+
+
+MODEL_PROFILES = {
+    PINNED_MODEL: ModelProfile(
+        PINNED_MODEL, PROVIDER_CONTEXT_LIMIT, APPROVAL_CEILING_USD,
+        Decimal("1"), Decimal("5"), Decimal("1.25"), Decimal("0.10"),
+    ),
+    "claude-sonnet-5": ModelProfile(
+        "claude-sonnet-5", 1_000_000, "58.00",
+        Decimal("2"), Decimal("10"), Decimal("2.50"), Decimal("0.20"),
+    ),
+}
+
+
+def model_profile(model: str) -> ModelProfile:
+    try:
+        return MODEL_PROFILES[model]
+    except KeyError as exc:
+        raise ValueError("Evaluation model must be explicitly allowlisted.") from exc
+
+
 def canonical(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, ensure_ascii=True, separators=(",", ":")).encode()
 
@@ -51,18 +82,20 @@ def usd(amount: Decimal) -> str:
     return str(amount.quantize(Decimal("0.000001"), rounding=ROUND_CEILING))
 
 
-def usage_cost(usage: dict[str, int]) -> Decimal:
-    """First-party global Haiku pricing; five-minute explicit caching only."""
+def usage_cost(usage: dict[str, int], model: str = PINNED_MODEL) -> Decimal:
+    """Selected first-party global model pricing; five-minute explicit caching only."""
+    profile = model_profile(model)
     parsed = TokenUsage.model_validate(usage)
     return (
-        Decimal(parsed.input_tokens)
-        + Decimal(parsed.cache_creation_input_tokens) * Decimal("1.25")
-        + Decimal(parsed.cache_read_input_tokens) * Decimal("0.10")
-        + Decimal(parsed.output_tokens) * 5
+        Decimal(parsed.input_tokens) * profile.input_rate
+        + Decimal(parsed.cache_creation_input_tokens) * profile.cache_write_rate
+        + Decimal(parsed.cache_read_input_tokens) * profile.cache_read_rate
+        + Decimal(parsed.output_tokens) * profile.output_rate
     ) / 1_000_000
 
 
-def plans() -> list[tuple[Case, str, dict[str, Any]]]:
+def plans(model: str = PINNED_MODEL) -> list[tuple[Case, str, dict[str, Any]]]:
+    profile = model_profile(model)
     fixture_cases = cases()
     if len(fixture_cases) != 12:
         raise ValueError("The approved plan requires exactly 12 fictional cases.")
@@ -87,21 +120,29 @@ def plans() -> list[tuple[Case, str, dict[str, Any]]]:
             params.get("stream") or params.get("service_tier") != "standard_only"
         ):
             raise ValueError("Evaluation requires standard synchronous calls without thinking.")
+        # Evaluation-only override: production stays pinned to Haiku and the request's other
+        # fields remain identical, including strict tools, prompt, cache mode, and output cap.
+        params["model"] = profile.model
     return plan
 
 
-def manifest() -> dict[str, Any]:
-    plan = plans()
+def manifest(model: str = PINNED_MODEL) -> dict[str, Any]:
+    profile = model_profile(model)
+    plan = plans(model)
     rows = []
     maximum = Decimal(0)
     heuristic = Decimal(0)
     for fixture, purpose, params in plan:
-        input_rate = Decimal("1.25") if purpose == "cache_ephemeral" else Decimal(1)
+        input_rate = (
+            profile.cache_write_rate if purpose == "cache_ephemeral" else profile.input_rate
+        )
         # The context ceiling gives the approval bound. Bytes are only a planning estimate,
         # never claimed to prove how Anthropic serializes or tokenizes tool/system messages.
         input_estimate = len(canonical(params)) + 4096
-        bound = (PROVIDER_CONTEXT_LIMIT * input_rate + OUTPUT_LIMIT * 5) / 1_000_000
-        estimate = (input_estimate * input_rate + OUTPUT_LIMIT * 5) / 1_000_000
+        bound = (
+            profile.context_limit * input_rate + OUTPUT_LIMIT * profile.output_rate
+        ) / 1_000_000
+        estimate = (input_estimate * input_rate + OUTPUT_LIMIT * profile.output_rate) / 1_000_000
         maximum += bound
         heuristic += estimate
         rows.append({
@@ -111,15 +152,19 @@ def manifest() -> dict[str, Any]:
             "maximum_estimated_usd": usd(bound),
         })
     value = {
-        "synthetic_only": True, "model": PINNED_MODEL, "quality_calls": QUALITY_CALLS,
+        "synthetic_only": True, "model": profile.model, "quality_calls": QUALITY_CALLS,
         "cache_probe_calls": 4, "maximum_calls": len(plan), "sdk_retries": 0,
         "concurrency": 1, "timeout_seconds": 30, "max_output_tokens_per_call": OUTPUT_LIMIT,
-        "provider_context_input_ceiling_per_call": PROVIDER_CONTEXT_LIMIT,
-        "maximum_estimated_usd": usd(maximum), "approval_ceiling_usd": APPROVAL_CEILING_USD,
+        "provider_context_input_ceiling_per_call": profile.context_limit,
+        "maximum_estimated_usd": usd(maximum),
+        "approval_ceiling_usd": profile.approval_ceiling_usd,
         "heuristic_estimated_usd_at_full_output": usd(heuristic),
         "pricing_verified_date": PRICING_DATE, "pricing_source": PRICING_URL,
-        "pricing_usd_per_million": {"input": "1", "output": "5", "cache_write": "1.25",
-                                    "cache_read": "0.10"},
+        "pricing_usd_per_million": {
+            "input": str(profile.input_rate), "output": str(profile.output_rate),
+            "cache_write": str(profile.cache_write_rate),
+            "cache_read": str(profile.cache_read_rate),
+        },
         "quality_floor": QUALITY_FLOOR, "human_dimensions": HUMAN_DIMENSIONS,
         "fixture_expectations_sha256": hashlib.sha256(canonical([
             {"name": c.name, "avoid": sorted(c.avoid_primary), "prefer": sorted(c.prefer_primary),
@@ -234,11 +279,12 @@ def score_review(report: dict[str, Any], scores: list[dict[str, Any]]) -> dict[s
         "accepted": accepted, "automatic": automatic, "human_passed": human_pass,
         "human_dimension_means": means,
         "next_step": "owner model acceptance and measured budget decision" if accepted else
-        "inspect failure; Sonnet 5 evaluation requires separately approved pinned-model plan",
+        "inspect failure; further evaluation requires a separately approved model plan",
     }
 
 
-def cache_decision(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def cache_decision(rows: list[dict[str, Any]], model: str = PINNED_MODEL) -> dict[str, Any]:
+    profile = model_profile(model)
     probe = [row for row in rows if row["purpose"].startswith("cache_")]
     if len(probe) != 4 or any(row["status"] != "ok" for row in probe):
         return {"status": "incomplete", "retain_caching": False}
@@ -248,8 +294,8 @@ def cache_decision(rows: list[dict[str, Any]]) -> dict[str, Any]:
     # Compare input only: differences in generated output length must not mimic cache savings.
     counterfactual = sum(sum(row["usage"][key] for key in (
         "input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens",
-    )) for row in cached) / Decimal(1_000_000)
-    actual = sum(usage_cost({**row["usage"], "output_tokens": 0}) for row in cached)
+    )) for row in cached) * profile.input_rate / Decimal(1_000_000)
+    actual = sum(usage_cost({**row["usage"], "output_tokens": 0}, model) for row in cached)
     return {
         "status": "measured", "cache_write_tokens": writes, "cache_read_tokens": reads,
         "cached_input_cost_usd": usd(actual), "uncached_counterfactual_usd": usd(counterfactual),
@@ -284,9 +330,13 @@ def _sync_directory(path: Path) -> None:
         os.close(descriptor)
 
 
-def live_run(approved_hash: str, approved_max_usd: str, output_dir: Path) -> dict[str, Any]:
-    approved = manifest()
-    if approved_hash != approved["manifest_sha256"] or approved_max_usd != APPROVAL_CEILING_USD:
+def live_run(
+    approved_hash: str, approved_max_usd: str, output_dir: Path, *, model: str = PINNED_MODEL,
+) -> dict[str, Any]:
+    profile = model_profile(model)
+    approved = manifest(model)
+    if (approved_hash != approved["manifest_sha256"]
+            or approved_max_usd != profile.approval_ceiling_usd):
         raise ValueError("Explicit owner approval must match this manifest and its USD ceiling.")
     maximum = Decimal(approved["maximum_estimated_usd"])
     ceiling = Decimal(approved_max_usd)
@@ -318,7 +368,7 @@ def live_run(approved_hash: str, approved_max_usd: str, output_dir: Path) -> dic
     with anthropic.Anthropic(
         api_key=key, base_url="https://api.anthropic.com", max_retries=0, timeout=30,
     ) as client:
-        for index, (fixture, purpose, params) in enumerate(plans()):
+        for index, (fixture, purpose, params) in enumerate(plans(model)):
             started = time.monotonic()
             row: dict[str, Any] = {
                 "case": fixture.name, "purpose": purpose, "blind_id": secrets.token_hex(8),
@@ -338,7 +388,16 @@ def live_run(approved_hash: str, approved_max_usd: str, output_dir: Path) -> dic
                     "cache_creation_input_tokens": usage.cache_creation_input_tokens or 0,
                     "cache_read_input_tokens": usage.cache_read_input_tokens or 0,
                 }).model_dump()
-                row["calculated_cost_usd"] = usd(usage_cost(row["usage"]))
+                if (
+                    sum(row["usage"][key] for key in (
+                        "input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens",
+                    )) > profile.context_limit or row["usage"]["output_tokens"] > OUTPUT_LIMIT
+                ):
+                    # A response outside the priced profile cannot settle the conservative debit
+                    # or enter the quality packet. Keep the observed counters for diagnosis only.
+                    row["status"] = "token_boundary_breach_run_stopped"
+                    break
+                row["calculated_cost_usd"] = usd(usage_cost(row["usage"], model))
                 result = stylist.extract_response(response)
                 row["checks"] = evaluate_outfit(fixture, result["tool_input"], row["usage"])
                 row["status"] = "ok"
@@ -362,19 +421,11 @@ def live_run(approved_hash: str, approved_max_usd: str, output_dir: Path) -> dic
                     journal, "attempt_uncertain" if row["status"] == "attempt_reserved"
                     else "attempt_finished", rows,
                 )
-            if row.get("usage") and (
-                sum(row["usage"][key] for key in (
-                    "input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens",
-                )) > PROVIDER_CONTEXT_LIMIT or row["usage"]["output_tokens"] > OUTPUT_LIMIT
-            ):
-                row["status"] = "token_boundary_breach_run_stopped"
-                _append_accounting(journal, "run_stopped", rows)
-                break
     report["complete"] = len(rows) == approved["maximum_calls"] and all(
         row["status"] == "ok" for row in rows
     )
     report["automatic"] = automatic_decision(rows)
-    report["cache"] = cache_decision(rows)
+    report["cache"] = cache_decision(rows, model)
     report["quality_accepted"] = False
     report["human_review"] = "pending"
     report["known_cost_usd"] = usd(sum(
@@ -396,7 +447,9 @@ def live_run(approved_hash: str, approved_max_usd: str, output_dir: Path) -> dic
     report["known_quality_cost_per_usable_recommendation_usd"] = (
         usd(quality_cost / usable) if usable else None
     )
-    report["usage_complete"] = all("usage" in row for row in rows)
+    report["usage_complete"] = all(
+        "usage" in row and row["status"] != "token_boundary_breach_run_stopped" for row in rows
+    )
     report["token_totals"] = {
         key: sum(row.get("usage", {}).get(key, 0) for row in rows)
         for key in ("input_tokens", "output_tokens", "cache_creation_input_tokens",
@@ -424,6 +477,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "command", choices=("dry-run", "live", "score"), nargs="?", default="dry-run",
     )
+    parser.add_argument("--model", choices=tuple(MODEL_PROFILES), default=PINNED_MODEL)
     parser.add_argument("--approved-manifest-sha256")
     parser.add_argument("--approved-max-usd")
     parser.add_argument("--output-dir", type=Path)
@@ -433,11 +487,14 @@ def main(argv: list[str] | None = None) -> int:
     exit_status = 0
     try:
         if args.command == "dry-run":
-            result = manifest()
+            result = manifest(args.model)
         elif args.command == "live":
             if not all((args.approved_manifest_sha256, args.approved_max_usd, args.output_dir)):
                 parser.error("live requires approved hash, USD ceiling, and new output directory")
-            result = live_run(args.approved_manifest_sha256, args.approved_max_usd, args.output_dir)
+            result = live_run(
+                args.approved_manifest_sha256, args.approved_max_usd, args.output_dir,
+                model=args.model,
+            )
             if not result["complete"]:
                 exit_status = 130 if any(
                     row["status"] == "interrupted_run_stopped" for row in result["rows"]

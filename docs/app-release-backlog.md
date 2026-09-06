@@ -439,12 +439,21 @@ open.
   item sets 22/24. Schema/known IDs/occasion passed 24/24, targeted avoidance/preferences
   passed 4/4 each, and p95 latency was 15.872 seconds. Both black-palette repeats duplicated
   the primary look; one all-recent response omitted a top/dress. Cache reads/writes were zero,
-  so caching stays off. General prompt clarification now passes full local regressions;
-  its newly bound paid evaluation needs fresh approval. No human scores were fabricated.
+  so caching stays off. General prompt clarification passed full local regressions before
+  the separately approved rerun below. No human scores were fabricated.
+  The owner subsequently approved that revised 28-call run on `43f3e0e`. It completed for
+  $0.133243 before tax but again failed: completeness improved to 24/24, while distinct item
+  sets and required alternates each reached 23/24. All schema/known-ID/occasion checks passed;
+  avoidance 4/4 and preferred items 3/4 meet their thresholds, and p95 was 12.369 seconds.
+  One humid-walk response repeated its primary; one black-palette response omitted an available
+  alternate. Caching again had zero reads/writes. Both failed runs remain failed. An explicit
+  Sonnet 5 evaluation profile is prepared and tested with the unchanged prompt, cases, and floor;
+  its 28 calls need separate approval of an additional $58 pre-tax ceiling. No Sonnet generation,
+  human score, or production model/accounting switch is authorized by that work.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
-  Prompt iteration 2 verification passed 441 backend tests, locked pip-audit with no known vulnerabilities,
+  Sonnet evaluation-profile verification passed 469 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
   44 release-script tests, and a fresh Release simulator build/artifact check. The preserved
   Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain
