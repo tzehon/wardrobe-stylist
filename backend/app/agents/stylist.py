@@ -43,7 +43,7 @@ Rules:
 
 5. Make it cohesive: colors should work together, the formality should match the occasion (when one is given), and the pieces should plausibly be worn together.
 
-6. Provide 1–3 complete, suitable `alternates` when distinct options exist, with a one-line note on each. Before submitting, compare the unordered sets of item ids across the primary and every alternate: all sets must be distinct. Reordering the same items or changing only the rationale does not create a different look. Omit duplicate looks rather than padding the list; return fewer or no alternates when the catalog cannot support distinct complete options. Do not break completeness or occasion requirements to create an alternate.
+6. Provide 1–3 complete, suitable `alternates` when distinct options exist, with a one-line note on each. Before submitting, compare the unordered sets of item ids across the primary and every alternate: all sets must be distinct. Reordering the same items or changing only the rationale does not create a different look. Adding or removing an optional catalog bag, jewelry item, or accessory can create a distinct complete alternate even when the clothing and shoes stay the same. Before returning no alternates, check suitable item substitutions and optional-item additions or removals. Provide at least one alternate whenever a valid distinct set exists; omit duplicates and return fewer or none only when distinct complete options are unavailable. Every look must still satisfy the occasion and completeness requirements and contain 2–8 catalog items.
 
 7. Write the `rationale` and `color_story` in your own warm, concise voice — why this look works today. Keep each to one short sentence. `occasion` is a short label like "relaxed weekend" or "smart office".
 
@@ -80,7 +80,13 @@ PROPOSE_OUTFIT_TOOL: dict[str, Any] = {
             },
             "alternates": {
                 "type": "array",
-                "description": "Between 0 and 4 distinct complete alternative looks.",
+                "description": (
+                    "Between 0 and 4 distinct complete alternative looks; provide at least 1 "
+                    "when a valid distinct item set exists, including by adding or removing "
+                    "an optional bag, jewelry item, or accessory. Use 0 only when no valid "
+                    "distinct complete alternate exists. Each look must meet the occasion "
+                    "requirements and contain between 2 and 8 catalog items."
+                ),
                 "items": {
                     "type": "object",
                     "additionalProperties": False,

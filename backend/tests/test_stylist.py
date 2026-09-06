@@ -77,8 +77,20 @@ def test_locked_sdk_sends_one_synchronous_bounded_messages_request():
         "Outerwear never replaces",
         "unordered sets of item ids",
         "past outfit combinations are unknown",
+        "Adding or removing an optional catalog bag, jewelry item, or accessory",
+        "Before returning no alternates, check suitable item substitutions",
+        "Every look must still satisfy the occasion and completeness requirements",
+        "contain 2–8 catalog items",
     ):
         assert rule in body["system"][0]["text"]
+    alternates_description = body["tools"][0]["input_schema"]["properties"]["alternates"][
+        "description"
+    ]
+    assert "provide at least 1" in alternates_description
+    assert (
+        "adding or removing an optional bag, jewelry item, or accessory" in alternates_description
+    )
+    assert "Use 0 only when no valid distinct complete alternate exists" in alternates_description
     assert "item history only; past combinations unknown" in body["messages"][0]["content"]
     assert "stream" not in body or body["stream"] is False
     assert result["tool_input"] == OUTFIT

@@ -440,6 +440,48 @@ def test_raw_occasion_recent_wear_and_rating_regressions_fail():
     assert not run.evaluate_outfit(fixtures["positive_preference"], payload)["prefer_primary"]
 
 
+@pytest.mark.parametrize("optional_in_primary", [True, False], ids=["remove-bag", "add-bag"])
+def test_optional_item_variation_satisfies_unchanged_required_alternate_floor(optional_in_primary):
+    fixture = next(case for case in cases() if case.name == "black_palette")
+    payload = outfit(fixture)
+    core = [catalog_id(label) for label in ("t3", "b3", "s1")]
+    with_bag = [*core, catalog_id("a1")]
+    payload["item_ids"] = with_bag if optional_in_primary else core
+    payload["alternates"] = []
+    original = deepcopy(payload)
+    checks = run.evaluate_outfit(fixture, payload)
+    assert checks["enough_alternates"] is False
+    assert all(value is not False for key, value in checks.items() if key != "enough_alternates")
+    assert payload == original  # Evaluation must not synthesize the missing alternate.
+
+    rows = [{
+        "case": case.name, "purpose": purpose, "status": "ok", "latency_seconds": 1,
+        "usage": {"output_tokens": 100}, "checks": run.evaluate_outfit(case, outfit(case)),
+    } for case, purpose, _ in run.plans() if purpose == "quality"]
+    affected = next(row for row in rows if row["case"] == fixture.name)
+    affected["checks"] = checks
+    decision = run.automatic_decision(rows)
+    assert not decision["passed"]
+    assert decision["counts"]["enough_alternates"] == 23
+
+    payload["alternates"] = [{
+        "item_ids": core if optional_in_primary else with_bag,
+        "rationale": "An optional bag changes the item set while preserving a complete look.",
+    }]
+    affected["checks"] = run.evaluate_outfit(fixture, payload)
+    assert all(value is not False for value in affected["checks"].values())
+    assert run.automatic_decision(rows)["passed"]
+
+
+def test_two_item_dress_capsule_still_allows_no_alternates():
+    fixture = next(case for case in cases() if case.name == "tiny_dress")
+    payload = outfit(fixture)
+    assert len(fixture.request["items"]) == len(payload["item_ids"]) == 2
+    assert payload["alternates"] == []
+    assert fixture.minimum_alternates == 0
+    assert all(value is not False for value in run.evaluate_outfit(fixture, payload).values())
+
+
 def test_cost_uses_disjoint_counters_and_cache_probe_requires_read_savings():
     usage = {"input_tokens": 1000, "output_tokens": 1000,
              "cache_creation_input_tokens": 1000, "cache_read_input_tokens": 1000}

@@ -48,10 +48,16 @@ prompt clarification and full local regressions completed. Its newly approved fu
 on `43f3e0e` cost $0.133243 before tax but also failed: distinct looks and required alternates
 each passed 23/24, while completeness reached 24/24 and p95 was 12.369 seconds. Caching again
 had zero reads/writes. Sonnet 5 evaluation support is prepared and tested with the same prompt and
-fixed quality floor; its 28 calls need separate approval of an additional $58 pre-tax ceiling.
-No Sonnet generation has run. This support does not switch the Haiku-priced
-production model, ledger, or preflight. Both failed Haiku runs and their unfilled human scores
-remain intact.
+fixed quality floor. The owner approved one 28-call run within an additional $58 pre-tax ceiling
+on 2026-09-06. It completed for $0.333305 before tax, with no provider errors or retries, but
+failed required alternates 23/24; schema, known IDs, completeness, distinctness, and occasion
+checks passed 24/24, and p95 latency was 13.266 seconds. The second all-black response omitted
+the valid option of removing an optional tote. A general prompt clarification is implemented
+and fully tested with the fixed floor intact. The warm cache pair saved about 20% of input cost,
+but production reuse remains unproven and caching stays off. No paid call is running; another run needs fresh
+approval of 28 calls and an additional $58 pre-tax ceiling. Evaluation support does not switch
+the Haiku-priced production model, ledger, or preflight. Both failed Haiku runs and the failed
+Sonnet run retain unfilled human scores.
 Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
@@ -60,7 +66,7 @@ identity without live deployment evidence. Snapshot expiry/deletion-specific rec
 After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
 pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
 
-Sonnet evaluation-profile verification passed 469 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
+Optional-alternate prompt verification passed 472 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
 check. The unchanged preserved Build 7 archive's earlier signature/profile/privacy verification
 remains recorded. No public source push, production change,

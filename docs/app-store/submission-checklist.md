@@ -38,8 +38,13 @@ later be promoted to customers.
   and stays off. Prompt clarification passed full local regressions, but its separately approved
   28-call rerun also failed: distinct looks and required alternates each passed 23/24, at
   $0.133243 before tax. Sonnet 5 comparison support is prepared and tested; its 28 calls need
-  separate approval of an additional $58 pre-tax ceiling. No Sonnet generation has run, and
-  evaluation support alone does not change the production model or Haiku-priced controls.
+  separate approval of an additional $58 pre-tax ceiling. The owner approved that exact run
+  on 2026-09-06; it completed for $0.333305 before tax but failed required alternates 23/24.
+  Completeness/distinctness passed 24/24 and p95 was 13.266 seconds. A general optional-item
+  clarification is implemented and fully tested with the acceptance floor
+  unchanged. Warm cache savings do not yet prove production reuse. No paid call is running,
+  and a revised run needs fresh
+  approval; evaluation support alone does not change the production model or Haiku-priced controls.
   Model acceptance, blinded human scores, private budget,
   alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.

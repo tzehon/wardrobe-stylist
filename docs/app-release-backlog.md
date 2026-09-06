@@ -448,12 +448,19 @@ open.
   One humid-walk response repeated its primary; one black-palette response omitted an available
   alternate. Caching again had zero reads/writes. Both failed runs remain failed. An explicit
   Sonnet 5 evaluation profile is prepared and tested with the unchanged prompt, cases, and floor;
-  its 28 calls need separate approval of an additional $58 pre-tax ceiling. No Sonnet generation,
-  human score, or production model/accounting switch is authorized by that work.
+  the owner approved one 28-call run within an additional $58 pre-tax ceiling on 2026-09-06.
+  The run completed for $0.333305 before tax with no provider errors or retries, but required
+  alternates passed only 23/24; completeness/distinctness and the other hard content checks
+  passed 24/24, with p95 latency 13.266 seconds. An all-black look with a tote omitted the valid
+  bag-free alternate. General optional-item clarification is implemented and fully tested;
+  the floor and recorded failure remain intact. Warm-pair cache input savings were about 20%,
+  but real reuse remains unproven and production caching stays off. No paid call is running; a revised run
+  needs fresh approval of 28 calls and an additional $58 pre-tax ceiling. No human score or
+  production model/accounting switch is authorized.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
-  Sonnet evaluation-profile verification passed 469 backend tests, locked pip-audit with no known vulnerabilities,
+  Optional-alternate prompt verification passed 472 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
   44 release-script tests, and a fresh Release simulator build/artifact check. The preserved
   Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain

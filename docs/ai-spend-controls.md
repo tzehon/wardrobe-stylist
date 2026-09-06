@@ -6,7 +6,10 @@ human review, then recommend a private envelope from measured cost per usable re
 expected demand, failed-call exposure, tax, and operating headroom. The 5 Free / 60 Plus figures
 remain post-v1 proposals. This ledger is a global safety ceiling, not a customer's paid quota.
 
-Both complete Haiku pilots failed the fixed quality floor; a Sonnet 5 evaluation is next.
+Both complete Haiku pilots and the first Sonnet 5 run failed the fixed quality floor.
+Sonnet missed one required alternate; its warm-pair cache savings do not prove production
+reuse. A general optional-item clarification is implemented and fully tested
+with the same acceptance floor; its paid evaluation needs a fresh manifest approval.
 Evaluation profile selection does not change this Haiku-priced production implementation.
 If Sonnet is accepted, first align the runtime model, token rates, full-context reservation,
 and redacted preflight, and repeat required validation before approving/provisioning a budget.
