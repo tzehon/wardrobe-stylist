@@ -8,13 +8,12 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: both complete Haiku runs and the first Sonnet 5 run failed the fixed automatic
-quality floor. Sonnet's 28-call run cost US$0.333305 before tax and missed one required alternate.**
-Sonnet's warm cache probes saved input cost, but production reuse remains unproven and caching
-stays off. A general clarification of optional-item alternatives is implemented and fully
-tested; a revised paid run needs fresh approval. Historical
-results and original thresholds remain unchanged; no model is accepted and no human scores
-have been fabricated.
+**Status: the revised Sonnet 5 run passed every automatic gate on 2026-09-06. All 28 calls
+completed for US$0.360167 before tax; the 24-proposal human review is pending.**
+Both complete Haiku failures and the first Sonnet failure remain recorded. No acceptance
+threshold was changed and no human scores have been fabricated. Sonnet's warm cache probes
+saved input cost, but production reuse remains unproven and caching stays off.
+No model is accepted until the human quality floor and owner decision also pass.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
 
@@ -358,9 +357,9 @@ original timeout's US$0.205120 uncertainty gives a cumulative conservative bound
 of **US$0.812492**. There is no unresolved charge from this completed Sonnet run.
 All paid calls are finished. Any revised or repeated run needs new explicit approval.
 
-## Optional-item clarification — awaiting revised Sonnet approval
+## Optional-item clarification — automatic pass, human review pending
 
-The next prompt revision explicitly checks suitable substitutions and optional
+This prompt revision explicitly checks suitable substitutions and optional
 bag/jewelry/accessory additions or removals before returning no alternates. A valid
 optional-item change counts as a distinct set while completeness, occasion, and
 2–8-item bounds still apply. The tool description also requires at least one alternate
@@ -373,13 +372,16 @@ The revised Sonnet manifest is
 `ae2479794e5aa40dc79ed4c555c9f89c9b8bfb4d451bce29120563357931fa06`.
 It retains 24 quality calls plus four cache probes, one call in flight, no retries,
 the 30-second SDK timeout, no thinking, and 1,024 output tokens. The full-context
-bound remains **US$57.286720**, requiring a proposed **additional US$58 pre-tax
+bound remains **US$57.286720**, within the approved **additional US$58 pre-tax
 ceiling**. The unproven byte-based planning estimate at full output is now
 **US$0.917418**. Including prior recorded usage and the original timeout's uncertainty,
 the planned cumulative conservative maximum would be **US$58.099212** before tax.
-The previous approval is consumed and cannot authorize this revised source.
+The owner explicitly approved this revised manifest and ceiling on 2026-09-06.
+The one approved run completed from source `10e837b`, with private artifacts at
+`/private/tmp/wardrobe-fictional-sonnet-evaluation-20260906-10e837b/`.
+This approval permits no automatic retry, repeated run, or production switch.
 
-Only after explicit approval of this new manifest and ceiling:
+The exact approved command is recorded below; do not repeat the run:
 
 ```bash
 uv run --locked python -m evaluation.run live --model claude-sonnet-5 \
@@ -392,8 +394,72 @@ Full verification passed on 2026-09-06: **472 backend tests**, the locked depend
 audit with no known vulnerabilities, Bandit including evaluation tooling, Ruff, mypy,
 **236/236 iOS tests** (226 Swift and 10 UI; zero failures or skips), **44 release-script
 tests**, and the Release simulator build/artifact checks. Independent review confirmed
-the unchanged evaluation floor and exact revised manifest. No revised paid call has run.
+the unchanged evaluation floor and exact revised manifest. The approved run completed as below.
 The shared contract and iOS source are unchanged; Build 8 is not required.
+
+All **28 calls completed**, with complete usage, no provider errors or retries, and
+one completed forced tool call per response. Independent calculation confirmed the report.
+
+| Check | Result |
+|---|---:|
+| Shared schema and known catalog IDs | 24/24 |
+| Complete primary and alternate looks | 24/24 |
+| Distinct unordered item sets | 24/24 |
+| Required alternate count | 24/24 |
+| Primary occasion exclusions | 24/24 |
+| Targeted avoidance / preferred items | 4/4 / 3/4 |
+| Nearest-rank p95 latency | 12.665 seconds |
+| Median / maximum latency | 7.277 / 14.637 seconds |
+| Quality input / output token ranges | 2,195–5,754 / 237–830 |
+
+Total usage was 80,926 ordinary input, 19,346 output, 1,798 cache-write, and 1,798
+cache-read tokens. The calculated total was **US$0.360167 before tax**; the 24 quality
+attempts cost US$0.308128, or US$0.012839 per mechanically usable recommendation
+rounded up to six decimal places. Human acceptance remains pending, so this is not
+yet an accepted-quality production unit-cost estimate.
+
+| Cache probe | Ordinary input | Cache write | Cache read | Output | Latency (s) |
+|---|---:|---:|---:|---:|---:|
+| Off 1 | 2,802 | 0 | 0 | 786 | 7.386 |
+| Off 2 | 2,802 | 0 | 0 | 785 | 7.489 |
+| Marked 1 | 1,004 | 1,798 | 0 | 798 | 7.681 |
+| Marked 2 | 1,004 | 0 | 1,798 | 827 | 7.824 |
+
+The marked pair's reported input cost was US$0.008871 versus US$0.011208 uncached,
+saving about **20.9%**. That passes the warm-pair test only; production caching remains
+off until a plausible request cadence demonstrates reuse within five minutes.
+
+Cumulative known evaluation cost is now **US$0.967539 before tax**. The original
+timeout still contributes up to US$0.205120 of unresolved exposure, giving a cumulative
+conservative upper bound of **US$1.172659**. This revised run has no missing usage or
+unresolved charge. All paid calls are finished; its approval is consumed.
+
+The next gate is the owner's human review of all 24 randomized proposals across the
+five existing dimensions. The offline form is
+`/private/tmp/wardrobe-fictional-quality-review-20260906.html`, generated only from
+this run's `blinded-review.json` and blank `scores.json`. It preserves the randomized
+order and contains no model, cost, latency, token-count, or automatic-score metadata.
+All 120 ratings are unfilled. The form runs offline, supports downloading/importing
+partial progress, and exports the runner's exact completed-score format. The owner
+must supply the ratings; an agent must not substitute its own scores.
+
+Open the form in a browser, rate every proposal in all five dimensions, then choose
+**Download completed scores** and return that file. Use **Save progress** before
+closing or reloading; the form deliberately has no browser-storage persistence.
+Validate the owner's actual exported file using this run's report:
+
+```bash
+uv run --locked python -m evaluation.run score \
+  --report /private/tmp/wardrobe-fictional-sonnet-evaluation-20260906-10e837b/report.json \
+  --scores /path/to/owner-exported-scores.json
+```
+
+Inspect the returned `accepted` value and retain that decision separately: a successful
+command exit only confirms valid scoring input, and the command does not rewrite the
+original report. Human acceptance requires every rating at least 3/5 and every dimension
+mean at least 4/5. Then obtain the owner model decision, align any Sonnet runtime/pricing/
+full-context accounting/preflight changes, repeat validation, and derive the private
+launch budget. This automatic pass authorizes none of those later decisions or deployment.
 
 ## Fixed paid-call plan and approval
 

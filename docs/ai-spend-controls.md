@@ -7,9 +7,10 @@ expected demand, failed-call exposure, tax, and operating headroom. The 5 Free /
 remain post-v1 proposals. This ledger is a global safety ceiling, not a customer's paid quota.
 
 Both complete Haiku pilots and the first Sonnet 5 run failed the fixed quality floor.
-Sonnet missed one required alternate; its warm-pair cache savings do not prove production
-reuse. A general optional-item clarification is implemented and fully tested
-with the same acceptance floor; its paid evaluation needs a fresh manifest approval.
+The optional-item clarification's revised Sonnet run passed every automatic gate at
+US$0.360167 for 28 calls (US$0.012839 per mechanically usable quality output). The 24-proposal
+human quality review and owner model acceptance remain open. Warm-pair input savings of about
+20.9% do not prove production reuse, so caching stays off. No private budget is selected yet.
 Evaluation profile selection does not change this Haiku-priced production implementation.
 If Sonnet is accepted, first align the runtime model, token rates, full-context reservation,
 and redacted preflight, and repeat required validation before approving/provisioning a budget.

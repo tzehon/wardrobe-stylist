@@ -54,10 +54,21 @@ failed required alternates 23/24; schema, known IDs, completeness, distinctness,
 checks passed 24/24, and p95 latency was 13.266 seconds. The second all-black response omitted
 the valid option of removing an optional tote. A general prompt clarification is implemented
 and fully tested with the fixed floor intact. The warm cache pair saved about 20% of input cost,
-but production reuse remains unproven and caching stays off. No paid call is running; another run needs fresh
-approval of 28 calls and an additional $58 pre-tax ceiling. Evaluation support does not switch
-the Haiku-priced production model, ledger, or preflight. Both failed Haiku runs and the failed
-Sonnet run retain unfilled human scores.
+but production reuse remains unproven and caching stays off. On 2026-09-06 the owner approved
+one revised 28-call Sonnet run from `10e837b` under manifest
+`ae2479794e5aa40dc79ed4c555c9f89c9b8bfb4d451bce29120563357931fa06`, within an additional
+$58 pre-tax ceiling. The revised run completed all 28 calls without provider errors or retries
+for $0.360167 before tax. It passed the unchanged automatic floor: all six hard checks passed
+24/24, avoidance passed 4/4, preference passed 3/4, and p95 latency was 12.665 seconds.
+The 24 quality calls cost $0.308128, or $0.012839 per mechanically usable recommendation;
+human acceptance has not been established. The cache pair wrote and read 1,798 tokens each,
+with input cost $0.008871 versus $0.011208 uncached (about 20.85% savings). Production reuse
+remains unproven, so production caching stays off. The next action is the owner's 24 blinded
+scorecards using the local review form; every card remains blank, and no further paid run is
+needed for this step. See [evaluation instructions](../model-evaluation.md).
+This automatic pass does not accept Sonnet for production or change the private budget or
+Haiku-priced candidate ledger/preflight. Both failed Haiku runs and the failed Sonnet run
+remain failed and retain unfilled human scores.
 Follow acceptance with the private
 budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
 and operations, source review, approved immutable-image deployment, and fresh operational review.
