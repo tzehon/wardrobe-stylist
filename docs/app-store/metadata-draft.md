@@ -11,6 +11,17 @@
 - Copyright: [YEAR LEGAL OWNER]
 - Public version: **1.0.0**
 
+## Launch model and availability
+
+- Price: **Free**
+- In-app purchases/subscriptions: **None in version 1.0**
+- Initial availability: **Singapore only**
+- Sequenced follow-up: transparent, budget-bounded freemium in Singapore, then controlled country
+  expansion after the paid model and its operations are proven
+
+Do not advertise AI styling as unlimited. Future paid products, limits, prices, and countries must
+not appear in version-1.0 copy before they are implemented, reviewed, and available.
+
 ## Description draft
 
 Build a wardrobe you can actually use. Add pieces manually or from photos, browse and edit your
@@ -19,6 +30,9 @@ catalog, then ask Aria for a coordinated look that considers what you recently w
 Wardrobe Stylist is local-first and requires no account. Cataloging, photos, outfit history, and
 local reminders stay available without connected AI. Styling is optional and runs only when you
 request it and consent to sending minimized text attributes.
+
+Version 1.0 is free, with no subscription or in-app purchase. Every feature listed below is
+included at launch.
 
 Features planned for the public v1 cut:
 
@@ -57,7 +71,8 @@ app name, category names, competitors, or other companies.
   sole cryptography)
 - [ ] Advertising identifier/tracking declarations: expected no; verify archive and SDKs
 - [ ] Accessibility Nutrition Labels only for capabilities manually verified in the final build
-- [ ] Pricing, tax category, availability and agreements
+- [x] Launch price/territory decision: Free, no in-app purchase/subscription, Singapore only
+- [ ] Verify the exact App Store Connect price, territory, tax category, and agreements
 
 ## Screenshot narrative
 

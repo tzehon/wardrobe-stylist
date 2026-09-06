@@ -18,6 +18,10 @@ an App Store release candidate from the moment it is archived. This prevents a s
   Anthropic key in either public client configuration.
 - Adding a build to an internal group is not an App Store submission. Promotion happens later by
   selecting the same processed build on the App Store version and submitting it for review.
+- Public `1.0.0`/build 7 is a Free, no-IAP/no-subscription candidate for the Singapore App Store
+  only. Do not attach, advertise, or imply a future paid entitlement on this binary. The next
+  product release is transparent, budget-bounded freemium in Singapore; country expansion follows
+  only after that model and its operations are proven.
 
 ## Current release status — 2026-09-01
 
@@ -881,9 +885,16 @@ replacement is selected as `1.0.0 (7)` but remains undistributed until its exact
 release loop pass. When that replacement candidate is fully approved for public release, do not
 rebuild unless something changed:
 
-- Finish `APP-016` through `APP-018`, agreements, pricing/availability, Gmail-free privacy answers,
-  screenshots, review contact, and review notes. Google restricted-scope verification/CASA is not
-  a public-v1 gate.
+- Finish `APP-016` through `APP-018`, agreements, Gmail-free privacy answers, screenshots, review
+  contact, and review notes. Verify App Store Connect shows price **Free**, only **Singapore**
+  enabled, and no in-app purchase/subscription offered with version 1.0. Google restricted-scope
+  verification/CASA is not a public-v1 gate.
+- Approve and verify the private Singapore-launch AI spend envelope, hard global capacity ceiling,
+  bounded request/token/retry exposure, alert/disable response, and public multi-user operations
+  cadence. First migrate to the lowest-cost current Anthropic model that passes the recorded
+  Wardrobe quality gate and verify the exact locked SDK/model/API configuration. Never describe the
+  current hourly abuse limit or a provider console warning as a proven monthly monetary circuit
+  breaker.
 - Select the already-tested build on the matching App Store version.
 - Re-check the binary, live backend and auth store, App Attest compatibility policy plus iOS 27+
   build/category allowlist, public URLs, Gmail-free archive evidence, disclosures, and metadata
@@ -892,6 +903,9 @@ rebuild unless something changed:
 
 If code, resources, configuration, backend contract, disclosures, or version metadata changes,
 increment the build number and repeat the full loop. Never "patch" an uploaded candidate in place.
+App Store Connect-only price/territory choices and documentation do not require a new binary.
+Future Plan & Usage UI, StoreKit, entitlement, metering, quota-response, or other user-visible
+freemium behavior does require the next unused build and the full loop.
 
 ## Saved truthful What to Test wording for build 4
 

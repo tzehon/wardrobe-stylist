@@ -10,6 +10,10 @@ manually or from photos, browse and edit the catalog, record worn looks, and can
 outfit suggestion. Public v1 does not connect to Google, read email, import receipts, or require a
 Wardrobe account or login.
 
+Version 1.0 is Free and available only in the Singapore App Store. It offers no in-app purchase or
+subscription; every feature described for this version is included without payment. Do not attach
+or describe the separately planned freemium product until a later binary implements it.
+
 When a user explicitly requests remote AI styling, Apple App Attest verifies that installation and
 the backend issues a short-lived anonymous session. Local catalog, history, reminders, and Demo
 Mode do not require the backend.
