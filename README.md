@@ -75,24 +75,25 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **local and not deployed**. Both full Haiku evaluations failed the fixed
-automatic quality gate. The revised-prompt run on 6 September 2026 completed all 28 calls for
-US$0.133243 before tax: complete outfits and known IDs passed 24/24, but distinct looks and
-required alternates each passed only 23/24. P95 latency was 12.369 seconds. Cache probes again
-returned zero reads/writes, so caching stays off. The Sonnet 5 comparison is prepared and tested
-with the same prompt, fixtures, and acceptance floor; its 28 calls require separate approval of
-an additional US$58 pre-tax ceiling. No Sonnet generation has run.
+This candidate is **local and not deployed**. Both full Haiku evaluations and the first Sonnet 5
+comparison failed the fixed automatic quality gate. Sonnet completed all 28 calls on
+6 September 2026 for US$0.333305 before tax: complete and distinct looks passed 24/24, but
+required alternates passed only 23/24. P95 latency was 13.266 seconds. A general clarification
+that optional-item changes can create distinct alternates is implemented and fully tested;
+no acceptance threshold changed. Sonnet's warm cache pair saved about 20% of input cost, but
+production reuse remains unproven and caching stays off. No paid call is running; a revised run needs
+separate approval of 28 calls and an additional US$58 pre-tax ceiling (US$0.92 planning estimate).
 Its evaluation profile does not switch the production model or the Haiku-priced budget controls.
 Human quality acceptance, owner budget approval, public capacity/operations acceptance, source
 review, and verified deployment remain open before Build 7 distribution. The earlier timeout's
 cost remains unconfirmed, conservatively bounded by US$0.205120; a separate successful diagnostic
-cost US$0.004222. See the [evaluation record](docs/model-evaluation.md#prompt-iteration-2--completed-and-failed).
+cost US$0.004222. See the [evaluation record](docs/model-evaluation.md#sonnet-5-comparison--completed-and-failed).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
 separate deletion/recovery evidence gate.
 
-Sonnet evaluation-profile verification on 6 September 2026 passed 469 backend tests plus dependency/security/lint/type
+Optional-alternate prompt verification on 6 September 2026 passed 472 backend tests plus dependency/security/lint/type
 checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
 and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
 signature/privacy verification remains recorded in the release evidence.
