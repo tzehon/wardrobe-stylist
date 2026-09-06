@@ -13,12 +13,21 @@ later be promoted to customers.
 
 - [ ] Confirm legal seller name/entity, copyright owner, postal address, support/privacy/security
   contacts, and review phone number.
-- [ ] Decide public version, price/tax category, countries/regions, automatic/manual/phased release,
-  and EU Digital Services Act trader status.
+- [x] Decide the initial version, price, and territory: public `1.0.0`/build 7 is Free, has no in-app
+  purchase or subscription, and is available only in Singapore. The sequenced follow-up is
+  freemium in Singapore, then controlled country expansion.
+- [ ] Decide the tax category, automatic/manual/phased release method, and EU Digital Services Act
+  trader status.
 - [ ] Confirm all Apple agreements, tax, banking, and any account compliance review are current.
 - [ ] Decide the final bundle ID and immutable SKU before creating the App Store Connect record.
 - [ ] Confirm the approved public-v1 scope is Gmail-free and no Google OAuth verification,
   restricted-scope, or review-account dependency remains in the candidate.
+- [ ] Approve the private Singapore-launch AI spend envelope and prove a hard, fail-closed global
+  capacity ceiling, bounded request/token/retry exposure, alerting, and emergency-disable response.
+  First migrate to the lowest-cost current Anthropic model that passes the recorded Wardrobe quality
+  gate and verify the exact locked SDK/model/API configuration. Do not publish exact billing values
+  or treat the current personal/single-user manual-review exception as multi-user public-launch
+  proof.
 
 ## 2. Public pages and truthful data declarations
 
@@ -44,8 +53,9 @@ later be promoted to customers.
 - [ ] Enter the final name, subtitle, primary language, categories, description, keywords,
   promotional text, copyright, support URL, and optional marketing URL from
   [`metadata-draft.md`](metadata-draft.md).
-- [ ] Complete content rights, export compliance, DSA, availability, pricing, tax category, and any
-  region-specific declarations shown by App Store Connect.
+- [ ] Complete content rights, export compliance, DSA, tax category, and region-specific
+  declarations; verify App Store Connect shows price **Free**, only **Singapore** enabled, and no
+  in-app purchase or subscription offered with version 1.0.
 - [ ] Upload one to ten current screenshots per required device class and localization using
   [`screenshot-plan.md`](screenshot-plan.md). Preview scaling and ordering.
 - [ ] Enter the review contact and exact no-login reviewer instructions from

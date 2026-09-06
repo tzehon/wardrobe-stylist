@@ -404,6 +404,33 @@ open.
   Build Uploads view, and separate owner upload approval remain live gates. This tooling/test/docs-
   only change does not alter the preserved build-7 archive or shipped behavior and does not require
   build 8.
+- [x] **Freeze the staged launch and monetization sequence.** Public `1.0.0`/build 7 launches Free,
+  with no in-app purchase or subscription, in the Singapore App Store only. The next product
+  release introduces transparent, budget-bounded freemium in Singapore; controlled country
+  expansion follows only after that model and its operations are proven. This decision changes
+  documentation and App Store metadata only, preserves the verified build-7 archive, and does not
+  require build 8.
+- [ ] **Move the Singapore launch to the lowest-cost Anthropic model that passes a Wardrobe quality
+  gate, and refresh the locked SDK/API integration.** The synchronous Messages API remains the
+  appropriate current GA surface; do not switch the interactive request to the asynchronous Batch
+  API merely for its discount. Evaluate the stable Haiku 4.5 model first against representative
+  fictional catalogs, occasions, recent-wear avoidance, preferences, schema/tool compliance, the
+  catalog-ID hallucination guard, latency, and bounded token use; use Sonnet 5 only if Haiku misses
+  the accepted quality floor. Re-check official model IDs, lifecycle, pricing, and the latest stable
+  Python SDK immediately before implementation; use a pinned release model ID, not a moving alias.
+  Preserve prompt caching only when measured cache reads justify its write premium, prefer strict
+  schema-constrained tool output when supported by the locked SDK, and reduce input/output bounds
+  to the smallest values that pass the evaluation. A backward-compatible backend-only migration
+  does not require build 8, but it does require focused tests, the full backend/security regression,
+  exact deployment/image verification, and a fresh post-change operational review before Build 7
+  distribution.
+- [ ] **Establish the free Singapore launch spend envelope.** Before public distribution, approve a
+  private maximum monthly AI budget and prove a hard, fail-closed global ceiling whose worst-case
+  exposure fits it. Bound request input, output, concurrency, and retry exposure; lock the selected
+  production limits in configuration and the redacted operations preflight; define alert and
+  emergency-disable handling; and replace the personal/single-user monitoring assumption with an
+  explicitly accepted Singapore public-launch capacity and response cadence. Do not record exact
+  billing or secret values in release evidence, and do not describe AI styling as unlimited.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
@@ -692,10 +719,12 @@ governed by APP-036's Gmail-free guards.
   Use/receipt-import claims. Finish reconciling current Anthropic, Apple, and Fly terms, purposes,
   retention, App Privacy answers, and final store fields. Do not publish unverified retention or
   “no training” claims.
-- [ ] **APP-017 · Submission · Complete the App Store Connect record.** Final name/bundle ID/SKU,
-  category, content rights, age rating, DSA status, privacy nutrition labels, support/privacy
-  URLs, description, keywords, copyright, review contact, review notes, build, pricing/tax,
-  availability, export compliance, release method, agreements, and any EU trader information.
+- [ ] **APP-017 · Submission · Complete the App Store Connect record.** The launch decision is
+  `1.0.0`/build 7, price Free, no in-app purchase or subscription, and Singapore-only availability.
+  Complete and verify the remaining final name/bundle ID/SKU, category, content rights, age rating,
+  DSA status, privacy nutrition labels, support/privacy URLs, description, keywords, copyright,
+  review contact, review notes, exact build, tax category, export compliance, release method,
+  agreements, and any EU trader information.
 - [ ] **APP-018 · Submission · Produce final store media.** Supply 1–10 screenshots per required
   device class using fictional/demo data, plus optional preview video. The narrative should show
   manual/photo wardrobe building, editing/organization, Today, History, and privacy controls. It
@@ -805,6 +834,29 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   duplicate-photo detection, and a consistent thumbnail pipeline with full accessibility.
 - [ ] **APP-035 · Enhancement · Widgets/Shortcuts.** A privacy-safe Today widget and App Intent
   for “What should I wear?” only after cached recommendations work reliably offline.
+- [ ] **APP-037 · Post-v1 · Introduce transparent, budget-safe freemium in Singapore.** Preserve the
+  no-login product by using server-verified Apple purchase identity and StoreKit 2 lifecycle state,
+  not client assertions or reinstallable App Attest installation identity, for paid ownership.
+  Finalize names, localized price, numeric Free and paid allowances, and reset rules only after
+  pessimistic unit economics cover Apple proceeds, tax/currency effects, model input/output/cache
+  tokens, retries, refunds, and operating headroom. The app must present a plain Free-versus-paid
+  comparison, current plan, remaining allowance and reset date, localized price/billing period,
+  purchase confirmation, and restore/manage controls before charging. Cached looks, returned
+  alternates, and failed attempts must not silently consume allowance; never claim unlimited AI.
+  Meter successful fresh generations authoritatively and idempotently, handle purchase, renewal,
+  expiration, refund, revocation, grace, and billing-retry state, and enforce per-plan limits behind
+  request/token caps plus an owner-approved global monthly circuit breaker, alert, and kill switch.
+  The earlier `5` Free generations per UTC month and `60` per verified Plus subscription period are
+  proposed starting points, not approved launch limits or prices. This shipped iOS/API behavior
+  requires the next unused build and the complete regression, backend, privacy, TestFlight, and
+  physical-device release loop.
+- [ ] **APP-038 · After APP-037 · Expand one country cohort at a time.** Keep Singapore as the only
+  storefront until the freemium release has proven entitlement restoration, quota correctness,
+  unit economics, budget controls, support response, and production operations. For each next
+  cohort, re-check storefront tax/legal/privacy and provider obligations, localization and
+  StoreKit-localized pricing, support coverage, capacity and spend ceilings, App Store metadata,
+  and rollback/disable readiness before enabling availability. Do not silently enable every
+  territory at once.
 
 ## Acceptance gates for this branch
 

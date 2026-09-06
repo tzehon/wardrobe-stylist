@@ -33,6 +33,16 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
    bearer, or an unauthenticated remote-AI fallback. If App Attest is unsupported, local wardrobe
    and Demo Mode keep working while remote AI fails closed with a clear recovery message.
 5. **Tests at every stage.** Add/extend tests with each change, and **run the full test suite as a regression after every code change** — backend: locked `pytest` + `pip-audit` + `bandit` + `ruff` + `mypy`; iOS: `xcodebuild test` (see Build & test) — before considering work done. A change isn't complete until the whole suite is green; never mark a task done with failing tests.
+6. **Launch and monetization stay staged and budget-bounded.** Public `1.0.0`/build 7 launches
+   Free, with no in-app purchases or subscriptions, in the Singapore App Store only. The next
+   product milestone is transparent freemium in Singapore; country expansion comes only after that
+   model and its operations are proven. A paid release must show the current plan, exact Free and
+   paid inclusions, numeric allowances and reset timing, remaining usage, the StoreKit-localized
+   price and billing period, and restore/manage controls. Never advertise unlimited AI styling.
+   Entitlements and metering must be server-verified, and per-plan limits must sit behind an
+   owner-approved global spend envelope and fail-closed circuit breaker independent of subscriber
+   count. Do not expand countries until pricing, tax/legal/privacy, localization, support capacity,
+   unit economics, and rollback controls pass for the next market cohort.
 
 ## Layout
 
