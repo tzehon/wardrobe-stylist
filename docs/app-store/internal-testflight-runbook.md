@@ -104,6 +104,11 @@ disabled configuration passed local settings validation; no ledger or paid call 
 The private capacity bounds remain a separate open decision. Publication/review, provisioning,
 deployment, and upload still require their respective gates and approvals.
 
+The owner subsequently approved source publication and the complete review/merge cycle.
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) was created as a draft and immediately
+marked ready. Required checks and current-head Codex review are pending; production, ledger
+provisioning, capacity-policy activation, and distribution remain unchanged and unapproved.
+
 ## Retained release evidence — 2026-09-01
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`

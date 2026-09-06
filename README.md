@@ -75,7 +75,9 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **local and not deployed**. The revised Sonnet 5 evaluation on 6 September 2026
+This candidate is **not deployed**. Source review is in
+[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41); publication is owner-approved and
+the required checks/review must pass before merge. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
 passed 4/4, preferred items passed 3/4, and p95 latency was 12.665 seconds. All 28 calls completed
 for US$0.360167 before tax, with no provider errors or retries. The owner approved all 24
