@@ -79,9 +79,12 @@ This candidate is **local and not deployed**. Live synthetic model quality/cache
 owner budget approval, public capacity/operations acceptance, source review, and verified deployment
 remain open before Build 7 distribution. The owner-approved evaluation on 6 September 2026
 stopped on its first request after a 30-second timeout, with no response or usage returned.
-Actual cost is unconfirmed; the attempted call's conservative upper bound is US$0.205120
-before tax. This is incomplete evaluation evidence, not a model-quality verdict. No retry ran;
-any further paid run needs fresh approval. See the [evaluation record](docs/model-evaluation.md#first-approved-run--2026-09-06).
+A separately approved single-call diagnostic with a 90-second read timeout then succeeded in
+5.86 seconds, passed that case's automated checks, and cost US$0.004222 in tokens before tax.
+The original attempt's cost remains unconfirmed, conservatively bounded by US$0.205120.
+The diagnostic confirms current request compatibility; it does not establish the original
+timeout's cause or close the full quality/human/cache evaluation. Further paid runs need fresh
+approval. See the [evaluation record](docs/model-evaluation.md#single-call-diagnostic--2026-09-06).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a

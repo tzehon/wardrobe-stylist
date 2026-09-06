@@ -429,8 +429,11 @@ open.
   1,024-token output cap. The [fictional evaluation](model-evaluation.md) prepares 28 calls
   with a conservative $6 pre-tax API ceiling and source-bound approval manifest. The first
   owner-approved run on 2026-09-06 stopped after one request timed out at 30.046 seconds;
-  no output or usage returned, and no retry ran. Its uncertain pre-tax cost is bounded by
-  $0.205120. This is incomplete integration evidence, not a model-quality failure.
+  no output or usage returned, and no automatic retry ran. Its uncertain pre-tax cost is bounded by
+  $0.205120. A separately approved single office-case diagnostic with a 90-second read timeout
+  then succeeded in 5.86 seconds, passed that case's automated checks, and cost $0.004222
+  before tax. This verifies current request compatibility, not the original timeout's cause
+  or the full model-quality floor. The original evaluation thresholds remain unchanged.
   Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
