@@ -65,7 +65,7 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
   - `app/auth/` — App Attest challenge, attestation, assertion, short-lived session, rate-limit, and durable SQLite auth-state logic. The store is security metadata only: public keys, opaque Apple attestation receipts, counters, challenges, session hashes, and coarse rate windows; no wardrobe, prompt, or model-response payload enters it. Do not treat or describe the Apple receipt as independently verified until its PKCS#7/risk-metric validation policy is implemented and evidenced.
   - `app/routes/recommend.py` — `POST /recommend` (short-lived session Bearer, compact catalog + recent-worn ids → one outfit). A server-side guard rejects any item id Aria returns that wasn't in the submitted catalog.
   - `app/agents/stylist.py` — pinned Sonnet 5 candidate ("Aria"), synchronous Messages,
-    strict forced `propose_outfit`, no thinking, default 1,024 output tokens. Caching stays off
+    strict forced `propose_outfit`, no thinking, pinned 1,024 output tokens. Caching stays off
     until production cadence supports the measured warm-cache reuse; user data remains volatile.
   - `app/styling_budget.py` / `app/styling_runtime.py` — separate durable global monthly
     admission/spend ceiling, conservative pre-call reservations, bounded concurrency, and a
@@ -294,6 +294,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   reserves the full 1M input context. The v2 ledger binds the model/rates/units/bounds and rejects
   old or mismatched storage without reset, upgrade, or refund. Never use Haiku-priced controls
   for a Sonnet runtime.
+  Runtime admission and preflight must pin the configured output cap to the evaluated integer
+  1,024 even though the ledger's general storage bound is 2,048. Numeric evaluation acceptance
+  must validate the saved complete manifest and hash against the current selected source/profile;
+  historical reports and qualitative owner decisions remain separate evidence.
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval

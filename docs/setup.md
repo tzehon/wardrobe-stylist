@@ -107,6 +107,9 @@ strict forced tool output, zero retries, and a 1,024-token output ceiling. Share
 and the catalog-ID guard remain in place. The evaluation passed all automatic checks and received
 owner qualitative acceptance; the numeric review remains incomplete and is not claimed as passed.
 Caching stays off until production request cadence supports the measured warm-cache reuse.
+Keep `AI_MAX_OUTPUT_TOKENS` at integer `1024`: runtime admission and preflight reject other
+values, including values inside the configuration parser's broader safety range. Changing the
+approved cap requires a new reviewed/evaluated policy, not an environment-only adjustment.
 Live evaluation requires an explicit call-count/cost approval and must never use or
 shadow a real user's wardrobe.
 

@@ -29,7 +29,7 @@ MAX_INPUT_BYTES = 32_768
 
 def _pricing_policy_ready() -> bool:
     """Reject source/configuration drift before admission or a green owner preflight."""
-    from app.agents.stylist import MODEL
+    from app.agents.stylist import MAX_TOKENS, MODEL
 
     return (
         MODEL == budget_policy.BUDGET_MODEL == "claude-sonnet-5"
@@ -37,11 +37,14 @@ def _pricing_policy_ready() -> bool:
         and budget_policy.BUDGET_PRICING_POLICY == "global-standard-uncached-v1"
         and INPUT_TOKEN_RESERVATION == budget_policy.MAX_INPUT_TOKEN_BOUND == 1_000_000
         and budget_policy.MAX_OUTPUT_TOKEN_BOUND == 2048
+        # The evaluated/approved output policy is narrower than the ledger's
+        # storage bound. Configuration drift must not admit an unevaluated call.
+        and settings.ai_max_output_tokens == MAX_TOKENS == 1024
         and (budget_policy.INPUT_UNIT_PRICE, budget_policy.OUTPUT_UNIT_PRICE) == (2, 10)
         and all(type(value) is int for value in (
             INPUT_TOKEN_RESERVATION, budget_policy.MAX_INPUT_TOKEN_BOUND,
             budget_policy.MAX_OUTPUT_TOKEN_BOUND, budget_policy.INPUT_UNIT_PRICE,
-            budget_policy.OUTPUT_UNIT_PRICE,
+            budget_policy.OUTPUT_UNIT_PRICE, settings.ai_max_output_tokens, MAX_TOKENS,
         ))
     )
 
@@ -78,7 +81,6 @@ def production_styling_status() -> dict[str, str]:
         or path.resolve() != path
         or not _pricing_policy_ready()
         or _ANTHROPIC_MAX_RETRIES != 0
-        or not 256 <= settings.ai_max_output_tokens <= 2048
         or not 1 <= settings.ai_max_concurrency <= 4
     ):
         return {"unavailable": "yes"}

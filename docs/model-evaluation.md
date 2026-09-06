@@ -472,20 +472,27 @@ Budget policy, public-capacity/operations acceptance, source publication, deploy
 distribution remain separate gates. No additional paid evaluation is needed merely to
 align the production request with the already evaluated Sonnet request.
 
-If numeric review is resumed later, open the form in a browser, rate every proposal in all five dimensions, then choose
-**Download completed scores** and return that file. Use **Save progress** before
-closing or reloading; the form deliberately has no browser-storage persistence.
-Validate the owner's actual exported file using this run's report:
+If numeric review is resumed later, the completed ratings may be retained against this original
+historical report. They do not establish acceptance of a different candidate. The hardened
+scorer now verifies the complete saved manifest and its hash against the selected current
+source/profile before calculating acceptance; this historical manifest is stale after the
+implementation advanced. Do not rewrite it or bypass the check to obtain a current pass.
+The existing qualitative owner acceptance and unchanged 28 request hashes remain separately
+documented evidence. For a future evaluated run whose manifest matches the current source,
+validate the owner's actual exported file with the same explicitly selected model:
 
 ```bash
 uv run --locked python -m evaluation.run score \
-  --report /private/tmp/wardrobe-fictional-sonnet-evaluation-20260906-10e837b/report.json \
+  --model claude-sonnet-5 \
+  --report /path/to/current-source/report.json \
   --scores /path/to/owner-exported-scores.json
 ```
 
 Inspect the returned `accepted` value and retain that decision separately: a successful
 command exit only confirms valid scoring input, and the command does not rewrite the
-original report. The unchanged numeric rubric requires every rating at least 3/5 and every
+original report. Missing, altered, extra-field, stale-source, or wrong-profile manifests are
+rejected before score computation; legacy Haiku scoring must explicitly select its profile.
+The unchanged numeric rubric requires every rating at least 3/5 and every
 dimension mean at least 4/5; it remains unproven for this run. The qualitative owner exception
 above authorizes local model selection and implementation. Align Sonnet runtime/pricing/
 full-context accounting/preflight together, repeat validation, and propose the private
@@ -524,6 +531,22 @@ here and no setting has been applied. This closes the budget/operating-policy de
 Public-capacity preflight, alert-delivery verification, source review, approved provisioning,
 and actual deployment/operational gates remain open before distribution. This approval does
 not authorize another paid evaluation, provider-console changes, or deployment.
+
+## PR #41 review safeguards — verified
+
+PR #41 review added two acceptance safeguards. Runtime admission/preflight now pin the configured
+output cap and stylist default to integer 1,024 before ledger/provider access. Numeric scoring
+independently recomputes the saved manifest hash and compares its complete canonical content
+against the current source and explicitly selected model before calculating any acceptance.
+Missing, tampered, extra-field, stale-source, and cross-model artifacts fail closed. All 28
+accepted request hashes and their order remain unchanged; no prompt, fixture, numeric threshold,
+historical artifact, rating, or provider request was changed or added.
+
+Final review-fix verification passed 583 backend tests, locked dependency audit, Bandit, Ruff,
+mypy, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
+The result bundle is `ios/DerivedData/ReviewFixRegression-20260906.xcresult`, with local logs at
+`/private/tmp/wardrobe-review-fix-*`. The approved private cap and v2 ledger format are unchanged;
+no new paid call, provisioning, deployment, or TestFlight build is required by these fixes.
 
 ## Fixed paid-call plan and approval
 

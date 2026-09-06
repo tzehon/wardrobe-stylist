@@ -110,6 +110,16 @@ marked ready. The PR records the checks, Codex review of its current commit, and
 Passing checks and current-head approval are prerequisites for rebase-merge; this publication
 checkpoint does not authorize production provisioning, capacity-policy activation, or distribution.
 
+PR #41 review required two additional guards: runtime/preflight output must remain the evaluated
+integer 1,024, and numeric scoring must match the complete current source/model manifest and hash.
+Both fixes passed independent review, 583 backend tests plus locked audit/Bandit/Ruff/mypy,
+236 iOS tests (226 Swift + 10 UI, zero failures/skips), 44 release-script tests, and fresh
+Release simulator/artifact checks. The result bundle is
+`ios/DerivedData/ReviewFixRegression-20260906.xcresult`; logs use
+`/private/tmp/wardrobe-review-fix-*`. All 28 accepted request hashes remain unchanged. No paid
+call or production change occurred; the v2 ledger and preserved Build 7 archive are unchanged.
+The PR remains the record of the fixes' required Codex review and merge outcome.
+
 ## Retained release evidence — 2026-09-01
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
