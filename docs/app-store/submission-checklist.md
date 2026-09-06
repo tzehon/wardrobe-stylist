@@ -37,14 +37,23 @@ later be promoted to customers.
   before tax but failed completeness (23/24) and distinct looks (22/24). Caching had no reads
   and stays off. Prompt clarification passed full local regressions, but its separately approved
   28-call rerun also failed: distinct looks and required alternates each passed 23/24, at
-  $0.133243 before tax. Sonnet 5 comparison support is prepared and tested; its 28 calls need
-  separate approval of an additional $58 pre-tax ceiling. The owner approved that exact run
-  on 2026-09-06; it completed for $0.333305 before tax but failed required alternates 23/24.
+  $0.133243 before tax. Sonnet 5 comparison support is prepared and tested. The owner approved
+  its first 28-call run within an additional $58 pre-tax ceiling on 2026-09-06; it completed
+  for $0.333305 before tax but failed required alternates 23/24.
   Completeness/distinctness passed 24/24 and p95 was 13.266 seconds. A general optional-item
   clarification is implemented and fully tested with the acceptance floor
-  unchanged. Warm cache savings do not yet prove production reuse. No paid call is running,
-  and a revised run needs fresh
-  approval; evaluation support alone does not change the production model or Haiku-priced controls.
+  unchanged. Warm cache savings do not yet prove production reuse. On 2026-09-06 the owner
+  approved one revised 28-call Sonnet run from `10e837b`, within an additional $58 pre-tax
+  ceiling, under manifest
+  `ae2479794e5aa40dc79ed4c555c9f89c9b8bfb4d451bce29120563357931fa06`. The revised run
+  completed all 28 calls without provider errors or retries for $0.360167 before tax and passed
+  the unchanged automatic floor: all six hard checks 24/24, avoidance 4/4, preference 3/4,
+  and p95 latency 12.665 seconds. Its quality-call cost was $0.012839 per mechanically usable
+  recommendation, with human acceptance still pending. The cache pair saved about 20.85% on
+  input, but real production reuse remains unproven and caching stays off. All prior failures
+  remain recorded. The next action is the owner's 24 blank blinded scorecards; no further paid
+  run is needed for this review. This result does not change the production model, private
+  budget, or Haiku-priced candidate controls.
   Model acceptance, blinded human scores, private budget,
   alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
