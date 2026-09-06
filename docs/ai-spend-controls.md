@@ -1,39 +1,48 @@
 # Singapore launch AI spend controls
 
 Status: local candidate, not deployed or enabled. The private monthly launch budget is
-**not chosen**. First pass the [fictional model evaluation](model-evaluation.md), including
-human review, then recommend a private envelope from measured cost per usable recommendation,
+**not chosen**. The [fictional model evaluation](model-evaluation.md) passed all automatic
+checks and received qualitative owner acceptance. Recommend a private envelope from measured cost per usable recommendation,
 expected demand, failed-call exposure, tax, and operating headroom. The 5 Free / 60 Plus figures
 remain post-v1 proposals. This ledger is a global safety ceiling, not a customer's paid quota.
 
 Both complete Haiku pilots and the first Sonnet 5 run failed the fixed quality floor.
 The optional-item clarification's revised Sonnet run passed every automatic gate at
 US$0.360167 for 28 calls (US$0.012839 per mechanically usable quality output). The 24-proposal
-human quality review has 1 completed proposal and 23 remaining; owner model acceptance remains
-open. Warm-pair input savings of about
-20.9% do not prove production reuse, so caching stays off. No private budget is selected yet.
-Evaluation profile selection does not change this Haiku-priced production implementation.
-If Sonnet is accepted, first align the runtime model, token rates, full-context reservation,
-and redacted preflight, and repeat required validation before approving/provisioning a budget.
-Never deploy Sonnet behind the current Haiku-specific accounting constants.
+human review was accepted through the owner's explicit qualitative approval of all proposals.
+The partial numeric rubric remains unproven and no missing ratings were inferred. Warm-pair
+input savings of about 20.9% do not prove production reuse, so caching stays off. The owner
+expects up to 10 AI users in the first launch month. A private budget proposal is ready;
+no amount is approved or configured. The runtime model, token rates, full-context reservation,
+and redacted preflight are aligned and have passed the full required regressions.
+The exact proposed monthly amount and admission limits remain outside this repository;
+approval and provisioning are still pending.
 
 ## Admission and maximum exposure
 
-The pinned model is `claude-haiku-4-5-20251001`, using synchronous Messages, no thinking,
+The pinned model is `claude-sonnet-5`, using synchronous Messages, no thinking,
 no cache breakpoint, explicit `service_tier=standard_only`, and zero SDK retries. The explicit
 tier prevents an account's Priority capacity from changing the pricing assumption; see
 [Anthropic service tiers](https://platform.claude.com/docs/en/api/service-tiers).
 Official global API rates verified on 2026-09-06
-are $1 per million uncached input tokens and $5 per million output tokens.
+are $2 per million uncached input tokens and $10 per million output tokens.
 [Anthropic model limits and prices](https://platform.claude.com/docs/en/models/overview).
 
 One internal accounting unit is $0.000001 of pre-tax API usage. Before contacting the
-provider, SQLite atomically charges `200000 + 5 × max_output_tokens` units and one admission.
-The full 200,000-token context is reserved even though actual input is much smaller; UTF-8
+provider, SQLite atomically charges `1000000 × 2 + 10 × max_output_tokens` units and one admission.
+The full 1,000,000-token context is reserved even though actual input is much smaller; UTF-8
 size estimates are not treated as a proof of provider token count. Default output is 1,024,
-so one reservation is 205,120 units ($0.205120). A valid completed recommendation refunds
+so one reservation is 2,010,240 units ($2.010240). A valid completed recommendation refunds
 only the difference between this reservation and checked usage. Failures retain the full
 reservation, including failures that may actually be unbilled. This is intentionally conservative.
+
+The v2 ledger stores and validates the pinned model, micro-USD unit, global-standard uncached
+pricing policy, input/output prices, and input/output token bounds alongside its private limits.
+Old v1 Haiku storage, a relabeled old schema, changed pricing fields, or underpriced pending
+reservations fail closed. No automatic upgrade or liability reinterpretation is allowed.
+The candidate has not provisioned or deployed a production budget ledger. If any old ledger is
+discovered, keep styling disabled and reconcile its liability through the owner recovery process;
+do not delete or reinitialize it to make the Sonnet candidate start.
 
 The approved unit ceiling bounds this backend's selected-model API usage, before tax, as long
 as every call uses this ledger and the pinned model/rates remain valid. It does not bound Fly

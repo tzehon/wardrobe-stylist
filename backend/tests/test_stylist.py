@@ -63,7 +63,7 @@ def test_locked_sdk_sends_one_synchronous_bounded_messages_request():
     assert requests[0].method == "POST"
     assert requests[0].url.path == "/v1/messages"
     body = json.loads(requests[0].content)
-    assert body["model"] == "claude-haiku-4-5-20251001"
+    assert body["model"] == "claude-sonnet-5"
     assert body["max_tokens"] == 1024
     assert body["thinking"] == {"type": "disabled"}
     assert body["tool_choice"] == {

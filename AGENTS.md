@@ -64,9 +64,9 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 - `backend/` — FastAPI app (`app/`), tests (`tests/`), managed with **uv**.
   - `app/auth/` — App Attest challenge, attestation, assertion, short-lived session, rate-limit, and durable SQLite auth-state logic. The store is security metadata only: public keys, opaque Apple attestation receipts, counters, challenges, session hashes, and coarse rate windows; no wardrobe, prompt, or model-response payload enters it. Do not treat or describe the Apple receipt as independently verified until its PKCS#7/risk-metric validation policy is implemented and evidenced.
   - `app/routes/recommend.py` — `POST /recommend` (short-lived session Bearer, compact catalog + recent-worn ids → one outfit). A server-side guard rejects any item id Aria returns that wasn't in the submitted catalog.
-  - `app/agents/stylist.py` — pinned Haiku 4.5 candidate ("Aria"), synchronous Messages,
+  - `app/agents/stylist.py` — pinned Sonnet 5 candidate ("Aria"), synchronous Messages,
     strict forced `propose_outfit`, no thinking, default 1,024 output tokens. Caching stays off
-    until the fictional evaluation proves useful cache reads; user data remains volatile.
+    until production cadence supports the measured warm-cache reuse; user data remains volatile.
   - `app/styling_budget.py` / `app/styling_runtime.py` — separate durable global monthly
     admission/spend ceiling, conservative pre-call reservations, bounded concurrency, and a
     fail-closed server switch. Never auto-create a lost ledger, refund uncertain calls, or
@@ -274,23 +274,26 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** The local candidate pins `claude-haiku-4-5-20251001`; retained Fly v10
+- **Models in use:** The local candidate pins `claude-sonnet-5`; retained Fly v10
   evidence describes the earlier Opus 4.8 deployment, not this candidate. Verify SDK syntax and
   pricing against current official Anthropic documentation, use strict structured tool output
   plus authoritative local/shared validation, and retain caching only after measured cache reads
-  justify it. Sonnet 5 evaluation is eligible only if Haiku fails the recorded quality floor.
+  justify it. Sonnet was evaluated only after Haiku failed the recorded quality floor.
   Do not deploy or claim migration complete before paid evaluation and the release gates pass.
   Both complete 2026-09-06 Haiku pilots failed the fixed floor. General prompt clarification
   improved completeness to 24/24, but distinct looks and required alternates each remained
   23/24; cache reads/writes were zero. The first Sonnet 5 run passed completeness/distinctness
   24/24 but failed required alternates 23/24. Its warm cache pair saved input cost; real reuse
   remains unproven and production caching stays off. The optional-item clarification's revised
-  Sonnet run passed all automatic gates on 2026-09-06; the owner has completed 1 of 24 human
-  scorecards, with 23 remaining. Owner quality/model acceptance is still required. Preserve the earlier failures and fixed
-  floor; see `docs/model-evaluation.md`.
-  Evaluation profile selection does not change production: a future
-  accepted Sonnet migration must align model, pricing, full-context reservations, and preflight
-  before budget approval/deployment. Never use Haiku-priced controls for a Sonnet runtime.
+  Sonnet run passed all automatic gates on 2026-09-06. The owner then said "all are ok, proceed"
+  and accepted all proposals qualitatively. Preserve that separate owner decision and the
+  partial numeric scorecard; never invent the missing scores or claim the numeric rubric passed.
+  Preserve earlier failures and the unchanged automatic floor; see `docs/model-evaluation.md`.
+  Sonnet runtime, pricing, full-context reservations, and preflight must remain aligned before
+  budget approval/deployment. One unit is USD 0.000001; Sonnet costs 2 input / 10 output units and
+  reserves the full 1M input context. The v2 ledger binds the model/rates/units/bounds and rejects
+  old or mismatched storage without reset, upgrade, or refund. Never use Haiku-priced controls
+  for a Sonnet runtime.
   Once the budgeted candidate is enabled, recovery must use a verified budget-aware image with
   the same ledger and limits. Pre-budget v10 ignores these controls and must not become a normal
   rollback target after cutover; its retained recovery evidence describes the earlier baseline.

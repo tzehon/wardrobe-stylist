@@ -1,11 +1,11 @@
-"""Aria's bounded, synchronous Messages API call with a pinned Haiku candidate.
+"""Aria's bounded, synchronous Messages API call with a pinned Sonnet 5 candidate.
 
-The production migration remains gated on the fictional quality evaluation.
+Deployment remains gated on approved spend controls and release checks.
 Strict forced tool use constrains shape; authoritative Pydantic bounds and the
 catalog-ID sanitizer still run in the route. Extended thinking is disabled.
 
-Prompt caching is off pending measured cache reads: Haiku 4.5 requires a
-4,096-token prefix. The evaluation may opt into a five-minute marker on only
+Prompt caching is off: a warm synthetic probe does not establish production
+reuse. The evaluation may opt into a five-minute marker on only
 the static tools/system prefix; personal catalog data stays after that marker.
 No wardrobe, prompt, or model-response payload is persisted by the backend.
 """
@@ -16,7 +16,7 @@ from typing import Any, Literal
 import anthropic
 from anthropic.types import Message, ToolUseBlock
 
-MODEL = "claude-haiku-4-5-20251001"
+MODEL = "claude-sonnet-5"
 MAX_TOKENS = 1024
 MAX_OUTPUT_TOKENS = 2048
 MIN_OUTPUT_TOKENS = 256

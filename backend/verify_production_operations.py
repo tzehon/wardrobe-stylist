@@ -1397,7 +1397,7 @@ print(json.dumps(result, separators=(",", ":")))
 """
 
 _STYLING_DIAGNOSTIC_VALUES = {
-    "model": frozenset({"pinned-haiku"}),
+    "model": frozenset({"pinned-sonnet"}),
     "policy": frozenset({"bounded"}),
     "ledger": frozenset({"ready"}),
     "spend_band": frozenset({"below-warning", "warning", "critical", "exhausted"}),

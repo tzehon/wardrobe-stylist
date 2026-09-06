@@ -1,7 +1,8 @@
-"""A global, durable UTC-month admission ceiling for the pinned Haiku model.
+"""A global, durable UTC-month admission ceiling for the pinned Sonnet model.
 
-One unit is one uncached Haiku input token (USD 0.000001); an output token costs
-five units. Reserve the complete worst-case charge before contacting Anthropic.
+One unit is USD 0.000001, independent of token type or model. An uncached Sonnet
+input token costs two units; an output token costs ten units. Reserve the complete
+worst-case charge before contacting Anthropic.
 Only a terminal success with checked usage may refund the unused reservation.
 This database contains aggregate counters and random reservation metadata only.
 It never receives installation identifiers, catalogs, prompts, or responses.
@@ -24,15 +25,26 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
-INPUT_UNIT_PRICE = 1
-OUTPUT_UNIT_PRICE = 5
-MAX_INPUT_TOKEN_BOUND = 200_000
+BUDGET_MODEL = "claude-sonnet-5"
+BUDGET_UNIT = "usd_microdollar"
+BUDGET_PRICING_POLICY = "global-standard-uncached-v1"
+INPUT_UNIT_PRICE = 2
+OUTPUT_UNIT_PRICE = 10
+MAX_INPUT_TOKEN_BOUND = 1_000_000
 MAX_OUTPUT_TOKEN_BOUND = 2_048
 MAX_MONTHLY_UNITS = 100_000_000
 MAX_MONTHLY_REQUESTS = 100_000
 MAX_CONCURRENCY = 4
 _APPLICATION_ID = 0x57424149
-_SCHEMA_VERSION = 1
+_SCHEMA_VERSION = 2
+_PRICING_FIELDS = (
+    "model", "accounting_unit", "pricing_policy", "input_unit_price", "output_unit_price",
+    "input_token_limit", "output_token_limit",
+)
+_PRICING_VALUES = (
+    BUDGET_MODEL, BUDGET_UNIT, BUDGET_PRICING_POLICY, INPUT_UNIT_PRICE, OUTPUT_UNIT_PRICE,
+    MAX_INPUT_TOKEN_BOUND, MAX_OUTPUT_TOKEN_BOUND,
+)
 
 _SCHEMA = """
 CREATE TABLE budget_state (
@@ -43,7 +55,14 @@ CREATE TABLE budget_state (
     unit_limit INTEGER NOT NULL CHECK (unit_limit > 0),
     request_limit INTEGER NOT NULL CHECK (request_limit > 0),
     concurrency_limit INTEGER NOT NULL CHECK (concurrency_limit > 0),
-    halted INTEGER NOT NULL CHECK (halted IN (0, 1))
+    halted INTEGER NOT NULL CHECK (halted IN (0, 1)),
+    model TEXT NOT NULL,
+    accounting_unit TEXT NOT NULL,
+    pricing_policy TEXT NOT NULL,
+    input_unit_price INTEGER NOT NULL CHECK (input_unit_price > 0),
+    output_unit_price INTEGER NOT NULL CHECK (output_unit_price > 0),
+    input_token_limit INTEGER NOT NULL CHECK (input_token_limit > 0),
+    output_token_limit INTEGER NOT NULL CHECK (output_token_limit > 0)
 );
 CREATE TABLE pending_reservations (
     reservation_id TEXT PRIMARY KEY CHECK (length(reservation_id) = 64),
@@ -202,6 +221,7 @@ def initialize_budget_database(
     Keep AI disabled while provisioning. A lost/restored database requires an
     independently reconciled conservative ledger, never this initializer during
     the same month. Exact private approved limits belong in runtime secrets.
+    Schema v1/Haiku files are incompatible and are never upgraded or relabeled.
     """
     _validate_policy(monthly_unit_limit, monthly_request_limit, max_concurrency)
     month = _month(clock)
@@ -222,8 +242,11 @@ def initialize_budget_database(
             connection.execute(f"PRAGMA application_id = {_APPLICATION_ID}")
             connection.execute(f"PRAGMA user_version = {_SCHEMA_VERSION}")
             connection.execute(
-                "INSERT INTO budget_state VALUES (1, ?, 0, 0, ?, ?, ?, 0)",
-                (month, monthly_unit_limit, monthly_request_limit, max_concurrency),
+                "INSERT INTO budget_state VALUES (1, ?, 0, 0, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    month, monthly_unit_limit, monthly_request_limit, max_concurrency,
+                    *_PRICING_VALUES,
+                ),
             )
         directory = os.open(path.parent, os.O_RDONLY)
         try:
@@ -244,6 +267,15 @@ def _load_state(
         state["unit_limit"], state["request_limit"], state["concurrency_limit"]
     ) != (units, requests, concurrency):
         raise BudgetUnavailable("styling_budget_policy_mismatch")
+    if tuple(state[name] for name in _PRICING_FIELDS) != _PRICING_VALUES:
+        raise BudgetUnavailable("styling_budget_pricing_mismatch")
+    invalid_reservation = connection.execute(
+        "SELECT 1 FROM pending_reservations WHERE input_bound > ? OR output_bound > ? "
+        "OR charged_units != input_bound * ? + output_bound * ? LIMIT 1",
+        (MAX_INPUT_TOKEN_BOUND, MAX_OUTPUT_TOKEN_BOUND, INPUT_UNIT_PRICE, OUTPUT_UNIT_PRICE),
+    ).fetchone()
+    if invalid_reservation is not None:
+        raise BudgetUnavailable("styling_budget_accounting_invalid")
     pending = connection.execute(
         "SELECT COUNT(*), COALESCE(SUM(charged_units), 0), COALESCE(MAX(month), 0) "
         "FROM pending_reservations"

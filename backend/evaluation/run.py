@@ -22,12 +22,13 @@ from app.routes.recommend import RecommendRequest, _sanitize_outfit
 from app.schemas.recommendation import OutfitRecommendation, TokenUsage
 from evaluation.fixtures import Case, cases
 
-PINNED_MODEL = "claude-haiku-4-5-20251001"
+PINNED_MODEL = "claude-sonnet-5"
+HAIKU_MODEL = "claude-haiku-4-5-20251001"
 OUTPUT_LIMIT = 1024
-PROVIDER_CONTEXT_LIMIT = 200_000
+PROVIDER_CONTEXT_LIMIT = 1_000_000
 PRICING_DATE = "2026-09-06"
 PRICING_URL = "https://platform.claude.com/docs/en/about-claude/pricing"
-APPROVAL_CEILING_USD = "6.00"
+APPROVAL_CEILING_USD = "58.00"
 QUALITY_CALLS = 24
 QUALITY_FLOOR = {
     "schema_success": 24, "known_ids": 24, "complete_outfits": 24,
@@ -58,11 +59,11 @@ class ModelProfile:
 MODEL_PROFILES = {
     PINNED_MODEL: ModelProfile(
         PINNED_MODEL, PROVIDER_CONTEXT_LIMIT, APPROVAL_CEILING_USD,
-        Decimal("1"), Decimal("5"), Decimal("1.25"), Decimal("0.10"),
-    ),
-    "claude-sonnet-5": ModelProfile(
-        "claude-sonnet-5", 1_000_000, "58.00",
         Decimal("2"), Decimal("10"), Decimal("2.50"), Decimal("0.20"),
+    ),
+    HAIKU_MODEL: ModelProfile(
+        HAIKU_MODEL, 200_000, "6.00",
+        Decimal("1"), Decimal("5"), Decimal("1.25"), Decimal("0.10"),
     ),
 }
 
@@ -114,13 +115,14 @@ def plans(model: str = PINNED_MODEL) -> list[tuple[Case, str, dict[str, Any]]]:
         )
         plan.append((fixture_cases[0], "cache_" + mode, params))
     for _, _, params in plan:
-        if params["model"] != PINNED_MODEL or params["max_tokens"] != OUTPUT_LIMIT:
+        if (params["model"] != stylist.MODEL or params["model"] not in MODEL_PROFILES
+                or params["max_tokens"] != OUTPUT_LIMIT):
             raise ValueError("Model or output limit changed; regenerate and reapprove the plan.")
         if params.get("thinking", {"type": "disabled"}) != {"type": "disabled"} or (
             params.get("stream") or params.get("service_tier") != "standard_only"
         ):
             raise ValueError("Evaluation requires standard synchronous calls without thinking.")
-        # Evaluation-only override: production stays pinned to Haiku and the request's other
+        # Explicit comparison profiles override only the model. Production's other request
         # fields remain identical, including strict tools, prompt, cache mode, and output cap.
         params["model"] = profile.model
     return plan

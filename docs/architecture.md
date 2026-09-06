@@ -5,9 +5,10 @@ manual entries and user-selected photos, keeps the catalog on the iPhone, and of
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-The Haiku/SDK and budget controls described below are the **local migration candidate**, not a
+The Sonnet/SDK and budget controls described below are the **local migration candidate**, not a
 production deployment claim. The retained Fly v10 evidence describes the earlier Opus 4.8 runtime.
-Quality evaluation, private budget approval, deployment verification, and a fresh operational review
+The selected Sonnet request passed automatic evaluation and received qualitative owner acceptance.
+Private budget approval, public capacity/operations acceptance, deployment verification, and a fresh operational review
 remain release gates in the [release backlog](app-release-backlog.md).
 
 Public v1 does not connect to Google, read Gmail, import purchase receipts, or require a human
@@ -166,11 +167,12 @@ See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
 ## Daily recommendation flow
 
 The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
-The local candidate uses pinned `claude-haiku-4-5-20251001` through one synchronous Messages API
+The local candidate uses pinned `claude-sonnet-5` through one synchronous Messages API
 call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
 `propose_outfit` output is limited to 1,024 tokens by default. The supported configuration range is
-256–2,048 tokens; production selection still requires the fictional quality evaluation. Prompt
-caching is off until measured cache reads justify it; evaluation can opt into a five-minute marker
+256–2,048 tokens; the accepted evaluation used 1,024. All automatic checks passed, followed by
+owner qualitative acceptance with the numeric rubric explicitly left incomplete. Prompt
+caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
 IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
 
@@ -180,7 +182,7 @@ sequenceDiagram
     participant App as iOS app
     participant API as FastAPI /recommend
     participant Budget as Durable global budget
-    participant Aria as Pinned Claude Haiku 4.5 — candidate
+    participant Aria as Pinned Claude Sonnet 5 — candidate
 
     User->>App: Request a suggestion in Today
     App->>App: Compact catalog + recent-worn summaries
@@ -213,12 +215,15 @@ normalized request JSON to 32 KiB, catalog to 200 items, and each color to 64 ch
 requests fail before an AI call using existing error handling. This backend-only migration does
 not require Build 8.
 
-The budget reserves the full Haiku 200,000-token input-context ceiling plus the configured output
-ceiling before each call; it does not rely on a local token estimate or resend a wardrobe for
+The budget reserves the full Sonnet 1,000,000-token input-context ceiling at two micro-USD per
+input token plus ten micro-USD per configured output token before each call; at 1,024 output
+tokens this is US$2.010240. It does not rely on a local token estimate or resend a wardrobe for
 token counting. Only a successful validated response with checked uncached usage can refund the
 unused amount. Terminal failed output keeps its full charge; uncertain calls keep both charge and
 concurrency slot across restarts and month boundaries until explicit owner recovery. No automatic
-retry, timeout refund, or fresh-database recreation can reopen the approved allowance. See
+retry, timeout refund, or fresh-database recreation can reopen the approved allowance. The v2
+ledger persists its model, unit, rate, and token-bound policy; old Haiku or mismatched storage
+fails closed without an automatic upgrade. See
 [AI spend controls](ai-spend-controls.md) for private provisioning, alerts, disable/recovery, and
 the remaining public-launch capacity and monitoring decisions.
 
@@ -267,7 +272,7 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI candidate | Pinned Haiku 4.5 “Aria”; strict forced tool, no thinking, cache off pending evaluation |
+| AI candidate | Pinned Sonnet 5 “Aria”; strict forced tool, no thinking, cache off pending production reuse |
 | Budget candidate | Separate durable SQLite ledger; atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
