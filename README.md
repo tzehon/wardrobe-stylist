@@ -77,8 +77,11 @@ disabled by default until an explicit private budget is provisioned and enabled.
 
 This candidate is **local and not deployed**. Live synthetic model quality/cache/cost evaluation,
 owner budget approval, public capacity/operations acceptance, source review, and verified deployment
-remain open before Build 7 distribution. The evaluation plan is at most 28 fictional-data calls,
-with a US$6 estimated API usage ceiling before tax, and requires separate owner approval.
+remain open before Build 7 distribution. The owner-approved evaluation on 6 September 2026
+stopped on its first request after a 30-second timeout, with no response or usage returned.
+Actual cost is unconfirmed; the attempted call's conservative upper bound is US$0.205120
+before tax. This is incomplete evaluation evidence, not a model-quality verdict. No retry ran;
+any further paid run needs fresh approval. See the [evaluation record](docs/model-evaluation.md#first-approved-run--2026-09-06).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
 The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
 processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a

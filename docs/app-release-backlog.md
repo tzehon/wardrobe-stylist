@@ -427,15 +427,19 @@ open.
   Local work on 2026-09-06 prepares pinned `claude-haiku-4-5-20251001`, locked SDK 1.4.0
   (`httpx2` for SDK transport), strict forced tool output, thinking/cache off, and a default
   1,024-token output cap. The [fictional evaluation](model-evaluation.md) prepares 28 calls
-  with a conservative $6 pre-tax API ceiling and source-bound approval manifest; no live call
-  has run. Keep this gate unchecked until live quality, human review, cost/cache measurement,
+  with a conservative $6 pre-tax API ceiling and source-bound approval manifest. The first
+  owner-approved run on 2026-09-06 stopped after one request timed out at 30.046 seconds;
+  no output or usage returned, and no retry ran. Its uncertain pre-tax cost is bounded by
+  $0.205120. This is incomplete integration evidence, not a model-quality failure.
+  Keep this gate unchecked until live quality, human review, cost/cache measurement,
   source review, deployment, and the fresh operational review pass. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
   Final local verification passed 438 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
   44 release-script tests, a fresh Release simulator build/artifact check, and local strict
-  signature/profile/privacy verification of the preserved Build 7 archive. No paid call, public
-  push, deployment, upload, or phone/snapshot mutation occurred.
+  signature/profile/privacy verification of the preserved Build 7 archive. The paid evaluation
+  above followed that verification. No public push, deployment, upload, or phone/snapshot
+  mutation occurred.
 - [ ] **Establish the free Singapore launch spend envelope.** Before public distribution, approve a
   private maximum monthly AI budget and prove a hard, fail-closed global ceiling whose worst-case
   exposure fits it. Bound request input, output, concurrency, and retry exposure; lock the selected
