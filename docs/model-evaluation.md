@@ -8,10 +8,11 @@ authoritative shared schema and local Pydantic/sanitizer guards. It never reads 
 production catalog or replays a real request. The package is outside the production
 application and is not a runtime shadow evaluator.
 
-**Status: the first owner-approved evaluation stopped on its first request after a
-30-second timeout. A separately approved single-call diagnostic then succeeded in
-5.86 seconds at US$0.004222 before tax. Full quality, cost, and cache acceptance remain open.**
-The diagnostic is not a replacement quality sample or a completed human review.
+**Status: a fresh owner-approved 28-call run completed at US$0.136602 before tax,
+but failed the fixed automatic quality floor. Caching produced no reads and stays off.**
+General prompt clarification is implemented locally and passes full regressions; a separately
+approved full rerun remains required.
+The failed run and original thresholds remain unchanged; human and model acceptance are open.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
 
@@ -95,6 +96,107 @@ persisted. A fresh unchanged 28-call acceptance run still needs explicit owner
 approval for its additional US$6 pre-tax ceiling; it retains the evaluation
 manifest recorded under the first approved run. Its calculated US$5.843360 maximum
 would bring the conservative cumulative exposure across all attempts to US$6.052702.
+
+## Completed run — 2026-09-06
+
+The owner approved a fresh 28-call evaluation with an **additional US$6 before-tax
+ceiling**. It ran on documentation-only successor `aa314ca`, using the unchanged
+manifest `276fe51f6b79b12c3046c84d9210f9774a3457b4a68e7c35ec20996976cca8dc`.
+All 28 calls returned one completed `tool_use` response, with complete usage and
+no provider error or retry. This completes the experiment, not model acceptance.
+
+| Fixed criterion | Result | Required |
+|---|---|---|
+| Shared schema / known catalog IDs | 24 / 24 each | 24 / 24 |
+| Complete primary and every alternate | **23 / 24** | 24 / 24 |
+| Distinct item sets across primary and alternates | **22 / 24** | 24 / 24 |
+| Sufficient alternates / occasion exclusions | 24 / 24 each | 24 / 24 |
+| Targeted avoidance / preferred-item checks | 4 / 4 each | At least 3 / 4 each |
+| Nearest-rank p95 quality latency | 15.872 seconds | At most 20 seconds |
+| Highest quality output usage | 709 tokens | At most 1,024 tokens |
+| Human review | Not performed | All 24 scorecards pass |
+
+The failures are confirmed against the fictional output, not evaluator errors:
+
+- Quality calls 7 and 8 (`black_palette`) each include an alternate with exactly
+  the primary outfit's unordered item set. The fixture is feasible: the complete
+  black top/trousers/loafers combination can be worn with or without the optional
+  tote. A different rationale cannot make identical item IDs a distinct outfit.
+- Quality call 18 (`all_recent`, second repeat) chooses trousers, a blazer,
+  sandals, and a tote for the primary look, with no top or dress. The supplied
+  blazer is categorized as outerwear; the unchanged completeness rule fails it.
+
+Twenty-one of 24 quality responses pass every applicable automated check. The
+candidate therefore **fails** the acceptance floor. Human scores cannot override
+these failures, so no human-review form was generated for this run. The saved
+blinded packet remains available as evidence, without fabricated human ratings.
+
+Measured usage across all 28 calls is **64,572 input and 14,406 output tokens**,
+costing **US$0.136602 before tax**. The 24 quality calls cost US$0.117154, averaging
+about US$0.004881 per attempted quality call. Quality inputs range from 1,614 to
+4,559 tokens and outputs from 202 to 709; median latency is 10.7575 seconds and
+maximum latency 15.950 seconds. These are descriptive pilot measurements, not
+accepted-recommendation economics. The report's 23-case `usable` denominator
+checks only schema, known IDs, and completeness; it includes the duplicate-look
+failures and must not be presented as 23 fully accepted recommendations.
+
+All four cache probes completed. Both marked requests report **zero cache writes
+and zero cache reads**. Their combined input cost is US$0.004244, identical to
+the uncached counterfactual. There is no measured caching benefit; keep caching
+off and do not pad the prompt to manufacture a hit.
+
+Across the original timeout, separate diagnostic, and this complete run, known
+token cost is **US$0.140824 before tax**. Adding the original timeout's unresolved
+US$0.205120 reservation gives a conservative cumulative upper bound of
+**US$0.345944 before tax**. All charges from this complete run are usage-accounted;
+the earlier timeout's charge and cause remain unresolved.
+
+Private artifacts remain in
+`/private/tmp/wardrobe-fictional-evaluation-20260906-aa314ca/`: manifest/report,
+accounting journal, bounded stop-reason observations, fictional review packet,
+and unfilled scores. No paid run is continuing in the background.
+
+The next prompt iteration below clarifies general complete-outfit and distinct-set
+requirements, without fixture-specific instructions, post-filtered apparent
+passes, or changes to the floor. Fresh approval is required for its full evaluation.
+This failed Haiku run also makes a separately pinned/priced Sonnet 5 evaluation
+eligible; there is no automatic production fallback. Do not select or provision
+the private launch budget before full model acceptance.
+
+## Prompt iteration 2 — awaiting paid approval
+
+The general prompt now requires shoe + top + bottom or shoe + dress in every look,
+rejects outerwear as a substitute for required clothing, and explicitly compares
+unordered item sets across the primary and all alternates. It omits duplicates
+rather than padding the list. Recent item IDs no longer imply knowledge of past
+outfit pairings, and the per-request label states that those combinations are
+unknown. No fixture-specific IDs, colors, or occasions were added to the prompt.
+
+Regression tests replay the three observed failures, verify that changing item
+order or rationale cannot hide duplicates, and confirm feasible corrected
+selections pass the unchanged evaluator. These are offline checks of the contract
+and evaluation; they do not demonstrate improved live model quality. The original
+run remains failed, with no rewritten results or fabricated human scores.
+
+The proposed next full run has manifest
+`92eabf7e62796a4686ebeb4c29eac14b0acc31b054c8988fdd5d25185f0cd961`.
+Only prompt/request and implementation identity change: the fictional cases,
+schema, quality floor, 30-second SDK timeout, zero retries, one call in flight,
+24 quality plus four cache calls, model, prices, and 1,024-token output cap are
+unchanged. The conservative maximum remains **US$5.843360**, with a proposed
+**additional US$6 pre-tax ceiling** requiring fresh owner approval. Its heuristic
+estimate at full output is US$0.441638, not a guaranteed token bound. Adding its
+conservative maximum to previous usage/uncertainty would give a cumulative upper
+bound of US$6.189304 before tax across all attempts.
+
+The new plan has not run. Verification passed **441 backend tests**, locked
+pip-audit with no known vulnerabilities, Bandit, Ruff, mypy, **236 iOS tests**
+(226 Swift + 10 UI), all **44 release-script tests**, and a fresh Release simulator
+build/artifact check. The iOS result bundle is
+`ios/DerivedData/HaikuPromptRegression-20260906.xcresult`; bounded local logs are
+`/private/tmp/wardrobe-haiku-prompt-*.log`. No shared schema or iOS source changed,
+so Build 8 is not required. This does not substitute for live quality acceptance.
+Do not start a paid call until this source-bound plan is approved.
 
 ## Fixed paid-call plan and approval
 

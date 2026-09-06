@@ -1,6 +1,7 @@
 """The acceptance workflow's safety/cost/quality gates use fictional SDK responses only."""
 
 import json
+from copy import deepcopy
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -229,6 +230,66 @@ def test_completeness_distinctness_and_schema_are_separate():
     payload = outfit(fixture)
     payload["extra"] = "unsupported"
     assert not run.evaluate_outfit(fixture, payload)["schema_success"]
+
+
+@pytest.mark.parametrize((
+    "case_name", "primary", "alternates", "failed_check", "corrected_primary", "corrected_alts",
+), [
+    pytest.param(
+        "black_palette", ["t3", "b3", "s1", "a1"], [["t3", "b3", "s1", "a1"]],
+        "distinct_alternates", ["t3", "b3", "s1", "a1"], [["t3", "b3", "s1"]],
+        id="black-palette-sole-alternate-repeats-primary",
+    ),
+    pytest.param(
+        "black_palette", ["t3", "b3", "s1", "a1"],
+        [["t3", "b3", "s1"], ["t3", "b3", "s1", "a1"]],
+        "distinct_alternates", ["t3", "b3", "s1", "a1"], [["t3", "b3", "s1"]],
+        id="black-palette-valid-first-alternate-does-not-excuse-duplicate-second",
+    ),
+    pytest.param(
+        "all_recent", ["b2", "o1", "s3", "a1"],
+        [["d1", "s1", "a1"], ["t1", "b3", "s3"]],
+        "complete_outfits", ["t2", "b2", "o1", "s3", "a1"],
+        [["d1", "s1", "a1"], ["t1", "b3", "s3"]],
+        id="all-recent-outerwear-does-not-replace-missing-top",
+    ),
+])
+def test_saved_haiku_failure_shapes_remain_failures_under_unchanged_evaluator(
+    case_name, primary, alternates, failed_check, corrected_primary, corrected_alts,
+):
+    # Replay only the fictional item selections from the failed run, with neutral test prose.
+    # Prompt changes cannot turn the original outputs into passing acceptance evidence.
+    fixture = next(case for case in cases() if case.name == case_name)
+    payload = outfit(fixture)
+
+    def set_looks(primary_labels, alternate_labels):
+        payload["item_ids"] = [catalog_id(label) for label in primary_labels]
+        payload["alternates"] = [
+            {"item_ids": [catalog_id(label) for label in labels],
+             "rationale": f"Fictional alternative {index}."}
+            for index, labels in enumerate(alternate_labels)
+        ]
+
+    set_looks(primary, alternates)
+    original = deepcopy(payload)
+    checks = run.evaluate_outfit(fixture, payload)
+    assert checks["schema_success"] and checks["known_ids"]
+    assert checks["enough_alternates"] and checks["occasion_constraints"]
+    assert checks[failed_check] is False
+    other_check = (
+        "complete_outfits" if failed_check == "distinct_alternates" else "distinct_alternates"
+    )
+    assert checks[other_check] is True
+    assert payload == original
+
+    if failed_check == "distinct_alternates":
+        # A different order or rationale cannot make the same item set an alternate.
+        payload["alternates"][-1]["item_ids"].reverse()
+        payload["alternates"][-1]["rationale"] = "A different description of the same items."
+        assert not run.evaluate_outfit(fixture, payload)["distinct_alternates"]
+
+    set_looks(corrected_primary, corrected_alts)
+    assert all(value is not False for value in run.evaluate_outfit(fixture, payload).values())
 
 
 def test_raw_occasion_recent_wear_and_rating_regressions_fail():
