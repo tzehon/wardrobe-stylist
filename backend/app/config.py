@@ -41,5 +41,14 @@ class Settings(BaseSettings):
 
     environment: str = "dev"
 
+    # Remote styling is opt-in on the server as well as on the client. Provision
+    # the separate accounting store and approve its private limits before enabling.
+    ai_styling_enabled: bool = False
+    ai_budget_database_path: str = ""
+    ai_monthly_unit_limit: int = Field(default=0, ge=0, le=100_000_000, repr=False)
+    ai_monthly_request_limit: int = Field(default=0, ge=0, le=100_000, repr=False)
+    ai_max_concurrency: int = Field(default=1, ge=1, le=4)
+    ai_max_output_tokens: int = Field(default=1024, ge=256, le=2048)
+
 
 settings = Settings()

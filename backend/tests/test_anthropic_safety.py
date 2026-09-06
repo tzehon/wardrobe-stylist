@@ -25,21 +25,32 @@ def test_anthropic_client_has_bounded_timeouts_and_retries(
     captured: dict[str, object] = {}
     sentinel = object()
 
+    class ClientContext:
+        def __enter__(self):
+            return sentinel
+
+        def __exit__(self, *args):
+            captured["closed"] = True
+
     def build_client(**kwargs: object) -> object:
         captured.update(kwargs)
-        return sentinel
+        return ClientContext()
 
     monkeypatch.setattr(settings, "anthropic_api_key", "private-test-key")
     monkeypatch.setattr(anthropic_safety.anthropic, "Anthropic", build_client)
 
-    assert get_anthropic_client() is sentinel
+    dependency = get_anthropic_client()
+    assert next(dependency) is sentinel
+    dependency.close()
+    assert captured["closed"] is True
     timeout = captured["timeout"]
     assert isinstance(timeout, anthropic_safety.anthropic.Timeout)
     assert timeout.connect == 5.0
-    assert timeout.read == 120.0
-    assert timeout.write == 120.0
-    assert timeout.pool == 120.0
-    assert captured["max_retries"] == 1
+    assert timeout.read == 45.0
+    assert timeout.write == 10.0
+    assert timeout.pool == 1.0
+    assert captured["max_retries"] == 0
+    assert captured["base_url"] == "https://api.anthropic.com"
     assert captured["api_key"] == "private-test-key"
 
 
@@ -78,9 +89,7 @@ def test_anthropic_saturation_fails_fast_without_forwarding_private_payload(
     assert fake_anthropic.messages.last_call is None
 
     security_log = "\n".join(
-        record.getMessage()
-        for record in caplog.records
-        if record.name == "app.anthropic_safety"
+        record.getMessage() for record in caplog.records if record.name == "app.anthropic_safety"
     )
     assert security_log == "anthropic_concurrency_rejected limit=4"
     assert "PRIVATE_SATURATION" not in security_log

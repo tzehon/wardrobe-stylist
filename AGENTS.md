@@ -7,9 +7,8 @@ Durable guidance for Codex and other coding agents working in this repository.
 A **personal, single-user** iOS fashion-stylist app. The approved public v1 is a local-first,
 manual/photo wardrobe catalog with optional AI outfit styling. It does **not** connect to Google,
 read Gmail, import receipts, or require a human account. The Python FastAPI backend holds the
-Anthropic key, calls Claude for styling, and persists only the minimum App Attest
-authentication/security metadata needed to authorize the public API. It must never persist
-wardrobe payloads.
+Anthropic key, calls Claude for styling, and persists only minimum App Attest security metadata
+and separate aggregate AI budget/reservation metadata. It must never persist wardrobe payloads.
 
 Git history and the explicitly historical Google setup documents retain the earlier read-only
 Gmail/receipt-import design. The active v1 source removes that subsystem. Do not re-expose it in
@@ -65,7 +64,15 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 - `backend/` — FastAPI app (`app/`), tests (`tests/`), managed with **uv**.
   - `app/auth/` — App Attest challenge, attestation, assertion, short-lived session, rate-limit, and durable SQLite auth-state logic. The store is security metadata only: public keys, opaque Apple attestation receipts, counters, challenges, session hashes, and coarse rate windows; no wardrobe, prompt, or model-response payload enters it. Do not treat or describe the Apple receipt as independently verified until its PKCS#7/risk-metric validation policy is implemented and evidenced.
   - `app/routes/recommend.py` — `POST /recommend` (short-lived session Bearer, compact catalog + recent-worn ids → one outfit). A server-side guard rejects any item id Aria returns that wasn't in the submitted catalog.
-  - `app/agents/stylist.py` — Claude Opus 4.8 call ("Aria"): forced `propose_outfit` tool use + `cache_control:ephemeral` on the styling rubric; the per-request catalog goes in the volatile user message.
+  - `app/agents/stylist.py` — pinned Haiku 4.5 candidate ("Aria"), synchronous Messages,
+    strict forced `propose_outfit`, no thinking, default 1,024 output tokens. Caching stays off
+    until the fictional evaluation proves useful cache reads; user data remains volatile.
+  - `app/styling_budget.py` / `app/styling_runtime.py` — separate durable global monthly
+    admission/spend ceiling, conservative pre-call reservations, bounded concurrency, and a
+    fail-closed server switch. Never auto-create a lost ledger, refund uncertain calls, or
+    configure independent ledger copies on separate Machines. Private limits need owner approval.
+  - `evaluation/` — fictional-only model/cache/cost evaluation. Paid runs need explicit approval
+    of the current source-bound manifest, call count, and maximum cost; no production shadowing.
   - `app/schemas/recommendation.py` — Pydantic mirror of `shared/schemas/outfit.schema.json`
     (`extra=forbid`).
   - `app/dependencies.py` — fail-closed session authorization + Anthropic client provider (overridable in tests). Production must refuse legacy-only auth.
@@ -242,9 +249,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   recovery step, real system permission/notification/connectivity behavior, and the candidate-
   specific visual or assistive delta. Repeat an unchanged physical row only when its source or
   configuration changed, retained proof is missing, or targeted smoke exposes a regression.
-- The root `README.md` remains unchanged by design: it is the stable project overview, while live
-  release state and ordered gates belong in `AGENTS.md`, `docs/app-release-backlog.md`, and this
-  runbook.
+- Keep the root `README.md` up to date after every relevant implementation, configuration,
+  workflow, or release-state change. Include an accurate current overview and open gates, and
+  keep detailed ordered evidence synchronized with this file and the release backlog/runbook.
 - When an iOS candidate depends on backend source or configuration, first freeze and merge both
   sides, build and scan the exact immutable backend image, deploy it, verify the live configuration,
   health, and bounded logging, and complete the post-change manual review before archive/upload.
@@ -267,9 +274,15 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Claude `claude-opus-4-8` powers the v1 stylist "Aria". When adding or modifying an Anthropic SDK call, verify
-  the syntax against current official Anthropic documentation, preserve prompt caching, use tool
-  use for structured output, and validate against `shared/schemas/`.
+- **Models in use:** The local candidate pins `claude-haiku-4-5-20251001`; retained Fly v10
+  evidence describes the earlier Opus 4.8 deployment, not this candidate. Verify SDK syntax and
+  pricing against current official Anthropic documentation, use strict structured tool output
+  plus authoritative local/shared validation, and retain caching only after measured cache reads
+  justify it. Sonnet 5 evaluation is eligible only if Haiku fails the recorded quality floor.
+  Do not deploy or claim migration complete before paid evaluation and the release gates pass.
+  Once the budgeted candidate is enabled, recovery must use a verified budget-aware image with
+  the same ledger and limits. Pre-budget v10 ignores these controls and must not become a normal
+  rollback target after cutover; its retained recovery evidence describes the earlier baseline.
 - **Gmail-free guard:** `RemovedCapabilitiesReleaseGuardTests` and artifact/configuration scripts must fail if
   Google/Gmail/receipt-import source, configuration, SDK bundles, routes, or background identifiers
   return.

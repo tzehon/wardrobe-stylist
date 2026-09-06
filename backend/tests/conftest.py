@@ -8,6 +8,7 @@ No network ever leaves the test process.
 import os
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -21,12 +22,35 @@ os.environ["DEVICE_TOKEN"] = "test-device-token"
 os.environ["APP_ATTEST_SESSION_SECRET"] = "test-session-secret-not-for-production"
 os.environ["AUTH_MODE"] = "legacy"
 os.environ["ENVIRONMENT"] = "test"
+os.environ["AI_STYLING_ENABLED"] = "false"
+os.environ["AI_BUDGET_DATABASE_PATH"] = ""
+os.environ["AI_MONTHLY_UNIT_LIMIT"] = "0"
+os.environ["AI_MONTHLY_REQUEST_LIMIT"] = "0"
+os.environ["AI_MAX_CONCURRENCY"] = "1"
+os.environ["AI_MAX_OUTPUT_TOKENS"] = "1024"
 
 from app.config import settings as runtime_settings
 from app.dependencies import get_anthropic_client
 from app.main import app
+from app.styling_budget import initialize_budget_database
 
 TEST_DEVICE_TOKEN = "test-device-token"
+
+
+@pytest.fixture(autouse=True)
+def isolated_styling_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = tmp_path / "budget.sqlite3"
+    initialize_budget_database(
+        path,
+        monthly_unit_limit=10_000_000,
+        monthly_request_limit=10_000,
+        max_concurrency=4,
+    )
+    monkeypatch.setattr(runtime_settings, "ai_styling_enabled", True)
+    monkeypatch.setattr(runtime_settings, "ai_budget_database_path", str(path))
+    monkeypatch.setattr(runtime_settings, "ai_monthly_unit_limit", 10_000_000)
+    monkeypatch.setattr(runtime_settings, "ai_monthly_request_limit", 10_000)
+    monkeypatch.setattr(runtime_settings, "ai_max_concurrency", 4)
 
 
 @dataclass

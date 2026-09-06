@@ -20,8 +20,17 @@ from app.agents import stylist
 from app.agents.stylist import StylistError
 from app.anthropic_safety import anthropic_request_slot, raise_anthropic_http_error
 from app.auth.service import BackendIdentity
+from app.config import settings
 from app.dependencies import get_anthropic_client, require_backend_identity
 from app.schemas.recommendation import OutfitRecommendation, RecommendResponse
+from app.styling_runtime import (
+    MAX_CATALOG_ITEMS,
+    MAX_COLOR_CHARACTERS,
+    MAX_INPUT_BYTES,
+    AdmittedStyling,
+    admitted_styling,
+    unavailable,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -101,6 +110,14 @@ def recommend_endpoint(
     _: BackendIdentity = Depends(require_backend_identity),
     client: anthropic.Anthropic = Depends(get_anthropic_client),
 ) -> RecommendResponse:
+    # These are operational admission limits, like the hourly abuse limit.
+    # The Build 7 wire schema stays unchanged; larger requests fail before AI.
+    if (
+        len(req.items) > MAX_CATALOG_ITEMS
+        or len(req.model_dump_json().encode("utf-8")) > MAX_INPUT_BYTES
+        or any(len(color) > MAX_COLOR_CHARACTERS for item in req.items for color in item.colors)
+    ):
+        raise unavailable()
     valid_ids = {item.id for item in req.items}
     if any(item_id not in valid_ids for item_id in req.recently_worn_ids):
         raise HTTPException(
@@ -112,18 +129,31 @@ def recommend_endpoint(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Item preferences must reference items in the submitted catalog.",
         )
+    with anthropic_request_slot(), admitted_styling() as call:
+        return _generate_response(req, client, valid_ids, call)
+
+
+def _generate_response(
+    req: RecommendRequest,
+    client: anthropic.Anthropic,
+    valid_ids: set[str],
+    call: AdmittedStyling,
+) -> RecommendResponse:
     try:
-        with anthropic_request_slot():
-            result = stylist.recommend(
-                client,
-                items=[item.model_dump() for item in req.items],
-                recently_worn_ids=req.recently_worn_ids,
-                item_preferences=[preference.model_dump() for preference in req.item_preferences],
-                occasion=req.occasion,
-            )
+        result = stylist.recommend(
+            client,
+            items=[item.model_dump() for item in req.items],
+            recently_worn_ids=req.recently_worn_ids,
+            item_preferences=[preference.model_dump() for preference in req.item_preferences],
+            occasion=req.occasion,
+            max_tokens=settings.ai_max_output_tokens,
+        )
+        call.terminal = True
     except anthropic.APIError as exc:
+        call.terminal = isinstance(exc, anthropic.APIStatusError)
         raise_anthropic_http_error(exc)
     except StylistError as exc:
+        call.terminal = True
         logger.warning("stylist_failure code=invalid_model_response")
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
@@ -172,4 +202,5 @@ def recommend_endpoint(
             detail="Model returned tool input that failed schema validation.",
         ) from exc
 
+    call.complete(**result["usage"])
     return response

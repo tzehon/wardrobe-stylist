@@ -23,7 +23,31 @@ an App Store release candidate from the moment it is archived. This prevents a s
   product release is transparent, budget-bounded freemium in Singapore; country expansion follows
   only after that model and its operations are proven.
 
-## Current release status — 2026-09-01
+## Local launch preparation — 2026-09-06
+
+The local backend candidate prepares pinned Haiku 4.5, SDK 1.4.0, synchronous strict tool output,
+no thinking/cache/retries, and a 1,024-token output cap, plus a separate durable global monthly
+spend/admission ledger and default-disabled styling switch. The shared wire schemas and iOS
+source are unchanged, so this work does not require Build 8 or replace the preserved Build 7
+archive. Keep README current with these changes.
+
+The first open launch gate remains the [fictional model evaluation](../model-evaluation.md):
+at most 28 paid calls, an estimated $6 pre-tax API ceiling, and explicit owner approval before
+running. Live quality/cost/cache proof and human scores are absent. Follow it with the private
+budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
+and operations, source review, approved immutable-image deployment, and fresh operational review.
+The new required budget preflight will fail on old v10. Do not rewrite its locked deployment
+identity without live deployment evidence. Snapshot expiry/deletion-specific recovery is separate.
+After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
+pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
+
+Local verification passed 438 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
+tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
+check. The preserved Build 7 archive also passed local signature/profile/privacy verification.
+No paid model call, public source push, production change, upload, or phone/snapshot mutation
+occurred. Local signed-artifact validity is separate from the fresh operational/upload gates.
+
+## Retained release evidence — 2026-09-01
 
 - Version metadata baseline: PR #12 commit `b000fdfb19ae496a42c6c38565d961a929801c17`
   contains `1.0.0 (4)`. Final Gmail-free product/backend source merged through PR #14 as
@@ -73,8 +97,8 @@ an App Store release candidate from the moment it is archived. This prevents a s
   `11:03:10Z`; strict verification passed at `11:04:02Z`, and the signed-in `11:05:38Z` post-archive
   Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent.
   Validation/upload, Apple processing, assignment, tester notes, and clean physical visual retest
-  remain open. The root `README.md` remains unchanged by design; this runbook and the release backlog
-  own live release state.
+  remain open. Keep the root `README.md` current with implementation and release status; this
+  runbook and the release backlog retain the detailed ordered evidence.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
   plus 9 UI), and all 43 release-script tests. Clean build-6 physical QA then closed the affected

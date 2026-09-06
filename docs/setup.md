@@ -10,6 +10,11 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
+The current local candidate migrates the backend to pinned Haiku 4.5 and a durable global AI
+budget. It has not been deployed; retained Fly v10 evidence still describes the earlier Opus 4.8
+runtime. Follow [AI spend controls](ai-spend-controls.md) and the release backlog before enabling
+connected styling or treating any historical production check as candidate evidence.
+
 - [Prerequisites](#prerequisites)
 - [Get the code](#get-the-code)
 - [Backend](#backend-fastapi)
@@ -74,12 +79,34 @@ APP_ATTEST_SESSION_SECRET=<at-least-32-random-bytes>
 APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES=3
 APP_ATTEST_ALLOWED_BUNDLE_VERSIONS=<installed-development-build>
 ENVIRONMENT=dev
+AI_STYLING_ENABLED=false
+AI_BUDGET_DATABASE_PATH=/absolute/private/path/wardrobe-budget/budget.sqlite3
+AI_MONTHLY_UNIT_LIMIT=0
+AI_MONTHLY_REQUEST_LIMIT=0
+AI_MAX_CONCURRENCY=1
+AI_MAX_OUTPUT_TOKENS=1024
 ```
 
 The build allowlist must match the app actually installed. Public clients use App Attest only;
 `AUTH_MODE=legacy` and `DEVICE_TOKEN` are not valid iOS development or release configuration. The
 Simulator cannot perform real App Attest, so local catalog and Demo Mode remain usable while live
 AI fails closed; tests use an injected fake authorization service.
+
+Zero budget limits are intentional unapproved placeholders, so a configured API key alone does
+not enable paid calls. The budget database must be provisioned explicitly with private approved
+limits before enabling `AI_STYLING_ENABLED`; runtime refuses to create it or change those limits.
+Keep the limits in gitignored local configuration or production secrets. Follow the first-provisioning
+and disable/recovery procedure in [AI spend controls](ai-spend-controls.md). Never initialize a fresh
+ledger to replace a lost or restored current-month database: first disable styling and reconcile
+the retained charges with independent evidence.
+
+The synchronous Messages API remains the interactive endpoint. The locked SDK is `anthropic==1.4.0`
+within the declared `>=1.4,<2` range, using `httpx2` for provider HTTP objects; FastAPI's test client
+continues to use `httpx`. The candidate model is `claude-haiku-4-5-20251001`, with thinking disabled,
+strict forced tool output, zero retries, and a 1,024-token output ceiling. Shared-schema validation
+and the catalog-ID guard remain in place. Caching stays off until the fictional evaluation measures
+useful reads. Live evaluation requires an explicit call-count/cost approval and must never use or
+shadow a real user's wardrobe.
 
 ## iOS app
 
@@ -155,14 +182,25 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 ## Anthropic key
 
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
-secret in production. Set an owner-approved monthly spend limit and review current-month usage and
-cost as part of the manual production check.
+secret in production. The private launch budget remains an owner decision after measured Haiku
+cost per successful recommendation. The application ledger supplies a hard admission ceiling;
+provider-side workspace limits can provide an additional boundary. Console warnings and the
+existing hourly abuse limits do not substitute for it. Changing provider settings, creating a
+production workspace/key, rotating credentials, or making paid calls requires explicit approval.
 
 ## Deploy the backend (Fly.io)
 
 The repository ships `backend/Dockerfile` and `backend/fly.toml`. App Attest requires durable
 authentication state, so production needs a private Fly volume or reviewed shared database. Never
 use the container filesystem or an in-memory store for production counters and challenges.
+
+The commands below are infrastructure setup references. For this existing application, use the
+ordered release runbook and obtain deployment/provider-mutation approval first. Keep
+`AI_STYLING_ENABLED=false` during candidate deployment and explicit budget provisioning. The new
+ledger must be `/data/ai-budget/budget.sqlite3`, separate from App Attest's database but on the same
+verified durable volume. All workers must share it; a separate budget per replica is unsafe.
+The provisioned monthly units, admission count, and concurrency limit must exactly match the
+private configuration. Do not put the owner-approved monthly values in `fly.toml` or release notes.
 
 ```bash
 cd backend
@@ -180,10 +218,17 @@ database path under `/data`, TestFlight category `2` (App Store `4` later), and 
 allowlist selected from App Store Connect. iOS 18–26 still requires the complete core proof even
 though it cannot be category/build-gated.
 
-The durable store may contain only App Attest public keys, opaque Apple attestation receipts,
+The durable auth store may contain only App Attest public keys, opaque Apple attestation receipts,
 counters, challenges, hashed sessions, and coarse rate windows—never wardrobe, prompt, or model-
 response payloads. Do not trust the opaque Apple receipt as independent fraud evidence until its
 separate validation policy is implemented and evidenced.
+
+The separate AI ledger contains aggregate month/token/admission counters and random pending
+reservation metadata only. It receives no installation identifier, item identifier, wardrobe,
+prompt, or model-response payload. The candidate's preflight requires a ready, enabled budget
+below its warning band with no pending requests. Existing v10 lacks these controls and cannot
+satisfy that new check. Updating the production source/configuration lock must follow an actual
+approved deployment and verification, never a planned one.
 
 Production operations follow the
 [APP-009 lifecycle and logging policy](app-store/app-attest-data-lifecycle-policy.md):
@@ -196,6 +241,11 @@ Production operations follow the
    in-service retention truthfully; and
 5. perform the approved payload-free manual review before archive/upload, after backend or
    production-configuration changes, and at least every 30 days while production remains enabled.
+
+That retained cadence and the preflight's `single-user-band` auth check describe the personal
+deployment. Public Singapore launch still requires explicit capacity and support/monitoring
+acceptance; do not infer a public multi-user allowance from those historical controls. The open
+decision and budget alert/disable response are tracked in [AI spend controls](ai-spend-controls.md).
 
 Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
 validation/distribution, and clean physical Dark Mode visual retest remain release gates. Real
@@ -406,6 +456,7 @@ receipt-import capability.
 | `Unable to find a device matching the provided destination` | Use a simulator from `xcrun simctl list devices available`. |
 | `No such module 'Testing'` in the editor | Run `xcodegen generate`; the generated project resolves it. |
 | Live AI fails in Simulator | Expected: real App Attest requires a physical device. Use local/Demo Mode or injected tests. |
+| Live AI returns temporarily unavailable with a configured key | Verify the server switch, explicit budget provisioning, matching private limits, and redacted budget state. Never reset a ledger to recover availability. |
 | Plain-HTTP LAN backend is blocked | Add the ATS exception locally, verify the Mac firewall, and never commit the exception. |
 | `uv sync` picks an unexpected Python | Pin the intended Python with `uv python pin 3.12` and rerun. |
 | A release artifact contains Google/Gmail configuration | It is not the approved v1 candidate; complete the removal and regenerate before archiving. |

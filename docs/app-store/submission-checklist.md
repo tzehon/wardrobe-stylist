@@ -28,6 +28,11 @@ later be promoted to customers.
   gate and verify the exact locked SDK/model/API configuration. Do not publish exact billing values
   or treat the current personal/single-user manual-review exception as multi-user public-launch
   proof.
+  Local model/SDK migration, synthetic evaluation tooling, and durable spend controls are
+  prepared; see [model evaluation](../model-evaluation.md) and
+  [spend controls](../ai-spend-controls.md). Paid evaluation, blinded human scores, private budget,
+  alert/capacity acceptance, and verified deployment remain open. The current candidate defaults
+  remote AI off; do not treat local implementation or mock tests as launch authorization.
 
 ## 2. Public pages and truthful data declarations
 
