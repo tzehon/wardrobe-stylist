@@ -31,7 +31,8 @@ spend/admission ledger and default-disabled styling switch. The shared wire sche
 source are unchanged, so this work does not require Build 8 or replace the preserved Build 7
 archive. Keep README current with these changes.
 
-The first open launch gate remains the [fictional model evaluation](../model-evaluation.md).
+The [fictional model evaluation](../model-evaluation.md) and local implementation are accepted;
+source review and verified rollout remain open. The following retains the evaluation history.
 The first owner-approved Haiku run, with at most 28 paid calls and a $6 pre-tax ceiling,
 stopped on 2026-09-06 on its first request after 30.046 seconds with `APITimeoutError`.
 No response or usage returned; uncertain cost is bounded by $0.205120 before tax. A separately
@@ -70,12 +71,16 @@ See [evaluation and owner acceptance](../model-evaluation.md). The local model, 
 preflight now select Sonnet; the v2 budget binds its prices/context and reserves $2.010240 at
 the default 1,024-output limit. Old or mismatched ledgers fail closed without upgrade or reset.
 The 28 request hashes match the accepted run; full migration regression passed.
-The owner expects up to 10 initial AI users; the private budget and operating policy are the
-next decision, with no amount approved or configured. Both failed Haiku runs and the failed Sonnet run
+The owner expects up to 10 initial AI users and approved the private spend/admission limits
+and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled configuration
+are retained in ignored private release records and have not been applied. Both failed Haiku runs and the failed Sonnet run
 remain failed and retain unfilled human scores.
-Follow acceptance with the private
-budget decision, [spend-controls provisioning](../ai-spend-controls.md), accepted public capacity
-and operations, source review, approved immutable-image deployment, and fresh operational review.
+The remaining gates are public-capacity preflight and alert-delivery verification, source review,
+approved [spend-controls provisioning](../ai-spend-controls.md), approved immutable-image
+deployment, and fresh operational review.
+The [public-capacity preflight profile](../ai-spend-controls.md#public-launch-observed-capacity-preflight)
+is prepared locally with independent private installation/session bounds and ownership checks.
+Its limits still need approval; the historical single-user profile remains the default.
 The new required budget preflight will fail on old v10. Do not rewrite its locked deployment
 identity without live deployment evidence. Snapshot expiry/deletion-specific recovery is separate.
 After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
@@ -87,6 +92,17 @@ check. The unchanged preserved Build 7 archive's earlier signature/profile/priva
 remains recorded. No public source push, production change,
 upload, or phone/snapshot mutation occurred. Local signed-artifact validity is separate from
 the fresh operational/upload gates.
+
+After the owner approved the private budget/daily-monitoring policy, the local capacity-preflight
+extension passed independent review and the complete regression: 551 backend tests, locked
+dependency audit with no known vulnerabilities, Bandit, Ruff, mypy, 236 iOS tests (226 Swift plus
+10 UI, no failures/skips), 44 release-script tests, and fresh Release simulator/artifact checks.
+The result bundle is `ios/DerivedData/CapacityPreflightRegression-20260906.xcresult`; logs use
+`/private/tmp/wardrobe-capacity-*`. The Release simulator artifact is `1.0.0 (7)` with minimum
+iOS 18.0; the preserved distribution archive and production lock are unchanged. The approved
+disabled configuration passed local settings validation; no ledger or paid call was created.
+The private capacity bounds remain a separate open decision. Publication/review, provisioning,
+deployment, and upload still require their respective gates and approvals.
 
 ## Retained release evidence — 2026-09-01
 

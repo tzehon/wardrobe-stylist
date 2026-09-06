@@ -59,9 +59,16 @@ later be promoted to customers.
   accepted run; full migration regression passed (505 backend, 236 iOS, 44 release-script
   tests, security/type/lint checks, and Release simulator/artifact checks). No additional
   paid call was required.
-  The owner expects up to 10 AI users in month one. Private budget and operating-policy approval,
-  alert/capacity acceptance, source review, and verified deployment remain open. The current candidate defaults
+  The owner expects up to 10 AI users in month one and approved the private spend/admission
+  limits and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled
+  configuration remain in ignored private release records and have not been applied. Alert
+  delivery, public-capacity preflight, source review, approved provisioning, and verified
+  deployment remain open. The current candidate defaults
   remote AI off; do not treat local implementation or mock tests as launch authorization.
+  The later local capacity-preflight extension passed 551 backend tests, full security/type/lint
+  checks, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
+  No shared-contract/iOS/runtime-auth source or live release lock changed in that extension;
+  the preserved Build 7 archive remains unchanged and no new TestFlight build is required.
 
 ## 2. Public pages and truthful data declarations
 

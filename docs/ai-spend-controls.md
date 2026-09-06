@@ -1,9 +1,9 @@
 # Singapore launch AI spend controls
 
-Status: local candidate, not deployed or enabled. The private monthly launch budget is
-**not chosen**. The [fictional model evaluation](model-evaluation.md) passed all automatic
-checks and received qualitative owner acceptance. Recommend a private envelope from measured cost per usable recommendation,
-expected demand, failed-call exposure, tax, and operating headroom. The 5 Free / 60 Plus figures
+Status: local candidate, not deployed or enabled. On 2026-09-06 the owner **approved the private
+launch spend/admission limits and operating policy** after reviewing measured cost, expected
+demand, failed-call exposure, and headroom. The [fictional model evaluation](model-evaluation.md)
+passed all automatic checks and received qualitative owner acceptance. The 5 Free / 60 Plus figures
 remain post-v1 proposals. This ledger is a global safety ceiling, not a customer's paid quota.
 
 Both complete Haiku pilots and the first Sonnet 5 run failed the fixed quality floor.
@@ -12,11 +12,13 @@ US$0.360167 for 28 calls (US$0.012839 per mechanically usable quality output). T
 human review was accepted through the owner's explicit qualitative approval of all proposals.
 The partial numeric rubric remains unproven and no missing ratings were inferred. Warm-pair
 input savings of about 20.9% do not prove production reuse, so caching stays off. The owner
-expects up to 10 AI users in the first launch month. A private budget proposal is ready;
-no amount is approved or configured. The runtime model, token rates, full-context reservation,
+expects up to 10 AI users in the first launch month. The approved private policy is retained in
+ignored `.fly/launch-policy-20260906.md`, with a disabled configuration prepared separately;
+neither production settings nor a production ledger have been changed. The runtime model, token rates, full-context reservation,
 and redacted preflight are aligned and have passed the full required regressions.
-The exact proposed monthly amount and admission limits remain outside this repository;
-approval and provisioning are still pending.
+The exact approved monthly amount and admission limits remain outside tracked source.
+Provisioning, provider-console changes, source publication, and deployment retain their separate
+approval boundaries. Approval of the policy does not close those gates.
 
 ## Admission and maximum exposure
 
@@ -135,13 +137,62 @@ insufficient room for one full reservation even if some allowance remains. A bou
 threshold; logs contain no amounts, catalog data, IDs, or credentials. Preflight fails closed on
 warnings, exhaustion, disabled styling, pending requests, or absent/untrusted evidence.
 
-Before public launch, obtain explicit acceptance of a named owner and operational cadence:
-recommended daily provider/ledger review during launch, same-day review of warning events, and
-immediate disabling on critical spend, anomalous traffic, uncertain accounting, or provider-price
-drift. Configure or verify delivery of provider/workspace alerts without a new vendor where
+The owner accepted responsibility for daily provider/ledger review during launch, same-day
+review of warning events, and immediate response to critical spend, anomalous traffic, uncertain
+accounting, or provider-price drift on 2026-09-06. The approved cadence supplements the existing
+pre-archive/upload and post-change reviews. Configure or verify delivery of provider/workspace alerts without a new vendor where
 possible. No notification delivery or monitoring automation has been installed by this change.
-The current auth preflight still accepts only its historical single-user aggregate band;
-multi-user capacity and that check must be deliberately reviewed before public launch.
+The auth preflight defaults to its historical single-user aggregate band. The local tooling also
+supports an explicitly selected public-launch profile with a separate private policy file;
+that profile has not been approved or activated. The estimate of ten people does not determine
+installation/session limits: reinstalls create new identities, and session renewals can overlap.
+
+### Public-launch observed-capacity preflight
+
+Review independent maximum observed active-installation and active-session counts, then retain
+the approved values in an ignored, owner-owned mode-0600 TOML file such as
+`.fly/auth-capacity-policy.toml`. These are release-review bounds, not runtime account caps or
+additional AI spending allowances. The schema is shown with deliberately invalid placeholders;
+replace them only with separately approved integers before use:
+
+```toml
+schema_version = 1
+profile = "public-launch"
+max_active_installations = "OWNER_APPROVED_INTEGER"
+max_active_sessions = "OWNER_APPROVED_INTEGER"
+```
+
+The parser requires exactly these fields, rejects non-integers, zero, values above its general
+100,000 safety bound, symlinks, hard links, unsafe permissions, and oversized/malformed files.
+The safety bound is not a recommended or approved launch capacity. Supplying a file without
+explicitly selecting the public profile also fails closed. After policy approval, use the same
+profile and file on every combined preflight rerun from clean synchronized `main`:
+
+```bash
+python3 backend/verify_production_operations.py --refresh-registry-auth \
+  --auth-capacity-profile public-launch \
+  --auth-capacity-policy .fly/auth-capacity-policy.toml
+```
+
+The public profile permits legitimate overlapping sessions while independently requiring every
+active session to belong to a non-revoked installation. Both profiles retain the quiescent
+release-review requirements of zero pending/failed challenges and at most 552 rate windows.
+Output reports fixed profile/status labels only; private limits and observed counts are not
+printed. An invalid policy stops before live checks. No public capacity policy is created or
+selected automatically, and the historical production source/release lock remains unchanged.
+
+Runtime auth and abuse limits are unchanged. Existing registration limits allow five attempts
+per IP and ten globally per hour, so several testers sharing a network may need staged
+onboarding. Styling retains its independent 60-attempt global hourly abuse ceiling before the
+approved monthly/concurrency controls. These limits do not enforce a ten-person population cap.
+
+The completed local approval/capacity tranche passed 551 backend tests, locked dependency audit,
+Bandit, Ruff, mypy, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact
+checks on 2026-09-06. Independent review found no actionable issue. The approved disabled
+budget configuration passes local settings validation; no ledger or provider call was created.
+No runtime auth, live release lock, iOS source, or shared schema changed in this tranche.
+
+### Incident response
 
 For an incident, follow this order:
 

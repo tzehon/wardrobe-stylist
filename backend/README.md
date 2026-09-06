@@ -1,9 +1,19 @@
 # Wardrobe backend (FastAPI)
 
 Thin proxy that holds the Anthropic API key and calls Claude. It never persists wardrobe
-payloads. It does persist narrowly scoped App Attest authentication
+payloads. It persists separate aggregate AI-budget/reservation metadata and narrowly scoped App Attest authentication
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
+
+The local candidate selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+thinking/cache/retries off, and a default 1,024-token response cap. A separate durable v2
+ledger reserves worst-case cost before each provider call and fails closed on missing storage,
+policy mismatch, or uncertain accounting. Styling defaults to disabled. The owner approved
+the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored
+private release records, remain unapplied, and must not be committed. See
+[`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
+Source review, approved provisioning/deployment, and fresh live operational checks remain open.
+The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 
 ## Setup
 
@@ -40,7 +50,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Claude Opus 4.8, forced tool use) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (local Sonnet 5 candidate, strict forced tool use) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
 endpoint. `/recommend` is a single non-streaming call.
@@ -62,15 +72,16 @@ bundle-version extensions arrive on iOS 27 and later: their signed absence is ac
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
 The approved operational limits are defined in
 [`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
-Fly release v10 runs the exact reviewed build-7 backend candidate as an immutable Linux/AMD64 image
-with a one-minute maintenance loop on the minimum-one-Machine production topology. The privately
-retained exact v10 immutable reference is the sole current recovery reference. At the
+Retained production evidence describes Fly v10 and the earlier Opus 4.8 backend, not the local
+Sonnet/budget candidate. That release used an immutable Linux/AMD64 image with a one-minute
+maintenance loop on the minimum-one-Machine production topology. At the
 `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh authentication re-resolved its expected
 source identity and architecture, and its zero-High/Critical scan passed. Former v9, v8, v7, and v6
 references are timestamped historical evidence only. The former v6 reference's current platform/
 source identity was not independently proven, so it is ineligible for rollback or recovery. Any
-identity or scan mismatch blocks archive, upload, distribution, and physical QA until exact v10 is
-restored and reverified. Cleanup repeats bounded transactions until drained,
+identity or scan mismatch blocks archive, upload, distribution, and physical QA.
+After the budgeted candidate is enabled, recovery must use its verified budget-aware image with
+the same ledger and limits; pre-budget v10 is not a normal rollback target. Cleanup repeats bounded transactions until drained,
 removes inactive installations after 90 days and revoked installations after 30 days, and securely
 checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
@@ -106,6 +117,8 @@ Run the repeatable read-only part of the fresh pre-upload review from clean sync
 python3 backend/verify_production_operations.py --refresh-registry-auth
 ```
 
+The lock still identifies the historical v10 deployment. The candidate's required budget check
+will fail on v10; update the lock only from actual approved replacement-deployment evidence.
 The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
@@ -119,6 +132,12 @@ the selected archive and deployment. Supply `--refresh-registry-auth` again on t
 each registry credential directory is intentionally ephemeral. After a pass, retain the approved
 fixed fields, remediation outcome, and next due in the lifecycle policy's manual-review register;
 the temporary TOML is not the long-lived review record.
+
+The historical single-user aggregate profile remains the default. The local candidate also
+supports `--auth-capacity-profile public-launch --auth-capacity-policy PRIVATE_TOML` with
+independently approved private installation/session bounds and active-session ownership checks.
+No public profile is approved or selected yet. See the
+[capacity-policy schema and review procedure](../docs/ai-spend-controls.md#public-launch-observed-capacity-preflight).
 
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
 PKCS#7 payload validation and fraud-metric exchange are a separate deferred operations

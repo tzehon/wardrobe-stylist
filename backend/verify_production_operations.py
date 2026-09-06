@@ -23,13 +23,14 @@ import plistlib
 import re
 import selectors
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
 import time
 import tomllib
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from html.parser import HTMLParser
@@ -45,6 +46,9 @@ COMMAND_TIMEOUT_SECONDS = 30
 LOG_TIMEOUT_SECONDS = 20
 SNAPSHOT_MAX_AGE = timedelta(hours=36)
 EVENT_WINDOW = timedelta(minutes=10)
+# Parser safety bounds, not a launch-capacity recommendation or runtime quota.
+MAX_AUTH_CAPACITY_BOUND = 100_000
+MAX_AUTH_CAPACITY_POLICY_BYTES = 4096
 RUNTIME_INPUT_PATHS = (
     "backend/.dockerignore",
     "backend/Dockerfile",
@@ -60,6 +64,62 @@ RUNTIME_INPUT_PATHS = (
 
 class ReviewConfigurationError(ValueError):
     """Raised when local review configuration cannot be trusted."""
+
+
+@dataclass(frozen=True)
+class AuthCapacityPolicy:
+    """Private observed-capacity bounds; never infer them from expected people."""
+
+    max_active_installations: int = field(repr=False)
+    max_active_sessions: int = field(repr=False)
+
+    def __post_init__(self) -> None:
+        if not all(
+            type(value) is int and 1 <= value <= MAX_AUTH_CAPACITY_BOUND
+            for value in (self.max_active_installations, self.max_active_sessions)
+        ):
+            raise ReviewConfigurationError("auth capacity policy is invalid")
+
+
+def load_auth_capacity_policy(
+    *, profile: str, path: Path | None
+) -> AuthCapacityPolicy | None:
+    """Load only an explicitly selected private public-launch policy, without output."""
+    if profile == "single-user" and path is None:
+        return None
+    if profile != "public-launch" or path is None:
+        raise ReviewConfigurationError("auth capacity profile requires a valid policy")
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor, "rb") as stream:
+            metadata = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or stat.S_IMODE(metadata.st_mode) != 0o600
+                or metadata.st_uid != os.getuid()
+                or metadata.st_nlink != 1
+                or not 0 < metadata.st_size <= MAX_AUTH_CAPACITY_POLICY_BYTES
+            ):
+                raise ValueError
+            contents = stream.read(MAX_AUTH_CAPACITY_POLICY_BYTES + 1)
+        if len(contents) > MAX_AUTH_CAPACITY_POLICY_BYTES:
+            raise ValueError
+        raw = tomllib.loads(contents.decode("utf-8"))
+        if (
+            set(raw) != {
+                "schema_version", "profile", "max_active_installations", "max_active_sessions"
+            }
+            or type(raw["schema_version"]) is not int
+            or raw["schema_version"] != 1
+            or raw["profile"] != "public-launch"
+        ):
+            raise ValueError
+        return AuthCapacityPolicy(
+            max_active_installations=raw["max_active_installations"],
+            max_active_sessions=raw["max_active_sessions"],
+        )
+    except (OSError, ValueError, TypeError):
+        raise ReviewConfigurationError("auth capacity policy is invalid") from None
 
 
 class Status(StrEnum):
@@ -81,7 +141,7 @@ _DETAILS: dict[str, frozenset[str]] = {
         {"schema-integrity-and-runtime-guards", "auth-store-evidence-open"}
     ),
     "auth_aggregate": frozenset(
-        {"single-user-band", "auth-aggregate-open"}
+        {"single-user-band", "configured-public-band", "auth-aggregate-open"}
     ),
     "styling_budget": frozenset(
         {
@@ -163,6 +223,7 @@ _WARNING_RESULTS = frozenset(
         ("styling_budget", "spend-critical"),
     }
 )
+_ADDITIONAL_PASS_RESULTS = frozenset({("auth_aggregate", "configured-public-band")})
 
 CHECK_ORDER = tuple(_DETAILS)
 
@@ -179,7 +240,7 @@ class CheckResult:
             raise ReviewConfigurationError("review result used an unapproved field")
         expected_status = (
             Status.PASS
-            if _PASS_DETAILS[self.name] == self.detail
+            if _PASS_DETAILS[self.name] == self.detail or pair in _ADDITIONAL_PASS_RESULTS
             else Status.WARNING
             if pair in _WARNING_RESULTS
             else Status.OPEN
@@ -1237,6 +1298,13 @@ def collect_storage(
         return _open("snapshot", "snapshot-evidence-open"), None
 
 
+_ACTIVE_SESSION_MEMBERSHIP_QUERY = """
+SELECT COUNT(*) FROM sessions AS s
+LEFT JOIN installations AS i ON i.installation_id = s.installation_id
+WHERE s.revoked_at IS NULL AND s.expires_at > ?
+  AND (i.installation_id IS NULL OR i.revoked_at IS NOT NULL)
+"""
+
 _REMOTE_DIAGNOSTIC = r"""
 import json
 import os
@@ -1368,6 +1436,9 @@ result = {
         "SELECT COUNT(*) FROM sessions WHERE revoked_at IS NULL AND expires_at > ?",
         (now,),
     ).fetchone()[0],
+    "invalid_active_session_memberships": connection.execute(
+        __ACTIVE_SESSION_MEMBERSHIP_QUERY__, (now,)
+    ).fetchone()[0],
     "pending_challenges": connection.execute(
         "SELECT COUNT(*) FROM challenges "
         "WHERE state IN ('issued','processing') AND expires_at > ?",
@@ -1382,7 +1453,7 @@ result = {
     "used_percent": used_percent,
 }
 print(json.dumps(result, separators=(",", ":")))
-"""
+""".replace("__ACTIVE_SESSION_MEMBERSHIP_QUERY__", repr(_ACTIVE_SESSION_MEMBERSHIP_QUERY))
 
 
 _REMOTE_STYLING_DIAGNOSTIC = r"""
@@ -1461,6 +1532,7 @@ def collect_diagnostics(
     *,
     runtime: RuntimeContext | None,
     config: ReviewConfig,
+    capacity_policy: AuthCapacityPolicy | None = None,
 ) -> tuple[CheckResult, CheckResult, CheckResult]:
     fallback = (
         _open("auth_store", "auth-store-evidence-open"),
@@ -1532,6 +1604,7 @@ def collect_diagnostics(
             "pending_challenges",
             "failed_challenges",
             "rate_windows",
+            "invalid_active_session_memberships",
         )
     )
     aggregates_ok = (
@@ -1541,15 +1614,27 @@ def collect_diagnostics(
             and value >= 0
             for value in aggregate_values
         )
-        and aggregate_values[0] <= 1
-        and aggregate_values[1] <= 1
-        and aggregate_values[1] <= aggregate_values[0]
+        and aggregate_values[0] <= (
+            capacity_policy.max_active_installations if capacity_policy else 1
+        )
+        and aggregate_values[1] <= (
+            capacity_policy.max_active_sessions if capacity_policy else 1
+        )
+        and (
+            aggregate_values[1] <= aggregate_values[0]
+            if capacity_policy is None
+            else aggregate_values[0] > 0 or aggregate_values[1] == 0
+        )
         and aggregate_values[2] == 0
         and aggregate_values[3] == 0
         and aggregate_values[4] <= 552
+        and aggregate_values[5] == 0
     )
     auth_aggregate = (
-        _pass("auth_aggregate", "single-user-band")
+        _pass(
+            "auth_aggregate",
+            "configured-public-band" if capacity_policy else "single-user-band",
+        )
         if aggregates_ok
         else _open("auth_aggregate", "auth-aggregate-open")
     )
@@ -2001,6 +2086,7 @@ def run_review(
     runner: CommandRunning,
     getter: HTTPGetting,
     clock: Callable[[], datetime],
+    capacity_policy: AuthCapacityPolicy | None = None,
 ) -> ReviewReport:
     config = ReviewConfig.load(repo_root / "backend/production-operations.toml")
     local_fly, app = _load_local_fly(repo_root / "backend/fly.toml")
@@ -2035,7 +2121,7 @@ def run_review(
         now=_clock_utc(clock),
     )
     auth_store, auth_aggregate, volume = collect_diagnostics(
-        runner, runtime=runtime, config=config
+        runner, runtime=runtime, config=config, capacity_policy=capacity_policy
     )
     styling_budget = check_styling_budget(runner, runtime=runtime)
     bounded_events = check_bounded_events(
@@ -2093,8 +2179,14 @@ def run_review(
     )
 
 
+class RedactedArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        # argparse's normal error includes rejected arguments, including private paths.
+        self.exit(2, "Production operational preflight received invalid command options.\n")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = RedactedArgumentParser(
         description=(
             "Run the redacted Wardrobe production pre-upload preflight. "
             "This command never uploads or mutates provider resources."
@@ -2111,6 +2203,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="fresh fixed-field TOML from the signed-in manual checks",
     )
     parser.add_argument(
+        "--auth-capacity-profile",
+        choices=("single-user", "public-launch"),
+        default="single-user",
+        help="explicit observed-capacity profile; defaults to the historical single-user gate",
+    )
+    parser.add_argument(
+        "--auth-capacity-policy",
+        type=Path,
+        metavar="PRIVATE_TOML",
+        help="owner-approved private bounds; required only with the public-launch profile",
+    )
+    parser.add_argument(
         "--refresh-registry-auth",
         action="store_true",
         help=(
@@ -2125,6 +2229,9 @@ def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv[1:])
     repo_root = Path(__file__).resolve().parent.parent
     try:
+        capacity_policy = load_auth_capacity_policy(
+            profile=args.auth_capacity_profile, path=args.auth_capacity_policy
+        )
         config = ReviewConfig.load(repo_root / "backend/production-operations.toml")
         archive_path = args.archive or (
             repo_root
@@ -2139,6 +2246,7 @@ def main(argv: list[str]) -> int:
             runner=SubprocessRunner(),
             getter=UrllibHTTPGetter(),
             clock=lambda: datetime.now(UTC),
+            capacity_policy=capacity_policy,
         )
     except ReviewConfigurationError:
         print(
