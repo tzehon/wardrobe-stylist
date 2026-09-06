@@ -15,9 +15,11 @@ private release records, remain unapplied, and must not be committed. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
 Approved provisioning/deployment and fresh live operational checks remain open. A subsequent
-local security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
+security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
-runtime/storage checks; that follow-up's publication/review and merged-image rollout remain open.
+runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
+owner-approved source publication, required checks, Codex review, and merge state. Production
+rollout remains open and must use a verified image of the merged source.
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 
 ## Setup

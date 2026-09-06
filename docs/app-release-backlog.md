@@ -518,13 +518,15 @@ open.
   44 release-script tests, and fresh Release simulator/artifact checks. No historical report or
   rating changed, no paid call ran, and no new TestFlight build is required. The PR records the
   required review of these fixes and final merge state.
-- [ ] **Review the patched runtime before deployment.** PR #41 merged to `e3a837b`, but the
+- [ ] **Deploy the reviewed patched runtime under approval.** PR #41 merged to `e3a837b`, but the
   subsequent local image scan found four High-severity findings in inherited `util-linux`.
   A local final-stage `libuuid>=2.42.3-r1` fix preserves the pinned bases and crypto refresh.
   Its rebuilt Linux/AMD64 image contains the patched revision and passes the zero-High/Critical
-  scan plus isolated UUID/privilege/logging/separate-storage/restart checks. Complete the
-  follow-up's source publication/review and exact merged-image validation before approved
-  image publication or production deployment. The fresh read-only production review retained OPEN source, budget,
+  scan plus isolated UUID/privilege/logging/separate-storage/restart checks.
+  [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
+  publication, required checks, Codex review, and merge state. Image publication and production
+  deployment require separate approval and exact merged-image validation. The fresh read-only
+  production review retained OPEN source, budget,
   recovery-scan and manual gates. See the [runtime security checkpoint](app-store/internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
   The remediation passed 583 backend tests plus locked security/type/lint checks, all 236 iOS
   tests, 44 release-script tests, and fresh Release simulator/artifact checks.

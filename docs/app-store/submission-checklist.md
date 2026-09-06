@@ -80,10 +80,12 @@ later be promoted to customers.
   TestFlight build is required. The PR records the fixes' required review and merge outcome.
 
 PR #41 merged to `e3a837b`; the subsequent local image scan found four High-severity findings
-in inherited `util-linux`. The local `libuuid>=2.42.3-r1` remediation preserves the pinned bases
+in inherited `util-linux`. The `libuuid>=2.42.3-r1` remediation preserves the pinned bases
 and crypto refresh, and its rebuilt image passes the zero-High/Critical scan and isolated runtime,
-logging, separate-storage and restart checks. Its source publication/review, exact merged-image
-validation and approved rollout remain open. The latest read-only production preflight also
+logging, separate-storage and restart checks.
+[PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
+publication, required checks, Codex review, and merge state. Production rollout remains open
+and requires separate approval plus exact merged-image validation. The latest read-only production preflight also
 retained OPEN source, budget, recovery-scan and manual gates. See the
 [runtime security checkpoint](internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
 The remediation passed all 583 backend tests and security/type/lint gates, 236 iOS tests,

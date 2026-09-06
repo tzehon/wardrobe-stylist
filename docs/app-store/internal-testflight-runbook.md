@@ -140,8 +140,13 @@ loading, UID/GID 10001, no-new-privileges, SQLite, bounded logging, separate aut
 and uncertain-reservation persistence across restart. Every smoke container had no network or
 provider key; only the newly created synthetic Docker volume was removed after success.
 Private image evidence is retained under `.fly/sonnet-image-validation-20260906T104140Z-2iAXp1/`.
-The follow-up remains local pending its own source publication/review and exact merged-image
-validation. It changes no iOS/shared source, version, signed archive, or live release lock.
+The owner approved publication and the complete review/merge cycle on 7 September 2026 SGT.
+[PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) was created as a draft and immediately
+marked ready; it records the required checks, Codex review, and merge state. Production rollout
+requires separate approval and a verified image of the merged source. This source approval
+does not authorize registry publication, paid calls, provider changes, production provisioning,
+deployment, AI enablement, or distribution. The fix changes no iOS/shared source, version,
+signed archive, or live release lock.
 
 The remediation passed 12 focused container tests, all 583 backend tests, locked dependency
 audit with no known vulnerabilities, Bandit, Ruff, and mypy. Full iOS regression passed 236/236
