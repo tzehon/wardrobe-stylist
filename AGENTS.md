@@ -211,9 +211,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   the exact v10 recovery reference with the expected source identity and Linux/AMD64 architecture,
   and its zero-High/Critical scan passed. The former Gmail-free v6 reference remains timestamped
   historical evidence, but its current platform/source identity was not independently proven and
-  it is ineligible for rollback or recovery. The exact v10 immutable reference is the sole current
-  recovery reference; any identity or scan mismatch blocks archive, upload, distribution, and
-  physical QA until exact v10 is restored and reverified. Post-merge exact-source regression on
+  it is ineligible for rollback or recovery. At that historical checkpoint, the exact v10 immutable
+  reference was the sole recovery reference; identity or scan mismatches blocked further release
+  work. The disabled v11 cutover recorded below supersedes v10 as a normal recovery target.
+  Post-merge exact-source regression on
   clean synchronized main `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests
   plus audit/Bandit/Ruff/mypy, 226 Swift unit tests, 9 UI tests, 43 release-script tests, and the
   Release simulator/artifact gates. The `2026-08-29T04:21:50Z` review was too old to satisfy the
@@ -274,8 +275,16 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** The local candidate pins `claude-sonnet-5`; retained Fly v10
-  evidence describes the earlier Opus 4.8 deployment, not this candidate. Verify SDK syntax and
+- **Models in use:** Fly v11, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
+  selects pinned `claude-sonnet-5` with AI styling disabled. Its owner-approved deployment was
+  observed healthy on the original Machine and volume at `2026-09-07T10:36:34Z`; the disabled-only
+  verification completed at `2026-09-07T10:39:08Z`. Registry source/platform and zero-High/Critical
+  checks, App Attest configuration/store protections, bounded logging, snapshots and public
+  health/pages passed. The serving process uses the disabled default, with no AI configuration
+  overrides, no applied private policy and no budget database. The existing budget checker
+  truthfully remains OPEN with `styling-budget-evidence-open`. No paid call was made.
+  This does not close migration acceptance or the full pre-upload review. Retained Fly v10
+  evidence describes the historical Opus 4.8 deployment and archive baseline. Verify SDK syntax and
   pricing against current official Anthropic documentation, use strict structured tool output
   plus authoritative local/shared validation, and retain caching only after measured cache reads
   justify it. Sonnet was evaluated only after Haiku failed the recorded quality floor.
@@ -302,11 +311,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
   again. The policy is not yet applied and does not authorize source publication, provisioning,
-  provider-console changes, deployment, or distribution. Public-capacity preflight and alert
-  delivery remain open operational gates.
-  Once the budgeted candidate is enabled, recovery must use a verified budget-aware image with
-  the same ledger and limits. Pre-budget v10 ignores these controls and must not become a normal
-  rollback target after cutover; its retained recovery evidence describes the earlier baseline.
+  provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
+  approval covered private image publication, disabled deployment and its evidence PR only.
+  Historical-liability reconciliation, budget provisioning, adequate provider credit,
+  public-capacity preflight, alert delivery and separate AI enablement remain open.
+  The verified v11 immutable image is retained privately for disabled redeployment. Once a
+  ledger is provisioned, verify recovery compatibility with that same ledger and limits before
+  enablement. Pre-budget v10 ignores these controls and is not a normal rollback target after
+  this cutover; its retained recovery evidence describes the earlier baseline.
 - **Gmail-free guard:** `RemovedCapabilitiesReleaseGuardTests` and artifact/configuration scripts must fail if
   Google/Gmail/receipt-import source, configuration, SDK bundles, routes, or background identifiers
   return.

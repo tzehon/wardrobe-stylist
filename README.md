@@ -66,7 +66,7 @@ offline Demo Mode, and optional AI styling protected by App Attest. The earlier 
 receipt-import subsystem has been removed from active v1 source and is deferred to a separately
 reviewed future release.
 
-The local backend candidate uses pinned `claude-sonnet-5` with Anthropic SDK 1.4.0,
+The deployed backend selects pinned `claude-sonnet-5` with Anthropic SDK 1.4.0,
 the synchronous Messages API at the standard service tier, strict forced tool output,
 no extended thinking or retries, and
 the evaluated 1,024-token response limit. Runtime admission and preflight reject any different
@@ -76,7 +76,13 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-This candidate is **not deployed**.
+Fly **v11**, source `d2866a2`, deployed on 7 September 2026 with **AI styling disabled**.
+The exact registry image passed its source/platform and zero-High/Critical checks. The
+disabled-only production review completed at `2026-09-07T10:39:08Z`, verifying the original
+Machine and encrypted volume, healthy service, App Attest storage, bounded logging and the
+serving process's closed AI admission. No budget database was created or paid call made.
+This is not a complete pre-upload operational pass; see the
+[disabled rollout and open gates](docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
 checks, Codex review, and merge state. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
@@ -86,15 +92,17 @@ proposals qualitatively and selected Sonnet; the partial numeric scorecards rema
 and are not reported as a numeric-rubric pass. Both earlier Haiku failures and the first
 Sonnet failure remain recorded, and no threshold was changed. Sonnet's revised warm cache pair
 saved about 20.9% of input cost, but production reuse remains unproven and caching stays off.
-No paid call is running.
-The local runtime and durable budget are aligned with Sonnet pricing and its full context;
+No new paid evaluation or verification call was made during the rollout.
+The deployed runtime and durable-budget implementation are aligned with Sonnet pricing and its full context;
 the v2 ledger rejects old or mismatched pricing policy without resetting charges. This work
-has not been deployed. On 6 September 2026 the owner approved the private launch spend/admission
+is deployed with AI disabled and its budget unprovisioned. On 6 September 2026 the owner approved the private launch spend/admission
 limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
 limits remain in ignored private release records and have not been applied. The release checker
 supports a separate private public-capacity profile; its bounds still need review and approval.
-That operational gate, alert-delivery verification, and verified deployment remain
-open before Build 7 distribution. The earlier timeout's cost remains unconfirmed, conservatively
+That operational gate, prior-liability reconciliation, budget provisioning, adequate provider
+credit, alert-delivery verification and separately approved AI enablement remain open before
+Build 7 distribution. The new verified budget-aware image is retained privately for disabled
+redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively
 bounded by US$0.205120; a separate successful diagnostic
 cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).
 No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
@@ -117,9 +125,9 @@ pinned base images and crypto updates. Its rebuilt image contains `libuuid 2.42.
 the zero-High/Critical scan, native UUID loading, non-root/no-new-privileges, bounded logging,
 separate storage, and restart-persistence checks.
 [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
-publication, required checks, Codex review, and merge state. Production rollout remains open
-and must use a verified image of the merged source. Production and
-the preserved Build 7 archive are unchanged. The remediation passed all 583 backend tests and
+publication, required checks, Codex review, and merge state. The exact merged image is deployed
+as v11 with AI disabled; full migration acceptance and enablement remain open.
+The preserved Build 7 archive is unchanged. The remediation passed all 583 backend tests and
 security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release artifact
 checks. No new TestFlight build is required. See the
 [runtime security checkpoint](docs/app-store/internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).

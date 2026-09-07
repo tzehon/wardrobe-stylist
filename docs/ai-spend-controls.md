@@ -1,6 +1,9 @@
 # Singapore launch AI spend controls
 
-Status: local candidate, not deployed or enabled. On 2026-09-06 the owner **approved the private
+Status: deployed as Fly v11 with **AI disabled and no provisioned budget ledger**. The disabled-only
+review completed at `2026-09-07T10:39:08Z`; see the
+[deployment checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+On 2026-09-06 the owner **approved the private
 launch spend/admission limits and operating policy** after reviewing measured cost, expected
 demand, failed-call exposure, and headroom. The [fictional model evaluation](model-evaluation.md)
 passed all automatic checks and received qualitative owner acceptance. The 5 Free / 60 Plus figures
@@ -14,11 +17,20 @@ The partial numeric rubric remains unproven and no missing ratings were inferred
 input savings of about 20.9% do not prove production reuse, so caching stays off. The owner
 expects up to 10 AI users in the first launch month. The approved private policy is retained in
 ignored `.fly/launch-policy-20260906.md`, with a disabled configuration prepared separately;
-neither production settings nor a production ledger have been changed. The runtime model, token rates, full-context reservation,
+that private policy remains unapplied. The serving process uses the disabled defaults with no AI
+environment overrides or `.env` file, a blank budget path and zero monthly spend/admission limits.
+No budget directory or
+database was created, and no paid call ran. The runtime model, token rates, full-context reservation,
 and redacted preflight are aligned and have passed the full required regressions.
 The exact approved monthly amount and admission limits remain outside tracked source.
-Provisioning, provider-console changes, source publication, and deployment retain their separate
-approval boundaries. Approval of the policy does not close those gates.
+Source publication and the disabled-only deployment received separate owner approval. Provisioning,
+provider-console changes, AI enablement, and distribution still require their respective gates.
+The checker retains `styling-budget-evidence-open`, and the broader pre-upload review has not
+passed. Public-capacity approval, alert-delivery verification, prepaid-credit readiness, and prior
+uncertain-call liability remain open. The live provider review found spend below its warning band
+and no recent rate saturation, but low prepaid credit and no configured email-spend notification
+rows visible; no exact
+provider balances or private limits are retained here.
 
 ## Admission and maximum exposure
 
@@ -122,16 +134,19 @@ Deploy only the reviewed/scanned immutable image after approval. Freshly verify 
 SDK, exact source, all settings, single-volume topology, and the ledger's integrity and private
 policy match. Update the production-operations lock's deployed revision/release and required
 secret names from actual deployment evidence; do not fabricate a future release number or reuse
-the v10 source lock as proof. `production_styling_status()` emits fixed bands only and is read-only.
-The full operations helper now requires this check; v10 cannot pass it. Enable the server switch
-only after the owner approves the bounded launch policy and the remaining gates pass.
+the historical v10 source lock as proof. The v11 disabled-deployment evidence now binds source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`. `production_styling_status()` emits fixed bands only
+and is read-only. The full operations helper requires a ready, enabled budget; disabled,
+unprovisioned v11 correctly leaves that gate open. The bounded launch policy is approved, but the
+remaining operational gates and explicit AI-enable approval are still required.
 
-Once this candidate is enabled, the recovery reference must be a freshly scanned, verified
-**budget-aware image** using the same ledger and limits. Pre-budget v10 ignores the new switch
-and accounting, so it is not a normal rollback target after cutover. If no compatible recovery
-image is available, keep protected AI traffic stopped. The v10-only recovery reference in older
-release records remains pre-migration historical evidence; re-lock the actual replacement after
-approved deployment. Never regain availability by bypassing the budget.
+The exact v11 immutable reference is privately retained for **budget-aware redeployment** after
+verified source/architecture matching and zero-High/Critical scanning. Pre-budget v10 ignores the
+new switch and accounting, so it is not a normal rollback target after this disabled cutover.
+Compatibility with a future initialized ledger remains open: recovery must preserve its model,
+policy, limits, and charges. If no compatible recovery image is available, keep protected AI
+traffic stopped. The v10-only recovery reference in older release records remains pre-migration
+historical evidence. Never regain availability by bypassing the budget.
 
 ## Alerts, disable, and recovery
 
@@ -183,7 +198,8 @@ active session to belong to a non-revoked installation. Both profiles retain the
 release-review requirements of zero pending/failed challenges and at most 552 rate windows.
 Output reports fixed profile/status labels only; private limits and observed counts are not
 printed. An invalid policy stops before live checks. No public capacity policy is created or
-selected automatically, and the historical production source/release lock remains unchanged.
+selected automatically. The source/release lock follows verified deployment evidence independently
+of public-capacity approval; deploying v11 does not approve or activate a public-capacity profile.
 
 Runtime auth and abuse limits are unchanged. Existing registration limits allow five attempts
 per IP and ten globally per hour, so several testers sharing a network may need staged

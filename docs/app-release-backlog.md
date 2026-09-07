@@ -21,7 +21,7 @@ Statuses:
 
 ## Progress snapshot
 
-Last updated: **2026-09-06**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-07**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -35,12 +35,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification now pass. Validation/upload, processing, assignment, clean visual retest, metadata, and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Validation/upload, processing, assignment, clean visual retest, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution and clean physical Dark Mode retest remain open. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification pass. Build-7 upload/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Build-7 upload/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -121,7 +121,19 @@ transport are DEBUG-only; the Release-artifact guard proves their launch markers
 test-only change does not alter Release code paths or the preserved build-7 archive and does not
 require build 8.
 
-The current production baseline is Fly release v10, completed at `2026-08-29T01:52:47Z`. It serves
+The current production baseline is **Fly v11 with AI disabled**, serving merged source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`. The original Machine and volume were healthy at
+`2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`. Exact
+registry/runtime source and Linux/AMD64 identity, zero-High/Critical scans, App Attest/auth-store
+integrity, privilege/logging controls, snapshots, and public pages passed. The approved private
+budget policy remains unapplied, with no budget storage or paid call. The broader budget/manual
+preflight remains OPEN, as do provisioning, capacity, alerts, prepaid-credit readiness, prior
+uncertain liability, AI enablement, and distribution. The privately retained v11 reference supports
+budget-aware disabled redeployment; compatibility with a future initialized ledger still needs
+verification. See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+
+The historical pre-migration production baseline was Fly release v10, completed at
+`2026-08-29T01:52:47Z`. It served
 exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as `linux/amd64`;
 release and running image references match privately; local and immutable-registry Docker Scout
 scans report zero High/Critical findings; and locked `pip-audit` passed. One healthy Singapore
@@ -152,16 +164,17 @@ provider body is retained. Repeat this review before every future archive/upload
 backend/configuration change.
 
 Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
-is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
-review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
-restored and reverified. At the `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh authentication
+is the current backend candidate. Before the Sonnet cutover, restoring and reverifying exact v10
+was required to recover the selected backend. At the `2026-08-29T03:31:57Z` recovery-baseline
+checkpoint, fresh authentication
 re-resolved the privately retained exact v10 immutable recovery reference with the expected source
 identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former v6
 reference's current platform/source identity was not independently proven, so it is ineligible for
-rollback or recovery. Exact v10 is the sole current recovery reference; any identity or scan
-mismatch blocks archive, upload, distribution, and physical QA until exact v10 is restored and
-reverified. The emergency pre-build-4 image is App-Attest-only and scan-clean, but it re-exposes
-`/extract`; using it must halt the release.
+rollback or recovery. Exact v10 was the sole recovery reference at that historical checkpoint.
+After the disabled v11 cutover, it is not a normal rollback target because it ignores the new
+switch and budget controls. Current recovery must preserve any initialized budget ledger, limits,
+and charges. The emergency pre-build-4 image is App-Attest-only and historically scan-clean, but
+it re-exposes `/extract`; using it must halt the release.
 The payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`: the two-day HTTP view had
 only `401`/`404` and no 5xx series; the bounded ten-minute view had no auth-rejection/rate-limit,
 Anthropic/stylist, maintenance, unhandled, malformed-lifecycle, or access-log event. Anthropic
@@ -468,13 +481,14 @@ open.
   said "all are ok, proceed" and accepted all proposals qualitatively. Preserve the partial
   scorecard and record this owner exception separately; the numeric rubric is not claimed to
   have passed. No missing score was inferred and no automatic threshold changed.
-  The local candidate now selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
+  The deployed, AI-disabled runtime selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
   Runtime admission, spend bands, and preflight use Sonnet's full 1M context at 2 input / 10
   output micro-USD per token; the default reservation is $2.010240. The v2 ledger binds model,
   units, prices, and token bounds and rejects old/mismatched storage without upgrade or reset.
   Full migration regression passed. No new paid call was needed for this alignment.
-  Keep this gate unchecked until live quality, human review, cost/cache measurement,
-  source review, deployment, and the fresh operational review pass. Shared schemas and iOS
+  Keep this gate unchecked until the remaining provisioning/enablement and full fresh operational
+  review pass. Qualitative owner acceptance and the unchanged automatic floor are recorded above;
+  the disabled v11 deployment is recorded separately below. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
   Sonnet migration verification passed 505 backend tests, locked pip-audit with no known vulnerabilities,
   Bandit (including evaluation tooling), Ruff, mypy, 226 Swift tests plus all 10 UI tests,
@@ -496,8 +510,8 @@ open.
   AI users. Exact limits and the disabled configuration are retained in ignored private release
   files, not tracked source, and have not been applied. This closes the budget/cadence decision
   only. Alert delivery, public capacity acceptance (including replacement of the historical
-  single-user aggregate preflight band), approved provisioning, and verified
-  deployment remain open.
+  single-user aggregate preflight band), prepaid-credit readiness, approved provisioning,
+  prior uncertain-call liability, AI enablement, and the full operational review remain open.
   Local tooling now supports an explicitly selected public-launch preflight profile with strict
   private installation/session bounds and an active-session ownership check. The historical
   single-user profile remains the default; no public limits are inferred from ten expected people
@@ -518,19 +532,30 @@ open.
   44 release-script tests, and fresh Release simulator/artifact checks. No historical report or
   rating changed, no paid call ran, and no new TestFlight build is required. The PR records the
   required review of these fixes and final merge state.
-- [ ] **Deploy the reviewed patched runtime under approval.** PR #41 merged to `e3a837b`, but the
+- [x] **Deploy the reviewed patched runtime with AI disabled under approval.** PR #41 merged to
+  `e3a837b`, but the
   subsequent local image scan found four High-severity findings in inherited `util-linux`.
   A local final-stage `libuuid>=2.42.3-r1` fix preserves the pinned bases and crypto refresh.
   Its rebuilt Linux/AMD64 image contains the patched revision and passes the zero-High/Critical
   scan plus isolated UUID/privilege/logging/separate-storage/restart checks.
   [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
-  publication, required checks, Codex review, and merge state. Image publication and production
-  deployment require separate approval and exact merged-image validation. The fresh read-only
-  production review retained OPEN source, budget,
-  recovery-scan and manual gates. See the [runtime security checkpoint](app-store/internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
+  publication, required checks, Codex review, and merge state. The owner separately approved private
+  image publication and AI-disabled deployment of merged source
+  `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. Fly v11 was verified healthy on the original Machine
+  and volume at `2026-09-07T10:36:34Z`; the disabled-only review completed at
+  `2026-09-07T10:39:08Z`. Exact source/architecture/private-registry identity, zero-High/Critical
+  scans, App Attest/auth integrity, privilege/logging controls, snapshots, and public pages passed.
+  The serving process uses disabled defaults without AI overrides or `.env`; the approved policy
+  remains unapplied, no budget directory/database was created, and no paid call ran.
+  The checker retains `styling-budget-evidence-open` and manual rows OPEN. The broader pre-upload
+  review is not passed. Credit readiness, alert delivery, capacity, prior liability, provisioning,
+  AI enablement, and distribution remain open. The private v11 recovery reference is budget-aware;
+  future ledger compatibility remains to be verified and pre-budget v10 is not a normal rollback.
+  See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
   The remediation passed 583 backend tests plus locked security/type/lint checks, all 236 iOS
   tests, 44 release-script tests, and fresh Release simulator/artifact checks.
-  No production change has been made; this backend-only fix requires no new TestFlight build.
+  The preserved Build 7 archive is unchanged; this backend-only deployment requires no new
+  TestFlight build. Only this disabled-deployment subgate is complete.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
@@ -860,7 +885,8 @@ governed by APP-036's Gmail-free guards.
   historical simulator-artifact, regression, production-backend, signed-archive, upload, and
   physical evidence is retained. Build-4 and build-5 handoffs completed; clean build 5 provided
   broad Gmail-free proof and production markers before its notification-tap crash. The fix is
-  merged, historical Fly v9 compatibility and the current Fly v10 deployment pass, and clean build 6
+  merged, historical Fly v9 compatibility and archive-era Fly v10 deployment evidence are retained,
+  and the [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Clean build 6
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Deletion-
   specific recovery/non-return, final Google retirement, and public submission remain open.
