@@ -10,9 +10,26 @@ does not account for Fly charges, and neither proposal is approved for execution
 The read-only inventory at `2026-09-07T23:30:46Z` found one started Singapore Machine with
 one shared CPU and 512 MB RAM, one 1 GB volume with 14-day snapshot retention, and shared IPv4
 plus IPv6. The same billing organization's app list contains only this app and no builder app.
-This inventory does not prove the absence of paid support, extensions, linked-organization
-charges, historical build usage or other invoice adjustments; signed-in billing reconciliation
-remains required before accepting the total hosting forecast.
+The signed-in billing review on 8 September, beginning at `2026-09-07T23:44Z`, reconciled the
+September invoice preview with Cost Explorer across CPU, additional RAM, volumes, snapshots and
+egress. The organization shows no linked organizations, active support package, Managed Postgres
+clusters or Upstash Redis databases. Exact charges and account identifiers remain private.
+Tigris inventory required accepting its terms, so that inventory was not read and no terms were
+accepted. No Tigris or other add-on charge appeared in the reviewed current-period product list;
+this does not rule out unreported usage or later adjustments.
+
+The previous month's service charges were waived on the paid invoice. Do not assume future
+waivers or use the net amount due as the consumption measure: compare pre-tax service charges
+before discretionary waivers or prepaid/promotional credits with the proposed thresholds, and
+show adjustments and payable amounts separately. Retain applicable published resource allowances
+only while their actual availability is verified. Displayed line items are rounded; use the
+provider's subtotal rather than summing rounded lines.
+
+The current preview is not a full-month forecast. The reviewed billing views show no usage
+coverage cutoff or refresh-lag guarantee. No tax line was shown; future tax treatment is unverified.
+Billing-feed freshness, final adjustments and monitoring readiness remain open. The current
+resource scenario below remains the planning estimate; do not extrapolate a rounded daily
+average into a promised maximum bill.
 
 The current configuration keeps at least one Machine running. Budget for continuous operation;
 do not rely on autostop savings. Fly's Singapore price selected on 8 September is approximately

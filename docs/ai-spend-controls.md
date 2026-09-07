@@ -67,8 +67,13 @@ Keep evaluation on a separate key. A dedicated production workspace/key with a p
 workspace limit is recommended as an independent backstop, subject to separate owner approval.
 The owner's 8 September request adds a separate [Fly hosting policy](fly-spend-controls.md).
 Its resource envelope, cost/egress monitoring and service-hold thresholds remain proposed.
-Neither the AI ledger nor the disabled AI switch caps hosting charges. The revised setup must
-reconcile the full Fly organization bill and prepare verified monitoring before AI enablement.
+Neither the AI ledger nor the disabled AI switch caps hosting charges. The signed-in 8 September
+review reconciled the current September invoice preview with Cost Explorer across five expected
+resource categories, with no linked organizations, active support package, Managed Postgres
+clusters or Upstash Redis databases in the reviewed organization. The snapshot does not establish
+the billing feed's coverage cutoff/refresh lag, final taxes/adjustments or the absence of every
+possible add-on. The revised setup still requires fresh billing reconciliation and verified
+monitoring before AI enablement; the month-end estimate remains a planning scenario.
 
 The route admits at most 200 catalog items, 32,768 bytes of normalized request JSON, and
 64 characters per color. The HTTP receive layer limits `/recommend` to 128 KiB even when

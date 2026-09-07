@@ -95,10 +95,16 @@ production action was authorized by the request to revise the plan.
 
 Read-only CLI inventory at `2026-09-07T23:30:46Z` found one started `sin` shared-CPU/512 MB Machine,
 one 1 GB volume with 14-day snapshot retention, and shared IPv4/IPv6. The same organization's app
-list contains only this app and no builder app. Invoice-only charges, managed extensions outside
-the app list, linked billing, historical builders and support still require signed-in reconciliation.
-The baseline estimate assumes continuous compute; the current minimum-one/autostart configuration
-does not provide savings from idle shutdown. Full current invoice verification remains open.
+list contains only this app and no builder app. The signed-in billing review on 8 September,
+started at `2026-09-07T23:44Z`, reconciled the current September invoice preview with Cost Explorer
+across the five expected categories: CPU, additional RAM, volume storage, snapshots and egress.
+The reviewed organization has no linked organizations, active support package, Managed Postgres
+clusters or Upstash Redis databases. Exact amounts and provider identifiers remain private.
+This current snapshot does not prove the absence of every possible add-on or final adjustment.
+The billing feed supplies no coverage cutoff or refresh lag; those checks and verified monitoring
+remain open, and final taxes/adjustments are not guaranteed. The baseline estimate is a planning
+scenario that assumes continuous compute; the current minimum-one/autostart configuration does
+not provide savings from idle shutdown. It is not a guaranteed month-end provider projection.
 
 The [hosting control plan](../fly-spend-controls.md) freezes billable resource growth, requires
 organization-wide cost/forecast and resource checks, and prepares a reversible hold that disables

@@ -329,6 +329,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Machine stop caps the Fly invoice. A reviewed service hold must prevent autostart/restart while
   preserving durable data and uncertainty. No monitor or hold is active; explicit execution
   approval and any absolute-invoice-cap requirement remain open.
+  The signed-in 2026-09-08 billing review reconciled the current invoice preview and Cost Explorer,
+  but exposed no billing coverage cutoff or lag guarantee. Compare pre-tax service consumption
+  before discretionary waivers and prepaid/promotional credits; show net payable separately.
+  A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
+  the new private billing-reviewed proposal records this evidence without authorizing execution.
   The verified v11 immutable image is retained privately for disabled redeployment. Once a
   ledger is provisioned, verify recovery compatibility with that same ledger and limits before
   enablement. Pre-budget v10 ignores these controls and is not a normal rollback target after
