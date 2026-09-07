@@ -65,6 +65,10 @@ as every call uses this ledger and the pinned model/rates remain valid. It does 
 charges, other Anthropic keys/apps, evaluations, taxes, or charges after unreviewed price changes.
 Keep evaluation on a separate key. A dedicated production workspace/key with a provider-side
 workspace limit is recommended as an independent backstop, subject to separate owner approval.
+The owner's 8 September request adds a separate [Fly hosting policy](fly-spend-controls.md).
+Its resource envelope, cost/egress monitoring and service-hold thresholds remain proposed.
+Neither the AI ledger nor the disabled AI switch caps hosting charges. The revised setup must
+reconcile the full Fly organization bill and prepare verified monitoring before AI enablement.
 
 The route admits at most 200 catalog items, 32,768 bytes of normalized request JSON, and
 64 characters per color. The HTTP receive layer limits `/recommend` to 128 KiB even when

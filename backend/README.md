@@ -30,6 +30,10 @@ unapproved. Capacity, credit and alert readiness remain open;
 this is not a full pre-upload operational pass. See the
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
+The revised 8 September setup proposal also includes separate
+[Fly hosting cost controls](../docs/fly-spend-controls.md). Their resource restrictions, monitoring
+and service-hold procedure are proposed only; the AI budget and disabled switch do not cap Fly
+charges. Organization invoice verification and monitoring readiness remain open.
 
 ## Setup
 

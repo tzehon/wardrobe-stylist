@@ -136,6 +136,13 @@ unapproved and no provider or production state changed. The privately retained v
 budget-aware disabled redeployment; compatibility with a future initialized ledger still needs
 verification. See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 
+On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.md) to that pending
+proposal. The independent hosting envelope, warning/hold triggers, organization bill review and
+monitoring/delivery verification are proposed and unapproved. Current CLI inventory confirms the
+small fixed topology, but it is not the complete invoice. No native hard bill cap is established;
+do not close this gate from the AI ledger or an AI-disabled runtime. No new TestFlight build is
+required for this documentation-only preparation.
+
 The historical pre-migration production baseline was Fly release v10, completed at
 `2026-08-29T01:52:47Z`. It served
 exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as `linux/amd64`;

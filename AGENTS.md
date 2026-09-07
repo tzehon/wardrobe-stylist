@@ -321,6 +321,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   lost/restored/partial ledger stops the zero-only initializer. The private setup proposal remains
   unapproved. Budget provisioning, adequate provider credit,
   public-capacity preflight, alert delivery and separate AI enablement remain open.
+  On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
+  private proposal adds a separate hosting envelope and warning/hold thresholds; its amounts are
+  proposed, not approved. Follow `docs/fly-spend-controls.md`: keep the existing Machine/size/region/
+  volume/IP envelope, cost any expansion or paid service separately, reconcile organization-wide
+  charges and verify monitoring. Never claim the AI ledger, prepaid credit, autostop or a bare
+  Machine stop caps the Fly invoice. A reviewed service hold must prevent autostart/restart while
+  preserving durable data and uncertainty. No monitor or hold is active; explicit execution
+  approval and any absolute-invoice-cap requirement remain open.
   The verified v11 immutable image is retained privately for disabled redeployment. Once a
   ledger is provisioned, verify recovery compatibility with that same ledger and limits before
   enablement. Pre-budget v10 ignores these controls and is not a normal rollback target after
