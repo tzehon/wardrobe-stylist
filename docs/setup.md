@@ -10,10 +10,16 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-The current local candidate migrates the backend to pinned Sonnet 5 and a durable global AI
-budget. It has not been deployed; retained Fly v10 evidence still describes the earlier Opus 4.8
-runtime. Follow [AI spend controls](ai-spend-controls.md) and the release backlog before enabling
-connected styling or treating any historical production check as candidate evidence.
+The pinned Sonnet 5 runtime and durable global AI-budget controls are deployed as **Fly v11 with
+AI styling disabled**. Source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` was verified on the original
+healthy Machine and durable volume at `2026-09-07T10:36:34Z`; the disabled-scope operational review
+completed at `2026-09-07T10:39:08Z`. The source/platform-matched private immutable image passed a
+zero-High/Critical scan. The approved private launch policy remains unapplied, and no budget
+directory or database has been created. The serving process has no AI environment overrides or
+`.env` file and uses disabled styling, a blank budget path, and zero limits. Verification made no
+paid AI calls. Retained Fly v10 evidence still describes the earlier Opus 4.8 runtime and
+archive-era checks. Follow [AI spend controls](ai-spend-controls.md) and the release backlog for
+liability, capacity, provisioning, alert delivery, enablement, and full pre-upload review gates.
 
 - [Prerequisites](#prerequisites)
 - [Get the code](#get-the-code)
@@ -187,8 +193,9 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 ## Anthropic key
 
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
-secret in production. The private launch budget remains an owner decision after measured Sonnet
-cost per successful recommendation. The application ledger supplies a hard admission ceiling;
+secret in production. The owner approved the private launch budget and daily monitoring policy
+on 2026-09-06 after measured Sonnet costs; those values remain private and unapplied. The
+application ledger supplies a hard admission ceiling once explicitly provisioned and verified;
 provider-side workspace limits can provide an additional boundary. Console warnings and the
 existing hourly abuse limits do not substitute for it. Changing provider settings, creating a
 production workspace/key, rotating credentials, or making paid calls requires explicit approval.
@@ -230,9 +237,13 @@ separate validation policy is implemented and evidenced.
 
 The separate AI ledger contains aggregate month/token/admission counters and random pending
 reservation metadata only. It receives no installation identifier, item identifier, wardrobe,
-prompt, or model-response payload. The candidate's preflight requires a ready, enabled budget
-below its warning band with no pending requests. Existing v10 lacks these controls and cannot
-satisfy that new check. Updating the production source/configuration lock must follow an actual
+prompt, or model-response payload. The complete preflight requires a ready, enabled budget below
+its warning band with no pending requests. Disabled v11 therefore leaves
+`styling-budget-evidence-open` and the manual-review rows open; its partial post-deployment review
+is not a full pre-upload pass. The verified private immutable v11 image is the disabled recovery
+reference. Pre-budget v10 lacks these controls and must not become a normal rollback target after
+cutover. Once the ledger is provisioned, verify recovery-image compatibility with that same
+ledger and limits. Updating the production source/configuration lock must follow an actual
 approved deployment and verification, never a planned one.
 
 Production operations follow the
@@ -363,7 +374,7 @@ Every internal beta is built as an App Store candidate. Follow the
   9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [x] Retain the 2026-08-29 build-number selection and source-preparation evidence above without
   claiming backend deployment or Apple distribution.
-- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
+- [x] Retain the archive-era build-7 backend deployment and review. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
@@ -411,8 +422,9 @@ health, recent snapshots, schema/integrity, endpoint surface, zero failure bands
 support checks remained green. The first bounded query returned zero registration, assertion, and
 deletion successes because none had yet been exercised; later clean build-5 Style/Restyle observed
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
-`0/0/0` live aggregates. Fly v10 is now live on exact merged build-7 backend source with accepted
-builds `4,5,6,7`, matching release/running image references, and one healthy Singapore Machine. Protected
+`0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
+source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
+Singapore Machine. Current production is the disabled v11 deployment recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
@@ -425,8 +437,12 @@ from retained snapshot copies.
 The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining
 the process defect. Repeat the review before every future archive/upload, after every backend or
-production-configuration change, and otherwise no later than 2026-09-28 under the current v10
-review cadence.
+production-configuration change. The historical v10 review's next due date was 2026-09-28.
+The 2026-09-07 v11 review covers only disabled operation; budget and full manual-review rows
+remain open. The signed-in provider check found an active key, spend below the warning band, and
+no saturation in the last 24 hours, but prepaid credit was low and no alert rows were visible;
+alert delivery remains unverified. Complete the outstanding operational gates before enablement
+or upload, using the approved daily monitoring policy when launch operation begins.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

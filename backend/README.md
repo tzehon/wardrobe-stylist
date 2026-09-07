@@ -5,7 +5,7 @@ payloads. It persists separate aggregate AI-budget/reservation metadata and narr
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
-The local candidate selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+Fly v11 selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
 thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
 configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
@@ -14,12 +14,17 @@ the private launch limits and daily monitoring policy on 2026-09-06; exact value
 private release records, remain unapplied, and must not be committed. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
-Approved provisioning/deployment and fresh live operational checks remain open. A subsequent
+Budget provisioning and AI enablement remain open. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
-owner-approved source publication, required checks, Codex review, and merge state. Production
-rollout remains open and must use a verified image of the merged source.
+owner-approved source publication, required checks, Codex review, and merge state. Its exact
+merged image, source `d2866a2`, deployed on 2026-09-07 with **AI disabled**. The disabled-only
+review completed at `2026-09-07T10:39:08Z`: original Machine/volume, registry identity/security,
+health, auth-store protections and closed AI admission passed. No budget storage was created
+and no paid call was made. Prior liability, capacity, credit and alert readiness remain open;
+this is not a full pre-upload operational pass. See the
+[disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 
 ## Setup
@@ -57,7 +62,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (local Sonnet 5 candidate, strict forced tool use) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; production AI currently disabled) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
 endpoint. `/recommend` is a single non-streaming call.
@@ -79,21 +84,23 @@ bundle-version extensions arrive on iOS 27 and later: their signed absence is ac
 iOS 18-26, while any present extension requires the complete pair and exact allowlists.
 The approved operational limits are defined in
 [`docs/app-store/app-attest-data-lifecycle-policy.md`](../docs/app-store/app-attest-data-lifecycle-policy.md).
-Retained production evidence describes Fly v10 and the earlier Opus 4.8 backend, not the local
-Sonnet/budget candidate. That release used an immutable Linux/AMD64 image with a one-minute
+Historical production evidence describes Fly v10 and the earlier Opus 4.8 backend.
+That release used an immutable Linux/AMD64 image with a one-minute
 maintenance loop on the minimum-one-Machine production topology. At the
 `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh authentication re-resolved its expected
 source identity and architecture, and its zero-High/Critical scan passed. Former v9, v8, v7, and v6
 references are timestamped historical evidence only. The former v6 reference's current platform/
 source identity was not independently proven, so it is ineligible for rollback or recovery. Any
 identity or scan mismatch blocks archive, upload, distribution, and physical QA.
-After the budgeted candidate is enabled, recovery must use its verified budget-aware image with
-the same ledger and limits; pre-budget v10 is not a normal rollback target. Cleanup repeats bounded transactions until drained,
+The current v11 immutable image is verified for disabled redeployment and retained privately.
+After budget provisioning, verify compatibility with that same ledger and approved limits before
+enablement; pre-budget v10 is not a normal rollback target after this cutover. Cleanup repeats bounded transactions until drained,
 removes inactive installations after 90 days and revoked installations after 30 days, and securely
 checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
 exposes that server-only control. The exact live and retained-recovery digests and scan evidence are
-recorded in the internal-TestFlight runbook. The owner-approved payload-free manual operations
+kept in ignored private release records; the internal-TestFlight runbook records fixed outcomes.
+The owner-approved payload-free manual operations
 review replaces automated alert delivery for this personal single-user release. The first manual
 review passed on 2026-08-20, and the v10 post-change review passed at `2026-08-29T02:21:41Z`. A
 fresh full operations/recovery review against exact v10 completed at `2026-08-29T11:02:18Z`,
@@ -103,7 +110,7 @@ Gmail-free public pages are live; snapshot-list expiry and deletion-specific rec
 gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v10 enables application `INFO` only for `app.auth.service`, routes it
+mechanism tuple. Live Fly v11 enables application `INFO` only for `app.auth.service`, routes it
 through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
 Uvicorn access logging off. Required production registration, assertion, and deletion success
 markers have been observed; the runbook retains only their bounded, payload-free evidence.
@@ -113,8 +120,9 @@ Fly Security confirmed that provider-controlled logs can include source IP and t
 cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner explicitly accepted
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
-flow. Required manual reviews through the live v10 deployment have passed, while the fresh build-7
-pre-archive repeat has passed and the pre-upload repeat remains open. Snapshot-list expiry, final App
+flow. Historical v10 manual reviews and the build-7 pre-archive repeat passed. The v11 disabled-only
+review passed its scoped checks, while budget readiness, provider credit/alert readiness and the
+full pre-upload repeat remain open. Snapshot-list expiry, final App
 Privacy publication, and deletion-specific recovery remain release gates; the manual review must
 remain current under the approved cadence.
 
@@ -124,8 +132,9 @@ Run the repeatable read-only part of the fresh pre-upload review from clean sync
 python3 backend/verify_production_operations.py --refresh-registry-auth
 ```
 
-The lock still identifies the historical v10 deployment. The candidate's required budget check
-will fail on v10; update the lock only from actual approved replacement-deployment evidence.
+The lock identifies the verified v11 deployment and its exact merged source. Because the
+private policy remains unapplied and no budget ledger exists, the required budget check
+correctly reports OPEN `styling-budget-evidence-open`; do not provision storage to make it green.
 The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
@@ -140,7 +149,7 @@ each registry credential directory is intentionally ephemeral. After a pass, ret
 fixed fields, remediation outcome, and next due in the lifecycle policy's manual-review register;
 the temporary TOML is not the long-lived review record.
 
-The historical single-user aggregate profile remains the default. The local candidate also
+The historical single-user aggregate profile remains the default. The deployed backend also
 supports `--auth-capacity-profile public-launch --auth-capacity-policy PRIVATE_TOML` with
 independently approved private installation/session bounds and active-session ownership checks.
 No public profile is approved or selected yet. See the

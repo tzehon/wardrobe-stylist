@@ -236,8 +236,10 @@ while keeping `MARKETING_VERSION = 1.0.0`.
 - [x] Prepare the selected build-7 source configuration without claiming deployment. Source records
   `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`; Fly v9 still accepted `4,5,6` at
   selection time.
-- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
-  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
+- [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
+  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
+  [AI-disabled Fly v11 runtime](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07) retains
+  the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the

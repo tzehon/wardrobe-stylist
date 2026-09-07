@@ -199,8 +199,10 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  Fly v10 deploys the targeted logger and `4,5,6,7` allowlist; its post-change review passed on
-  2026-08-29. Predecessor v8's payload-free review passed, and the late non-backdated historical v9
+  The current [AI-disabled Fly v11 runtime](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07)
+  retains the verified targeted logger and `4,5,6,7` allowlist; its broader pre-upload gates remain
+  open. The historical v10 post-change review passed on 2026-08-29. Predecessor v8's payload-free
+  review passed, and the late non-backdated historical v9
   review passed at `2026-08-23T02:13:12Z`. The first historical v9 post-
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
   build-5 Style/Restyle observed `registration_succeeded`/`assertion_succeeded`, and the preceding
@@ -234,8 +236,10 @@ backend/configuration change.
   **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
   build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
-- [x] Deploy and review the exact build-7 backend. Fly v10 now accepts `4,5,6,7`; exact image,
-  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29.
+- [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
+  health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
+  [AI-disabled Fly v11 runtime](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07) retains
+  the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the

@@ -54,7 +54,7 @@ later be promoted to customers.
   remain recorded. After providing one complete numeric scorecard, the owner said "all are ok,
   proceed" and accepted all proposals qualitatively. Preserve that decision separately from
   the incomplete numeric rubric; no scores were inferred and no numeric pass is claimed.
-  The selected local candidate is now Sonnet with aligned 2-input/10-output micro-USD pricing,
+  The selected Sonnet runtime, now deployed with AI disabled, has aligned 2-input/10-output micro-USD pricing,
   full-context reservations, and a v2 model/rate-bound ledger. All 28 request hashes match the
   accepted run; full migration regression passed (505 backend, 236 iOS, 44 release-script
   tests, security/type/lint checks, and Release simulator/artifact checks). No additional
@@ -62,9 +62,9 @@ later be promoted to customers.
   The owner expects up to 10 AI users in month one and approved the private spend/admission
   limits and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled
   configuration remain in ignored private release records and have not been applied. Alert
-  delivery, public-capacity preflight, approved provisioning, and verified
-  deployment remain open. The current candidate defaults
-  remote AI off; do not treat local implementation or mock tests as launch authorization.
+  delivery, prepaid-credit readiness, public-capacity preflight, prior uncertain liability,
+  approved provisioning, AI enablement, and the full operational review remain open. The deployed
+  v11 runtime has remote AI disabled; the disabled rollout is not public-launch authorization.
   The later local capacity-preflight extension passed 551 backend tests, full security/type/lint
   checks, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   No shared-contract/iOS/runtime-auth source or live release lock changed in that extension;
@@ -84,13 +84,26 @@ in inherited `util-linux`. The `libuuid>=2.42.3-r1` remediation preserves the pi
 and crypto refresh, and its rebuilt image passes the zero-High/Critical scan and isolated runtime,
 logging, separate-storage and restart checks.
 [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
-publication, required checks, Codex review, and merge state. Production rollout remains open
-and requires separate approval plus exact merged-image validation. The latest read-only production preflight also
-retained OPEN source, budget, recovery-scan and manual gates. See the
+publication, required checks, Codex review, and merge state. The earlier read-only production
+preflight retained OPEN source, budget, recovery-scan and manual gates. See the
 [runtime security checkpoint](internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
 The remediation passed all 583 backend tests and security/type/lint gates, 236 iOS tests,
 44 release-script tests, and fresh Release simulator/artifact checks.
-Production and the preserved Build 7 archive are unchanged; no new TestFlight build is required.
+The preserved Build 7 archive is unchanged; no new TestFlight build is required.
+
+- [x] Deploy and verify the reviewed patched runtime **with AI disabled only**. The owner separately
+  approved private publication/deployment of merged source
+  `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. Fly v11 was healthy on the original Machine and volume
+  at `2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`.
+  Exact source/architecture/private-registry matching, zero-High/Critical scans, App Attest/auth
+  integrity, privilege/logging controls, snapshots, and public pages passed. The approved budget
+  policy is unapplied; no budget storage or paid call was created. The checker retains
+  `styling-budget-evidence-open` and manual rows OPEN. The broader pre-upload review has not passed.
+  Low prepaid credit, unverified alert delivery, public capacity, prior liability, provisioning,
+  AI enablement, and distribution remain open. The current private recovery reference is the
+  verified budget-aware v11 image; future initialized-ledger compatibility remains unproven and
+  pre-budget v10 is not a normal rollback target. See the
+  [disabled rollout checkpoint](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 
 ## 2. Public pages and truthful data declarations
 
@@ -183,9 +196,10 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   healthy; and category `2`, accepted
   builds `4,5,6`, storage, logging, route, and failure-boundary checks passed. No external private-
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
-  not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Current Fly v10 state is
-  recorded in the build-7 section below. Repeat its review before any future archive/upload and
-  after every backend/configuration change.
+  not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
+  recorded in the build-7 section below. The current
+  [Fly v11 runtime has AI disabled](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+  Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
   at `2026-08-22T01:00:09Z`, and the exact-v8 pre-archive review passed at
@@ -320,9 +334,10 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
   build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
-- [x] Deploy and review only the exact selected build-7 backend candidate. Fly v10 now accepts
+- [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29.
+  2026-08-29. The [current Fly v11 runtime has AI disabled](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07)
+  and retains the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the

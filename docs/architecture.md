@@ -5,13 +5,19 @@ manual entries and user-selected photos, keeps the catalog on the iPhone, and of
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-The Sonnet/SDK and budget controls described below are the **local migration candidate**, not a
-production deployment claim. The retained Fly v10 evidence describes the earlier Opus 4.8 runtime.
-The selected Sonnet request passed automatic evaluation and received qualitative owner acceptance.
-The owner approved the private launch limits and daily monitoring policy on 2026-09-06;
-the values remain private and unapplied. Public-capacity preflight, alert-delivery verification,
-approved provisioning/deployment, and a fresh operational review remain gates in
-the [release backlog](app-release-backlog.md).
+The Sonnet/SDK and budget controls described below are deployed as **Fly v11 with AI styling
+disabled**. Source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` was verified on the original healthy
+Machine and durable volume at `2026-09-07T10:36:34Z`; the disabled-scope operational review completed
+at `2026-09-07T10:39:08Z`. The private immutable image matched its source and Linux/AMD64 platform
+and passed a zero-High/Critical scan. The retained Fly v10 evidence describes the earlier Opus 4.8
+runtime and archive-era checks. The selected Sonnet request passed automatic evaluation and
+received qualitative owner acceptance. The owner approved the private launch limits and daily
+monitoring policy on 2026-09-06; the values remain private and unapplied. No budget directory or
+database exists, and the serving process uses the fail-closed defaults with AI disabled, a blank
+budget path, and zero limits. No paid AI call was made during deployment or verification.
+Budget provisioning, liability and public-capacity checks, alert-delivery verification, explicit
+enablement, and the complete pre-upload operational review remain gates in
+the [release backlog](app-release-backlog.md). The disabled review does not close those gates.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
 checks, Codex review, and merge state.
 
@@ -33,8 +39,9 @@ explicitly historical setup documents; it is not part of the active v1 architect
 ## System overview
 
 The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
-installation for optional connected styling. The developer backend proxies a minimized request to
-the **Anthropic API** and keeps no wardrobe or model payload after request processing.
+installation for optional connected styling. When enabled, the developer backend proxies a
+minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
+processing. The diagram includes the budget and AI path that are not active in disabled v11.
 
 ```mermaid
 flowchart TB
@@ -52,7 +59,7 @@ flowchart TB
     subgraph Cloud["Backend on Fly.io — content-stateless"]
         API["FastAPI<br/>/auth · /recommend"]
         AuthDB[("Durable auth state<br/>public key · Apple receipt · counters<br/>challenges · session hashes")]
-        BudgetDB[("Separate durable AI budget<br/>global counters · pending reservations<br/>no installation or wardrobe IDs")]
+        BudgetDB[("Separate durable AI budget<br/>not yet provisioned<br/>global counters · pending reservations")]
         Key[["ANTHROPIC_API_KEY<br/>never on device"]]
         API <--> AuthDB
         API <--> BudgetDB
@@ -171,15 +178,17 @@ See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
 ## Daily recommendation flow
 
 The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
-The local candidate uses pinned `claude-sonnet-5` through one synchronous Messages API
-call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
+The deployed, currently disabled runtime uses pinned `claude-sonnet-5` through one synchronous
+Messages API call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
 `propose_outfit` output is pinned to the evaluated 1,024 tokens. The configuration parser and
 ledger retain broader safety bounds, but runtime admission and preflight reject any other
-configured output limit or stylist default before storage/provider access. All automatic checks passed, followed by
+configured output limit or stylist default before budget storage/provider access. All automatic checks passed, followed by
 owner qualitative acceptance with the numeric rubric explicitly left incomplete. Prompt
 caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
 IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
+The sequence below describes the enabled path after the remaining launch gates pass; current
+production admission stops before budget storage or a provider request because AI styling is disabled.
 
 ```mermaid
 sequenceDiagram
@@ -187,7 +196,7 @@ sequenceDiagram
     participant App as iOS app
     participant API as FastAPI /recommend
     participant Budget as Durable global budget
-    participant Aria as Pinned Claude Sonnet 5 — candidate
+    participant Aria as Pinned Claude Sonnet 5
 
     User->>App: Request a suggestion in Today
     App->>App: Compact catalog + recent-worn summaries
@@ -277,8 +286,8 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI candidate | Pinned Sonnet 5 “Aria”; strict forced tool, no thinking, cache off pending production reuse |
-| Budget candidate | Separate durable SQLite ledger; atomic global month/token/admission/concurrency limits |
+| AI runtime | Deployed on v11 but disabled; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
+| Budget controls | Deployed but unprovisioned; separate durable SQLite ledger with atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
 
@@ -289,10 +298,10 @@ flowchart LR
     Dev["Developer Mac<br/>Xcode · uv"] -->|"TestFlight / device"| Phone["iPhone"]
     Dev -->|"fly deploy"| Fly["Fly.io<br/>FastAPI"]
     Phone <-->|"HTTPS short-lived session"| Fly
-    Fly -->|"HTTPS"| Anthropic["Anthropic API"]
+    Fly -.->|"AI disabled"| Anthropic["Anthropic API"]
     Phone <-->|"attest key / sign assertions"| Apple["Apple App Attest"]
     Fly <--> AuthDB[("Private durable auth volume")]
-    Fly <--> BudgetDB[("Separate budget database<br/>on the same durable volume")]
+    Fly -.-> BudgetDB[("Separate budget database<br/>not yet provisioned<br/>same durable volume required")]
 ```
 
 - Fly secrets hold `ANTHROPIC_API_KEY` and the App Attest session-signing secret. A shared
@@ -300,8 +309,8 @@ flowchart LR
 - The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
   anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived
   sessions, and coarse rate windows. It contains no wardrobe, prompt, or recommendation payload.
-- The candidate's separate `/data/ai-budget/budget.sqlite3` stores only aggregate counters and
-  random reservation metadata. Its private limits must match the approved runtime configuration.
+- After approved provisioning, the separate `/data/ai-budget/budget.sqlite3` stores only aggregate
+  counters and random reservation metadata. Its private limits must match the approved runtime configuration.
   Keep server AI styling disabled until explicit first provisioning and verification succeed.
   Every application process must use the same ledger on the verified single-Machine volume;
   independent per-replica budgets would not enforce a global ceiling.
@@ -310,10 +319,14 @@ flowchart LR
   customer-visible stream and undisclosed provider-internal in-service retention are accepted and
   publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
 - Public v1 has no Google OAuth dependency or Gmail network route.
-- The new preflight requires the bounded budget to be enabled, ready, below its warning band, and
-  free of pending requests. Its retained auth aggregate check still assumes a single user; a passing
-  personal review does not establish public-launch capacity or an accepted public monitoring cadence.
-  Those decisions remain open in [AI spend controls](ai-spend-controls.md).
+- The complete preflight requires the bounded budget to be enabled, ready, below its warning band,
+  and free of pending requests. Current v11 correctly leaves `styling-budget-evidence-open` and
+  manual-review rows open. The accepted owner-operated daily monitoring policy has not yet been
+  applied; public-capacity policy and alert delivery still require verification.
+- The privately recorded, verified immutable v11 image is the disabled recovery reference.
+  Pre-budget v10 must not become a normal rollback target after cutover. Once the ledger is
+  provisioned, recovery must separately prove compatibility with that same ledger and limits.
+  See [AI spend controls](ai-spend-controls.md) for the remaining operational gates.
 
 ## Historical build 4 clean-install transition
 

@@ -23,7 +23,40 @@ an App Store release candidate from the moment it is archived. This prevents a s
   product release is transparent, budget-bounded freemium in Singapore; country expansion follows
   only after that model and its operations are proven.
 
+## Disabled runtime rollout — 2026-09-07
+
+The owner approved private image publication and deployment with AI disabled after PR #42 merged.
+Fly v11 runs source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`; the original Machine and durable
+volume were healthy at `2026-09-07T10:36:34Z`. The disabled-only review completed at
+`2026-09-07T10:39:08Z`. The release, serving image, and privately retained immutable registry
+reference match the expected source and Linux/AMD64 architecture; fresh registry security scans
+report zero High/Critical findings. Production App Attest configuration, auth-store integrity,
+non-root/no-new-privileges execution, bounded logging, snapshot policy, and public pages passed.
+
+The serving process has AI styling disabled, with no AI environment overrides or `.env` file.
+The approved private launch policy remains unapplied: the default budget path is blank, monthly
+spend/admission limits are zero, and no budget directory or database was created. No paid call ran. The existing checker
+correctly retains `styling_budget = OPEN` with `styling-budget-evidence-open`; its manual-input
+rows remain OPEN. This completed the disabled-deployment review, not the broader pre-upload review.
+
+The fresh official Fly two-day HTTP view showed successful and not-found responses, no 5xx series,
+and no concurrent requests. The Claude key was active, spend was below the 80% warning band, and
+the last-day view showed no rate saturation. Prepaid credit was low and no configured email-spend
+notification rows were visible, so credit readiness and alert delivery remain open. Earlier uncertain-call liability
+is unresolved. Provisioning, independent public-capacity approval, AI enablement, the full fresh
+operational review, and distribution remain open.
+
+The exact v11 immutable reference is retained privately for budget-aware redeployment. After this
+cutover, pre-budget v10 is not a normal rollback target: it ignores the disabled switch and budget
+controls. Any future initialized ledger must retain compatible model/policy, limits, and charges;
+that compatibility remains to be verified when provisioning is approved. Keep AI disabled if a
+compatible recovery cannot be established. The historical v10 archive/review evidence below is
+unchanged. The preserved Build 7 archive is unchanged and no new TestFlight build is required.
+
 ## Local launch preparation — 2026-09-06
+
+This section retains the implementation and evaluation checkpoints that preceded the disabled
+v11 deployment above; statements about actions not yet taken describe those historical checkpoints.
 
 The local backend candidate prepares pinned Sonnet 5, SDK 1.4.0, synchronous strict tool output,
 no thinking/cache/retries, and a 1,024-token output cap, plus a separate durable global monthly
@@ -33,7 +66,8 @@ archive. Keep README current with these changes.
 
 The [fictional model evaluation](../model-evaluation.md) and local implementation are accepted;
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
-checks, Codex review, and merge state. Verified rollout remains open.
+checks, Codex review, and merge state. The disabled rollout is recorded above; AI enablement and
+distribution remain open.
 The following retains the evaluation history.
 The first owner-approved Haiku run, with at most 28 paid calls and a $6 pre-tax ceiling,
 stopped on 2026-09-06 on its first request after 30.046 seconds with `APITimeoutError`.
@@ -77,16 +111,16 @@ The owner expects up to 10 initial AI users and approved the private spend/admis
 and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled configuration
 are retained in ignored private release records and have not been applied. Both failed Haiku runs and the failed Sonnet run
 remain failed and retain unfilled human scores.
-The remaining gates are public-capacity preflight and alert-delivery verification,
-approved [spend-controls provisioning](../ai-spend-controls.md), approved immutable-image
-deployment, and fresh operational review.
+The remaining gates are public-capacity preflight, alert-delivery and credit readiness,
+approved [spend-controls provisioning](../ai-spend-controls.md), AI enablement,
+and the full fresh operational review.
 The [public-capacity preflight profile](../ai-spend-controls.md#public-launch-observed-capacity-preflight)
 is prepared locally with independent private installation/session bounds and ownership checks.
 Its limits still need approval; the historical single-user profile remains the default.
-The new required budget preflight will fail on old v10. Do not rewrite its locked deployment
-identity without live deployment evidence. Snapshot expiry/deletion-specific recovery is separate.
-After the budgeted candidate is enabled, re-lock recovery to its verified budget-aware image;
-pre-budget v10 ignores the new controls and is not a normal rollback target after that cutover.
+The required budget preflight remains open on disabled, unprovisioned v11. Its deployment lock
+must reflect actual live evidence. Snapshot expiry/deletion-specific recovery is separate.
+Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
+rollback target after the disabled cutover.
 
 Sonnet migration verification passed 505 backend tests plus locked audit/Bandit/Ruff/mypy, 226 Swift unit
 tests plus all 10 UI tests, 44 release-script tests, and a new Release simulator build/artifact
@@ -228,7 +262,8 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   harness and transport are DEBUG-only, and the Release-artifact guard proves their launch markers
   are absent. This test-only change does not alter Release code paths or the preserved build-7
   archive and does not require build 8.
-- Current production backend baseline: Fly release v10 completed at `2026-08-29T01:52:47Z` and
+- Historical pre-migration production backend baseline: Fly release v10 completed at
+  `2026-08-29T01:52:47Z` and
   serves exact merged build-7 backend source `162688ae72d07f06a7a8116249632aa0101e538f` as
   `linux/amd64`. Release and running image references match privately; local and immutable-registry
   Docker Scout scans report zero High/Critical findings; and locked `pip-audit` passed. One healthy
@@ -259,14 +294,13 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   change.
 - Former v9, v8, v7, and Gmail-free v6 images remain historical operational recovery evidence. None
   is the exact current build-7 backend candidate: using one reopens deployment/configuration/manual-
-  review gates and blocks build-7 archive, distribution, or physical QA until the exact v10 image is
-  restored and reverified. At the `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh private-
+  review gates. Before the Sonnet cutover, restoring and reverifying exact v10 was required.
+  At the `2026-08-29T03:31:57Z` recovery-baseline checkpoint, fresh private-
   registry authentication re-resolved the exact v10 immutable recovery reference with the expected
   source identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former
   v6 reference's current platform/source identity was not independently proven, so it is ineligible
-  for rollback or recovery. Exact v10 is the sole current recovery reference; any mismatch or scan
-  failure blocks archive, upload, distribution, and physical QA until exact v10 is restored and
-  reverified.
+  for rollback or recovery. Exact v10 was the sole recovery reference at that historical checkpoint;
+  the current budget-aware recovery rule is recorded in the disabled v11 deployment section above.
   The emergency pre-build-4 image that re-exposes `/extract` remains a release halt, never a
   public-v1 rollback.
 - The historical payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
@@ -366,8 +400,9 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   the explicit Style action at `2026-08-28 17:17 SGT` created the new anonymous installation and
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md), and Fly v10 deploys
-  its repository-owned enforcement. On 2026-08-19 the owner accepted Fly's fixed seven-day
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current disabled
+  Fly v11 runtime retains its verified repository-owned enforcement; v10 is historical evidence.
+  On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
   read-only restore of the 2026-08-19 snapshot passed aggregate-only schema/integrity checks and
@@ -388,10 +423,12 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   at `2026-08-21T08:12:46Z`. The v8 post-change review passed at
   `2026-08-21T11:09:20Z`; the build-5 pre-validation and post-distribution reviews passed at
   `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The late v9 review passed at
-  `2026-08-23T02:13:12Z`; the current v10 post-change review passed at
+  `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
-  `2026-08-29T11:02:18Z`. Repeat immediately before build-7 upload, after any backend or production-
-  configuration change, and otherwise no later than 2026-09-28.
+  `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
+  v11 runtime keeps AI paused under the disabled-rollout conditions above. Complete the full fresh
+  operational review before AI enablement or build-7 upload and after any further backend or
+  production-configuration change; the historical deadline is not current upload approval.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -520,7 +557,8 @@ review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6
 the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
-source configuration is prepared; the exact Fly v10 backend deployment and post-change review pass.
+source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
+The current Fly v11 runtime is deployed with AI disabled, as recorded above.
 The build-7 exact-source regression and strict signed-archive verification have passed. Its
 validation/upload, Apple processing, assignment, tester-note, and clean physical Dark Mode visual
 retest gates remain open:
@@ -651,7 +689,7 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    will serve it, App Attest environment/category/build allowlist, iOS-version compatibility policy,
    durable auth-store version, and the policy-compliance evidence linked from
    [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). Immediately before
-   archive/upload, freshly authenticate, re-resolve the privately retained exact v10 immutable
+   archive/upload, freshly authenticate, re-resolve the privately retained exact budget-aware
    recovery reference, verify its expected source identity and Linux/AMD64 architecture, and repeat
    the zero-High/Critical scan. Former references, including v6 whose current identity is not
    independently proven, are ineligible. Any mismatch or failure blocks archive/upload.
@@ -830,10 +868,12 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    record signed runtime-field absence without claiming category/build enforcement.
 9. **Retire the bridge.** If a legacy compatibility bridge was used, switch the validated backend
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
-   the candidate still succeeds. After build 4 is distributed, recovery must use the exact current
-   validated Gmail-free App-Attest-only image while preserving the auth store. For build 7 that is
-   the privately retained v10 immutable reference. The former v6 reference's current identity is
-   not independently proven and it is ineligible; the former v5 image is a pre-build-4 abort only,
+   the candidate still succeeds. Recovery must use the exact current
+   validated Gmail-free App-Attest-only, budget-aware image while preserving the auth store and
+   any initialized budget ledger, limits, and charges. The privately retained v11 reference is the
+   current disabled-redeployment baseline; verify compatibility before using it with a future
+   initialized ledger. Pre-budget v10 is not a normal rollback target. The former v6 reference's
+   current identity is not independently proven and it is ineligible; the former v5 image is a pre-build-4 abort only,
    re-exposes `/extract`, and must halt the release. Rolling back to the shared bearer is never
    acceptable.
 10. **Record evidence.** Retain the commit, archive, build/version, Xcode and SDK, test results,

@@ -1,7 +1,8 @@
 # Fictional Wardrobe model acceptance
 
-The selected local candidate is pinned `claude-sonnet-5`, synchronous Messages, thinking
-disabled, explicit standard service tier, forced strict `propose_outfit`, and 1,024 output tokens.
+The selected runtime is deployed as Fly v11 with AI disabled. It pins `claude-sonnet-5`, synchronous
+Messages, thinking disabled, explicit standard service tier, forced strict `propose_outfit`, and
+1,024 output tokens.
 The evaluation
 imports the production request builder and response extractor and checks both the
 authoritative shared schema and local Pydantic/sanitizer guards. It never reads a
@@ -528,8 +529,8 @@ first-month AI users. On 2026-09-06 the owner replied **"approve and proceed"** 
 spend/admission-limit and daily-monitoring proposal. The approved record and disabled
 configuration are retained in ignored private release files; no exact private limit is published
 here and no setting has been applied. This closes the budget/operating-policy decision.
-Public-capacity preflight, alert-delivery verification, approved provisioning,
-and actual deployment/operational gates remain open before distribution. This approval does
+Public-capacity preflight, alert-delivery and credit readiness, approved provisioning,
+AI enablement, and the full operational gates remain open before distribution. This approval does
 not authorize another paid evaluation, provider-console changes, or deployment.
 
 ## PR #41 review safeguards — verified
@@ -550,6 +551,22 @@ mypy, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifa
 The result bundle is `ios/DerivedData/ReviewFixRegression-20260906.xcresult`, with local logs at
 `/private/tmp/wardrobe-review-fix-*`. The approved private cap and v2 ledger format are unchanged;
 no new paid call, provisioning, deployment, or TestFlight build is required by these fixes.
+
+## Disabled production rollout — 2026-09-07
+
+After separate owner approval, the merged model/budget and patched runtime source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e` deployed as Fly v11 with AI disabled. The original
+Machine and volume were healthy at `2026-09-07T10:36:34Z`; the disabled-only review completed at
+`2026-09-07T10:39:08Z`. Exact registry/runtime source and Linux/AMD64 identity matched, and fresh
+scans found zero High/Critical vulnerabilities. See the
+[deployment and remaining gates](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+
+The approved private budget policy remains unapplied, no budget storage was created, and no
+paid model call ran. The broader budget/pre-upload gates remain OPEN. This deployment adds no
+model-quality or numeric-score evidence, does not reconcile the earlier uncertain charge, and
+does not alter the saved reports, missing ratings, or qualitative owner acceptance. Provisioning,
+capacity, alerts, prepaid-credit readiness, AI enablement, and distribution remain open.
+The preserved Build 7 archive is unchanged; no new TestFlight build is required.
 
 ## Fixed paid-call plan and approval
 
