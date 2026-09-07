@@ -53,6 +53,38 @@ that compatibility remains to be verified when provisioning is approved. Keep AI
 compatible recovery cannot be established. The historical v10 archive/review evidence below is
 unchanged. The preserved Build 7 archive is unchanged and no new TestFlight build is required.
 
+## Budget and provider preparation — 2026-09-07
+
+The retained release chronology contains no deployment between Opus v10 and the first Sonnet
+runtime, v11. The prior source hardcodes Opus; the Sonnet deployment was handled with AI disabled,
+and no production ledger was provisioned. Independent review found no contradictory in-scope
+activity. Together with the original sole Machine/volume binding, this supports first-ever
+storage and zero prior liability for the approved selected-model production envelope. The fresh
+read-only check at `2026-09-07T11:51:58Z` passed exact healthy runtime/configuration, the serving
+process's disabled defaults and absence of the whole budget directory. Recheck immediately before
+any separately approved creation; these observations never authorize initialization themselves.
+
+The approved policy explicitly excludes fictional evaluations and earlier Opus production. The
+evaluation timeout remains unresolved as separate account-level exposure. Current-month provider
+cost rows for the existing production key show billed activity only on the recorded evaluation
+day, with model totals consistent with those runs and no billed activity displayed today. Rounded
+costs are corroboration, not exact settlement or proof of provider completion. No nonzero opening
+balance import is currently indicated; any contradictory in-scope charge or pending work requires
+reconciliation before using the zero-only initializer.
+
+A private proposal now specifies first provisioning with the existing approved limits, a dedicated
+production workspace/key with a matching provider cap and spend notifications, a bounded one-time
+credit purchase with auto-reload off, independent installation/session review thresholds, and a
+same-image configuration update that keeps AI disabled. These new actions are unapproved. Console
+forms were inspected and cancelled; no workspace, key, notification, purchase or production setting
+was changed. The provider's workspace form currently offers immutable US workspace storage; it
+does not establish Singapore residency or change the evaluated global inference pricing.
+
+The README and operational guidance are updated locally. Public publication/review, provisioning,
+provider changes, credit readiness, capacity activation, alert delivery and separate AI enablement
+remain open. Configuration persistence does not prove email delivery. No runtime or iOS source
+changed, no model call ran, and no new TestFlight build is required.
+
 ## Local launch preparation — 2026-09-06
 
 This section retains the implementation and evaluation checkpoints that preceded the disabled

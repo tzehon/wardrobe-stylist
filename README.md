@@ -99,9 +99,17 @@ is deployed with AI disabled and its budget unprovisioned. On 6 September 2026 t
 limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
 limits remain in ignored private release records and have not been applied. The release checker
 supports a separate private public-capacity profile; its bounds still need review and approval.
-That operational gate, prior-liability reconciliation, budget provisioning, adequate provider
+That operational gate, budget provisioning, adequate provider
 credit, alert-delivery verification and separately approved AI enablement remain open before
-Build 7 distribution. The new verified budget-aware image is retained privately for disabled
+Build 7 distribution. The 7 September preparation review supports zero prior liability within the
+approved selected-model production budget: the earlier runtime used Opus, and the first Sonnet
+deployment has remained disabled. Evaluations are expressly excluded from that budget; their
+unresolved charges remain separate. Fresh production verification at `2026-09-07T11:51:58Z`
+confirmed the original healthy runtime, disabled defaults and absent budget directory. A private
+provisioning/provider/capacity proposal is prepared but unapproved; no settings, credit purchase
+or database creation followed this review. See the
+[budget preparation checkpoint](docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07).
+The new verified budget-aware image is retained privately for disabled
 redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively
 bounded by US$0.205120; a separate successful diagnostic
 cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).

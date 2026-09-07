@@ -127,8 +127,12 @@ The current production baseline is **Fly v11 with AI disabled**, serving merged 
 registry/runtime source and Linux/AMD64 identity, zero-High/Critical scans, App Attest/auth-store
 integrity, privilege/logging controls, snapshots, and public pages passed. The approved private
 budget policy remains unapplied, with no budget storage or paid call. The broader budget/manual
-preflight remains OPEN, as do provisioning, capacity, alerts, prepaid-credit readiness, prior
-uncertain liability, AI enablement, and distribution. The privately retained v11 reference supports
+preflight remains OPEN, as do provisioning, capacity, alerts, prepaid-credit readiness,
+AI enablement, and distribution. The subsequent
+[budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
+supports zero prior selected-model production liability, subject to a fresh pre-creation check;
+excluded evaluation uncertainty remains separately unresolved. The private setup proposal is
+unapproved and no provider or production state changed. The privately retained v11 reference supports
 budget-aware disabled redeployment; compatibility with a future initialized ledger still needs
 verification. See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 
