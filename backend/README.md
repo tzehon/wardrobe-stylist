@@ -22,7 +22,11 @@ owner-approved source publication, required checks, Codex review, and merge stat
 merged image, source `d2866a2`, deployed on 2026-09-07 with **AI disabled**. The disabled-only
 review completed at `2026-09-07T10:39:08Z`: original Machine/volume, registry identity/security,
 health, auth-store protections and closed AI admission passed. No budget storage was created
-and no paid call was made. Prior liability, capacity, credit and alert readiness remain open;
+and no paid call was made. The later
+[preparation review](../docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
+supports zero prior liability within the approved selected-model production scope; excluded
+evaluation uncertainty remains separate. The prepared provisioning/provider/capacity proposal is
+unapproved. Capacity, credit and alert readiness remain open;
 this is not a full pre-upload operational pass. See the
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.

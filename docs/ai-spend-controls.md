@@ -26,8 +26,10 @@ The exact approved monthly amount and admission limits remain outside tracked so
 Source publication and the disabled-only deployment received separate owner approval. Provisioning,
 provider-console changes, AI enablement, and distribution still require their respective gates.
 The checker retains `styling-budget-evidence-open`, and the broader pre-upload review has not
-passed. Public-capacity approval, alert-delivery verification, prepaid-credit readiness, and prior
-uncertain-call liability remain open. The live provider review found spend below its warning band
+passed. Public-capacity approval, alert-delivery verification and prepaid-credit readiness remain
+open. The later [preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
+supports zero prior liability within the approved selected-model production scope. The earlier
+evaluation timeout remains unresolved outside that scope. The live provider review found spend below its warning band
 and no recent rate saturation, but low prepaid credit and no configured email-spend notification
 rows visible; no exact
 provider balances or private limits are retained here.
@@ -106,7 +108,8 @@ Before an owner-approved deploy/configuration change, prepare a private configur
 `AI_MAX_CONCURRENCY`, and `AI_MAX_OUTPUT_TOKENS`. Keep styling disabled. The dedicated directory
 must be mode 0700 and owned by the non-root service user; the DB must be mode 0600, with no
 symlink or hard-link substitution. Provision as that service user, on the existing mounted
-volume, only for the first-ever ledger with independently confirmed zero prior liability:
+volume, only for the first-ever ledger with independently confirmed zero prior liability within
+the approved budget scope:
 
 ```python
 from pathlib import Path
@@ -125,6 +128,14 @@ initialize_budget_database(
 This is a procedure to review, not authorization to run it in production. Initialization refuses
 an existing file, including a partially provisioned or corrupt file. Never delete an existing
 ledger, silently replace it, restore an older snapshot, or reinitialize it to regain allowance.
+The approved selected-model production envelope excludes fictional evaluations and earlier
+Opus production. Preserve their unresolved account-level charges separately; do not import them
+as launch-ledger debt or claim they were settled. Release/source history and the disabled Sonnet
+cutover support the first-ever zero balance; directory absence or rounded provider costs alone
+do not. Refresh the exact runtime, topology, disabled serving settings and storage checks before
+creation. Any contradictory in-scope activity or lost/partial/restored ledger stops initialization.
+The current initializer cannot import a nonzero opening balance; that case requires a separately
+reviewed conservative reconciliation procedure. The allowance remains a UTC calendar month.
 An older restored ledger may omit charged requests. Recovery requires AI disabled, independent
 reconciliation, and explicit owner approval; if the same-month liability cannot be established,
 remain disabled through the month boundary and resolve pending provider work before a separately

@@ -313,7 +313,13 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   again. The policy is not yet applied and does not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
-  Historical-liability reconciliation, budget provisioning, adequate provider credit,
+  The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
+  within the approved selected-model production scope, subject to a fresh pre-creation check.
+  Fictional evaluations and earlier Opus production are excluded by that policy; preserve their
+  unresolved account-level charges separately. Do not infer settlement from rounded costs or
+  initialize from file absence alone. Any contradictory in-scope charge/pending work or
+  lost/restored/partial ledger stops the zero-only initializer. The private setup proposal remains
+  unapproved. Budget provisioning, adequate provider credit,
   public-capacity preflight, alert delivery and separate AI enablement remain open.
   The verified v11 immutable image is retained privately for disabled redeployment. Once a
   ledger is provisioned, verify recovery compatibility with that same ledger and limits before
