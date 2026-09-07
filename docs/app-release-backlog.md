@@ -137,9 +137,14 @@ budget-aware disabled redeployment; compatibility with a future initialized ledg
 verification. See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 
 On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.md) to that pending
-proposal. The independent hosting envelope, warning/hold triggers, organization bill review and
-monitoring/delivery verification are proposed and unapproved. Current CLI inventory confirms the
-small fixed topology, but it is not the complete invoice. No native hard bill cap is established;
+proposal. The independent hosting envelope, warning/hold triggers and monitoring/delivery controls
+remain proposed and unapproved. Current CLI inventory confirms the small fixed topology. The
+signed-in billing review reconciled the current September invoice preview with Cost Explorer
+across five expected resource categories; the reviewed organization has no linked organizations,
+active support package, Managed Postgres clusters or Upstash Redis databases. This snapshot does
+not establish billing-feed coverage/lag, final taxes/adjustments or the absence of every possible
+add-on. Verified monitoring and fresh reconciliation remain open, and the month-end estimate is a
+planning scenario. No native hard bill cap is established;
 do not close this gate from the AI ledger or an AI-disabled runtime. No new TestFlight build is
 required for this documentation-only preparation.
 

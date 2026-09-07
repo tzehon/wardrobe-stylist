@@ -33,7 +33,12 @@ The request/response contract and iOS bundle are unchanged; Build 8 is not requi
 The revised 8 September setup proposal also includes separate
 [Fly hosting cost controls](../docs/fly-spend-controls.md). Their resource restrictions, monitoring
 and service-hold procedure are proposed only; the AI budget and disabled switch do not cap Fly
-charges. Organization invoice verification and monitoring readiness remain open.
+charges. The signed-in 8 September review reconciled the current September invoice preview with
+Cost Explorer across the five expected resource categories; the reviewed organization has no linked
+organizations, active support package, Managed Postgres clusters or Upstash Redis databases. This
+is a current billing snapshot, not proof of final charges or the absence of every possible add-on.
+The feed's coverage cutoff/refresh lag and monitoring readiness remain open; month-end amounts
+remain planning scenarios.
 
 ## Setup
 

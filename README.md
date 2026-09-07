@@ -114,8 +114,13 @@ On 8 September the owner requested Fly hosting cost protection as well. The revi
 proposal adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
 a reversible service-hold procedure. Current read-only inventory confirms one Singapore
 shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
-The full invoice/add-on reconciliation remains open. Fly's documented lack of native billing
-alerts means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
+The signed-in 8 September billing review found that the current September invoice preview and
+Cost Explorer agree across five expected resource categories. The reviewed organization has no
+linked organizations, active support package, Managed Postgres clusters or Upstash Redis databases.
+The billing feed provides no coverage cutoff or refresh lag; final taxes/adjustments and other
+unreviewed add-ons are not ruled out. Monitoring readiness remains open, and the month-end cost
+scenario is not a guaranteed provider projection. Fly's documented lack of native billing alerts
+means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
 No Fly cost control, shutdown, monitor or purchase was activated; see
 [hosting spend controls](docs/fly-spend-controls.md). The revised setup proposal remains unapproved.
 The new verified budget-aware image is retained privately for disabled
