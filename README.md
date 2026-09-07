@@ -52,6 +52,7 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
 | [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional model quality, latency, cost, and cache evaluation; paid-call approval procedure |
 | [`docs/ai-spend-controls.md`](docs/ai-spend-controls.md) | Durable monthly AI ceiling, private provisioning, alerts, and disable/recovery procedure |
+| [`docs/fly-spend-controls.md`](docs/fly-spend-controls.md) | Separate hosting budget proposal, resource restrictions, monitoring and service-hold procedure |
 | [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
 | [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
 | [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
@@ -109,6 +110,14 @@ confirmed the original healthy runtime, disabled defaults and absent budget dire
 provisioning/provider/capacity proposal is prepared but unapproved; no settings, credit purchase
 or database creation followed this review. See the
 [budget preparation checkpoint](docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07).
+On 8 September the owner requested Fly hosting cost protection as well. The revised private
+proposal adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
+a reversible service-hold procedure. Current read-only inventory confirms one Singapore
+shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
+The full invoice/add-on reconciliation remains open. Fly's documented lack of native billing
+alerts means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
+No Fly cost control, shutdown, monitor or purchase was activated; see
+[hosting spend controls](docs/fly-spend-controls.md). The revised setup proposal remains unapproved.
 The new verified budget-aware image is retained privately for disabled
 redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively
 bounded by US$0.205120; a separate successful diagnostic

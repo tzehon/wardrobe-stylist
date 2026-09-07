@@ -85,6 +85,30 @@ provider changes, credit readiness, capacity activation, alert delivery and sepa
 remain open. Configuration persistence does not prove email delivery. No runtime or iOS source
 changed, no model call ran, and no new TestFlight build is required.
 
+## Fly cost-protection preparation — 2026-09-08
+
+The owner requested hosting-cost protection in the pending setup plan. The revised private
+8 September proposal supersedes the unapproved 7 September proposal while preserving its original
+bytes and manifest. The previously approved AI limits are unchanged; Fly has its own proposed
+operating target, warning/hold thresholds and early traffic triggers. No new financial or
+production action was authorized by the request to revise the plan.
+
+Read-only CLI inventory at `2026-09-07T23:30:46Z` found one started `sin` shared-CPU/512 MB Machine,
+one 1 GB volume with 14-day snapshot retention, and shared IPv4/IPv6. The same organization's app
+list contains only this app and no builder app. Invoice-only charges, managed extensions outside
+the app list, linked billing, historical builders and support still require signed-in reconciliation.
+The baseline estimate assumes continuous compute; the current minimum-one/autostart configuration
+does not provide savings from idle shutdown. Full current invoice verification remains open.
+
+The [hosting control plan](../fly-spend-controls.md) freezes billable resource growth, requires
+organization-wide cost/forecast and resource checks, and prepares a reversible hold that disables
+autostart/minimum-one/restart behavior before verifying stopped state. It preserves volumes,
+snapshots and uncertain provider liabilities. Native billing alerts and an enforceable total
+monetary cap are not established; proposed monitoring/response is not a guaranteed bill ceiling.
+Monitoring implementation, feed/delivery verification, acceptance of residual cost exposure and
+any hold execution remain separate open gates. No monitor, shutdown, deployment or purchase ran.
+This is documentation-only preparation; the preserved Build 7 archive is unchanged.
+
 ## Local launch preparation — 2026-09-06
 
 This section retains the implementation and evaluation checkpoints that preceded the disabled
