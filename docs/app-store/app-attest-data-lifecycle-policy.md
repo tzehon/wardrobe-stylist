@@ -50,8 +50,10 @@
   Mode visual retest remain incomplete.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
-authentication store, application logs, manual operations, and Fly volume snapshots. It is the
-source of truth for the APP-009 retention, deletion, logging, and operations gate.
+authentication store, separate aggregate AI budget/reservation store, application logs, manual
+operations, and Fly volume snapshots. It is the source of truth for the APP-009 retention,
+deletion, logging, and operations gate; final public disclosure and Apple classification of the
+aggregate store remain APP-016 verification.
 
 The limits below are requirements, not claims that every control is already enforced. The
 [compliance checklist](#compliance-and-release-evidence) distinguishes verified behavior from
@@ -85,7 +87,7 @@ App Store review. This is a conscious privacy tradeoff, not a technical enforcem
 
 This risk acceptance preserves the strict developer-controlled limits below: application access
 logs remain disabled, developer-emitted events remain payload/identifier-free, verified live
-server-data deletion remains within 24 hours, and an isolated restore volume must still be
+server-security-data deletion remains within 24 hours, and an isolated restore volume must still be
 destroyed within 24 hours. Revisit the provider boundary before any provider, logging, region,
 subprocessor, or DPA change and during the annual release/privacy review.
 
@@ -193,8 +195,8 @@ This policy does not settle:
 
 ## Scope and data minimization
 
-The backend may persist only the minimum metadata needed to establish and defend an anonymous
-App Attest installation session:
+Backend persistence is limited to minimum App Attest authentication/security metadata and separate
+aggregate AI budget/reservation metadata. The authentication store may contain only:
 
 - one-time challenge IDs and 32-byte challenge secrets;
 - App Attest key IDs, verified public keys, anonymous installation IDs, counters, App ID and
@@ -207,7 +209,16 @@ The opaque Apple receipt is App Attest security metadata, not a Gmail purchase r
 the installation record's lifecycle and remains untrusted for fraud decisions unless its separate
 Apple receipt checks are implemented and evidenced.
 
-The auth database must never contain Gmail message or purchase-receipt content, wardrobe data,
+The separate budget store may contain only a month identifier, aggregate charged-unit/admission
+totals, approved limits, model/pricing/token-bound policy, halt state, and random pending-reservation
+IDs with month, bounded token amounts, charged units and uncertainty flags. It contains no
+installation or human-account identifier. Completed reservations are removed; unresolved exposure
+stays conservatively charged until separately reconciled. Individual server-security deletion does
+not reset this global accounting or restore an allowance. See the
+[spend-control rules](../ai-spend-controls.md) and
+[data inventory](app-privacy-data-inventory.md); final public declarations remain APP-016 review.
+
+Neither database may contain Gmail message or purchase-receipt content, wardrobe data,
 photos, model prompts or responses, OAuth credentials, raw bearer tokens, App Attest private keys,
 or raw IP addresses. Wardrobe request payloads may exist in process memory only for the request
 being served and must not be written to application logs or durable application storage.
@@ -282,6 +293,10 @@ identity, device model, or knowledge of wardrobe contents is not sufficient veri
 must never request a token, private key, attestation object, Apple receipt, Gmail content, or
 wardrobe payload.
 
+This installation-specific deletion leaves the separate aggregate budget/reservation ledger
+intact. That ledger has no installation identifier and preserves global charges and unresolved
+exposure independently of local deletion, server-security deletion, reinstall or re-enrollment.
+
 A successful server deletion removes the installation and cascades its sessions and related auth
 state from the live database within 24 hours. The fresh assertion flow performs this synchronously
 and checkpoints/truncates WAL. After dispatching the signed deletion proof, iOS must retire every
@@ -316,6 +331,9 @@ that record into service. Until a
 durable deletion journal exists, such a snapshot is ineligible for normal restoration; emergency
 recovery must use a fresh auth store and require re-enrollment. Any future deletion journal must be
 minimal, keyed, expire after the last eligible snapshot, and be added to this inventory.
+Recreating auth state must not recreate or clear the separate budget ledger; preserve its approved
+limits, charges and unresolved exposure. Keep AI disabled if budget recovery cannot establish
+consistent accounting.
 
 An eligible automatic snapshot created at `2026-08-22T07:33:23Z` reported `created` with 14-day
 retention after the build-4 TestFlight enrollment. Build 4's proof of possession remained available
@@ -589,7 +607,9 @@ Required before APP-009 can close:
   passed.
 - [ ] Publish the final App Store Connect App Privacy answers from the accepted production facts:
   Device ID, Other Diagnostic Data, and Product Interaction; App Functionality; linked; not
-  tracking. Reassess before submission if any processor, purpose, or data flow changes.
+  tracking. Reconcile the separate aggregate budget/reservation store and its retention/deletion
+  behavior under APP-016 before final classification or publication. Reassess before submission
+  if any processor, purpose, or data flow changes.
 - [x] Complete the first manual operations review against the pre-APP-036 policy-v5 image. The
   `2026-08-20T00:15:07Z` review reconfirmed the public production health response, passing Fly
   check, single running Machine, expected immutable image, encrypted-volume policy and

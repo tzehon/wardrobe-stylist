@@ -156,8 +156,10 @@ cannot enforce a hard 24-hour provider raw-IP maximum. On 2026-08-19 the owner e
 Fly's fixed seven-day customer-visible stream and undisclosed provider-internal in-service
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
 flow. Historical v10 manual reviews and the build-7 pre-archive repeat passed. The v11 disabled-only
-review passed its scoped checks, while budget readiness, provider credit/alert readiness and the
-full pre-upload repeat remain open. Snapshot-list expiry, final App
+review passed its scoped checks. The later v12 review verified the applied private budget policy,
+existing ledger and usable provider credit with AI disabled; alert delivery, Fly monitoring and
+billing reconciliation, the ordinary budget diagnostic correction and the full pre-upload repeat
+remain open. Snapshot-list expiry, final App
 Privacy publication, and deletion-specific recovery remain release gates; the manual review must
 remain current under the approved cadence.
 

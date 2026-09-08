@@ -168,8 +168,8 @@ pinned base images and crypto updates. Its rebuilt image contains `libuuid 2.42.
 the zero-High/Critical scan, native UUID loading, non-root/no-new-privileges, bounded logging,
 separate storage, and restart-persistence checks.
 [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
-publication, required checks, Codex review, and merge state. The exact merged image is deployed
-as v11 with AI disabled; full migration acceptance and enablement remain open.
+publication, required checks, Codex review, and merge state. That image first deployed as v11 and
+now runs in configured v12 with AI disabled; full migration acceptance and enablement remain open.
 The preserved Build 7 archive is unchanged. The remediation passed all 583 backend tests and
 security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release artifact
 checks. No new TestFlight build is required. See the
