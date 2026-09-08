@@ -247,7 +247,8 @@ release-review requirements of zero pending/failed challenges and at most 552 ra
 Output reports fixed profile/status labels only; private limits and observed counts are not
 printed. An invalid policy stops before live checks. No public capacity policy is created or
 selected automatically. The source/release lock follows verified deployment evidence independently
-of public-capacity approval; deploying v11 does not approve or activate a public-capacity profile.
+of public-capacity approval; a runtime deployment does not approve or activate a public-capacity
+profile. The September 8 setup separately approved and installed the current private review bounds.
 
 Runtime auth and abuse limits are unchanged. Existing registration limits allow five attempts
 per IP and ten globally per hour, so several testers sharing a network may need staged

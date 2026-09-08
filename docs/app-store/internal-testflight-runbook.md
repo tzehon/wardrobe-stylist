@@ -92,32 +92,33 @@ required. The chronological checkpoints below retain their original scope and ou
 Historical checkpoint; the approved first provisioning above supersedes its unprovisioned state.
 
 The owner approved private image publication and deployment with AI disabled after PR #42 merged.
-Fly v11 runs source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`; the original Machine and durable
+Fly v11 ran source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`; the original Machine and durable
 volume were healthy at `2026-09-07T10:36:34Z`. The disabled-only review completed at
 `2026-09-07T10:39:08Z`. The release, serving image, and privately retained immutable registry
-reference match the expected source and Linux/AMD64 architecture; fresh registry security scans
-report zero High/Critical findings. Production App Attest configuration, auth-store integrity,
+reference matched the expected source and Linux/AMD64 architecture; fresh registry security scans
+reported zero High/Critical findings. Production App Attest configuration, auth-store integrity,
 non-root/no-new-privileges execution, bounded logging, snapshot policy, and public pages passed.
 
-The serving process has AI styling disabled, with no AI environment overrides or `.env` file.
-The approved private launch policy remains unapplied: the default budget path is blank, monthly
-spend/admission limits are zero, and no budget directory or database was created. No paid call ran. The existing checker
-correctly retains `styling_budget = OPEN` with `styling-budget-evidence-open`; its manual-input
-rows remain OPEN. This completed the disabled-deployment review, not the broader pre-upload review.
+At that checkpoint the serving process had AI styling disabled, with no AI environment overrides
+or `.env` file. The approved private launch policy was unapplied: the default budget path was blank,
+monthly spend/admission limits were zero, and no budget directory or database was created. No paid
+call ran. The checker retained `styling_budget = OPEN` with `styling-budget-evidence-open`; its
+manual-input rows remained OPEN. This completed the disabled-deployment review, not the broader
+pre-upload review.
 
 The fresh official Fly two-day HTTP view showed successful and not-found responses, no 5xx series,
 and no concurrent requests. The Claude key was active, spend was below the 80% warning band, and
 the last-day view showed no rate saturation. Prepaid credit was low and no configured email-spend
-notification rows were visible, so credit readiness and alert delivery remain open. Earlier uncertain-call liability
-is unresolved. Provisioning, independent public-capacity approval, AI enablement, the full fresh
-operational review, and distribution remain open.
+notification rows were visible, so credit readiness and alert delivery were then open. Earlier
+uncertain-call liability was unresolved. Provisioning, independent public-capacity approval,
+AI enablement, the full fresh operational review, and distribution were then open.
 
-The exact v11 immutable reference is retained privately for budget-aware redeployment. After this
-cutover, pre-budget v10 is not a normal rollback target: it ignores the disabled switch and budget
-controls. Any future initialized ledger must retain compatible model/policy, limits, and charges;
-that compatibility remains to be verified when provisioning is approved. Keep AI disabled if a
-compatible recovery cannot be established. The historical v10 archive/review evidence below is
-unchanged. The preserved Build 7 archive is unchanged and no new TestFlight build is required.
+The exact v11 immutable reference was retained privately for budget-aware redeployment. This
+cutover excluded pre-budget v10 as a normal rollback target because it ignores the disabled switch
+and budget controls. Compatibility with an initialized ledger was unproven at that checkpoint.
+The September 8 setup above now records the existing ledger, applied limits and successful restart
+on the same image; preserve and reverify them for any later recovery. The historical v10
+archive/review evidence and preserved Build 7 archive are unchanged; no new TestFlight build is required.
 
 ## Budget and provider preparation — 2026-09-07
 
@@ -535,7 +536,7 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current disabled
-  Fly v11 runtime retains its verified repository-owned enforcement; v10 is historical evidence.
+  Fly v12 runtime retains its verified repository-owned enforcement; v10 is historical evidence.
   On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -560,7 +561,7 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
   `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v11 runtime keeps AI paused under the disabled-rollout conditions above. Complete the full fresh
+  v12 runtime keeps AI paused under the approved disabled-setup conditions above. Complete the full fresh
   operational review before AI enablement or build-7 upload and after any further backend or
   production-configuration change; the historical deadline is not current upload approval.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's

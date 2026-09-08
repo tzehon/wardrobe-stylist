@@ -65,14 +65,19 @@ request-capture tests verify `/recommend` is not called. Wardrobe photos, purcha
 dates, and feedback free text are not included in v1 styling requests.
 
 The developer application does not persist wardrobe, prompt, or model-response payloads. The
-backend retains only minimum anonymous App Attest authentication and abuse-prevention metadata.
+backend retains minimum anonymous App Attest authentication and abuse-prevention metadata plus a
+separate aggregate AI budget/reservation ledger. That ledger contains global accounting and
+unresolved reservation metadata, with no installation or human-account identifier.
 Retention, logging, deletion, snapshots, and manual production operations follow the
 [APP-009 lifecycle policy](app-attest-data-lifecycle-policy.md). [VERIFY THE SUBMITTED COMMIT AND
 EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.]
+Final public disclosures and App Privacy classification for the aggregate store remain APP-016
+verification before enabling launch styling or submitting these notes.
 
 The submitted build exposes **Settings → Privacy & Data → Delete Server Security Data**. It uses a
 fresh App Attest assertion to delete the current installation's live anonymous server record and
-sessions. This is separate from deleting the local wardrobe.
+sessions. This is separate from deleting the local wardrobe and does not reset the global budget
+ledger or its unresolved charged exposure.
 
 ## Reminders and background behavior
 
@@ -105,7 +110,7 @@ delivery and tap routing: the app opened Today without crashing and preserved lo
   a human account.
 - Server authentication-data deletion is distinct from local wardrobe deletion. It requires a
   fresh App Attest assertion, removes the current live identity and sessions, and then clears the
-  app's local server-identity reference.
+  app's local server-identity reference. The separate aggregate budget ledger remains intact.
 - Sign in with Apple is not presented because the app has no human account or login. App Attest is
   installation security, not an account system.
 
