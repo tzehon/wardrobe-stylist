@@ -281,7 +281,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   verification completed at `2026-09-07T10:39:08Z`. Registry source/platform and zero-High/Critical
   checks, App Attest configuration/store protections, bounded logging, snapshots and public
   health/pages passed. The serving process uses the disabled default, with no AI configuration
-  overrides, no applied private policy and no budget database. The existing budget checker
+  overrides or applied runtime policy. The first budget database was subsequently provisioned
+  under the 2026-09-08 setup approval, as recorded below. The existing budget checker
   truthfully remains OPEN with `styling-budget-evidence-open`. No paid call was made.
   This does not close migration acceptance or the full pre-upload review. Retained Fly v10
   evidence describes the historical Opus 4.8 deployment and archive baseline. Verify SDK syntax and
@@ -310,7 +311,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy is not yet applied and does not authorize source publication, provisioning,
+  again. The policy is not yet applied to the serving runtime and does not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
@@ -318,24 +319,39 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Fictional evaluations and earlier Opus production are excluded by that policy; preserve their
   unresolved account-level charges separately. Do not infer settlement from rounded costs or
   initialize from file absence alone. Any contradictory in-scope charge/pending work or
-  lost/restored/partial ledger stops the zero-only initializer. The private setup proposal remains
-  unapproved. Budget provisioning, adequate provider credit,
-  public-capacity preflight, alert delivery and separate AI enablement remain open.
+  lost/restored/partial ledger stops the zero-only initializer. On 2026-09-08 the owner approved
+  the exact billing-reviewed finite setup proposal; the ignored approval record binds its
+  manifest. Fresh automated checks, including the recovery image/scan, passed at
+  `2026-09-08T08:54:09Z` except the expected OPEN budget gate; manual rows remained OPEN.
+  First-ever ledger creation succeeded at `2026-09-08T08:56:32Z`, and independent read-only
+  verification under service UID/GID 10001 passed at `2026-09-08T09:00:32Z`: approved policy,
+  zero current-month charges/admissions, no reservations, parent 0700 and database 0600.
+  Never repeat initialization or reset that ledger. The approved public-capacity file is
+  installed locally as review bounds only. The dedicated production workspace now exists in the
+  approved US geography; its monthly limit and two email-notification settings were saved and
+  verified after reload. One approved credit purchase is paid, sufficient usable balance was
+  verified, and auto-reload remains off. Exact amounts, balance, workspace/key names and provider
+  identifiers remain private. Actual alert delivery remains OPEN; no native test control was seen.
+  The workspace-scoped key was created with no Admin API access; its secret has not been copied,
+  transferred or persisted locally. It expires at `2026-10-08T09:13Z`; rotation before expiry is required.
+  Owner-controlled secure transfer, private-setting staging, disabled configuration deployment and subsequent
+  operational verification remain unfinished. Separate AI enablement and distribution
+  remain open; no new Fly release or completed migration is implied by first provisioning.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
-  private proposal adds a separate hosting envelope and warning/hold thresholds; its amounts are
-  proposed, not approved. Follow `docs/fly-spend-controls.md`: keep the existing Machine/size/region/
+  private policy adds a separate hosting envelope and warning/hold thresholds; those private
+  amounts are now approved with the finite setup. Follow `docs/fly-spend-controls.md`: keep the existing Machine/size/region/
   volume/IP envelope, cost any expansion or paid service separately, reconcile organization-wide
   charges and verify monitoring. Never claim the AI ledger, prepaid credit, autostop or a bare
   Machine stop caps the Fly invoice. A reviewed service hold must prevent autostart/restart while
-  preserving durable data and uncertainty. No monitor or hold is active; explicit execution
-  approval and any absolute-invoice-cap requirement remain open.
+  preserving durable data and uncertainty. No monitor or hold is active; monitoring readiness,
+  separate hold execution approval and any absolute-invoice-cap requirement remain open.
   The signed-in 2026-09-08 billing review reconciled the current invoice preview and Cost Explorer,
   but exposed no billing coverage cutoff or lag guarantee. Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
-  the new private billing-reviewed proposal records this evidence without authorizing execution.
-  The verified v11 immutable image is retained privately for disabled redeployment. Once a
-  ledger is provisioned, verify recovery compatibility with that same ledger and limits before
+  the later ignored approval record authorizes only the bound finite setup, not AI enablement.
+  The verified v11 immutable image is retained privately for disabled redeployment. Verify
+  post-deployment recovery compatibility with the now-provisioned ledger and limits before
   enablement. Pre-budget v10 ignores these controls and is not a normal rollback target after
   this cutover; its retained recovery evidence describes the earlier baseline.
 - **Gmail-free guard:** `RemovedCapabilitiesReleaseGuardTests` and artifact/configuration scripts must fail if

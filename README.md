@@ -81,7 +81,8 @@ Fly **v11**, source `d2866a2`, deployed on 7 September 2026 with **AI styling di
 The exact registry image passed its source/platform and zero-High/Critical checks. The
 disabled-only production review completed at `2026-09-07T10:39:08Z`, verifying the original
 Machine and encrypted volume, healthy service, App Attest storage, bounded logging and the
-serving process's closed AI admission. No budget database was created or paid call made.
+serving process's closed AI admission. That rollout created no budget database and made no paid call;
+the later approved first provisioning is recorded below.
 This is not a complete pre-upload operational pass; see the
 [disabled rollout and open gates](docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
@@ -96,22 +97,37 @@ saved about 20.9% of input cost, but production reuse remains unproven and cachi
 No new paid evaluation or verification call was made during the rollout.
 The deployed runtime and durable-budget implementation are aligned with Sonnet pricing and its full context;
 the v2 ledger rejects old or mismatched pricing policy without resetting charges. This work
-is deployed with AI disabled and its budget unprovisioned. On 6 September 2026 the owner approved the private launch spend/admission
+is deployed with AI disabled. On 6 September 2026 the owner approved the private launch spend/admission
 limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
-limits remain in ignored private release records and have not been applied. The release checker
-supports a separate private public-capacity profile; its bounds still need review and approval.
-That operational gate, budget provisioning, adequate provider
-credit, alert-delivery verification and separately approved AI enablement remain open before
-Build 7 distribution. The 7 September preparation review supports zero prior liability within the
+limits remain in ignored private release records. The owner subsequently approved the finite
+billing-reviewed setup phase and Fly hosting policy on 8 September. Fresh automated operational
+checks, including recovery-image verification, passed at `2026-09-08T08:54:09Z`; the budget gate
+and manual rows remained OPEN. The original v11 source, Machine and volume were unchanged.
+First-ever budget provisioning succeeded at `2026-09-08T08:56:32Z`, recording the approved policy,
+zero current-month charges/admissions and no reservations with the required non-root ownership
+and private permissions. Independent read-only verification passed at `2026-09-08T09:00:32Z`;
+the initializer was not repeated. The approved public-capacity policy is installed locally as review bounds.
+The dedicated production provider workspace now exists in the approved US geography. Its monthly
+limit and two email-notification settings were saved and verified after reload. One approved
+credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
+Actual alert delivery remains unverified; no native test control was available. The serving
+process still uses disabled defaults without applied AI settings. The workspace-scoped key is
+created, with no Admin API access; its secret has not been transferred or persisted locally. Rotation
+before its 8 October 2026 expiry is an operations gate. Owner-controlled secure transfer, staging,
+configuration deployment, verified monitoring and separately approved AI enablement remain open
+before Build 7 distribution. This setup is in progress, not
+migration acceptance or a full pre-upload pass; see the
+[approved setup checkpoint](docs/app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
+The 7 September preparation review supports zero prior liability within the
 approved selected-model production budget: the earlier runtime used Opus, and the first Sonnet
 deployment has remained disabled. Evaluations are expressly excluded from that budget; their
 unresolved charges remain separate. Fresh production verification at `2026-09-07T11:51:58Z`
-confirmed the original healthy runtime, disabled defaults and absent budget directory. A private
-provisioning/provider/capacity proposal is prepared but unapproved; no settings, credit purchase
-or database creation followed this review. See the
+confirmed the original healthy runtime, disabled defaults and absent budget directory. The private
+provisioning/provider/capacity proposal was prepared without changes at that checkpoint; its later
+approval and first provisioning are recorded above. See the
 [budget preparation checkpoint](docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07).
 On 8 September the owner requested Fly hosting cost protection as well. The revised private
-proposal adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
+policy, now approved for the finite setup phase, adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
 a reversible service-hold procedure. Current read-only inventory confirms one Singapore
 shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
 The signed-in 8 September billing review found that the current September invoice preview and
@@ -121,8 +137,9 @@ The billing feed provides no coverage cutoff or refresh lag; final taxes/adjustm
 unreviewed add-ons are not ruled out. Monitoring readiness remains open, and the month-end cost
 scenario is not a guaranteed provider projection. Fly's documented lack of native billing alerts
 means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
-No Fly cost control, shutdown, monitor or purchase was activated; see
-[hosting spend controls](docs/fly-spend-controls.md). The revised setup proposal remains unapproved.
+No Fly monitor, service hold, purchase or configuration deployment has been performed; see
+[hosting spend controls](docs/fly-spend-controls.md). Setup approval does not authorize AI enablement
+or an automatic service hold.
 The new verified budget-aware image is retained privately for disabled
 redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively
 bounded by US$0.205120; a separate successful diagnostic

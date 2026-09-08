@@ -126,19 +126,32 @@ The current production baseline is **Fly v11 with AI disabled**, serving merged 
 `2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`. Exact
 registry/runtime source and Linux/AMD64 identity, zero-High/Critical scans, App Attest/auth-store
 integrity, privilege/logging controls, snapshots, and public pages passed. The approved private
-budget policy remains unapplied, with no budget storage or paid call. The broader budget/manual
-preflight remains OPEN, as do provisioning, capacity, alerts, prepaid-credit readiness,
-AI enablement, and distribution. The subsequent
+budget policy was unapplied and no storage or paid call was created at that rollout checkpoint.
+The owner subsequently approved the finite billing-reviewed setup on 8 September. Automated
+operational checks, including recovery-image verification, passed at `2026-09-08T08:54:09Z` apart
+from the expected OPEN budget gate; manual rows remained OPEN. First-ever ledger provisioning
+succeeded at `2026-09-08T08:56:32Z`; independent read-only verification passed at
+`2026-09-08T09:00:32Z` with the approved policy, zero current-month state, no reservations and
+required ownership/permissions. The approved capacity review file is installed locally. The
+original v11 source/Machine/volume are unchanged, and the runtime still uses disabled defaults
+without applied AI settings. The dedicated production workspace was created in the approved US
+geography; its monthly limit and two email settings were verified after reload. One approved
+credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
+The workspace-scoped key is created without Admin API access; its secret has not been transferred
+or persisted locally, and rotation before its 8 October 2026 expiry is required. Actual alert delivery,
+owner-controlled secure transfer, staging, configuration deployment, final operational verification, AI enablement and distribution
+remain open. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
-excluded evaluation uncertainty remains separately unresolved. The private setup proposal is
-unapproved and no provider or production state changed. The privately retained v11 reference supports
-budget-aware disabled redeployment; compatibility with a future initialized ledger still needs
-verification. See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+excluded evaluation uncertainty remains separately unresolved. The setup is in progress; saved
+notification settings do not prove delivery, and no native test control was seen. The privately retained v11 reference supports
+budget-aware disabled redeployment; post-deployment compatibility with the initialized ledger still
+needs verification. See the [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
 
 On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.md) to that pending
-proposal. The independent hosting envelope, warning/hold triggers and monitoring/delivery controls
-remain proposed and unapproved. Current CLI inventory confirms the small fixed topology. The
+proposal, then approved its private hosting envelope and warning/hold thresholds with the finite
+setup. Monitoring/delivery verification remains unfinished, and no service hold is authorized by
+the policy alone. Current CLI inventory confirms the small fixed topology. The
 signed-in billing review reconciled the current September invoice preview with Cost Explorer
 across five expected resource categories; the reviewed organization has no linked organizations,
 active support package, Managed Postgres clusters or Upstash Redis databases. This snapshot does
@@ -146,7 +159,7 @@ not establish billing-feed coverage/lag, final taxes/adjustments or the absence 
 add-on. Verified monitoring and fresh reconciliation remain open, and the month-end estimate is a
 planning scenario. No native hard bill cap is established;
 do not close this gate from the AI ledger or an AI-disabled runtime. No new TestFlight build is
-required for this documentation-only preparation.
+required for this backend-only setup and documentation.
 
 The historical pre-migration production baseline was Fly release v10, completed at
 `2026-08-29T01:52:47Z`. It served
@@ -502,7 +515,7 @@ open.
   output micro-USD per token; the default reservation is $2.010240. The v2 ledger binds model,
   units, prices, and token bounds and rejects old/mismatched storage without upgrade or reset.
   Full migration regression passed. No new paid call was needed for this alignment.
-  Keep this gate unchecked until the remaining provisioning/enablement and full fresh operational
+  Keep this gate unchecked until the remaining setup/enablement and full fresh operational
   review pass. Qualitative owner acceptance and the unchanged automatic floor are recorded above;
   the disabled v11 deployment is recorded separately below. Shared schemas and iOS
   source remain unchanged; Build 8 is not required.
@@ -524,14 +537,19 @@ open.
   explicit charge-preserving recovery. On 2026-09-06 the owner approved the private launch
   spend/admission limits and owner-operated daily monitoring policy, based on up to 10 initial
   AI users. Exact limits and the disabled configuration are retained in ignored private release
-  files, not tracked source, and have not been applied. This closes the budget/cadence decision
-  only. Alert delivery, public capacity acceptance (including replacement of the historical
-  single-user aggregate preflight band), prepaid-credit readiness, approved provisioning,
-  prior uncertain-call liability, AI enablement, and the full operational review remain open.
+  files, not tracked source. On 8 September the owner approved the finite billing-reviewed setup
+  and private capacity bounds. First-ever provisioning and local installation of the capacity
+  review file are complete; the serving runtime remains unconfigured and AI disabled. Alert
+  delivery, live public-capacity review, remaining secure-transfer/staging/configuration
+  setup, prior excluded uncertain-call liability, AI enablement and the full operational review
+  remain open. The provider workspace/cap/email settings are saved and verified; one approved
+  credit purchase is paid with sufficient usable balance and auto-reload off. The
+  [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
+  records independent ledger verification and the unchanged v11 topology.
   Local tooling now supports an explicitly selected public-launch preflight profile with strict
   private installation/session bounds and an active-session ownership check. The historical
-  single-user profile remains the default; no public limits are inferred from ten expected people
-  or approved by the budget decision. See the [private capacity-policy procedure](ai-spend-controls.md#public-launch-observed-capacity-preflight).
+  single-user profile remains the default; approved public bounds require explicit profile
+  selection. No public limits are inferred from ten expected people. See the [private capacity-policy procedure](ai-spend-controls.md#public-launch-observed-capacity-preflight).
   Final approval/capacity verification passed 551 backend tests, locked audit/Bandit/Ruff/mypy,
   236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   The approved disabled configuration passed local settings validation without provisioning a
@@ -572,6 +590,9 @@ open.
   tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   The preserved Build 7 archive is unchanged; this backend-only deployment requires no new
   TestFlight build. Only this disabled-deployment subgate is complete.
+  Its unprovisioned state and open decisions above describe the 7 September checkpoint. The
+  [later approved setup](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
+  records first provisioning and local capacity-policy activation without a new deployment.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,

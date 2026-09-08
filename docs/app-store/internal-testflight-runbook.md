@@ -23,7 +23,48 @@ an App Store release candidate from the moment it is archived. This prevents a s
   product release is transparent, budget-bounded freemium in Singapore; country expansion follows
   only after that model and its operations are proven.
 
+## Approved budget setup in progress — 2026-09-08
+
+The owner's "proceed" approved the finite billing-reviewed setup proposal, its separate Fly
+hosting policy and private capacity review bounds. The ignored approval record binds the exact
+proposal/manifest; the earlier unapproved preparation records remain unchanged historical evidence.
+This approval covers the specified first provisioning, provider setup and capped credit purchase,
+disabled configuration deployment and sanitized evidence lifecycle. It does not authorize paid
+model calls, AI enablement, distribution, snapshot/deletion/recovery operations, monitoring
+activation or an automatic service hold.
+
+Fresh automated operational checks at `2026-09-08T08:54:09Z`, including the exact recovery image
+and zero-High/Critical scan, passed apart from the expected OPEN budget gate; manual rows remained
+OPEN. Source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, Fly v11, the original Machine and encrypted
+volume were unchanged. First-ever ledger provisioning succeeded at `2026-09-08T08:56:32Z`, before
+staging any AI environment overrides. It recorded the exact approved private policy, zero
+current-month charges/admissions and no reservations. Independent read-only verification under
+service UID/GID 10001 passed at `2026-09-08T09:00:32Z`, including policy/state checks and parent
+0700/database 0600 permissions. The initializer was not repeated. Keep the existing ledger;
+never reset or recreate it to regain a first-provisioning state.
+
+The approved public-capacity file is installed locally as private review bounds, not runtime
+customer quotas. The serving process still uses AI-disabled defaults without applied AI settings
+and with an unconfigured budget path. The dedicated production workspace now exists in the
+approved US geography. Its monthly limit and two email-notification settings were saved and
+verified after reload. One approved credit purchase is paid at the approved quote, sufficient
+usable balance was verified, and auto-reload remains off. Exact workspace/key names, identifiers,
+amounts and balances remain in private evidence. Actual alert delivery remains OPEN; no native
+test control was observed. The workspace-scoped key was created for the existing owner without
+Admin API access; the creation confirmation was verified. Its secret has not been copied,
+transferred or persisted locally. Its displayed expiry is `2026-10-08T09:13Z` (17:13 SGT); rotation before
+that expiry is a required operations gate. Owner-controlled secure transfer, secret staging, same-image configuration deployment
+and post-deployment ledger/recovery verification remain unfinished. Fly monitoring and billing-feed freshness remain
+open, and the service-hold procedure still requires its own execution approval.
+
+This is an in-progress setup checkpoint, not migration acceptance or a full pre-upload pass.
+Do not invent a new Fly release before an actual deployment. No paid call, AI enablement or
+TestFlight distribution occurred; the preserved Build 7 archive is unchanged and no new build is
+required. The chronological checkpoints below retain their original scope and outcomes.
+
 ## Disabled runtime rollout — 2026-09-07
+
+Historical checkpoint; the approved first provisioning above supersedes its unprovisioned state.
 
 The owner approved private image publication and deployment with AI disabled after PR #42 merged.
 Fly v11 runs source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`; the original Machine and durable
@@ -54,6 +95,8 @@ compatible recovery cannot be established. The historical v10 archive/review evi
 unchanged. The preserved Build 7 archive is unchanged and no new TestFlight build is required.
 
 ## Budget and provider preparation — 2026-09-07
+
+Historical preparation; the later approved setup checkpoint above records execution progress.
 
 The retained release chronology contains no deployment between Opus v10 and the first Sonnet
 runtime, v11. The prior source hardcodes Opus; the Sonnet deployment was handled with AI disabled,
@@ -86,6 +129,9 @@ remain open. Configuration persistence does not prove email delivery. No runtime
 changed, no model call ran, and no new TestFlight build is required.
 
 ## Fly cost-protection preparation — 2026-09-08
+
+Historical preparation; the later approved setup checkpoint above records the owner's acceptance
+and first provisioning. Monitoring and service-hold execution remain separate open steps.
 
 The owner requested hosting-cost protection in the pending setup plan. The revised private
 8 September proposal supersedes the unapproved 7 September proposal while preserving its original

@@ -11,28 +11,42 @@ configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
 policy mismatch, or uncertain accounting. Styling defaults to disabled. The owner approved
 the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored
-private release records, remain unapplied, and must not be committed. See
+private release records and must not be committed. They are now recorded in the provisioned ledger,
+but have not yet been applied to the serving runtime. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
-Budget provisioning and AI enablement remain open. A subsequent
+AI enablement and completion of the approved setup remain open. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
 owner-approved source publication, required checks, Codex review, and merge state. Its exact
 merged image, source `d2866a2`, deployed on 2026-09-07 with **AI disabled**. The disabled-only
 review completed at `2026-09-07T10:39:08Z`: original Machine/volume, registry identity/security,
-health, auth-store protections and closed AI admission passed. No budget storage was created
-and no paid call was made. The later
+health, auth-store protections and closed AI admission passed. That rollout created no budget storage
+and made no paid call. The later
 [preparation review](../docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior liability within the approved selected-model production scope; excluded
-evaluation uncertainty remains separate. The prepared provisioning/provider/capacity proposal is
-unapproved. Capacity, credit and alert readiness remain open;
-this is not a full pre-upload operational pass. See the
+evaluation uncertainty remains separate. On 8 September the owner approved the finite billing-reviewed
+setup phase. Fresh automated operational checks, including recovery-image verification, passed at
+`2026-09-08T08:54:09Z`; budget/manual gates remained OPEN. First-ever ledger provisioning succeeded
+at `2026-09-08T08:56:32Z` with the approved policy, zero current-month state, no reservations and
+required ownership/permissions. Independent read-only verification passed at
+`2026-09-08T09:00:32Z`; the initializer was not repeated. The approved public-capacity review file is installed locally.
+The original v11 source/Machine/volume are unchanged; the runtime still uses disabled defaults
+without applied AI settings. The dedicated production workspace was created in the approved US
+geography; its monthly limit and two email-notification settings were verified after reload. One
+approved credit purchase is paid, usable balance is sufficient, and auto-reload remains off. Actual
+alert delivery is still unverified, with no native test control observed. The workspace-scoped key
+is created with no Admin API access, but its secret has not been transferred or persisted locally. Rotate
+it before its 8 October 2026 expiry. Owner-controlled secure transfer, staging and configuration
+deployment remain unfinished. This is not a full pre-upload operational pass; see the
+[approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
+and the historical
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 The revised 8 September setup proposal also includes separate
-[Fly hosting cost controls](../docs/fly-spend-controls.md). Their resource restrictions, monitoring
-and service-hold procedure are proposed only; the AI budget and disabled switch do not cap Fly
+[Fly hosting cost controls](../docs/fly-spend-controls.md). The policy is approved; monitoring is
+not installed and a service hold requires its own execution approval. The AI budget and disabled switch do not cap Fly
 charges. The signed-in 8 September review reconciled the current September invoice preview with
 Cost Explorer across the five expected resource categories; the reviewed organization has no linked
 organizations, active support package, Managed Postgres clusters or Upstash Redis databases. This
@@ -145,9 +159,10 @@ Run the repeatable read-only part of the fresh pre-upload review from clean sync
 python3 backend/verify_production_operations.py --refresh-registry-auth
 ```
 
-The lock identifies the verified v11 deployment and its exact merged source. Because the
-private policy remains unapplied and no budget ledger exists, the required budget check
-correctly reports OPEN `styling-budget-evidence-open`; do not provision storage to make it green.
+The lock identifies the verified v11 deployment and its exact merged source. The ledger is now
+provisioned, but the private policy remains unapplied to the disabled runtime, so the required
+budget check remains OPEN `styling-budget-evidence-open`. Never reinitialize its storage to make
+the checker green.
 The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
@@ -165,7 +180,8 @@ the temporary TOML is not the long-lived review record.
 The historical single-user aggregate profile remains the default. The deployed backend also
 supports `--auth-capacity-profile public-launch --auth-capacity-policy PRIVATE_TOML` with
 independently approved private installation/session bounds and active-session ownership checks.
-No public profile is approved or selected yet. See the
+The owner-approved public-capacity policy is now installed locally; select it explicitly for the
+remaining live review. It changes review bounds only, not runtime auth or customer quotas. See the
 [capacity-policy schema and review procedure](../docs/ai-spend-controls.md#public-launch-observed-capacity-preflight).
 
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
