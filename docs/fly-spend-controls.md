@@ -1,9 +1,17 @@
 # Fly hosting spend controls
 
-Status: proposed on 8 September 2026 at the owner's request. No Fly spending monitor,
-configuration change, shutdown, purchase or deployment was performed for this preparation.
-The private setup proposal now includes an independent hosting budget. The Anthropic ledger
-does not account for Fly charges, and neither proposal is approved for execution yet.
+Status: the owner approved the billing-reviewed hosting policy and finite setup phase on
+8 September 2026. The first AI budget ledger is provisioned and independently verified; the
+serving runtime still uses disabled defaults without applied AI settings. No Fly spending
+monitor, configuration deployment, service hold or purchase has been performed. The private
+hosting envelope is separate from the Anthropic ledger, which does not account for Fly charges.
+The dedicated AI-provider workspace and its monthly cap/email settings are now saved and verified;
+one approved provider-credit purchase is paid with sufficient usable balance and auto-reload off.
+The workspace-scoped provider key is created, but its secret has not been transferred or persisted locally;
+rotation is required before its 8 October 2026 expiry. These are separate from Fly billing.
+Provider alert delivery, owner-controlled secure transfer, staging and
+configuration deployment remain unfinished; Fly monitoring and service-hold activation remain open.
+See the [in-progress setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
 
 ## Resource baseline and cost exposure
 
@@ -20,7 +28,7 @@ this does not rule out unreported usage or later adjustments.
 
 The previous month's service charges were waived on the paid invoice. Do not assume future
 waivers or use the net amount due as the consumption measure: compare pre-tax service charges
-before discretionary waivers or prepaid/promotional credits with the proposed thresholds, and
+before discretionary waivers or prepaid/promotional credits with the approved private thresholds, and
 show adjustments and payable amounts separately. Retain applicable published resource allowances
 only while their actual availability is verified. Displayed line items are rounded; use the
 provider's subtotal rather than summing rounded lines.
@@ -50,7 +58,7 @@ Public health, malformed and rejected requests can still create traffic. A stric
 guarantee is therefore an unresolved requirement, not a property of this plan.
 [Fly cost management](https://fly.io/docs/about/cost-management/).
 
-## Proposed controls before AI enablement
+## Approved policy and remaining controls before AI enablement
 
 - Freeze the resource envelope at the existing one Machine, size, region and one 1 GB volume.
   Require a separately costed approval for additional resources, resizing, volume auto-extension,
@@ -67,7 +75,7 @@ guarantee is therefore an unresolved requirement, not a property of this plan.
   and notification delivery before relying on it. Missing data is an open gate, never zero spend.
   If the monitoring host is unavailable, automated detection cannot be promised.
 - Stop expansion at warnings and investigate unexpected resources or traffic immediately. A
-  crossed private service-hold threshold requires the owner-controlled hold below. The proposed
+  crossed private service-hold threshold requires the owner-controlled hold below. The planned
   monitor is read-only and cannot stop production by itself; hold execution needs explicit approval.
 - Before enabling AI, obtain owner acceptance of the remaining variable-cost exposure. If an
   absolute invoice cap is required, keep enablement blocked until an enforceable provider/control
@@ -90,5 +98,6 @@ budget-aware image and storage, initially disabled AI, fresh verification and a 
 of the live configuration evidence. An ordinary deployment from the current `fly.toml` would
 restore autostart/minimum-one settings, so it must not bypass the hold.
 
-The README, setup proposal and release backlog must report actual activation and unresolved gates.
-This documentation-only addition requires no new TestFlight build.
+The README, bound setup proposal and release backlog must report actual activation and unresolved
+gates. Policy approval does not activate a monitor or authorize an automatic hold. The backend-only
+setup and documentation do not require a new TestFlight build.
