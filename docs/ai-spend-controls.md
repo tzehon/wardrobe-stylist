@@ -1,10 +1,11 @@
 # Singapore launch AI spend controls
 
-Status: **approved setup in progress; Fly v11 remains AI disabled**. First-ever ledger provisioning
-succeeded at `2026-09-08T08:56:32Z`; independent read-only verification passed at
-`2026-09-08T09:00:32Z`. The ledger contains the approved policy and zero current-month state with
-no reservations, but the serving runtime has not yet been configured to use it. See the
-[approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
+Status: **Fly v12 configured with the approved budget and AI disabled**. First-ever provisioning
+succeeded at `2026-09-08T08:56:32Z`; independent post-deployment review passed at
+`2026-09-08T09:32:49Z`. The unchanged image reads the existing ledger as service UID/GID 10001,
+with approved policy, zero current-month state and no reservations; the disabled guard returns 503.
+The finite disabled setup is verified. See the
+[approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 On 2026-09-06 the owner **approved the private
 launch spend/admission limits and operating policy** after reviewing measured cost, expected
 demand, failed-call exposure, and headroom. The [fictional model evaluation](model-evaluation.md)
@@ -19,8 +20,8 @@ The partial numeric rubric remains unproven and no missing ratings were inferred
 input savings of about 20.9% do not prove production reuse, so caching stays off. The owner
 expects up to 10 AI users in the first launch month. The approved private policy is retained in
 ignored `.fly/launch-policy-20260906.md`, with a disabled configuration prepared separately.
-The policy is now recorded in the ledger but remains unapplied to the serving runtime, which uses disabled defaults with no AI
-environment overrides or `.env` file, a blank budget path and zero monthly spend/admission limits.
+The policy is recorded in the ledger and applied to the serving runtime through all six approved
+AI settings, including the existing budget path and explicit `AI_STYLING_ENABLED=false`.
 The existing first-provisioned directory/database must be preserved; no paid call ran.
 The runtime model, token rates, full-context reservation,
 and redacted preflight are aligned and have passed the full required regressions.
@@ -32,12 +33,15 @@ local installation of the approved capacity review file are complete. The dedica
 workspace now exists in the approved US geography; its monthly limit and two email-notification
 settings were verified after reload. One approved credit purchase is paid and sufficient usable
 balance was verified, with auto-reload off. The workspace-scoped key is created without Admin API
-access; its secret has not been copied, transferred or persisted locally. Rotation before its 8 October
-2026 expiry remains an operations gate. Owner-controlled secure transfer, staging and configuration
-deployment remain unfinished. Actual alert delivery remains OPEN; no native test control was seen.
+access; hidden owner input transferred and staged it without local secret persistence. Fly v12
+deploys the new key and private policy while preserving the session secret, with all eight expected
+secrets deployed. Rotation before its 8 October 2026 expiry remains an operations gate.
+Actual alert delivery remains OPEN; no native test control was seen.
 AI enablement and distribution retain separate approval gates.
-The checker retains `styling-budget-evidence-open`, and the broader pre-upload review has not
-passed. The approved public-capacity profile still requires the remaining live review; alert-delivery
+The ordinary checker retains `styling-budget-evidence-open`; its root-SSH diagnostic has an
+ownership-context gap that must be corrected before enabled launch. The independent configured
+probe passed under the service identity without bypassing safeguards. The broader pre-upload review
+has not passed. The approved public-capacity profile passed the disabled post-review; alert-delivery
 verification remains open. Prepaid-credit readiness now passes the approved setup check; refresh
 it before later activation. The earlier
 [preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
@@ -69,8 +73,8 @@ The v2 ledger stores and validates the pinned model, micro-USD unit, global-stan
 pricing policy, input/output prices, and input/output token bounds alongside its private limits.
 Old v1 Haiku storage, a relabeled old schema, changed pricing fields, or underpriced pending
 reservations fail closed. No automatic upgrade or liability reinterpretation is allowed.
-The first production budget ledger is now provisioned and independently verified; it has not yet
-been connected to the serving runtime. If any other old ledger is
+The first production budget ledger is provisioned, connected to the serving runtime and
+independently verified after restart. If any other old ledger is
 discovered, keep styling disabled and reconcile its liability through the owner recovery process;
 do not delete or reinitialize it to make the Sonnet candidate start.
 
@@ -78,17 +82,18 @@ The approved unit ceiling bounds this backend's selected-model API usage, before
 as every call uses this ledger and the pinned model/rates remain valid. It does not bound Fly
 charges, other Anthropic keys/apps, evaluations, taxes, or charges after unreviewed price changes.
 Keep evaluation on a separate key. The dedicated production workspace and provider-side monthly
-limit are created and verified. The workspace-scoped key is created; its secure transfer and
-staging remain pending. Saved email-notification settings are not delivery evidence.
+limit are created and verified. The workspace-scoped key was securely transferred, staged and
+deployed. Saved email-notification settings are not delivery evidence.
 The owner's 8 September request adds a separate [Fly hosting policy](fly-spend-controls.md).
 Its private resource envelope and warning/hold thresholds are approved; monitoring is not installed,
 and service-hold execution requires separate approval.
-Neither the AI ledger nor the disabled AI switch caps hosting charges. The signed-in 8 September
-review reconciled the current September invoice preview with Cost Explorer across five expected
+Neither the AI ledger nor the disabled AI switch caps hosting charges. The latest signed-in
+8 September refresh shows divergent invoice-preview and Cost Explorer totals across five expected
 resource categories, with no linked organizations, active support package, Managed Postgres
 clusters or Upstash Redis databases in the reviewed organization. The snapshot does not establish
 the billing feed's coverage cutoff/refresh lag, final taxes/adjustments or the absence of every
-possible add-on. The revised setup still requires fresh billing reconciliation and verified
+possible add-on. Private planning uses the higher preview; feed reconciliation remains OPEN.
+The revised setup still requires fresh billing reconciliation and verified
 monitoring before AI enablement; the month-end estimate remains a planning scenario.
 
 The route admits at most 200 catalog items, 32,768 bytes of normalized request JSON, and
@@ -173,17 +178,19 @@ Deploy only the reviewed/scanned immutable image after approval. Freshly verify 
 SDK, exact source, all settings, single-volume topology, and the ledger's integrity and private
 policy match. Update the production-operations lock's deployed revision/release and required
 secret names from actual deployment evidence; do not fabricate a future release number or reuse
-the historical v10 source lock as proof. The v11 disabled-deployment evidence now binds source
+the historical v10 source lock as proof. The v12 configuration-deployment evidence binds unchanged source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. `production_styling_status()` emits fixed bands only
-and is read-only. The full operations helper requires a ready, enabled budget; disabled,
-not-yet-configured v11 correctly leaves that gate open even after first provisioning. The bounded launch policy is approved, but the
+and is read-only. The full operations helper requires a ready, enabled budget; configured-but-disabled
+v12 retains an OPEN launch gate. Its ordinary root-SSH diagnostic also requires the ownership-context
+correction described above. The bounded launch policy is approved, but the
 remaining operational gates and explicit AI-enable approval are still required.
 
-The exact v11 immutable reference is privately retained for **budget-aware redeployment** after
+The unchanged immutable reference used by v11 and v12 is privately retained for **budget-aware redeployment** after
 verified source/architecture matching and zero-High/Critical scanning. Pre-budget v10 ignores the
 new switch and accounting, so it is not a normal rollback target after this disabled cutover.
-Post-deployment compatibility with the now-initialized ledger remains open: recovery must preserve its model,
-policy, limits, and charges. If no compatible recovery image is available, keep protected AI
+The v12 restart and independent configured probe verified that image reads the existing ledger
+without initialization or reset. Recovery must continue to preserve its model, policy, limits and
+charges. If no compatible recovery image is available, keep protected AI
 traffic stopped. The v10-only recovery reference in older release records remains pre-migration
 historical evidence. Never regain availability by bypassing the budget.
 
@@ -202,8 +209,9 @@ pre-archive/upload and post-change reviews. Configure or verify delivery of prov
 possible. No notification delivery or monitoring automation has been installed by this change.
 The auth preflight defaults to its historical single-user aggregate band. The local tooling also
 supports an explicitly selected public-launch profile with a separate private policy file.
-The owner approved those bounds with the 8 September setup, and the file is installed locally;
-the remaining live review must select it explicitly. The estimate of ten people does not determine
+The owner approved those bounds with the 8 September setup, and the file is installed locally.
+The configured public-band check passed after v12 deployed; future reviews must select it explicitly.
+The estimate of ten people does not determine
 installation/session limits: reinstalls create new identities, and session renewals can overlap.
 
 ### Public-launch observed-capacity preflight

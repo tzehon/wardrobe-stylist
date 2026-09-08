@@ -5,17 +5,17 @@ payloads. It persists separate aggregate AI-budget/reservation metadata and narr
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
-Fly v11 selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+Fly v12 selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
 thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
 configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
 policy mismatch, or uncertain accounting. Styling defaults to disabled. The owner approved
 the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored
-private release records and must not be committed. They are now recorded in the provisioned ledger,
-but have not yet been applied to the serving runtime. See
+private release records and must not be committed. They are recorded in the existing ledger and
+applied to the serving runtime with AI explicitly disabled. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
-AI enablement and completion of the approved setup remain open. A subsequent
+AI enablement remains open. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
@@ -32,23 +32,29 @@ setup phase. Fresh automated operational checks, including recovery-image verifi
 at `2026-09-08T08:56:32Z` with the approved policy, zero current-month state, no reservations and
 required ownership/permissions. Independent read-only verification passed at
 `2026-09-08T09:00:32Z`; the initializer was not repeated. The approved public-capacity review file is installed locally.
-The original v11 source/Machine/volume are unchanged; the runtime still uses disabled defaults
-without applied AI settings. The dedicated production workspace was created in the approved US
+The original source/image/Machine/volume are unchanged. Fly v12 applies all six private policy
+settings with AI false and the new provider key; all eight expected secrets are deployed. The
+dedicated production workspace was created in the approved US
 geography; its monthly limit and two email-notification settings were verified after reload. One
 approved credit purchase is paid, usable balance is sufficient, and auto-reload remains off. Actual
 alert delivery is still unverified, with no native test control observed. The workspace-scoped key
-is created with no Admin API access, but its secret has not been transferred or persisted locally. Rotate
-it before its 8 October 2026 expiry. Owner-controlled secure transfer, staging and configuration
-deployment remain unfinished. This is not a full pre-upload operational pass; see the
-[approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
+was created with no Admin API access and transferred through hidden owner input without local
+secret persistence. Rotate it before its 8 October 2026 expiry. Independent post-deployment review
+passed at `2026-09-08T09:32:49Z`: the serving UID reads the intact zero-state ledger, the disabled
+guard returns 503, and runtime/auth/public-capacity/storage/snapshot/log/archive/public-page checks
+pass. The ordinary budget checker remains OPEN because its SSH diagnostic has an ownership-context
+gap; correct it before enabled launch. The independent configured probe passed without bypassing
+guards. The finite disabled setup is verified; the full pre-upload pass remains open. See the
+[approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 and the historical
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 The revised 8 September setup proposal also includes separate
 [Fly hosting cost controls](../docs/fly-spend-controls.md). The policy is approved; monitoring is
 not installed and a service hold requires its own execution approval. The AI budget and disabled switch do not cap Fly
-charges. The signed-in 8 September review reconciled the current September invoice preview with
-Cost Explorer across the five expected resource categories; the reviewed organization has no linked
+charges. The latest signed-in 8 September refresh shows divergent September invoice-preview and
+Cost Explorer totals across the same five expected categories; private planning uses the higher
+preview and retains feed reconciliation OPEN. The reviewed organization has no linked
 organizations, active support package, Managed Postgres clusters or Upstash Redis databases. This
 is a current billing snapshot, not proof of final charges or the absence of every possible add-on.
 The feed's coverage cutoff/refresh lag and monitoring readiness remain open; month-end amounts
@@ -119,16 +125,18 @@ source identity and architecture, and its zero-High/Critical scan passed. Former
 references are timestamped historical evidence only. The former v6 reference's current platform/
 source identity was not independently proven, so it is ineligible for rollback or recovery. Any
 identity or scan mismatch blocks archive, upload, distribution, and physical QA.
-The current v11 immutable image is verified for disabled redeployment and retained privately.
-After budget provisioning, verify compatibility with that same ledger and approved limits before
-enablement; pre-budget v10 is not a normal rollback target after this cutover. Cleanup repeats bounded transactions until drained,
+The unchanged image used by v11 and v12 is verified for disabled redeployment and retained privately.
+The v12 restart and configured probe verified compatibility with the existing ledger and approved
+limits; preserve that storage and liability in future recovery. Pre-budget v10 is not a normal
+rollback target after this cutover. Cleanup repeats bounded transactions until drained,
 removes inactive installations after 90 days and revoked installations after 30 days, and securely
 checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
 exposes that server-only control. The exact live and retained-recovery digests and scan evidence are
 kept in ignored private release records; the internal-TestFlight runbook records fixed outcomes.
 The owner-approved payload-free manual operations
-review replaces automated alert delivery for this personal single-user release. The first manual
+review remains part of the operating policy; it does not close the new provider/Fly alert-delivery
+and monitoring gates for public launch. The first manual
 review passed on 2026-08-20, and the v10 post-change review passed at `2026-08-29T02:21:41Z`. A
 fresh full operations/recovery review against exact v10 completed at `2026-08-29T11:02:18Z`,
 including a fresh private-registry match and zero-High/Critical Docker Scout scan, immediately
@@ -137,7 +145,7 @@ Gmail-free public pages are live; snapshot-list expiry and deletion-specific rec
 gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v11 enables application `INFO` only for `app.auth.service`, routes it
+mechanism tuple. Live Fly v12 enables application `INFO` only for `app.auth.service`, routes it
 through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
 Uvicorn access logging off. Required production registration, assertion, and deletion success
 markers have been observed; the runbook retains only their bounded, payload-free evidence.
@@ -159,10 +167,11 @@ Run the repeatable read-only part of the fresh pre-upload review from clean sync
 python3 backend/verify_production_operations.py --refresh-registry-auth
 ```
 
-The lock identifies the verified v11 deployment and its exact merged source. The ledger is now
-provisioned, but the private policy remains unapplied to the disabled runtime, so the required
-budget check remains OPEN `styling-budget-evidence-open`. Never reinitialize its storage to make
-the checker green.
+The lock identifies the verified v12 configuration deployment with unchanged merged source.
+The ledger and private policy are applied with AI disabled. The ordinary budget check remains
+OPEN `styling-budget-evidence-open`; its root-SSH diagnostic must use the required service
+ownership context before enabled launch. The independent configured probe passed as UID/GID 10001.
+Never reinitialize storage or bypass ownership guards to make the checker green.
 The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated

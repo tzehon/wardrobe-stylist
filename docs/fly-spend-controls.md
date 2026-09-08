@@ -1,17 +1,20 @@
 # Fly hosting spend controls
 
 Status: the owner approved the billing-reviewed hosting policy and finite setup phase on
-8 September 2026. The first AI budget ledger is provisioned and independently verified; the
-serving runtime still uses disabled defaults without applied AI settings. No Fly spending
-monitor, configuration deployment, service hold or purchase has been performed. The private
+8 September 2026. Fly v12 applies the private AI policy and provider key with AI disabled;
+independent post-deployment review passed at `2026-09-08T09:32:49Z`. The unchanged image reads
+the intact existing ledger after restart on the original Machine/volume, without resource growth.
+No Fly spending monitor, service hold or Fly credit purchase has been performed. The private
 hosting envelope is separate from the Anthropic ledger, which does not account for Fly charges.
 The dedicated AI-provider workspace and its monthly cap/email settings are now saved and verified;
 one approved provider-credit purchase is paid with sufficient usable balance and auto-reload off.
-The workspace-scoped provider key is created, but its secret has not been transferred or persisted locally;
-rotation is required before its 8 October 2026 expiry. These are separate from Fly billing.
-Provider alert delivery, owner-controlled secure transfer, staging and
-configuration deployment remain unfinished; Fly monitoring and service-hold activation remain open.
-See the [in-progress setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
+The workspace-scoped key was transferred through hidden owner input and deployed without local
+secret persistence; rotation is required before its 8 October 2026 expiry. These are separate from
+Fly billing. The finite disabled setup is verified.
+Provider alert delivery, Fly monitoring implementation/delivery, billing-feed reconciliation and
+AI enablement remain open. The ordinary budget diagnostic needs an ownership-context correction;
+its independent configured probe passed. No hard invoice cap or automatic hold is active.
+See the [approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 
 ## Resource baseline and cost exposure
 
@@ -35,6 +38,13 @@ provider's subtotal rather than summing rounded lines.
 
 The current preview is not a full-month forecast. The reviewed billing views show no usage
 coverage cutoff or refresh-lag guarantee. No tax line was shown; future tax treatment is unverified.
+The later pre-deployment refresh at approximately 09:25–09:29 UTC showed a higher invoice-preview
+total than Cost Explorer across the same five products. Private planning uses the higher preview;
+the difference is not attributed to lag without evidence, and the feeds are not reconciled.
+Fresh resource/service inventory found no expansion or new paid product. The unchanged-resource
+planning scenario remained below the approved warning threshold; it is not a liability ceiling.
+The post-deployment inventory again passed with no extra billable resources, and the refreshed
+invoice preview was unchanged. The Cost Explorer divergence remains unresolved.
 Billing-feed freshness, final adjustments and monitoring readiness remain open. The current
 resource scenario below remains the planning estimate; do not extrapolate a rounded daily
 average into a promised maximum bill.

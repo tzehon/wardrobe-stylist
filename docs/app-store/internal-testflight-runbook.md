@@ -23,7 +23,7 @@ an App Store release candidate from the moment it is archived. This prevents a s
   product release is transparent, budget-bounded freemium in Singapore; country expansion follows
   only after that model and its operations are proven.
 
-## Approved budget setup in progress — 2026-09-08
+## Approved disabled budget setup — 2026-09-08
 
 The owner's "proceed" approved the finite billing-reviewed setup proposal, its separate Fly
 hosting policy and private capacity review bounds. The ignored approval record binds the exact
@@ -44,21 +44,46 @@ service UID/GID 10001 passed at `2026-09-08T09:00:32Z`, including policy/state c
 never reset or recreate it to regain a first-provisioning state.
 
 The approved public-capacity file is installed locally as private review bounds, not runtime
-customer quotas. The serving process still uses AI-disabled defaults without applied AI settings
-and with an unconfigured budget path. The dedicated production workspace now exists in the
+customer quotas. The dedicated production workspace now exists in the
 approved US geography. Its monthly limit and two email-notification settings were saved and
 verified after reload. One approved credit purchase is paid at the approved quote, sufficient
 usable balance was verified, and auto-reload remains off. Exact workspace/key names, identifiers,
 amounts and balances remain in private evidence. Actual alert delivery remains OPEN; no native
 test control was observed. The workspace-scoped key was created for the existing owner without
-Admin API access; the creation confirmation was verified. Its secret has not been copied,
-transferred or persisted locally. Its displayed expiry is `2026-10-08T09:13Z` (17:13 SGT); rotation before
-that expiry is a required operations gate. Owner-controlled secure transfer, secret staging, same-image configuration deployment
-and post-deployment ledger/recovery verification remain unfinished. Fly monitoring and billing-feed freshness remain
-open, and the service-hold procedure still requires its own execution approval.
+Admin API access; the creation confirmation was verified. Hidden owner input transferred the key,
+and staged-only verification passed at `2026-09-08T09:19:59Z` without local secret persistence or
+an automatic retry. Its displayed expiry is `2026-10-08T09:13Z` (17:13 SGT); rotation before that
+expiry is a required operations gate.
 
-This is an in-progress setup checkpoint, not migration acceptance or a full pre-upload pass.
-Do not invent a new Fly release before an actual deployment. No paid call, AI enablement or
+The approved configuration deployed as **Fly v12**, retaining the exact same scanned immutable
+image/source, original Machine and encrypted volume. All six private AI policy values and the
+new workspace key are applied, with AI false and the original session secret preserved; all eight
+expected secrets are deployed. Independent post-deployment review at `2026-09-08T09:32:49Z`
+verified the configured policy, existing ledger integrity/zero current-month state, and the
+disabled 503 admission guard under serving UID/GID 10001. The same image reads the existing ledger
+after restart without initialization or reset. Runtime/configuration, App Attest storage, approved
+public-capacity band, volume, fresh 14-day snapshots, bounded logs, archive, public backend/pages
+and public provider-status checks passed.
+
+The ordinary budget checker still reports OPEN `styling-budget-evidence-open`: its root-SSH
+diagnostic has an ownership-context gap requiring correction before enabled launch. The independent
+configured probe passed under the required service identity. Do not force that ordinary checker
+green or relax ownership guards. The full pre-upload gate remains OPEN with manual and enabled-launch
+checks outstanding.
+
+Fresh pre-deployment inventory confirmed no resource growth. The approximately 09:25–09:29 UTC
+signed-in billing refresh showed divergent invoice-preview and Cost Explorer totals across the
+same five expected products. Private planning uses the higher preview, without attributing the
+difference to lag or claiming a proved forecast. Billing-feed freshness/reconciliation, final
+adjustments, provider alert delivery and Fly monitoring implementation/delivery remain OPEN.
+Post-deployment resource inventory again passed with no additional billable resources. The
+provider console recheck confirmed the saved cap/notification settings, usable credit and disabled
+auto-reload; the Fly invoice preview was unchanged. These checks do not reconcile the divergent feeds.
+No monitor or service hold was activated; the hold still requires its own execution approval.
+
+The finite disabled setup and independent post-review are complete. This is not migration
+acceptance or a full pre-upload pass.
+No paid call, AI enablement or
 TestFlight distribution occurred; the preserved Build 7 archive is unchanged and no new build is
 required. The chronological checkpoints below retain their original scope and outcomes.
 
@@ -408,7 +433,7 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   source identity and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former
   v6 reference's current platform/source identity was not independently proven, so it is ineligible
   for rollback or recovery. Exact v10 was the sole recovery reference at that historical checkpoint;
-  the current budget-aware recovery rule is recorded in the disabled v11 deployment section above.
+  the current budget-aware recovery rule is recorded in the approved disabled setup section above.
   The emergency pre-build-4 image that re-exposes `/extract` remains a release halt, never a
   public-v1 rollback.
 - The historical payload-free v8 post-change review passed at `2026-08-21T11:09:20Z`. The two-day HTTP view
@@ -666,7 +691,7 @@ the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapsh
 deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
-The current Fly v11 runtime is deployed with AI disabled, as recorded above.
+The current Fly v12 runtime has its private policy applied with AI disabled, as recorded above.
 The build-7 exact-source regression and strict signed-archive verification have passed. Its
 validation/upload, Apple processing, assignment, tester-note, and clean physical Dark Mode visual
 retest gates remain open:
@@ -978,9 +1003,10 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
    the candidate still succeeds. Recovery must use the exact current
    validated Gmail-free App-Attest-only, budget-aware image while preserving the auth store and
-   any initialized budget ledger, limits, and charges. The privately retained v11 reference is the
-   current disabled-redeployment baseline; verify compatibility before using it with a future
-   initialized ledger. Pre-budget v10 is not a normal rollback target. The former v6 reference's
+   the initialized budget ledger, limits, and charges. The privately retained unchanged v11/v12
+   image is the current disabled-redeployment baseline; the v12 restart verified it reads the
+   existing ledger without reset. Recheck that compatibility before recovery. Pre-budget v10 is
+   not a normal rollback target. The former v6 reference's
    current identity is not independently proven and it is ineligible; the former v5 image is a pre-build-4 abort only,
    re-exposes `/extract`, and must halt the release. Rolling back to the shared bearer is never
    acceptable.
