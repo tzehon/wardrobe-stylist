@@ -35,12 +35,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Validation/upload, processing, assignment, clean visual retest, metadata, and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Validation/upload, processing, assignment, clean visual retest, metadata, and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution and clean physical Dark Mode retest remain open. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Build-7 upload/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Build-7 upload/distribution, clean physical visual retest, deletion-specific recovery, final Google retirement, and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -121,8 +121,15 @@ transport are DEBUG-only; the Release-artifact guard proves their launch markers
 test-only change does not alter Release code paths or the preserved build-7 archive and does not
 require build 8.
 
-The current production baseline is **Fly v11 with AI disabled**, serving merged source
-`d2866a2375dd4795f40a3ab13d273ed138cedd7e`. The original Machine and volume were healthy at
+The current production baseline is **Fly v12 with AI disabled**, serving unchanged merged source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`. Its configuration deployment and independent review
+passed at `2026-09-08T09:32:49Z` on the same scanned image, original Machine and encrypted volume.
+The existing zero-state v2 ledger and approved private policy are applied; the serving UID reads
+the intact ledger after restart and the disabled guard returns 503. All eight expected secrets,
+auth/public-capacity/storage/snapshot/log/archive/public-page checks pass. The ordinary budget
+checker remains OPEN with an ownership-context gap in its root-SSH diagnostic; correct it before
+enabled launch without bypassing guards. The independent configured probe passed. Historically,
+the original Machine and volume were healthy at
 `2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`. Exact
 registry/runtime source and Linux/AMD64 identity, zero-High/Critical scans, App Attest/auth-store
 integrity, privilege/logging controls, snapshots, and public pages passed. The approved private
@@ -133,27 +140,27 @@ from the expected OPEN budget gate; manual rows remained OPEN. First-ever ledger
 succeeded at `2026-09-08T08:56:32Z`; independent read-only verification passed at
 `2026-09-08T09:00:32Z` with the approved policy, zero current-month state, no reservations and
 required ownership/permissions. The approved capacity review file is installed locally. The
-original v11 source/Machine/volume are unchanged, and the runtime still uses disabled defaults
-without applied AI settings. The dedicated production workspace was created in the approved US
+original source/image/Machine/volume are unchanged. The dedicated production workspace was created in the approved US
 geography; its monthly limit and two email settings were verified after reload. One approved
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
-The workspace-scoped key is created without Admin API access; its secret has not been transferred
-or persisted locally, and rotation before its 8 October 2026 expiry is required. Actual alert delivery,
-owner-controlled secure transfer, staging, configuration deployment, final operational verification, AI enablement and distribution
-remain open. The earlier
+The workspace-scoped key was created without Admin API access and transferred through hidden owner
+input without local secret persistence; it and the private settings are deployed in v12. Rotation
+before its 8 October 2026 expiry is required. Actual alert delivery, Fly monitoring, diagnostic
+correction, full pre-upload verification, AI enablement and distribution remain open. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
-excluded evaluation uncertainty remains separately unresolved. The setup is in progress; saved
-notification settings do not prove delivery, and no native test control was seen. The privately retained v11 reference supports
-budget-aware disabled redeployment; post-deployment compatibility with the initialized ledger still
-needs verification. See the [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
+excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
+Saved notifications do not prove delivery, and no native
+test control was seen. The unchanged privately retained image reads the initialized ledger after
+the v12 restart without reset. See the [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 
 On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.md) to that pending
 proposal, then approved its private hosting envelope and warning/hold thresholds with the finite
 setup. Monitoring/delivery verification remains unfinished, and no service hold is authorized by
 the policy alone. Current CLI inventory confirms the small fixed topology. The
-signed-in billing review reconciled the current September invoice preview with Cost Explorer
-across five expected resource categories; the reviewed organization has no linked organizations,
+latest signed-in billing refresh shows divergent September invoice-preview and Cost Explorer totals
+across the same five expected categories. Private planning uses the higher preview, with feed
+reconciliation OPEN. The reviewed organization has no linked organizations,
 active support package, Managed Postgres clusters or Upstash Redis databases. This snapshot does
 not establish billing-feed coverage/lag, final taxes/adjustments or the absence of every possible
 add-on. Verified monitoring and fresh reconciliation remain open, and the month-end estimate is a
@@ -539,13 +546,14 @@ open.
   AI users. Exact limits and the disabled configuration are retained in ignored private release
   files, not tracked source. On 8 September the owner approved the finite billing-reviewed setup
   and private capacity bounds. First-ever provisioning and local installation of the capacity
-  review file are complete; the serving runtime remains unconfigured and AI disabled. Alert
-  delivery, live public-capacity review, remaining secure-transfer/staging/configuration
-  setup, prior excluded uncertain-call liability, AI enablement and the full operational review
+  review file are complete; Fly v12 applies the private policy/key while keeping AI disabled.
+  The public-capacity check and independent configured ledger probe passed. Alert delivery,
+  Fly monitoring, correction of the ordinary budget diagnostic's ownership context,
+  prior excluded uncertain-call liability, AI enablement and the full operational review
   remain open. The provider workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The
-  [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
-  records independent ledger verification and the unchanged v11 topology.
+  [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+  records post-deployment ledger verification and the unchanged image/Machine/volume topology.
   Local tooling now supports an explicitly selected public-launch preflight profile with strict
   private installation/session bounds and an active-session ownership check. The historical
   single-user profile remains the default; approved public bounds require explicit profile
@@ -591,8 +599,9 @@ open.
   The preserved Build 7 archive is unchanged; this backend-only deployment requires no new
   TestFlight build. Only this disabled-deployment subgate is complete.
   Its unprovisioned state and open decisions above describe the 7 September checkpoint. The
-  [later approved setup](app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08)
-  records first provisioning and local capacity-policy activation without a new deployment.
+  [later approved setup](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+  records first provisioning, local capacity-policy activation and the later verified v12
+  configuration deployment on the same image, Machine and volume.
 - [ ] **Validate and distribute only the exact verified build-7 archive.** Immediately before upload,
   repeat the full operations/recovery review and signed-in Build Uploads refresh, obtain explicit
   owner approval at that boundary, validate/upload through the normal App-Store-eligible route,
@@ -923,7 +932,7 @@ governed by APP-036's Gmail-free guards.
   physical evidence is retained. Build-4 and build-5 handoffs completed; clean build 5 provided
   broad Gmail-free proof and production markers before its notification-tap crash. The fix is
   merged, historical Fly v9 compatibility and archive-era Fly v10 deployment evidence are retained,
-  and the [current Fly v11 runtime has AI disabled](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07). Clean build 6
+  and the [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Clean build 6
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Deletion-
   specific recovery/non-return, final Google retirement, and public submission remain open.

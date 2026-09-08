@@ -275,15 +275,16 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v11, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
-  selects pinned `claude-sonnet-5` with AI styling disabled. Its owner-approved deployment was
-  observed healthy on the original Machine and volume at `2026-09-07T10:36:34Z`; the disabled-only
-  verification completed at `2026-09-07T10:39:08Z`. Registry source/platform and zero-High/Critical
-  checks, App Attest configuration/store protections, bounded logging, snapshots and public
-  health/pages passed. The serving process uses the disabled default, with no AI configuration
-  overrides or applied runtime policy. The first budget database was subsequently provisioned
-  under the 2026-09-08 setup approval, as recorded below. The existing budget checker
-  truthfully remains OPEN with `styling-budget-evidence-open`. No paid call was made.
+- **Models in use:** Fly v12, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
+  selects pinned `claude-sonnet-5` with AI styling disabled. The owner-approved configuration
+  deployment retains the v11 immutable image and original Machine/volume. Independent review
+  passed at `2026-09-08T09:32:49Z`: all six private policy settings and the new provider key are
+  deployed, the serving UID/GID 10001 reads the existing intact zero-state v2 ledger after restart,
+  and the disabled guard returns 503. All eight expected secrets, App Attest configuration/store,
+  approved public-capacity review, snapshots, bounded logs, archive and public pages pass.
+  The ordinary budget checker remains OPEN with `styling-budget-evidence-open`; its root-SSH
+  diagnostic has an ownership-context gap that must be corrected before enabled launch. The
+  independent configured probe passed without relaxing guards. No paid call was made.
   This does not close migration acceptance or the full pre-upload review. Retained Fly v10
   evidence describes the historical Opus 4.8 deployment and archive baseline. Verify SDK syntax and
   pricing against current official Anthropic documentation, use strict structured tool output
@@ -311,7 +312,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy is not yet applied to the serving runtime and does not authorize source publication, provisioning,
+  again. The policy is now applied to the disabled serving runtime; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
@@ -332,11 +333,12 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   verified after reload. One approved credit purchase is paid, sufficient usable balance was
   verified, and auto-reload remains off. Exact amounts, balance, workspace/key names and provider
   identifiers remain private. Actual alert delivery remains OPEN; no native test control was seen.
-  The workspace-scoped key was created with no Admin API access; its secret has not been copied,
-  transferred or persisted locally. It expires at `2026-10-08T09:13Z`; rotation before expiry is required.
-  Owner-controlled secure transfer, private-setting staging, disabled configuration deployment and subsequent
-  operational verification remain unfinished. Separate AI enablement and distribution
-  remain open; no new Fly release or completed migration is implied by first provisioning.
+  The workspace-scoped key was created with no Admin API access, transferred through hidden owner
+  input and staged at `2026-09-08T09:19:59Z` without local secret persistence, then deployed in v12.
+  It expires at `2026-10-08T09:13Z`; rotation before expiry is required. The finite disabled setup
+  and independent post-review are complete.
+  Provider alert delivery, Fly monitoring implementation/delivery, diagnostic correction, separate
+  AI enablement, full pre-upload review and distribution remain open.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
   private policy adds a separate hosting envelope and warning/hold thresholds; those private
   amounts are now approved with the finite setup. Follow `docs/fly-spend-controls.md`: keep the existing Machine/size/region/
@@ -345,14 +347,17 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Machine stop caps the Fly invoice. A reviewed service hold must prevent autostart/restart while
   preserving durable data and uncertainty. No monitor or hold is active; monitoring readiness,
   separate hold execution approval and any absolute-invoice-cap requirement remain open.
-  The signed-in 2026-09-08 billing review reconciled the current invoice preview and Cost Explorer,
-  but exposed no billing coverage cutoff or lag guarantee. Compare pre-tax service consumption
+  The initial signed-in 2026-09-08 billing review matched the invoice preview and Cost Explorer;
+  the later pre-deployment refresh diverged across the same five products. Use the higher private
+  preview for planning and retain feed reconciliation OPEN; no cutoff or lag guarantee is proven.
+  Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
   the later ignored approval record authorizes only the bound finite setup, not AI enablement.
-  The verified v11 immutable image is retained privately for disabled redeployment. Verify
-  post-deployment recovery compatibility with the now-provisioned ledger and limits before
-  enablement. Pre-budget v10 ignores these controls and is not a normal rollback target after
+  The unchanged v11/v12 immutable image is retained privately for disabled redeployment; v12's
+  restart and configured probe verify it reads the existing ledger without initialization/reset.
+  Preserve that ledger, approved policy and liability across recovery. Pre-budget v10 ignores
+  these controls and is not a normal rollback target after
   this cutover; its retained recovery evidence describes the earlier baseline.
 - **Gmail-free guard:** `RemovedCapabilitiesReleaseGuardTests` and artifact/configuration scripts must fail if
   Google/Gmail/receipt-import source, configuration, SDK bundles, routes, or background identifiers

@@ -52,7 +52,7 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
 | [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional model quality, latency, cost, and cache evaluation; paid-call approval procedure |
 | [`docs/ai-spend-controls.md`](docs/ai-spend-controls.md) | Durable monthly AI ceiling, private provisioning, alerts, and disable/recovery procedure |
-| [`docs/fly-spend-controls.md`](docs/fly-spend-controls.md) | Separate hosting budget proposal, resource restrictions, monitoring and service-hold procedure |
+| [`docs/fly-spend-controls.md`](docs/fly-spend-controls.md) | Approved hosting policy, resource restrictions, open monitoring gates and service-hold procedure |
 | [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
 | [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
 | [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
@@ -77,14 +77,16 @@ global monthly admission/spend ceiling and concurrency, and retains uncertain ch
 restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
 disabled by default until an explicit private budget is provisioned and enabled.
 
-Fly **v11**, source `d2866a2`, deployed on 7 September 2026 with **AI styling disabled**.
-The exact registry image passed its source/platform and zero-High/Critical checks. The
-disabled-only production review completed at `2026-09-07T10:39:08Z`, verifying the original
-Machine and encrypted volume, healthy service, App Attest storage, bounded logging and the
-serving process's closed AI admission. That rollout created no budget database and made no paid call;
-the later approved first provisioning is recorded below.
+Fly **v12**, source `d2866a2`, now has the approved private budget and provider key configured with
+**AI styling disabled**. Independent post-deployment review passed at `2026-09-08T09:32:49Z`:
+the same scanned immutable image, original Machine and encrypted volume are healthy; the serving
+user reads the intact v2 ledger with zero current-month state, and the disabled guard returns 503.
+App Attest, public-capacity review, snapshots, bounded logs, archive and public-page checks passed.
+No paid call was made. The ordinary budget checker remains OPEN with
+`styling-budget-evidence-open`; its SSH diagnostic needs an ownership-context correction before
+enabled launch. The independent configured probe passed without bypassing storage protections.
 This is not a complete pre-upload operational pass; see the
-[disabled rollout and open gates](docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+[configured disabled setup and open gates](docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
 checks, Codex review, and merge state. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
@@ -110,14 +112,14 @@ the initializer was not repeated. The approved public-capacity policy is install
 The dedicated production provider workspace now exists in the approved US geography. Its monthly
 limit and two email-notification settings were saved and verified after reload. One approved
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
-Actual alert delivery remains unverified; no native test control was available. The serving
-process still uses disabled defaults without applied AI settings. The workspace-scoped key is
-created, with no Admin API access; its secret has not been transferred or persisted locally. Rotation
-before its 8 October 2026 expiry is an operations gate. Owner-controlled secure transfer, staging,
-configuration deployment, verified monitoring and separately approved AI enablement remain open
-before Build 7 distribution. This setup is in progress, not
-migration acceptance or a full pre-upload pass; see the
-[approved setup checkpoint](docs/app-store/internal-testflight-runbook.md#approved-budget-setup-in-progress--2026-09-08).
+Actual alert delivery remains unverified; no native test control was available. The workspace-scoped
+key, without Admin API access, was transferred through hidden owner input and staged without local
+secret persistence. Fly v12 deploys all six approved private AI settings and the new key while
+preserving the session secret; AI remains false. Rotation before the key's 8 October 2026 expiry
+is an operations gate. The finite disabled setup is verified; monitoring, diagnostic correction
+and separately approved AI enablement remain open.
+This does not close migration acceptance or the full pre-upload pass; see the
+[approved setup checkpoint](docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 The 7 September preparation review supports zero prior liability within the
 approved selected-model production budget: the earlier runtime used Opus, and the first Sonnet
 deployment has remained disabled. Evaluations are expressly excluded from that budget; their
@@ -130,14 +132,16 @@ On 8 September the owner requested Fly hosting cost protection as well. The revi
 policy, now approved for the finite setup phase, adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
 a reversible service-hold procedure. Current read-only inventory confirms one Singapore
 shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
-The signed-in 8 September billing review found that the current September invoice preview and
-Cost Explorer agree across five expected resource categories. The reviewed organization has no
+The latest signed-in 8 September refresh found different totals in the September invoice preview
+and Cost Explorer across the same five expected resource categories. The higher preview is used
+for private planning; the feeds are not reconciled. The reviewed organization has no
 linked organizations, active support package, Managed Postgres clusters or Upstash Redis databases.
 The billing feed provides no coverage cutoff or refresh lag; final taxes/adjustments and other
 unreviewed add-ons are not ruled out. Monitoring readiness remains open, and the month-end cost
 scenario is not a guaranteed provider projection. Fly's documented lack of native billing alerts
 means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
-No Fly monitor, service hold, purchase or configuration deployment has been performed; see
+The configuration deployment preserved the fixed resource envelope. No Fly monitor, service hold
+or Fly credit purchase has been performed; see
 [hosting spend controls](docs/fly-spend-controls.md). Setup approval does not authorize AI enablement
 or an automatic service hold.
 The new verified budget-aware image is retained privately for disabled
