@@ -575,8 +575,8 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   `f2a02825fd4178478bfc130525463165f12d648c`.
 - [x] Implement the repository portion of `APP-009`: enroll one anonymous App Attest key per installation, validate fresh
   challenges/attestations/assertions at the backend, issue short-lived sessions, persist only
-  durable auth/security metadata, enforce build/category allowlists when iOS 27+ supplies those
-  signed fields, enforce rate limits, remove `BackendDeviceToken`, and retire/rotate the legacy
+  durable auth/security metadata in the App Attest store, enforce build/category allowlists when
+  iOS 27+ supplies those signed fields, enforce rate limits, remove `BackendDeviceToken`, and retire/rotate the legacy
   backend token in the client contract. iOS 18–26 still requires core App Attest. Local wardrobe
   and Demo Mode remain available when secure verification is unsupported; remote AI fails closed.
 - [x] Enable App Attest for `com.tth.Wardrobe`, confirm App ID prefix `29NT767Y9P`, exercise

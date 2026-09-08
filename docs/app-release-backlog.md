@@ -621,8 +621,8 @@ recovery, APP-019, APP-036, or public-submission gate.
   scope to `main` at `f2a02825fd4178478bfc130525463165f12d648c`.
 - [x] **Implement the repository portion of APP-009.** Anonymous per-installation App Attest
   enrollment and short-lived sessions now replace `BackendDeviceToken`; the backend verifies
-  attestations/assertions, persists only auth/security metadata, rejects replay, applies bounded
-  quotas, and retains only a time-bounded legacy bridge for deployment migration. APP-036 now
+  attestations/assertions, persists only auth/security metadata in the App Attest store, rejects
+  replay, applies bounded quotas, and retains only a time-bounded legacy bridge for deployment migration. APP-036 now
   removes the separate Google/Gmail product capability from public v1.
 - [x] **Complete the APP-009 development, infrastructure, and legacy-retirement gates.** App
   Attest is enabled with prefix `29NT767Y9P`; physical development enrollment/renewal passed;
