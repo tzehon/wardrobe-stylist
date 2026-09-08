@@ -41,6 +41,11 @@ session.
 
 ## Optional AI styling path
 
+Current preparation state: the [configured Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+keeps remote AI disabled. The connected reviewer path below is prospective and must be verified
+only after the remaining launch gates and separate enablement approval; do not paste it as a
+currently available feature path.
+
 1. Add at least [MINIMUM ITEM COUNT] fictional items manually or from photos, or use the provided
    App Review fixture [VERIFY EXACT SUBMITTED PATH].
 2. Open **Today** and request a suggestion.
@@ -199,7 +204,7 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The current [AI-disabled Fly v11 runtime](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07)
+  The current [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
   retains the verified targeted logger and `4,5,6,7` allowlist; its broader pre-upload gates remain
   open. The historical v10 post-change review passed on 2026-08-29. Predecessor v8's payload-free
   review passed, and the late non-backdated historical v9
@@ -238,7 +243,7 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [AI-disabled Fly v11 runtime](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07) retains
+  [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) retains
   the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus

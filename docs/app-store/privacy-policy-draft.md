@@ -5,6 +5,15 @@
 > build, final request-capture tests, current linked provider terms, and App Privacy answers before
 > republishing.
 
+> **Internal reconciliation notice — 8 September 2026:** The published text and effective date
+> below are retained publication evidence. The approved Fly v12 setup now also persists a separate
+> aggregate AI budget/reservation ledger on the existing encrypted volume. It contains no wardrobe,
+> prompt, response, installation or human-account identifiers, and server-security deletion does
+> not reset it. The published "only" security-record wording and volume description below therefore
+> need APP-016 disclosure/retention/deletion reconciliation before enabling launch styling. See the
+> [current data inventory](app-privacy-data-inventory.md) and [spend controls](../ai-spend-controls.md).
+> This notice does not change the hosted policy, its effective date or the app's consent copy.
+
 - **Effective date:** 21 August 2026
 - **Developer:** Tan Tze Hon
 - **Initial App Store availability:** Singapore

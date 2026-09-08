@@ -22,10 +22,14 @@ later be promoted to customers.
 - [ ] Decide the final bundle ID and immutable SKU before creating the App Store Connect record.
 - [ ] Confirm the approved public-v1 scope is Gmail-free and no Google OAuth verification,
   restricted-scope, or review-account dependency remains in the candidate.
-- [ ] Approve the private Singapore-launch AI spend envelope and prove a hard, fail-closed global
-  capacity ceiling, bounded request/token/retry exposure, alerting, and emergency-disable response.
-  First migrate to the lowest-cost current Anthropic model that passes the recorded Wardrobe quality
-  gate and verify the exact locked SDK/model/API configuration. Do not publish exact billing values
+- [x] Approve the private Singapore-launch AI spend/admission envelope and daily monitoring policy.
+  The owner approved those limits on 6 September and the finite disabled setup, Fly hosting policy
+  and private capacity-review bounds on 8 September. Preserve those approvals; do not request or
+  initialize them again merely because later launch gates remain open.
+- [ ] Complete the controlled AI launch: prove the fail-closed global spend/admission ceiling,
+  bounded request/token/retry exposure, alert delivery and emergency-disable response. Complete
+  acceptance of the selected Sonnet migration and verify the exact locked SDK/model/API
+  configuration. Do not publish exact billing values
   or treat the current personal/single-user manual-review exception as multi-user public-launch
   proof.
   Local model/SDK migration, synthetic evaluation tooling, and durable spend controls are
@@ -49,7 +53,7 @@ later be promoted to customers.
   completed all 28 calls without provider errors or retries for $0.360167 before tax and passed
   the unchanged automatic floor: all six hard checks 24/24, avoidance 4/4, preference 3/4,
   and p95 latency 12.665 seconds. Its quality-call cost was $0.012839 per mechanically usable
-  recommendation, with human acceptance still pending. The cache pair saved about 20.85% on
+  recommendation, with human acceptance pending at that evaluation checkpoint. The cache pair saved about 20.85% on
   input, but real production reuse remains unproven and caching stays off. All prior failures
   remain recorded. After providing one complete numeric scorecard, the owner said "all are ok,
   proceed" and accepted all proposals qualitatively. Preserve that decision separately from
@@ -60,11 +64,16 @@ later be promoted to customers.
   tests, security/type/lint checks, and Release simulator/artifact checks). No additional
   paid call was required.
   The owner expects up to 10 AI users in month one and approved the private spend/admission
-  limits and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled
-  configuration remain in ignored private release records and have not been applied. Alert
-  delivery, prepaid-credit readiness, public-capacity preflight, prior uncertain liability,
-  approved provisioning, AI enablement, and the full operational review remain open. The deployed
-  v11 runtime has remote AI disabled; the disabled rollout is not public-launch authorization.
+  limits and owner-operated daily monitoring policy on 2026-09-06. Exact limits remain in ignored
+  private release records. The approved 8 September setup provisioned the ledger once, applied
+  the policy and workspace key in Fly v12 with AI false, verified usable prepaid credit with
+  auto-reload off, and passed the approved public-capacity review. Preserve the existing ledger;
+  do not repeat provisioning. Alert delivery, Fly monitoring and billing reconciliation, the
+  ordinary budget diagnostic's ownership-context correction, key rotation before 8 October,
+  separate AI enablement and the full operational review remain open. Earlier excluded
+  evaluation uncertainty remains separate from the launch ledger. This disabled setup is not
+  public-launch authorization; see the
+  [current setup checkpoint](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
   The later local capacity-preflight extension passed 551 backend tests, full security/type/lint
   checks, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   No shared-contract/iOS/runtime-auth source or live release lock changed in that extension;
@@ -91,19 +100,29 @@ The remediation passed all 583 backend tests and security/type/lint gates, 236 i
 44 release-script tests, and fresh Release simulator/artifact checks.
 The preserved Build 7 archive is unchanged; no new TestFlight build is required.
 
-- [x] Deploy and verify the reviewed patched runtime **with AI disabled only**. The owner separately
+- [x] Retain the historical 7 September patched-runtime rollout **with AI disabled only**. The owner separately
   approved private publication/deployment of merged source
   `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. Fly v11 was healthy on the original Machine and volume
   at `2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`.
   Exact source/architecture/private-registry matching, zero-High/Critical scans, App Attest/auth
-  integrity, privilege/logging controls, snapshots, and public pages passed. The approved budget
-  policy is unapplied; no budget storage or paid call was created. The checker retains
-  `styling-budget-evidence-open` and manual rows OPEN. The broader pre-upload review has not passed.
-  Low prepaid credit, unverified alert delivery, public capacity, prior liability, provisioning,
-  AI enablement, and distribution remain open. The current private recovery reference is the
-  verified budget-aware v11 image; future initialized-ledger compatibility remains unproven and
-  pre-budget v10 is not a normal rollback target. See the
+  integrity, privilege/logging controls, snapshots, and public pages passed. At that checkpoint
+  the budget policy was unapplied and no budget storage or paid call was created. Budget and
+  manual rows remained OPEN. The subsequent v12 setup below supersedes that unprovisioned state;
+  it does not backdate the earlier credit, capacity or recovery evidence. See the historical
   [disabled rollout checkpoint](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+- [x] Complete the approved budget/provider setup and verify **Fly v12 with AI disabled**.
+  Independent review passed at `2026-09-08T09:32:49Z` on the unchanged source/image and original
+  Machine/volume. All six private AI settings and the workspace key are deployed; the session
+  secret is preserved. The service-identity probe reads the intact, zero-state v2 ledger and
+  confirms the disabled 503 guard. Auth storage, approved public-capacity bounds, snapshots,
+  bounded logs and public pages pass. The provider cap/notification settings, usable credit and
+  auto-reload-off state are verified; actual alert delivery is still unproven. The same image
+  reads the existing ledger after restart without initialization/reset and remains the private
+  recovery baseline; pre-budget v10 is not a normal rollback target. Never reinitialize this
+  ledger to regain allowance. The ordinary checker still reports `styling-budget-evidence-open`
+  because of its ownership-context gap; the independent configured probe does not close that
+  checker or the full pre-upload gate. Follow the remaining gates in the
+  [approved disabled setup](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 
 ## 2. Public pages and truthful data declarations
 
@@ -198,7 +217,7 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
   not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
   recorded in the build-7 section below. The current
-  [Fly v11 runtime has AI disabled](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
+  [Fly v12 runtime has AI disabled](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
   Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
@@ -336,7 +355,7 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29. The [current Fly v11 runtime has AI disabled](internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07)
+  2026-08-29. The [current Fly v12 runtime has AI disabled](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
   and retains the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus

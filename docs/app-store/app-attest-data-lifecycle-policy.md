@@ -3,21 +3,23 @@
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
-- **Current disabled deployment:** Fly v11 source
-  `d2866a2375dd4795f40a3ab13d273ed138cedd7e` was verified healthy on the original Machine and
-  durable volume at `2026-09-07T10:36:34Z`. Its private immutable image matched the source and
-  Linux/AMD64 platform and passed a zero-High/Critical scan. The serving process keeps AI styling
-  disabled with no AI environment overrides or `.env`, a blank budget path, and zero limits;
-  the approved launch policy is unapplied and no budget directory/database has been created.
-  The disabled-scope operational review completed at `2026-09-07T10:39:08Z`: App Attest-only
-  configuration, auth schema v4/integrity, non-root/NoNewPrivs, bounded logs, automatic 14-day
-  snapshots, below-warning volume use, and public pages passed. No paid AI calls were made.
-  The complete checker still reports `styling-budget-evidence-open` and open manual-review rows;
-  liability, public capacity, provisioning, alert delivery, enablement, and distribution remain
-  open. This is partial post-deployment evidence, not a full pre-upload review. The verified
-  private immutable v11 image is the disabled recovery reference; once a ledger is provisioned,
-  recovery must also verify compatibility with that same ledger and limits. Pre-budget v10 must
-  not become a normal rollback target after cutover.
+- **Current disabled deployment:** Fly v12 retains source
+  `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the same scanned Linux/AMD64 immutable image and the
+  original Machine and durable volume. The owner-approved September 8 setup provisioned the
+  separate budget ledger, applied the private policy and workspace-scoped key with AI false, and
+  activated the private public-capacity review profile. Independent review at
+  `2026-09-08T09:32:49Z` verified exact policy and zero current-month ledger state after restart,
+  closed admission, App Attest-only configuration, auth schema v4/integrity, non-root/NoNewPrivs,
+  bounded logs, fresh automatic 14-day snapshots, below-warning volume use and public pages.
+  Provider limits and notification settings persisted, prepaid-credit readiness passed, and
+  auto-reload stayed off. No paid model call ran. Actual alert delivery, Fly cost-monitoring and
+  billing-feed reconciliation, separate AI enablement and the full pre-upload/manual gates remain
+  open. The ordinary checker retains `styling-budget-evidence-open` because its root-SSH diagnostic
+  needs an ownership-context correction; the independent configured probe passed as service UID
+  10001. Preserve the existing ledger, limits, charges and uncertainty for every recovery. The same
+  immutable image has now demonstrated reading that ledger after restart; pre-budget v10 remains
+  ineligible for normal rollback. See the
+  [approved setup and remaining gates](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 - **Retained release compliance:** Repository enforcement and the historical Gmail-free Fly v10
   deployment were verified; Fly provider and manual-operations boundaries are explicitly accepted; the v10
   post-change review, late historical v9 review, historical v8/v7 reviews, build-4 signed archive
@@ -175,10 +177,11 @@ begins and resolves outside Fly's available log/metric windows may permanently e
 pre-archive and post-change checks reduce that risk but do not eliminate it.
 
 On 2026-09-06 the owner approved a private launch spend/admission policy and owner-operated daily
-monitoring. That policy remains unapplied in disabled v11. The historical single-user checks and
-30-day baseline do not establish public capacity; launch requires the approved daily operation,
-budget provisioning and enablement, and verified alert delivery. The 2026-09-07 disabled review
-records only the checks actually completed and keeps the full pre-upload gate open.
+monitoring. The separate September 8 approval applied the policy and activated private public-capacity
+review bounds on disabled v12; its aggregate checks passed within that profile. Historical single-user
+checks and the 30-day baseline do not establish public-launch operations. The approved daily review,
+real alert delivery, Fly cost-monitoring proof and separate AI enablement remain required; the full
+pre-upload gate stays open.
 
 This policy does not settle:
 
@@ -220,16 +223,17 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Data | Approved limit / accepted provider boundary | Current repository/production truth |
 |---|---|---|
 | Wardrobe request payloads | Request lifetime only; no application persistence | Current routes do not persist payloads. Review guardrails pin the exact auth schema, block common file/database persistence patterns and direct auth-store use from payload modules, and allowlist current application log calls. Anthropic/provider terms remain separate evidence |
-| App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v11 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
-| Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v11 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
-| Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v11's retained one-minute maintenance loop |
-| Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v11 retains deadline purging of inactive installations and cascading deletion of their sessions |
-| Revoked installation metadata | 30 days after revocation | Fly v11 retains deadline purging of revoked installations and cascading deletion of their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
+| Aggregate AI budget and unresolved reservations | Preserve the global accounting state and uncertain liability; individual security-data deletion does not reset it | Fly v12 uses a separate v2 ledger on the existing encrypted volume. Its singleton month/accounting row and random pending reservations contain no installation, wardrobe, prompt or response data. Rollover carries unresolved exposure conservatively; completed reservations are removed and uncertain work requires separate reconciliation. The store is subject to the volume’s unchanged 14-day snapshot policy; the policy check is not budget-specific snapshot or restore proof. Final public disclosure and Apple classification remain APP-016 review |
+| App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v12 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
+| Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v12 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
+| Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v12's retained one-minute maintenance loop |
+| Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v12 retains deadline purging of inactive installations and cascading deletion of their sessions |
+| Revoked installation metadata | 30 days after revocation | Fly v12 retains deadline purging of revoked installations and cascading deletion of their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
 | Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v10 enforcement and historical build-4 archive/upload evidence are verified. The build-4, build-5, and final build-6 identity-safe handoffs each preserved proof of possession through server deletion, returned live aggregates to zero, then deleted local data and the app before the next clean install. Build 6's final handoff observed `1/0/0` before deletion, exactly one bounded deletion marker, and `0/0/0` after deletion and uninstall; explicit Style after reinstall enrolled a new anonymous identity |
-| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v11 retains automatic 14-day snapshots on the original volume; the 2026-09-07 disabled review passed the fresh-snapshot policy check. The `2026-08-23T07:34:23Z` successful snapshot, status `created`, retention 14 days, enabled the build-5 handoff. The eligible `2026-08-25T07:35:53Z` snapshot with the same status and retention enabled the completed build-6 handoff. The archive-era reviewed snapshot was `2026-08-28T07:37:13Z`, status `created`, retention 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance and deletion-specific restore/non-return remain to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
+| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v12 retains automatic 14-day snapshots on the original volume; the 2026-09-08 configured-but-disabled review passed the fresh-snapshot policy check. The `2026-08-23T07:34:23Z` successful snapshot, status `created`, retention 14 days, enabled the build-5 handoff. The eligible `2026-08-25T07:35:53Z` snapshot with the same status and retention enabled the completed build-6 handoff. The archive-era reviewed snapshot was `2026-08-28T07:37:13Z`, status `created`, retention 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance and deletion-specific restore/non-return remain to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
-| Wardrobe application access logs | None | Fly v11's single UID-10001 Uvicorn process retains `--no-access-log`, and a regression pins that production command |
-| Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly v11 retains application `INFO` only for the non-propagating `app.auth.service` logger while other application INFO and access logs remain off. Historical bounded observation captured clean build-5 registration/assertion events, the build-4 deletion event, and exactly one final build-6 deletion marker plus one post-reinstall registration marker. Protected `/recommend` intentionally has no developer success event and uses aggregate admission plus client-result evidence. Fly retains the customer-visible stream for seven days, which is not configurable per app |
+| Wardrobe application access logs | None | Fly v12's single UID-10001 Uvicorn process retains `--no-access-log`, and a regression pins that production command |
+| Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly v12 retains application `INFO` only for the non-propagating `app.auth.service` logger while other application INFO and access logs remain off. Historical bounded observation captured clean build-5 registration/assertion events, the build-4 deletion event, and exactly one final build-6 deletion marker plus one post-reinstall registration marker. Protected `/recommend` intentionally has no developer success event and uses aggregate admission plus client-result evidence. Fly retains the customer-visible stream for seven days, which is not configurable per app |
 | Provider-generated proxy/platform records in the customer-visible stream | Fixed seven days, including when a provider record contains client IP | Fly says these records can include paths, request IDs, and sometimes client IP; retention cannot be shortened, disabled, or configured per app |
 | Separate Fly operational/abuse-prevention logs | Fly-defined in-service retention with no disclosed or customer-enforceable numeric maximum; explicitly accepted 2026-08-19 | Fly says these records can include connection metadata such as source IP but does not publish the requested per-system fields, retention, or purge timing |
 | Fixed-field manual-review attestations | Project/release evidence lifetime | Long-lived evidence contains only timestamp, fixed check/result fields, coarse aggregate bands, remediation outcome, and next due date; it contains no log samples or identifiers |
@@ -369,7 +373,8 @@ values, logs, screenshots, identifiers, exact billing data, or provider response
 | 2026-08-29T02:21:41Z | PASS · exact v10 Machine/image | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero; deployment-transition transport non-response reviewed | PASS · public status operational · <80% of configured limit · active Wardrobe use on Opus 4.8 · historical series inactive in 7d · no saturation warning | PASS · pages/contact/target/reciprocal links and retained rehearsal confirmed | PASS | None; repeat immediately before build-7 upload | 2026-09-28 |
 | 2026-08-29T04:21:50Z | PASS · exact v10 Machine/image | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero | PASS · public status operational · <80% of configured limit · expected Wardrobe key/model · no saturation warning | PASS · pages/contact/target/reciprocal links confirmed | PASS | Review passed but did not immediately precede archive; resulting intermediate archive is timing-stale/non-uploadable | 2026-08-29 |
 | 2026-08-29T11:02:18Z | PASS · exact v10 release/Machine/image · fresh registry match · zero High/Critical | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero | PASS · public status operational · <80% of configured limit · expected Wardrobe key/model · no saturation warning | PASS · pages/contact/target/reciprocal links confirmed | PASS | Final build-7 archive completed; repeat immediately before upload | before upload; otherwise 2026-09-28 |
-| 2026-09-07T10:39:08Z | PASS · exact v11 source/image/platform · original healthy Machine/volume · zero High/Critical · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · single-user band only · official last-2-days metric: 200/404, no 5xx · bounded logs | OPEN · partial console check: active key, spend below warning, no last-24h saturation; low prepaid credit, no alert rows visible; delivery unverified | PASS · public pages verified | OPEN · disabled scope only | Budget unprovisioned; launch policy unapplied; liability/public capacity/alerts/enablement and full pre-upload review remain open; no paid calls | before enablement or upload; full review remains open |
+| 2026-09-07T10:39:08Z | PASS · exact v11 source/image/platform · original healthy Machine/volume · zero High/Critical · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · single-user band only · official last-2-days metric: 200/404, no 5xx · bounded logs | OPEN · partial console check: active key, spend below warning, no last-24h saturation; low prepaid credit, no alert rows visible; delivery unverified | PASS · public pages verified | OPEN · disabled scope only | Historical checkpoint: budget unprovisioned and policy unapplied; later September 8 setup supersedes those states; no paid calls | historical checkpoint; superseded below |
+| 2026-09-08T09:32:49Z | PASS · v12 · same scanned image and original healthy Machine/volume · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · approved public-capacity band · bounded logs; fresh full manual metrics still required | OPEN · configured limits/notification settings and usable credit verified · auto-reload off · real delivery unverified | PASS · public pages verified | OPEN · configured-but-disabled setup passed; full pre-upload remains open | Preserve applied policy and existing zero ledger; correct ordinary diagnostic ownership context, prove monitoring/delivery and reconcile Fly billing feeds before enablement | before enablement or upload; full review remains open |
 
 The 2026-09-07 row retains the observed disabled-deployment checks and partial signed-in views.
 The complete helper's manual-review inputs remain open, including App Store Connect; this row
@@ -670,7 +675,7 @@ Required before APP-009 can close:
   current backend behavior. No raw metric, identifier, exact billing amount, key name/value, log
   sample, screenshot, or provider response is retained. Repeat the review before every future
   archive/upload and after every backend/configuration change. The historical v10 review's next
-  due date was 2026-09-28; the current disabled v11 partial review and open gates are recorded above.
+  due date was 2026-09-28; the current configured-but-disabled v12 review and open gates are recorded above.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub
@@ -809,8 +814,9 @@ Required before APP-009 can close:
   Critical scan passed. The former v6 reference's current platform/source identity was not
   independently proven, so it was ineligible for rollback or recovery. Exact v10 was the sole
   verified recovery reference at that checkpoint. Current disabled recovery uses the verified
-  private immutable v11 image; future provisioned-ledger compatibility remains a separate gate,
-  and pre-budget v10 must not become a normal rollback target after cutover.
+  private immutable image retained by v12. The September 8 review verified that it reads the existing
+  initialized ledger after restart; every later recovery must preserve and reverify the ledger,
+  policy and uncertainty. Pre-budget v10 must not become a normal rollback target after cutover.
 - [x] Complete the build-7 pre-archive review and signed-archive gate. The `04:21:50Z` review and
   `07:15:57Z` technically verified archive are retained as timing-stale/non-uploadable evidence;
   the earlier automatic-signing archive is development-signed and separately invalid/non-uploadable.

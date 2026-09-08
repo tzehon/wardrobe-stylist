@@ -10,16 +10,21 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-The pinned Sonnet 5 runtime and durable global AI-budget controls are deployed as **Fly v11 with
-AI styling disabled**. Source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` was verified on the original
-healthy Machine and durable volume at `2026-09-07T10:36:34Z`; the disabled-scope operational review
-completed at `2026-09-07T10:39:08Z`. The source/platform-matched private immutable image passed a
-zero-High/Critical scan. The approved private launch policy remains unapplied, and no budget
-directory or database has been created. The serving process has no AI environment overrides or
-`.env` file and uses disabled styling, a blank budget path, and zero limits. Verification made no
-paid AI calls. Retained Fly v10 evidence still describes the earlier Opus 4.8 runtime and
-archive-era checks. Follow [AI spend controls](ai-spend-controls.md) and the release backlog for
-liability, capacity, provisioning, alert delivery, enablement, and full pre-upload review gates.
+The pinned Sonnet 5 runtime and durable global AI-budget controls are deployed as **Fly v12 with
+AI styling disabled**. The configuration deployment retains source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
+encrypted volume. Independent post-deployment review passed at `2026-09-08T09:32:49Z`: the
+approved private policy and workspace-scoped provider key are applied, the serving UID reads the
+existing v2 ledger with zero current-month state, and the disabled guard returns 503. First
+provisioning, provider workspace/cap/email settings, sufficient prepaid credit and public-capacity
+setup are complete. The ledger must be preserved; do not run first provisioning again.
+No paid AI call was made. Provider alert delivery, Fly monitoring and billing-feed reconciliation,
+correction of the ordinary budget diagnostic's ownership context, separate AI enablement, full
+pre-upload review and distribution remain open. The independent configured probe passed; the
+ordinary budget checker retains `styling-budget-evidence-open`. Follow the
+[approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+and [AI spend controls](ai-spend-controls.md). Retained Fly v10/v11 records describe the earlier
+archive and disabled-preparation checkpoints, not the current configured state.
 
 - [Prerequisites](#prerequisites)
 - [Get the code](#get-the-code)
@@ -98,9 +103,10 @@ The build allowlist must match the app actually installed. Public clients use Ap
 Simulator cannot perform real App Attest, so local catalog and Demo Mode remain usable while live
 AI fails closed; tests use an injected fake authorization service.
 
-Zero budget limits are intentional unapproved placeholders, so a configured API key alone does
-not enable paid calls. The budget database must be provisioned explicitly with private approved
-limits before enabling `AI_STYLING_ENABLED`; runtime refuses to create it or change those limits.
+Zero budget limits above are intentional unapproved local-development placeholders, so a configured
+API key alone does not enable paid calls. A new isolated development budget requires explicit
+provisioning with private approved limits before enabling `AI_STYLING_ENABLED`; runtime refuses
+to create it or change those limits. The production ledger already exists and must not be initialized again.
 Keep the limits in gitignored local configuration or production secrets. Follow the first-provisioning
 and disable/recovery procedure in [AI spend controls](ai-spend-controls.md). Never initialize a fresh
 ledger to replace a lost or restored current-month database: first disable styling and reconcile
@@ -194,11 +200,15 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
-on 2026-09-06 after measured Sonnet costs; those values remain private and unapplied. The
-application ledger supplies a hard admission ceiling once explicitly provisioned and verified;
-provider-side workspace limits can provide an additional boundary. Console warnings and the
-existing hourly abuse limits do not substitute for it. Changing provider settings, creating a
-production workspace/key, rotating credentials, or making paid calls requires explicit approval.
+on 2026-09-06 after measured Sonnet costs; those values remain private and are now applied in v12
+with AI disabled. The verified existing ledger supplies the admission ceiling for any later
+enabled calls. The production workspace, monthly cap and email settings are saved and verified;
+one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
+workspace-scoped key was transferred through hidden owner input and deployed without local secret
+persistence. Rotate it before its 8 October 2026 expiry. Saved notifications do not prove actual
+delivery. Console warnings and existing hourly abuse limits do not replace the ledger. The finite
+approved setup is complete; further provider changes, rotation and paid calls retain their
+respective approval boundaries.
 
 ## Deploy the backend (Fly.io)
 
@@ -208,9 +218,11 @@ use the container filesystem or an in-memory store for production counters and c
 
 The commands below are infrastructure setup references. For this existing application, use the
 ordered release runbook and obtain deployment/provider-mutation approval first. Keep
-`AI_STYLING_ENABLED=false` during candidate deployment and explicit budget provisioning. The new
-ledger must be `/data/ai-budget/budget.sqlite3`, separate from App Attest's database but on the same
+`AI_STYLING_ENABLED=false` during candidate deployment. The existing production
+ledger is `/data/ai-budget/budget.sqlite3`, separate from App Attest's database but on the same
 verified durable volume. All workers must share it; a separate budget per replica is unsafe.
+The commands below do not authorize recreating this app, volume or ledger; use the reviewed
+same-image, same-Machine update procedure for the current deployment.
 The provisioned monthly units, admission count, and concurrency limit must exactly match the
 private configuration. Do not put the owner-approved monthly values in `fly.toml` or release notes.
 
@@ -238,12 +250,14 @@ separate validation policy is implemented and evidenced.
 The separate AI ledger contains aggregate month/token/admission counters and random pending
 reservation metadata only. It receives no installation identifier, item identifier, wardrobe,
 prompt, or model-response payload. The complete preflight requires a ready, enabled budget below
-its warning band with no pending requests. Disabled v11 therefore leaves
-`styling-budget-evidence-open` and the manual-review rows open; its partial post-deployment review
-is not a full pre-upload pass. The verified private immutable v11 image is the disabled recovery
-reference. Pre-budget v10 lacks these controls and must not become a normal rollback target after
-cutover. Once the ledger is provisioned, verify recovery-image compatibility with that same
-ledger and limits. Updating the production source/configuration lock must follow an actual
+its warning band with no pending requests. Configured-but-disabled v12 retains
+`styling-budget-evidence-open` and manual-review rows OPEN; the ordinary root-SSH diagnostic also
+requires an ownership-context correction before enabled launch. Its independent configured probe
+passed as service UID/GID 10001 without bypassing guards. This is not a full pre-upload pass.
+The unchanged immutable image used by v11/v12 is the disabled recovery reference; the v12 restart
+verified it reads the existing ledger without initialization or reset. Pre-budget v10 lacks these
+controls and must not become a normal rollback target after cutover. Preserve the same ledger,
+policy and liability through future recovery. Updating the production source/configuration lock must follow an actual
 approved deployment and verification, never a planned one.
 
 Production operations follow the
@@ -259,9 +273,10 @@ Production operations follow the
    production-configuration changes, and at least every 30 days while production remains enabled.
 
 That retained cadence and the preflight's `single-user-band` auth check describe the personal
-deployment. Public Singapore launch still requires explicit capacity and support/monitoring
-acceptance; do not infer a public multi-user allowance from those historical controls. The open
-decision and budget alert/disable response are tracked in [AI spend controls](ai-spend-controls.md).
+deployment. The owner-approved private public-capacity file is installed, and the configured public
+band passed the v12 post-review; future reviews must select it explicitly. These are review bounds,
+not runtime customer quotas. Provider/Fly monitoring and delivery remain open launch gates; do not
+infer a public allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
 
 Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
 validation/distribution, and clean physical Dark Mode visual retest remain release gates. Real
@@ -424,7 +439,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the disabled v11 deployment recorded above. Protected
+Singapore Machine. Current production is the configured, AI-disabled v12 deployment recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
@@ -438,10 +453,12 @@ The required v9 post-deploy/pre-upload payload-free review was missed and is not
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining
 the process defect. Repeat the review before every future archive/upload, after every backend or
 production-configuration change. The historical v10 review's next due date was 2026-09-28.
-The 2026-09-07 v11 review covers only disabled operation; budget and full manual-review rows
-remain open. The signed-in provider check found an active key, spend below the warning band, and
+The historical 2026-09-07 v11 review covered only disabled operation. Its signed-in provider check
+found an active key, spend below the warning band, and
 no saturation in the last 24 hours, but prepaid credit was low and no alert rows were visible;
-alert delivery remains unverified. Complete the outstanding operational gates before enablement
+the v12 setup above supersedes that low-credit/unconfigured-alert state. Actual alert delivery,
+the ordinary budget diagnostic correction and full manual-review rows remain open.
+Complete the outstanding operational gates before enablement
 or upload, using the approved daily monitoring policy when launch operation begins.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed

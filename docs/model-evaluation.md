@@ -1,6 +1,6 @@
 # Fictional Wardrobe model acceptance
 
-The selected runtime is deployed as Fly v11 with AI disabled. It pins `claude-sonnet-5`, synchronous
+The selected runtime is deployed as Fly v12 with AI disabled. It pins `claude-sonnet-5`, synchronous
 Messages, thinking disabled, explicit standard service tier, forced strict `propose_outfit`, and
 1,024 output tokens.
 The evaluation
@@ -18,6 +18,14 @@ automatic threshold changed. The selected Sonnet model, accounting, and prefligh
 and fully tested locally. Warm cache savings do not prove production reuse, so caching stays off.
 The existing `/recommend` contract and preserved Build 7 client remain unchanged;
 this backend/evaluation work does not require Build 8.
+
+The [approved disabled setup](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+has provisioned the existing-volume ledger, applied the private policy and workspace-scoped key,
+verified provider controls and usable prepaid credit, and activated the private capacity review
+profile. The same immutable image reads the zero current-month ledger after restart. This adds no
+evaluation or numeric-score evidence. Alert delivery, Fly cost-monitoring and billing-feed proof,
+the ordinary budget checker's ownership-context correction, separate AI enablement and the full
+pre-upload gates remain open.
 
 ## First approved run — 2026-09-06
 
@@ -418,8 +426,9 @@ one completed forced tool call per response. Independent calculation confirmed t
 Total usage was 80,926 ordinary input, 19,346 output, 1,798 cache-write, and 1,798
 cache-read tokens. The calculated total was **US$0.360167 before tax**; the 24 quality
 attempts cost US$0.308128, or US$0.012839 per mechanically usable recommendation
-rounded up to six decimal places. Human acceptance remains pending, so this is not
-yet an accepted-quality production unit-cost estimate.
+rounded up to six decimal places. Human acceptance was pending at this calculation checkpoint;
+the later qualitative decision is recorded below. These fictional-run costs do not establish a
+production unit-cost estimate.
 
 | Cache probe | Ordinary input | Cache write | Cache read | Output | Latency (s) |
 |---|---:|---:|---:|---:|---:|
@@ -469,8 +478,9 @@ rejects the partial file. The automatic floor and all previous failures remain u
 The separate decision record is
 `/private/tmp/wardrobe-fictional-sonnet-evaluation-20260906-10e837b/owner-qualitative-acceptance.json`.
 The owner also supplied the first-month planning assumption of **up to 10 AI users**.
-Budget policy, public-capacity/operations acceptance, source publication, deployment, and
-distribution remain separate gates. No additional paid evaluation is needed merely to
+Budget policy, public-capacity/operations acceptance, source publication, deployment and
+distribution required separate decisions; subsequent approvals and completed setup are recorded
+at the top of this document. No additional paid evaluation is needed merely to
 align the production request with the already evaluated Sonnet request.
 
 If numeric review is resumed later, the completed ratings may be retained against this original
@@ -501,6 +511,8 @@ launch budget. The owner's quality acceptance does not approve a spend amount or
 
 ## Local Sonnet runtime alignment — verified
 
+Historical local checkpoint, before the production rollout and the approved September 8 setup.
+
 The runtime now selects `claude-sonnet-5`; its exact prompt, tools, service tier,
 thinking setting, and 1,024-output limit are unchanged from the accepted request.
 Independent reconstruction matched **all 28 request hashes** to the saved passing run.
@@ -527,11 +539,11 @@ deployment, upload, or physical-device action occurred.
 The private launch policy uses the measured cost and the owner's expectation of up to 10
 first-month AI users. On 2026-09-06 the owner replied **"approve and proceed"** to the concrete
 spend/admission-limit and daily-monitoring proposal. The approved record and disabled
-configuration are retained in ignored private release files; no exact private limit is published
-here and no setting has been applied. This closes the budget/operating-policy decision.
-Public-capacity preflight, alert-delivery and credit readiness, approved provisioning,
-AI enablement, and the full operational gates remain open before distribution. This approval does
-not authorize another paid evaluation, provider-console changes, or deployment.
+configuration were retained in ignored private release files; no exact private limit is published
+here, and no setting had been applied at that checkpoint. This closed the budget/operating-policy
+decision. Capacity activation, credit readiness and provisioning were then open and were completed
+under the separate September 8 setup approval. That initial policy approval did not itself authorize
+paid evaluation, provider-console changes or deployment; current remaining gates are listed above.
 
 ## PR #41 review safeguards — verified
 
@@ -554,6 +566,8 @@ no new paid call, provisioning, deployment, or TestFlight build is required by t
 
 ## Disabled production rollout — 2026-09-07
 
+Historical checkpoint; the approved September 8 setup supersedes the unprovisioned state below.
+
 After separate owner approval, the merged model/budget and patched runtime source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e` deployed as Fly v11 with AI disabled. The original
 Machine and volume were healthy at `2026-09-07T10:36:34Z`; the disabled-only review completed at
@@ -561,11 +575,12 @@ Machine and volume were healthy at `2026-09-07T10:36:34Z`; the disabled-only rev
 scans found zero High/Critical vulnerabilities. See the
 [deployment and remaining gates](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 
-The approved private budget policy remains unapplied, no budget storage was created, and no
-paid model call ran. The broader budget/pre-upload gates remain OPEN. This deployment adds no
-model-quality or numeric-score evidence, does not reconcile the earlier uncertain charge, and
-does not alter the saved reports, missing ratings, or qualitative owner acceptance. Provisioning,
-capacity, alerts, prepaid-credit readiness, AI enablement, and distribution remain open.
+At this checkpoint the approved private budget policy was unapplied, no budget storage was created,
+and no paid model call ran. The broader budget/pre-upload gates remained OPEN. This deployment added no
+model-quality or numeric-score evidence, did not reconcile the earlier uncertain charge, and
+did not alter the saved reports, missing ratings, or qualitative owner acceptance. Provisioning,
+capacity, alerts, prepaid-credit readiness, AI enablement and distribution were then open; the
+current setup and remaining gates are recorded at the top of this document.
 The preserved Build 7 archive is unchanged; no new TestFlight build is required.
 
 ## Fixed paid-call plan and approval
