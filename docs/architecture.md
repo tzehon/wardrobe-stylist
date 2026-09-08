@@ -5,19 +5,22 @@ manual entries and user-selected photos, keeps the catalog on the iPhone, and of
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-The Sonnet/SDK and budget controls described below are deployed as **Fly v11 with AI styling
-disabled**. Source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` was verified on the original healthy
-Machine and durable volume at `2026-09-07T10:36:34Z`; the disabled-scope operational review completed
-at `2026-09-07T10:39:08Z`. The private immutable image matched its source and Linux/AMD64 platform
-and passed a zero-High/Critical scan. The retained Fly v10 evidence describes the earlier Opus 4.8
-runtime and archive-era checks. The selected Sonnet request passed automatic evaluation and
-received qualitative owner acceptance. The owner approved the private launch limits and daily
-monitoring policy on 2026-09-06; the values remain private and unapplied. No budget directory or
-database exists, and the serving process uses the fail-closed defaults with AI disabled, a blank
-budget path, and zero limits. No paid AI call was made during deployment or verification.
-Budget provisioning, liability and public-capacity checks, alert-delivery verification, explicit
-enablement, and the complete pre-upload operational review remain gates in
-the [release backlog](app-release-backlog.md). The disabled review does not close those gates.
+The Sonnet/SDK and budget controls described below are deployed as **Fly v12 with AI styling
+disabled**. The configuration deployment retains source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
+encrypted volume. Independent post-review passed at `2026-09-08T09:32:49Z`: the approved private
+policy and new provider key are applied, the serving UID reads the existing v2 ledger with zero
+current-month state, and the disabled guard returns 503. The selected Sonnet request passed
+automatic evaluation and received qualitative owner acceptance. First provisioning, provider
+workspace/cap/email settings, sufficient prepaid credit and public-capacity setup are complete.
+Preserve the ledger and approved limits; do not initialize or reset it again. No paid AI call was
+made during deployment or verification. Provider alert delivery, Fly monitoring and billing-feed
+reconciliation, correction of the ordinary budget diagnostic's ownership context, separate AI
+enablement and the full pre-upload/distribution gates remain open. The independent configured
+probe passed; the ordinary budget checker retains `styling-budget-evidence-open`. See the
+[approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+and [release backlog](app-release-backlog.md). Retained v10/v11 evidence describes historical
+archive and disabled-preparation checkpoints.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
 checks, Codex review, and merge state.
 
@@ -41,7 +44,8 @@ explicitly historical setup documents; it is not part of the active v1 architect
 The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
 installation for optional connected styling. When enabled, the developer backend proxies a
 minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
-processing. The diagram includes the budget and AI path that are not active in disabled v11.
+processing. The budget database is provisioned and configured in v12; the diagram's provider-call
+path remains inactive because AI is disabled.
 
 ```mermaid
 flowchart TB
@@ -59,7 +63,7 @@ flowchart TB
     subgraph Cloud["Backend on Fly.io — content-stateless"]
         API["FastAPI<br/>/auth · /recommend"]
         AuthDB[("Durable auth state<br/>public key · Apple receipt · counters<br/>challenges · session hashes")]
-        BudgetDB[("Separate durable AI budget<br/>not yet provisioned<br/>global counters · pending reservations")]
+        BudgetDB[("Separate durable AI budget<br/>provisioned and configured<br/>global counters · pending reservations")]
         Key[["ANTHROPIC_API_KEY<br/>never on device"]]
         API <--> AuthDB
         API <--> BudgetDB
@@ -239,7 +243,7 @@ retry, timeout refund, or fresh-database recreation can reopen the approved allo
 ledger persists its model, unit, rate, and token-bound policy; old Haiku or mismatched storage
 fails closed without an automatic upgrade. See
 [AI spend controls](ai-spend-controls.md) for private provisioning, alerts, disable/recovery, and
-the remaining public-launch capacity and monitoring decisions.
+the approved public-capacity review bounds and remaining monitoring/enablement gates.
 
 ## Data model
 
@@ -286,8 +290,8 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI runtime | Deployed on v11 but disabled; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
-| Budget controls | Deployed but unprovisioned; separate durable SQLite ledger with atomic global month/token/admission/concurrency limits |
+| AI runtime | Configured on v12 with AI disabled; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
+| Budget controls | Provisioned and configured; separate durable SQLite ledger with verified private policy and atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
 
@@ -301,17 +305,20 @@ flowchart LR
     Fly -.->|"AI disabled"| Anthropic["Anthropic API"]
     Phone <-->|"attest key / sign assertions"| Apple["Apple App Attest"]
     Fly <--> AuthDB[("Private durable auth volume")]
-    Fly -.-> BudgetDB[("Separate budget database<br/>not yet provisioned<br/>same durable volume required")]
+    Fly <--> BudgetDB[("Separate budget database<br/>provisioned and configured<br/>same durable volume")]
 ```
 
-- Fly secrets hold `ANTHROPIC_API_KEY` and the App Attest session-signing secret. A shared
+- Fly secrets hold the workspace-scoped `ANTHROPIC_API_KEY`, all six approved private AI settings
+  and the preserved App Attest session-signing secret. The key was transferred through hidden owner
+  input without local secret persistence; rotation before its 8 October 2026 expiry is required. A shared
   `DEVICE_TOKEN` is not an acceptable public-client credential or rollback mechanism.
 - The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
   anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived
   sessions, and coarse rate windows. It contains no wardrobe, prompt, or recommendation payload.
-- After approved provisioning, the separate `/data/ai-budget/budget.sqlite3` stores only aggregate
+- The provisioned `/data/ai-budget/budget.sqlite3` stores only aggregate
   counters and random reservation metadata. Its private limits must match the approved runtime configuration.
-  Keep server AI styling disabled until explicit first provisioning and verification succeed.
+  The v12 restart verified the existing ledger is readable without reset. Keep AI disabled until
+  the remaining monitoring, diagnostic and launch gates pass and separate enablement is approved.
   Every application process must use the same ledger on the verified single-Machine volume;
   independent per-replica budgets would not enforce a global ceiling.
 - Backend auth state, logs, snapshots, deletion, and manual operations follow the
@@ -320,12 +327,16 @@ flowchart LR
   publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
 - Public v1 has no Google OAuth dependency or Gmail network route.
 - The complete preflight requires the bounded budget to be enabled, ready, below its warning band,
-  and free of pending requests. Current v11 correctly leaves `styling-budget-evidence-open` and
-  manual-review rows open. The accepted owner-operated daily monitoring policy has not yet been
-  applied; public-capacity policy and alert delivery still require verification.
-- The privately recorded, verified immutable v11 image is the disabled recovery reference.
-  Pre-budget v10 must not become a normal rollback target after cutover. Once the ledger is
-  provisioned, recovery must separately prove compatibility with that same ledger and limits.
+  and free of pending requests. Configured-but-disabled v12 retains `styling-budget-evidence-open`
+  and manual-review rows OPEN. The ordinary root-SSH budget diagnostic needs an ownership-context
+  correction before enabled launch; the independent configured probe passed under UID/GID 10001.
+  The approved public-capacity file is installed and its configured band passed the post-review.
+  Saved provider limits/notifications and sufficient credit do not prove alert delivery or Fly
+  monitoring readiness; those remain open.
+- The unchanged privately recorded image used by v11/v12 is the disabled recovery reference.
+  The v12 restart verified compatibility with the existing ledger and limits without initialization
+  or reset. Pre-budget v10 must not become a normal rollback target after cutover. Recovery must
+  preserve and reverify the same ledger, policy and liability.
   See [AI spend controls](ai-spend-controls.md) for the remaining operational gates.
 
 ## Historical build 4 clean-install transition

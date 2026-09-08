@@ -587,12 +587,12 @@ open.
   and volume at `2026-09-07T10:36:34Z`; the disabled-only review completed at
   `2026-09-07T10:39:08Z`. Exact source/architecture/private-registry identity, zero-High/Critical
   scans, App Attest/auth integrity, privilege/logging controls, snapshots, and public pages passed.
-  The serving process uses disabled defaults without AI overrides or `.env`; the approved policy
-  remains unapplied, no budget directory/database was created, and no paid call ran.
-  The checker retains `styling-budget-evidence-open` and manual rows OPEN. The broader pre-upload
-  review is not passed. Credit readiness, alert delivery, capacity, prior liability, provisioning,
-  AI enablement, and distribution remain open. The private v11 recovery reference is budget-aware;
-  future ledger compatibility remains to be verified and pre-budget v10 is not a normal rollback.
+  At that 7 September checkpoint, the serving process used disabled defaults without AI overrides
+  or `.env`; the policy was unapplied, no budget directory/database was created, and no paid call ran.
+  The checker retained `styling-budget-evidence-open` and manual rows OPEN. The broader pre-upload
+  review had not passed. Credit readiness, alert delivery, capacity, prior liability, provisioning,
+  AI enablement and distribution were then open. The private v11 recovery reference was budget-aware;
+  initialized-ledger compatibility was not yet verified. Pre-budget v10 is not a normal rollback.
   See the [disabled rollout checkpoint](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
   The remediation passed 583 backend tests plus locked security/type/lint checks, all 236 iOS
   tests, 44 release-script tests, and fresh Release simulator/artifact checks.

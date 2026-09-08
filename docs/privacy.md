@@ -39,20 +39,22 @@ The release contract is:
 The current release work and remaining blockers are tracked in
 [`app-release-backlog.md`](app-release-backlog.md).
 
-## Local candidate: aggregate AI budget accounting
+## Deployed aggregate AI budget accounting
 
-The September 2026 backend candidate adds a separate durable budget database before public
-launch. It stores one current UTC-month unit/admission total, approved policy limits, a safety
+The approved September 8 setup provisioned a separate durable budget database, and Fly v12 applies
+its approved private policy while AI remains disabled. It stores a month identifier, aggregate
+unit/admission totals, approved policy limits, a safety
 halt flag, and unresolved random reservation IDs with bounded token amounts and month. No
 installation ID, wardrobe attribute, prompt, or model response enters that database. Completed
 reservations are removed; uncertain reservations remain conservatively charged until separately
 approved reconciliation. The ledger cannot connect spending to a person or installation, and
 in-app server-security deletion does not reset this global aggregate ceiling.
 
-The database will use the existing encrypted volume and its snapshot policy after an approved
-deployment. This is local implementation, not a claim that production or hosted privacy copy
-has changed. Reconcile the final public declarations and provider terms under APP-016 before
-launch. The fictional evaluation uses no real wardrobes and never shadows production requests.
+The database uses the existing encrypted volume and its unchanged snapshot policy. The independent
+configured-but-disabled review verified an intact, zero current-month ledger after restart. The
+hosted privacy copy has not been revised by this setup; reconcile the additional aggregate store,
+final public declarations and provider terms under APP-016 before enabling launch styling.
+The fictional evaluation uses no real wardrobes and never shadows production requests.
 See [spend controls and recovery](ai-spend-controls.md) for exact persistence and failure rules.
 
 ## Anonymous backend authorization
@@ -238,7 +240,7 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   selection time.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [AI-disabled Fly v11 runtime](app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07) retains
+  [AI-disabled Fly v12 runtime](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) retains
   the verified auth/build allowlist; its broader pre-upload gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus

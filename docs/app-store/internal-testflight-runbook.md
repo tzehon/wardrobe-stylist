@@ -231,7 +231,7 @@ $58 pre-tax ceiling. The revised run completed all 28 calls without provider err
 for $0.360167 before tax. It passed the unchanged automatic floor: all six hard checks passed
 24/24, avoidance passed 4/4, preference passed 3/4, and p95 latency was 12.665 seconds.
 The 24 quality calls cost $0.308128, or $0.012839 per mechanically usable recommendation;
-human acceptance has not been established. The cache pair wrote and read 1,798 tokens each,
+human acceptance had not yet been established at that point. The cache pair wrote and read 1,798 tokens each,
 with input cost $0.008871 versus $0.011208 uncached (about 20.85% savings). Production reuse
 remains unproven, so production caching stays off. After supplying one completed numeric
 scorecard, the owner said "all are ok, proceed" and accepted all proposals qualitatively.
@@ -242,16 +242,17 @@ the default 1,024-output limit. Old or mismatched ledgers fail closed without up
 The 28 request hashes match the accepted run; full migration regression passed.
 The owner expects up to 10 initial AI users and approved the private spend/admission limits
 and owner-operated daily monitoring policy on 2026-09-06. Exact limits and disabled configuration
-are retained in ignored private release records and have not been applied. Both failed Haiku runs and the failed Sonnet run
+were retained in ignored private release records and had not yet been applied. Both failed Haiku runs and the failed Sonnet run
 remain failed and retain unfilled human scores.
-The remaining gates are public-capacity preflight, alert-delivery and credit readiness,
-approved [spend-controls provisioning](../ai-spend-controls.md), AI enablement,
-and the full fresh operational review.
+At that preparation checkpoint the remaining gates included public-capacity preflight, alert
+delivery and credit readiness, approved [spend-controls provisioning](../ai-spend-controls.md),
+AI enablement and the full operational review.
 The [public-capacity preflight profile](../ai-spend-controls.md#public-launch-observed-capacity-preflight)
-is prepared locally with independent private installation/session bounds and ownership checks.
-Its limits still need approval; the historical single-user profile remains the default.
-The required budget preflight remains open on disabled, unprovisioned v11. Its deployment lock
-must reflect actual live evidence. Snapshot expiry/deletion-specific recovery is separate.
+was prepared locally with independent private installation/session bounds and ownership checks;
+those bounds were not yet approved. The later v11 disabled rollout still had an unprovisioned
+budget and OPEN preflight. The [8 September setup](#approved-disabled-budget-setup--2026-09-08)
+supersedes those provisioning, credit and capacity-decision states; it records the current v12
+configuration and remaining launch gates. Snapshot expiry/deletion-specific recovery is separate.
 Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
 rollback target after the disabled cutover.
 
