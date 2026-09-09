@@ -194,6 +194,116 @@ def test_invalid_view_is_not_salvaged_or_echoed(key, value):
     assert CANARY not in json.dumps(result)
 
 
+@pytest.mark.parametrize("invalid_name", ["invoice", "cost_explorer"])
+@pytest.mark.parametrize("valid_amount, threshold", [
+    (200_000_000, "WARNING"), (300_000_000, "HOLD_REQUIRED"),
+])
+@pytest.mark.parametrize("changes", [
+    {"observed_at": "2026-07-12T12:00:01Z"},
+    {"observed_at": "2026-07-12T11:55:00"},
+    {"coverage_ends_at": "2026-07-12T11:56:00Z"},
+    {"coverage_starts_at": "2026-07-12T11:51:00Z"},
+    {"source": "invalid-source"}, {"source_revision": "invalid-revision"},
+    {"unexpected_private_field": CANARY}, {"pretax_consumption_units": 1.5},
+    {"pretax_consumption_units": True}, {"net_payable_units": "invalid-amount"},
+])
+def test_invalid_peer_does_not_hide_or_escalate_valid_warning_or_hold(
+    invalid_name, valid_amount, threshold, changes,
+):
+    policy, resources, billing = documents()
+    valid_name = "cost_explorer" if invalid_name == "invoice" else "invoice"
+    billing[valid_name]["pretax_consumption_units"] = valid_amount
+    billing[invalid_name]["pretax_consumption_units"] = policy["operating_target_units"]
+    billing[invalid_name].update(changes)
+    result = evaluate(policy, resources, billing)
+    assert result["observed_consumption"] == threshold
+    assert result["reason_codes"] == ["BILLING_EVIDENCE_INVALID"]
+    assert result["billing"] == result["assessment"] == "OPEN"
+    assert CANARY not in json.dumps(result)
+
+
+@pytest.mark.parametrize("invalid_name", ["invoice", "cost_explorer"])
+@pytest.mark.parametrize("valid_amount, threshold", [
+    (200_000_000, "WARNING"), (300_000_000, "HOLD_REQUIRED"),
+])
+@pytest.mark.parametrize("peer_form", ["absent", "null", "list", "missing-field"])
+def test_missing_or_wrongly_shaped_peer_preserves_valid_adverse_observation(
+    invalid_name, valid_amount, threshold, peer_form,
+):
+    policy, resources, billing = documents()
+    valid_name = "cost_explorer" if invalid_name == "invoice" else "invoice"
+    billing[valid_name]["pretax_consumption_units"] = valid_amount
+    if peer_form == "absent":
+        del billing[invalid_name]
+    elif peer_form == "null":
+        billing[invalid_name] = None
+    elif peer_form == "list":
+        billing[invalid_name] = [billing[invalid_name]]
+    else:
+        del billing[invalid_name]["pretax_consumption_units"]
+    result = evaluate(policy, resources, billing)
+    assert result["observed_consumption"] == threshold
+    assert result["reason_codes"] == ["BILLING_EVIDENCE_INVALID"]
+    assert result["assessment"] == "OPEN"
+
+
+@pytest.mark.parametrize("valid_name", ["invoice", "cost_explorer"])
+@pytest.mark.parametrize("changes, reason", [
+    ({"coverage_ends_at": None}, "BILLING_COVERAGE_UNKNOWN"),
+    ({"coverage_starts_at": "2026-07-02T00:00:00Z"}, "BILLING_COVERAGE_INCOMPLETE"),
+    ({"observed_at": "2026-07-12T10:00:00Z", "coverage_ends_at": "2026-07-12T09:50:00Z"},
+     "BILLING_OBSERVATION_STALE"),
+])
+def test_valid_adverse_observation_survives_own_uncertainty_and_invalid_peer(
+    valid_name, changes, reason,
+):
+    policy, resources, billing = documents()
+    invalid_name = "cost_explorer" if valid_name == "invoice" else "invoice"
+    billing[invalid_name] = None
+    billing[valid_name]["pretax_consumption_units"] = policy["warning_units"]
+    billing[valid_name].update(changes)
+    result = evaluate(policy, resources, billing)
+    assert result["observed_consumption"] == "WARNING"
+    assert "BILLING_EVIDENCE_INVALID" in result["reason_codes"]
+    assert reason in result["reason_codes"]
+    assert result["assessment"] == "OPEN"
+
+
+@pytest.mark.parametrize("changes, reason", [
+    ({"schema_version": True}, "BILLING_EVIDENCE_INVALID"),
+    ({"schema_version": 1.0}, "BILLING_EVIDENCE_INVALID"),
+    ({"currency": "SGD"}, "BILLING_EVIDENCE_INVALID"),
+    ({"currency": None}, "BILLING_EVIDENCE_INVALID"),
+    ({"unit": "cents"}, "BILLING_EVIDENCE_INVALID"),
+    ({"policy_revision": "bad-revision"}, "BILLING_EVIDENCE_INVALID"),
+    ({"policy_revision": "f" * 64}, "BILLING_POLICY_REVISION_MISMATCH"),
+    ({"period_starts_at": "2026-06-01T00:00:00Z"}, "BILLING_PERIOD_NOT_CURRENT"),
+    ({"period_ends_at": "2026-07-31T00:00:00Z"}, "BILLING_PERIOD_NOT_CURRENT"),
+    ({"period_ends_at": "malformed-time"}, "BILLING_EVIDENCE_INVALID"),
+    ({"unexpected_top_level_field": CANARY}, "BILLING_EVIDENCE_INVALID"),
+])
+def test_invalid_shared_metadata_blocks_all_view_amounts(changes, reason):
+    policy, resources, billing = documents()
+    for view in (billing["invoice"], billing["cost_explorer"]):
+        view["pretax_consumption_units"] = policy["hold_units"]
+    billing.update(changes)
+    result = evaluate(policy, resources, billing)
+    assert result["reason_codes"] == [reason]
+    assert result["observed_consumption"] == "UNKNOWN"
+    assert result["assessment"] == "OPEN"
+
+
+def test_two_invalid_views_cannot_contribute_amounts_or_claim_consistency():
+    policy, resources, billing = documents()
+    for view in (billing["invoice"], billing["cost_explorer"]):
+        view["pretax_consumption_units"] = policy["hold_units"]
+        view["source"] = "invalid-source"
+    result = evaluate(policy, resources, billing)
+    assert result["reason_codes"] == ["BILLING_EVIDENCE_INVALID"]
+    assert result["observed_consumption"] == "UNKNOWN"
+    assert result["assessment"] == "OPEN"
+
+
 @pytest.mark.parametrize("document_index, reason", [
     (1, "RESOURCE_POLICY_REVISION_MISMATCH"), (2, "BILLING_POLICY_REVISION_MISMATCH"),
 ])
@@ -477,3 +587,51 @@ def test_cli_does_not_echo_sensitive_paths_arguments_or_inputs(tmp_path, capsys)
     output = capsys.readouterr()
     assert CANARY not in output.out + output.err
     assert json.loads(output.out)["reason_codes"] == ["ARGUMENTS_INVALID"]
+
+
+@pytest.mark.parametrize("invalid_name", ["invoice", "cost_explorer"])
+@pytest.mark.parametrize("valid_amount, threshold", [
+    (200_000_000, "WARNING"), (300_000_000, "HOLD_REQUIRED"),
+])
+@pytest.mark.parametrize("json_float", ["1.5", "1e9", "1e999"])
+def test_cli_isolates_valid_json_float_in_invalid_peer(
+    tmp_path, monkeypatch, capsys, invalid_name, valid_amount, threshold, json_float,
+):
+    class FixedClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return NOW
+
+    monkeypatch.setattr(spend, "datetime", FixedClock)
+    policy, resources, billing = documents()
+    valid_name = "cost_explorer" if invalid_name == "invoice" else "invoice"
+    billing[valid_name]["pretax_consumption_units"] = valid_amount
+    billing[invalid_name]["pretax_consumption_units"] = "FLOAT_PLACEHOLDER"
+    policy_path = write_private(tmp_path / "policy.json", policy)
+    resource_path = write_private(tmp_path / "resources.json", resources)
+    billing_path = write_private(tmp_path / "billing.json", billing)
+    billing_path.write_text(json.dumps(billing).replace('"FLOAT_PLACEHOLDER"', json_float))
+    loaded = spend.load_document(billing_path, allow_json_floats=True)
+    assert evaluate(policy, resources, loaded)["observed_consumption"] == threshold
+    assert spend.main([
+        "--policy", str(policy_path), "--resources", str(resource_path),
+        "--billing", str(billing_path),
+    ]) == 2
+    output = capsys.readouterr()
+    result = json.loads(output.out)
+    assert result["observed_consumption"] == threshold
+    assert result["reason_codes"] == ["BILLING_EVIDENCE_INVALID"]
+    assert result["billing"] == result["assessment"] == "OPEN"
+    assert CANARY not in output.out + output.err
+
+
+@pytest.mark.parametrize("bad_json", ["NaN", "Infinity", "-Infinity", "1.5.6"])
+def test_nonstandard_or_malformed_json_is_not_salvaged_as_independent_views(tmp_path, bad_json):
+    policy, resources, billing = documents()
+    billing["invoice"]["pretax_consumption_units"] = policy["hold_units"]
+    billing["cost_explorer"]["pretax_consumption_units"] = "INVALID_PLACEHOLDER"
+    path = write_private(tmp_path / "billing.json", billing)
+    path.write_text(json.dumps(billing).replace('"INVALID_PLACEHOLDER"', bad_json))
+    loaded = spend.load_document(path, allow_json_floats=True)
+    assert loaded is spend.INVALID_DOCUMENT
+    assert evaluate(policy, resources, loaded)["observed_consumption"] == "UNKNOWN"
