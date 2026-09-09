@@ -14,12 +14,15 @@
   Provider limits and notification settings persisted, prepaid-credit readiness passed, and
   auto-reload stayed off. No paid model call ran. Actual alert delivery, Fly cost-monitoring and
   billing-feed reconciliation, separate AI enablement and the full pre-upload/manual gates remain
-  open. The ordinary checker retains `styling-budget-evidence-open` because its root-SSH diagnostic
-  needs an ownership-context correction; the independent configured probe passed as service UID
-  10001. Preserve the existing ledger, limits, charges and uncertainty for every recovery. The same
+  open. The ordinary diagnostic's service-identity correction passed live read-only verification
+  at `2026-09-09T00:05:29Z`; the unchanged v12 runtime now returns OPEN `styling-disabled`.
+  It connects as `wardrobe`, requires real/effective UID and GID 10001 and suppresses bytecode
+  writes with `-B`. The earlier `styling-budget-evidence-open` result remains historical evidence.
+  Preserve the existing ledger, limits, charges and uncertainty for every recovery. The same
   immutable image has now demonstrated reading that ledger after restart; pre-budget v10 remains
   ineligible for normal rollback. See the
-  [approved setup and remaining gates](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
+  [approved setup](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) and
+  [launch-readiness follow-up](internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
 - **Retained release compliance:** Repository enforcement and the historical Gmail-free Fly v10
   deployment were verified; Fly provider and manual-operations boundaries are explicitly accepted; the v10
   post-change review, late historical v9 review, historical v8/v7 reviews, build-4 signed archive

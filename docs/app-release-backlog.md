@@ -127,8 +127,11 @@ passed at `2026-09-08T09:32:49Z` on the same scanned image, original Machine and
 The existing zero-state v2 ledger and approved private policy are applied; the serving UID reads
 the intact ledger after restart and the disabled guard returns 503. All eight expected secrets,
 auth/public-capacity/storage/snapshot/log/archive/public-page checks pass. The ordinary budget
-checker remains OPEN with an ownership-context gap in its root-SSH diagnostic; correct it before
-enabled launch without bypassing guards. The independent configured probe passed. Historically,
+checker now uses service account `wardrobe` with real/effective UID/GID 10001 verified before
+ledger access. The 9 September targeted live check passed on unchanged v12 and truthfully reports
+OPEN `styling-disabled`; no storage guard was bypassed. See the
+[readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
+The independent configured probe also passed. Historically,
 the original Machine and volume were healthy at
 `2026-09-07T10:36:34Z`; the disabled-only review completed at `2026-09-07T10:39:08Z`. Exact
 registry/runtime source and Linux/AMD64 identity, zero-High/Critical scans, App Attest/auth-store
@@ -145,8 +148,8 @@ geography; its monthly limit and two email settings were verified after reload. 
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
 The workspace-scoped key was created without Admin API access and transferred through hidden owner
 input without local secret persistence; it and the private settings are deployed in v12. Rotation
-before its 8 October 2026 expiry is required. Actual alert delivery, Fly monitoring, diagnostic
-correction, full pre-upload verification, AI enablement and distribution remain open. The earlier
+before its 8 October 2026 expiry is required. Actual alert delivery, Fly monitoring,
+full pre-upload verification, AI enablement and distribution remain open. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
@@ -158,14 +161,17 @@ On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.
 proposal, then approved its private hosting envelope and warning/hold thresholds with the finite
 setup. Monitoring/delivery verification remains unfinished, and no service hold is authorized by
 the policy alone. Current CLI inventory confirms the small fixed topology. The
-latest signed-in billing refresh shows divergent September invoice-preview and Cost Explorer totals
-across the same five expected categories. Private planning uses the higher preview, with feed
+latest signed-in 9 September billing refresh shows an increased invoice preview while same-period
+Cost Explorer is unchanged across the same five expected categories. Private planning uses the higher preview, with feed
 reconciliation OPEN. The reviewed organization has no linked organizations,
 active support package, Managed Postgres clusters or Upstash Redis databases. This snapshot does
 not establish billing-feed coverage/lag, final taxes/adjustments or the absence of every possible
 add-on. Verified monitoring and fresh reconciliation remain open, and the month-end estimate is a
 planning scenario. No native hard bill cap is established;
-do not close this gate from the AI ledger or an AI-disabled runtime. No new TestFlight build is
+do not close this gate from the AI ledger or an AI-disabled runtime. A
+[local evidence checker](fly-spend-controls.md#local-evidence-checker) now assesses supplied private
+records without live collection, notification or hold authority; unknown billing coverage remains
+OPEN. No new TestFlight build is
 required for this backend-only setup and documentation.
 
 The historical pre-migration production baseline was Fly release v10, completed at
@@ -548,7 +554,7 @@ open.
   and private capacity bounds. First-ever provisioning and local installation of the capacity
   review file are complete; Fly v12 applies the private policy/key while keeping AI disabled.
   The public-capacity check and independent configured ledger probe passed. Alert delivery,
-  Fly monitoring, correction of the ordinary budget diagnostic's ownership context,
+  Fly monitoring,
   prior excluded uncertain-call liability, AI enablement and the full operational review
   remain open. The provider workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The

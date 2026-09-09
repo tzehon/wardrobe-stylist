@@ -19,9 +19,10 @@ existing v2 ledger with zero current-month state, and the disabled guard returns
 provisioning, provider workspace/cap/email settings, sufficient prepaid credit and public-capacity
 setup are complete. The ledger must be preserved; do not run first provisioning again.
 No paid AI call was made. Provider alert delivery, Fly monitoring and billing-feed reconciliation,
-correction of the ordinary budget diagnostic's ownership context, separate AI enablement, full
-pre-upload review and distribution remain open. The independent configured probe passed; the
-ordinary budget checker retains `styling-budget-evidence-open`. Follow the
+separate AI enablement, full pre-upload review and distribution remain open. The ordinary budget
+diagnostic's service-identity correction passed live read-only verification on 9 September;
+the normal budget gate now reports OPEN `styling-disabled`. Follow the
+[launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 and [AI spend controls](ai-spend-controls.md). Retained Fly v10/v11 records describe the earlier
 archive and disabled-preparation checkpoints, not the current configured state.
@@ -250,10 +251,12 @@ separate validation policy is implemented and evidenced.
 The separate AI ledger contains aggregate month/token/admission counters and random pending
 reservation metadata only. It receives no installation identifier, item identifier, wardrobe,
 prompt, or model-response payload. The complete preflight requires a ready, enabled budget below
-its warning band with no pending requests. Configured-but-disabled v12 retains
-`styling-budget-evidence-open` and manual-review rows OPEN; the ordinary root-SSH diagnostic also
-requires an ownership-context correction before enabled launch. Its independent configured probe
-passed as service UID/GID 10001 without bypassing guards. This is not a full pre-upload pass.
+its warning band with no pending requests. Configured-but-disabled v12 now reports OPEN
+`styling-disabled`; manual-review rows remain OPEN. The local diagnostic connects as `wardrobe`,
+requires real/effective UID and GID 10001 before reading status, and uses `-B` to avoid bytecode
+writes. Its 9 September live read-only check passed without changing the runtime or existing ledger.
+The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
+ownership-context defect. This is not a full pre-upload pass.
 The unchanged immutable image used by v11/v12 is the disabled recovery reference; the v12 restart
 verified it reads the existing ledger without initialization or reset. Pre-budget v10 lacks these
 controls and must not become a normal rollback target after cutover. Preserve the same ledger,
@@ -456,8 +459,8 @@ production-configuration change. The historical v10 review's next due date was 2
 The historical 2026-09-07 v11 review covered only disabled operation. Its signed-in provider check
 found an active key, spend below the warning band, and
 no saturation in the last 24 hours, but prepaid credit was low and no alert rows were visible;
-the v12 setup above supersedes that low-credit/unconfigured-alert state. Actual alert delivery,
-the ordinary budget diagnostic correction and full manual-review rows remain open.
+the v12 setup above supersedes that low-credit/unconfigured-alert state. Actual alert delivery
+and full manual-review rows remain open; the later diagnostic correction is verified above.
 Complete the outstanding operational gates before enablement
 or upload, using the approved daily monitoring policy when launch operation begins.
 

@@ -282,9 +282,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   deployed, the serving UID/GID 10001 reads the existing intact zero-state v2 ledger after restart,
   and the disabled guard returns 503. All eight expected secrets, App Attest configuration/store,
   approved public-capacity review, snapshots, bounded logs, archive and public pages pass.
-  The ordinary budget checker remains OPEN with `styling-budget-evidence-open`; its root-SSH
-  diagnostic has an ownership-context gap that must be corrected before enabled launch. The
-  independent configured probe passed without relaxing guards. No paid call was made.
+  The 9 September ordinary diagnostic correction selects SSH user `wardrobe`, verifies
+  real/effective UID/GID 10001 before ledger access and disables Python bytecode writes. A targeted
+  live read-only check passed on unchanged v12 at `2026-09-09T00:05:29Z`; the ordinary budget gate
+  remains OPEN `styling-disabled`. The earlier ownership-context failure is corrected without
+  relaxing storage guards or enabling AI. No paid call was made.
   This does not close migration acceptance or the full pre-upload review. Retained Fly v10
   evidence describes the historical Opus 4.8 deployment and archive baseline. Verify SDK syntax and
   pricing against current official Anthropic documentation, use strict structured tool output
@@ -337,7 +339,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   input and staged at `2026-09-08T09:19:59Z` without local secret persistence, then deployed in v12.
   It expires at `2026-10-08T09:13Z`; rotation before expiry is required. The finite disabled setup
   and independent post-review are complete.
-  Provider alert delivery, Fly monitoring implementation/delivery, diagnostic correction, separate
+  Provider alert delivery, Fly monitoring implementation/delivery, separate
   AI enablement, full pre-upload review and distribution remain open.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
   private policy adds a separate hosting envelope and warning/hold thresholds; those private
@@ -350,6 +352,15 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The initial signed-in 2026-09-08 billing review matched the invoice preview and Cost Explorer;
   the later pre-deployment refresh diverged across the same five products. Use the higher private
   preview for planning and retain feed reconciliation OPEN; no cutoff or lag guarantee is proven.
+  The September 9 refresh showed an increased preview and unchanged same-period Cost Explorer;
+  read-only CLI inventory still matched the original resources. A private monitoring-readiness
+  proposal separates inventory, traffic and billing evidence. `backend/verify_fly_spend.py`
+  assesses supplied private records locally; it does not authenticate their origin, collect live
+  data, forecast charges, send alerts or execute holds. Unknown coverage and unreconciled totals
+  remain OPEN even if the separately reported observed amount crosses a warning/hold threshold.
+  No monitor is active; runner,
+  delivery, missed-run and source-freshness proof remain required. The proposed September 9 public
+  privacy revision is local only; APP-016, consent materiality and publication remain open.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;

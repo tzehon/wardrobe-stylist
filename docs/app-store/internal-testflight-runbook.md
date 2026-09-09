@@ -23,6 +23,48 @@ an App Store release candidate from the moment it is archived. This prevents a s
   product release is transparent, budget-bounded freemium in Singapore; country expansion follows
   only after that model and its operations are proven.
 
+## Launch readiness follow-up — 2026-09-09
+
+The ordinary budget diagnostic's ownership-context defect is corrected. It now connects as
+`wardrobe`, verifies real/effective UID/GID 10001 before importing the status reader, and disables
+Python bytecode writes. The existing read-only ledger, schema, ownership and accounting guards
+are unchanged. Targeted live verification at `2026-09-09T00:05:29Z` confirmed the same healthy
+Fly v12 image, original Machine and configuration before and after the check. The standard budget
+gate now reports OPEN `styling-disabled`, as required while AI is off. This is diagnostic evidence,
+not a complete pre-upload review or AI-enablement approval. No ledger/provider mutation or paid
+model call occurred, and no backend deployment is required for this operator-tool correction.
+
+Final regression including the local cost checker passed 672 backend tests, dependency audit,
+Bandit, Ruff, application mypy and strict checker mypy. XcodeGen and the full iOS suite passed
+236/236 tests (226 Swift and 10 UI) at `2026-09-09T00:24:08Z`; all 44 release-script tests also
+passed. Independent review found no actionable defect. The iOS bundle and runtime inputs are
+unchanged; no new TestFlight build is required. Private source/log bindings retain this evidence.
+
+The [proposed privacy policy](privacy-policy-proposed-20260909.md) reconciles the separate aggregate
+budget store and its retention/deletion behavior. It is an unpublished draft with no effective
+date; the existing published policy remains retained evidence. APP-016 still requires provider
+terms, Apple classification, consent-materiality and public-page review. Any resulting bundled
+notice/version change would require a new signed candidate.
+
+Fresh read-only Fly inventory confirmed the existing fixed resources. The September 9 invoice
+preview increased while same-period Cost Explorer was unchanged; neither view establishes a
+usage cutoff or refresh guarantee. The difference remains unreconciled. The next monitor requires
+separate resource, traffic and billing inputs; traffic counters cannot stand in for billed egress.
+The [local evidence checker](../fly-spend-controls.md#local-evidence-checker) prepares strict
+assessment of explicitly supplied records; it does not collect live data, forecast bills or
+activate monitoring. The private demonstration remains OPEN for incomplete service inventory,
+unreconciled totals and unknown billing coverage. The private readiness proposal preserves the
+already approved thresholds. The [external runner proposal](../fly-spend-controls.md#external-runner-proposal)
+uses the verified public repository's standard GitHub runners with a free external heartbeat;
+the exact collector, credential scope, actual alert receipt and independent missed-run detection
+still need review and proof.
+No monitor, notification test, service hold or new resource has been activated.
+
+Before enabling AI, complete provider-alert delivery, Fly monitoring and billing reconciliation,
+public privacy/consent review, key usability/rotation readiness, and the fresh operational review.
+AI enablement and distribution remain separate approvals. Never repeat first provisioning,
+the consumed credit purchase or key staging to reproduce earlier setup evidence.
+
 ## Approved disabled budget setup — 2026-09-08
 
 The owner's "proceed" approved the finite billing-reviewed setup proposal, its separate Fly
@@ -65,8 +107,8 @@ after restart without initialization or reset. Runtime/configuration, App Attest
 public-capacity band, volume, fresh 14-day snapshots, bounded logs, archive, public backend/pages
 and public provider-status checks passed.
 
-The ordinary budget checker still reports OPEN `styling-budget-evidence-open`: its root-SSH
-diagnostic has an ownership-context gap requiring correction before enabled launch. The independent
+At this checkpoint the ordinary budget checker reported OPEN `styling-budget-evidence-open`: its
+root-SSH diagnostic had an ownership-context gap, corrected by the September 9 follow-up above. The independent
 configured probe passed under the required service identity. Do not force that ordinary checker
 green or relax ownership guards. The full pre-upload gate remains OPEN with manual and enabled-launch
 checks outstanding.

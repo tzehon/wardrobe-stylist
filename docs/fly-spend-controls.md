@@ -12,8 +12,9 @@ The workspace-scoped key was transferred through hidden owner input and deployed
 secret persistence; rotation is required before its 8 October 2026 expiry. These are separate from
 Fly billing. The finite disabled setup is verified.
 Provider alert delivery, Fly monitoring implementation/delivery, billing-feed reconciliation and
-AI enablement remain open. The ordinary budget diagnostic needs an ownership-context correction;
-its independent configured probe passed. No hard invoice cap or automatic hold is active.
+AI enablement remain open. The 9 September ordinary diagnostic correction passed its targeted
+live read-only check on unchanged v12; its budget gate remains OPEN `styling-disabled`.
+No hard invoice cap or automatic hold is active.
 See the [approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 
 ## Resource baseline and cost exposure
@@ -44,7 +45,10 @@ the difference is not attributed to lag without evidence, and the feeds are not 
 Fresh resource/service inventory found no expansion or new paid product. The unchanged-resource
 planning scenario remained below the approved warning threshold; it is not a liability ceiling.
 The post-deployment inventory again passed with no extra billable resources, and the refreshed
-invoice preview was unchanged. The Cost Explorer divergence remains unresolved.
+invoice preview was unchanged at that September 8 checkpoint. On September 9 the invoice preview
+increased while same-period Cost Explorer remained unchanged, with the same five expected
+categories and no verified usage cutoff. Fresh CLI inventory again confirmed the original app,
+Machine, image, volume, snapshot policy and IPs. The billing divergence remains unresolved.
 Billing-feed freshness, final adjustments and monitoring readiness remain open. The current
 resource scenario below remains the planning estimate; do not extrapolate a rounded daily
 average into a promised maximum bill.
@@ -90,6 +94,68 @@ guarantee is therefore an unresolved requirement, not a property of this plan.
 - Before enabling AI, obtain owner acceptance of the remaining variable-cost exposure. If an
   absolute invoice cap is required, keep enablement blocked until an enforceable provider/control
   option is separately reviewed. Do not describe this monitored budget as a hard cap.
+
+## Local evidence checker
+
+`backend/verify_fly_spend.py` assesses explicitly supplied private policy, resource inventory and
+manual billing snapshots. It has no provider connection, scheduler, notification sender or service
+controls. The versioned input models in the helper define the JSON contract; source names and
+revision hashes establish consistency only, not authenticated provenance. Use separately reviewed
+normalization of retained source evidence, never a claimed coverage timestamp absent from the source.
+
+Run it from `backend` with explicit owner-only JSON files:
+
+```bash
+uv run --locked python verify_fly_spend.py \
+  --policy /path/to/private/proposed-evaluator-policy.json \
+  --resources /path/to/private/resource-evidence.json \
+  --billing /path/to/private/manual-billing-evidence.json
+```
+
+Those paths are placeholders, not provisioned production inputs. Files must be regular, owner-only
+mode 0600, single-link and bounded in size. The checker rejects malformed, duplicate-key,
+unexpected-field and non-integer money inputs, compares the full supplied resource envelope,
+and checks the billing month, observation age, actual coverage and matching pre-tax consumption.
+Net payable after credits or waivers is separate and cannot lower the consumption comparison.
+
+Output contains fixed labels only and always states `LOCAL_EVIDENCE_ONLY`, unauthenticated live
+provenance, no activation authority and no forecast assessment. Missing or unknown source coverage,
+unreconciled totals, stale observations and resource changes remain OPEN. A validated observed
+amount crossing a warning or hold threshold still produces its warning alongside an OPEN billing
+result. `HOLD_REQUIRED` is an operator signal, not permission or execution of a shutdown.
+Even exit zero means only consistent supplied local evidence, not that monitoring, live spend,
+the month-end forecast or public-launch readiness has passed.
+
+This prepares one part of the monitoring workflow. Live collection, a dependable runner,
+independent missed-run detection, read-only credentials, notification destination and actual
+delivery proof remain open. The approved private cost thresholds are unchanged; any proposed
+input-normalization or freshness settings need review before operational use.
+
+The September 9 private demonstration returned OPEN for incomplete service coverage,
+unreconciled billing totals and unknown billing coverage. Those are retained evidence gaps;
+normalization did not invent a usage cutoff or treat unreviewed services as absent.
+
+## External runner proposal
+
+The proposed runner is a separate small hourly GitHub Actions job plus one free Healthchecks.io
+check for independent missed-run emails. A September 9 read-only repository inspection confirmed
+this repository is public; standard GitHub-hosted runners qualify for the public-repository free
+route. This does not approve larger runners, paid services or a future visibility change.
+[GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+
+No workflow, account, token or heartbeat has been activated. Before activation, review the exact
+collector, its organization-scoped read-only Fly token and expiry, minimal transmitted fields,
+owner-selected email destination, and free account limits. The hourly collector must report its
+actual resource/traffic coverage separately from the local checker's manual billing review.
+Missing billing data or unreviewed services remain open even when an hourly read succeeds.
+
+GitHub schedules can be delayed or dropped, and public-repository schedules can be disabled after
+60 days of inactivity. Healthchecks offers a free tier but no SLA. The arrangement is best-effort
+warning, with verified success, explicit failure, missed-run, repeat-email and recovery delivery
+required before reliance. It does not enforce a Fly invoice ceiling or execute a service hold.
+[GitHub schedules](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule),
+[Healthchecks plans](https://healthchecks.io/pricing/),
+[Healthchecks limitations](https://healthchecks.io/docs/faq/).
 
 ## Reversible service hold
 

@@ -23,9 +23,11 @@ The [approved disabled setup](app-store/internal-testflight-runbook.md#approved-
 has provisioned the existing-volume ledger, applied the private policy and workspace-scoped key,
 verified provider controls and usable prepaid credit, and activated the private capacity review
 profile. The same immutable image reads the zero current-month ledger after restart. This adds no
-evaluation or numeric-score evidence. Alert delivery, Fly cost-monitoring and billing-feed proof,
-the ordinary budget checker's ownership-context correction, separate AI enablement and the full
-pre-upload gates remain open.
+evaluation or numeric-score evidence. The ordinary budget diagnostic's service-identity correction
+passed live read-only verification on 9 September; the normal budget gate now reports OPEN
+`styling-disabled`. Alert delivery, Fly cost-monitoring and billing-feed proof, separate AI
+enablement and the full pre-upload gates remain open. See the
+[launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
 
 ## First approved run — 2026-09-06
 
