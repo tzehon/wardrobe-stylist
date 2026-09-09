@@ -1458,8 +1458,11 @@ print(json.dumps(result, separators=(",", ":")))
 
 _REMOTE_STYLING_DIAGNOSTIC = r"""
 import json
+import os
 
 try:
+    if (os.getuid(), os.geteuid(), os.getgid(), os.getegid()) != (10001,) * 4:
+        raise PermissionError("service_identity_required")
     from app.styling_runtime import production_styling_status
     result = production_styling_status()
 except Exception:
@@ -1488,13 +1491,14 @@ def check_styling_budget(
         return fallback
     encoded = base64.b64encode(_REMOTE_STYLING_DIAGNOSTIC.encode("utf-8")).decode("ascii")
     remote_command = (
-        "/app/.venv/bin/python -c \"import base64;"
+        "/app/.venv/bin/python -B -c \"import base64;"
         f"exec(base64.b64decode('{encoded}'))\""
     )
     output = runner.run(
         [
             "flyctl", "ssh", "console", "--app", runtime.app,
-            "--machine", runtime.machine_id, "--quiet", "--command", remote_command,
+            "--machine", runtime.machine_id, "--user", "wardrobe",
+            "--quiet", "--command", remote_command,
         ],
         timeout=45,
     )
