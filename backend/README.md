@@ -42,9 +42,11 @@ was created with no Admin API access and transferred through hidden owner input 
 secret persistence. Rotate it before its 8 October 2026 expiry. Independent post-deployment review
 passed at `2026-09-08T09:32:49Z`: the serving UID reads the intact zero-state ledger, the disabled
 guard returns 503, and runtime/auth/public-capacity/storage/snapshot/log/archive/public-page checks
-pass. The ordinary budget checker remains OPEN because its SSH diagnostic has an ownership-context
-gap; correct it before enabled launch. The independent configured probe passed without bypassing
-guards. The finite disabled setup is verified; the full pre-upload pass remains open. See the
+pass. The 9 September diagnostic correction uses SSH account `wardrobe` and checks real/effective
+UID/GID 10001 before ledger access. Its targeted live check passed on unchanged v12 at
+`2026-09-09T00:05:29Z`; the ordinary budget gate remains OPEN `styling-disabled`. Storage guards
+are unchanged. The finite disabled setup is verified; the full pre-upload pass remains open. See the
+[diagnostic follow-up](../docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 and the historical
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
@@ -52,13 +54,17 @@ The request/response contract and iOS bundle are unchanged; Build 8 is not requi
 The revised 8 September setup proposal also includes separate
 [Fly hosting cost controls](../docs/fly-spend-controls.md). The policy is approved; monitoring is
 not installed and a service hold requires its own execution approval. The AI budget and disabled switch do not cap Fly
-charges. The latest signed-in 8 September refresh shows divergent September invoice-preview and
-Cost Explorer totals across the same five expected categories; private planning uses the higher
+charges. The latest signed-in 9 September refresh shows an increased September invoice preview
+while same-period Cost Explorer is unchanged across the same five expected categories; private planning uses the higher
 preview and retains feed reconciliation OPEN. The reviewed organization has no linked
 organizations, active support package, Managed Postgres clusters or Upstash Redis databases. This
 is a current billing snapshot, not proof of final charges or the absence of every possible add-on.
 The feed's coverage cutoff/refresh lag and monitoring readiness remain open; month-end amounts
-remain planning scenarios.
+remain planning scenarios. The standalone
+[`verify_fly_spend.py`](verify_fly_spend.py) validates explicitly supplied private policy/resource/
+billing JSON and emits fixed local-evidence labels. It has no live collection, scheduler,
+notification or shutdown path; see the
+[input and output contract](../docs/fly-spend-controls.md#local-evidence-checker).
 
 ## Setup
 
@@ -158,7 +164,7 @@ retention. The 2026-08-20 manual-operations decision adds no monitoring processo
 flow. Historical v10 manual reviews and the build-7 pre-archive repeat passed. The v11 disabled-only
 review passed its scoped checks. The later v12 review verified the applied private budget policy,
 existing ledger and usable provider credit with AI disabled; alert delivery, Fly monitoring and
-billing reconciliation, the ordinary budget diagnostic correction and the full pre-upload repeat
+billing reconciliation and the full pre-upload repeat
 remain open. Snapshot-list expiry, final App
 Privacy publication, and deletion-specific recovery remain release gates; the manual review must
 remain current under the approved cadence.
@@ -171,8 +177,8 @@ python3 backend/verify_production_operations.py --refresh-registry-auth
 
 The lock identifies the verified v12 configuration deployment with unchanged merged source.
 The ledger and private policy are applied with AI disabled. The ordinary budget check remains
-OPEN `styling-budget-evidence-open`; its root-SSH diagnostic must use the required service
-ownership context before enabled launch. The independent configured probe passed as UID/GID 10001.
+OPEN `styling-disabled`. The repaired diagnostic runs as `wardrobe`, verifies real/effective
+UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
 The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the

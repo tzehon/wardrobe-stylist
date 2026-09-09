@@ -38,9 +38,13 @@ deploys the new key and private policy while preserving the session secret, with
 secrets deployed. Rotation before its 8 October 2026 expiry remains an operations gate.
 Actual alert delivery remains OPEN; no native test control was seen.
 AI enablement and distribution retain separate approval gates.
-The ordinary checker retains `styling-budget-evidence-open`; its root-SSH diagnostic has an
-ownership-context gap that must be corrected before enabled launch. The independent configured
-probe passed under the service identity without bypassing safeguards. The broader pre-upload review
+The ordinary checker's earlier `styling-budget-evidence-open` result recorded its root-SSH
+ownership-context gap. The corrected local diagnostic connects as `wardrobe`, requires
+real/effective UID and GID 10001, and uses `-B` to avoid bytecode writes. Live read-only verification
+on 9 September passed against unchanged v12 and returned OPEN `styling-disabled`; it changed no
+runtime settings or ledger state. See the
+[launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
+The broader pre-upload review
 has not passed. The approved public-capacity profile passed the disabled post-review; alert-delivery
 verification remains open. Prepaid-credit readiness now passes the approved setup check; refresh
 it before later activation. The earlier
@@ -181,8 +185,8 @@ secret names from actual deployment evidence; do not fabricate a future release 
 the historical v10 source lock as proof. The v12 configuration-deployment evidence binds unchanged source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. `production_styling_status()` emits fixed bands only
 and is read-only. The full operations helper requires a ready, enabled budget; configured-but-disabled
-v12 retains an OPEN launch gate. Its ordinary root-SSH diagnostic also requires the ownership-context
-correction described above. The bounded launch policy is approved, but the
+v12 returns OPEN `styling-disabled` after the verified diagnostic correction described above.
+The bounded launch policy is approved, but the
 remaining operational gates and explicit AI-enable approval are still required.
 
 The unchanged immutable reference used by v11 and v12 is privately retained for **budget-aware redeployment** after

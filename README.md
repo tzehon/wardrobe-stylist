@@ -82,11 +82,12 @@ Fly **v12**, source `d2866a2`, now has the approved private budget and provider 
 the same scanned immutable image, original Machine and encrypted volume are healthy; the serving
 user reads the intact v2 ledger with zero current-month state, and the disabled guard returns 503.
 App Attest, public-capacity review, snapshots, bounded logs, archive and public-page checks passed.
-No paid call was made. The ordinary budget checker remains OPEN with
-`styling-budget-evidence-open`; its SSH diagnostic needs an ownership-context correction before
-enabled launch. The independent configured probe passed without bypassing storage protections.
+No paid call was made. The 9 September diagnostic correction selects the `wardrobe` SSH account
+and verifies real/effective UID/GID 10001 before reading the ledger. Its live read-only check
+passed against the same v12 configuration at `2026-09-09T00:05:29Z`; the ordinary budget gate
+now truthfully remains OPEN `styling-disabled`. Storage protections are unchanged.
 This is not a complete pre-upload operational pass; see the
-[configured disabled setup and open gates](docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
+[launch-readiness follow-up and open gates](docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
 checks, Codex review, and merge state. The revised Sonnet 5 evaluation on 6 September 2026
 **passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
@@ -116,8 +117,8 @@ Actual alert delivery remains unverified; no native test control was available. 
 key, without Admin API access, was transferred through hidden owner input and staged without local
 secret persistence. Fly v12 deploys all six approved private AI settings and the new key while
 preserving the session secret; AI remains false. Rotation before the key's 8 October 2026 expiry
-is an operations gate. The finite disabled setup is verified; monitoring, diagnostic correction
-and separately approved AI enablement remain open.
+is an operations gate. The finite disabled setup and diagnostic correction are verified;
+monitoring and separately approved AI enablement remain open.
 This does not close migration acceptance or the full pre-upload pass; see the
 [approved setup checkpoint](docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
 The 7 September preparation review supports zero prior liability within the
@@ -132,17 +133,27 @@ On 8 September the owner requested Fly hosting cost protection as well. The revi
 policy, now approved for the finite setup phase, adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
 a reversible service-hold procedure. Current read-only inventory confirms one Singapore
 shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
-The latest signed-in 8 September refresh found different totals in the September invoice preview
-and Cost Explorer across the same five expected resource categories. The higher preview is used
+The latest signed-in 9 September refresh found an increased invoice preview while same-period
+Cost Explorer remained unchanged across the same five expected resource categories. The higher preview is used
 for private planning; the feeds are not reconciled. The reviewed organization has no
 linked organizations, active support package, Managed Postgres clusters or Upstash Redis databases.
 The billing feed provides no coverage cutoff or refresh lag; final taxes/adjustments and other
 unreviewed add-ons are not ruled out. Monitoring readiness remains open, and the month-end cost
 scenario is not a guaranteed provider projection. Fly's documented lack of native billing alerts
 means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
+The new [local evidence checker](docs/fly-spend-controls.md#local-evidence-checker) assesses explicit
+private resource and billing records, preserving unknown coverage and crossed thresholds as
+separate signals. It neither collects live data nor activates alerts or a service hold.
+Its private demonstration remains OPEN for incomplete service coverage, divergent billing totals
+and unknown usage coverage. A separate hourly GitHub Actions job with a free external heartbeat
+is [proposed for monitoring](docs/fly-spend-controls.md#external-runner-proposal); the repository's
+public visibility was verified, but no workflow, credentials, monitoring account or alerts are active.
 The configuration deployment preserved the fixed resource envelope. No Fly monitor, service hold
 or Fly credit purchase has been performed; see
-[hosting spend controls](docs/fly-spend-controls.md). Setup approval does not authorize AI enablement
+[hosting spend controls](docs/fly-spend-controls.md). A separate
+[proposed privacy revision](docs/app-store/privacy-policy-proposed-20260909.md) now describes the
+aggregate ledger and deletion behavior; publication and APP-016 review remain open.
+Setup approval does not authorize AI enablement
 or an automatic service hold.
 The new verified budget-aware image is retained privately for disabled
 redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively

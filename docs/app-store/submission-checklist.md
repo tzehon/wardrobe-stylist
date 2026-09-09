@@ -68,12 +68,13 @@ later be promoted to customers.
   private release records. The approved 8 September setup provisioned the ledger once, applied
   the policy and workspace key in Fly v12 with AI false, verified usable prepaid credit with
   auto-reload off, and passed the approved public-capacity review. Preserve the existing ledger;
-  do not repeat provisioning. Alert delivery, Fly monitoring and billing reconciliation, the
-  ordinary budget diagnostic's ownership-context correction, key rotation before 8 October,
-  separate AI enablement and the full operational review remain open. Earlier excluded
+  do not repeat provisioning. Alert delivery, Fly monitoring and billing reconciliation,
+  key rotation before 8 October, separate AI enablement and the full operational review remain
+  open. The ordinary diagnostic correction passed live read-only verification on 9 September;
+  the normal budget gate now returns OPEN `styling-disabled`. Earlier excluded
   evaluation uncertainty remains separate from the launch ledger. This disabled setup is not
   public-launch authorization; see the
-  [current setup checkpoint](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
+  [launch-readiness follow-up](internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
   The later local capacity-preflight extension passed 551 backend tests, full security/type/lint
   checks, 236 iOS tests, 44 release-script tests, and fresh Release simulator/artifact checks.
   No shared-contract/iOS/runtime-auth source or live release lock changed in that extension;
@@ -119,10 +120,19 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
   auto-reload-off state are verified; actual alert delivery is still unproven. The same image
   reads the existing ledger after restart without initialization/reset and remains the private
   recovery baseline; pre-budget v10 is not a normal rollback target. Never reinitialize this
-  ledger to regain allowance. The ordinary checker still reports `styling-budget-evidence-open`
-  because of its ownership-context gap; the independent configured probe does not close that
-  checker or the full pre-upload gate. Follow the remaining gates in the
+  ledger to regain allowance. At that checkpoint the ordinary checker reported
+  `styling-budget-evidence-open` because of its ownership-context gap; the independent configured
+  probe did not close that checker or the full pre-upload gate. Preserve this historical outcome
+  alongside the later correction below. See the
   [approved disabled setup](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
+- [x] Correct and verify the ordinary budget diagnostic's service identity. At
+  `2026-09-09T00:05:29Z`, the standard read-only check returned OPEN `styling-disabled` against the
+  same healthy v12 image, Machine and configuration. It now connects as `wardrobe`, requires
+  real/effective UID and GID 10001 before inspecting status, and uses `-B` to avoid bytecode writes.
+  No runtime, provider or ledger mutation and no paid call occurred. The local correction passed
+  590 backend tests and the locked security/type/lint checks. The broader launch and pre-upload
+  gates remain open; follow the
+  [launch-readiness follow-up](internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
 
 ## 2. Public pages and truthful data declarations
 
