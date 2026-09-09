@@ -102,6 +102,13 @@ manual billing snapshots. It has no provider connection, scheduler, notification
 controls. The versioned input models in the helper define the JSON contract; source names and
 revision hashes establish consistency only, not authenticated provenance. Use separately reviewed
 normalization of retained source evidence, never a claimed coverage timestamp absent from the source.
+The checker recomputes `policy_revision` from canonical policy contents, excluding the revision
+field itself. Editing thresholds, freshness settings or the expected resources while retaining
+the old digest invalidates the policy. Evidence must reference the resulting content digest;
+recomputing a digest does not establish owner approval or source authenticity.
+Use `policy_content_sha256` with the strictly parsed policy when preparing a reviewed input. It
+normalizes resource ordering and hashes compact JSON with sorted keys, ASCII escapes and UTF-8
+encoding. Changing only JSON whitespace or equivalent resource ordering preserves the digest.
 
 Run it from `backend` with explicit owner-only JSON files:
 

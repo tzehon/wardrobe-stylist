@@ -10,8 +10,11 @@ a policy or normalizes an old billing record automatically.
 The strict input models below are the version-1 contract. Policy amounts are integer
 millionths of USD; limits, identities, freshness tolerances and the expected resource
 envelope must come from the separately reviewed private policy. ``policy_revision`` is
-its SHA-256 binding, repeated by each evidence document. ``source_revision`` identifies
-each retained source record; this helper does not independently authenticate that record.
+the recomputed SHA-256 of validated policy content excluding that field, repeated by each
+evidence document. Resource collections are normalized by ``canonical_envelope``; JSON
+object keys are sorted, separators are compact, and ASCII-escaped JSON is UTF-8 encoded.
+This detects stale content bindings, not external approval or authenticity. ``source_revision``
+identifies each retained source record; this helper does not authenticate that record.
 All times must be explicit UTC ISO timestamps ending in Z. Null billing coverage means
 unknown, never current. Net payable is retained separately and never used as consumption.
 Only observed pre-tax consumption is compared; future scenarios are not assessed here.
@@ -20,6 +23,7 @@ Only observed pre-tax consumption is compared; future scenarios are not assessed
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import stat
@@ -197,6 +201,16 @@ def canonical_envelope(envelope: Envelope) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+def policy_content_sha256(policy: Policy) -> str:
+    """Bind every validated policy field except its digest, without asserting approval."""
+    content = policy.model_dump(exclude={"policy_revision"})
+    content["expected"] = json.loads(canonical_envelope(policy.expected))
+    canonical = json.dumps(
+        content, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def assess_resources(document: object, policy: Policy, now: datetime) -> list[str]:
     if document is None:
         return ["RESOURCE_EVIDENCE_MISSING"]
@@ -310,11 +324,14 @@ def assess(
         policy = Policy.model_validate(policy_document)
         if not policy.warning_units < policy.hold_units < policy.operating_target_units:
             raise ValueError("invalid threshold order")
-        canonical_envelope(policy.expected)
+        content_revision = policy_content_sha256(policy)
     except (ValidationError, ValueError, TypeError, RecursionError):
         result["reason_codes"] = [
             "POLICY_MISSING" if policy_document is None else "POLICY_INVALID"
         ]
+        return result
+    if policy.policy_revision != content_revision:
+        result["reason_codes"] = ["POLICY_CONTENT_REVISION_MISMATCH"]
         return result
     resource_reasons = assess_resources(resource_document, policy, now)
     billing_reasons, threshold = assess_billing(billing_document, policy, now)
