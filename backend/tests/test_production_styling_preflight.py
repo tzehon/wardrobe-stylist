@@ -2,7 +2,10 @@
 
 import base64
 import json
+import os
 import re
+import sys
+from types import ModuleType
 
 import pytest
 
@@ -50,9 +53,9 @@ def test_preflight_requires_new_runtime_budget_check_without_printing_limits():
 
     assert result == MODULE._pass("styling_budget", "bounded-enabled-below-warning")
     argv, timeout = runner.calls[0]
-    assert argv[:9] == [
+    assert argv[:11] == [
         "flyctl", "ssh", "console", "--app", APP,
-        "--machine", MACHINE, "--quiet", "--command",
+        "--machine", MACHINE, "--user", "wardrobe", "--quiet", "--command",
     ]
     assert timeout == 45
     encoded = re.search(r"b64decode\('([^']+)'\)", argv[-1]).group(1)
@@ -61,6 +64,58 @@ def test_preflight_requires_new_runtime_budget_check_without_printing_limits():
     assert "sqlite3.connect" not in script
     assert "messages.create" not in script
     assert "styling_budget" in MODULE.CHECK_ORDER
+
+
+@pytest.mark.parametrize("identity", [
+    (10001, 10001, 10001, 10001),
+    (0, 0, 0, 0),
+    (0, 10001, 10001, 10001),
+    (10001, 0, 10001, 10001),
+    (10001, 10001, 0, 10001),
+    (10001, 10001, 10001, 0),
+])
+def test_remote_budget_probe_checks_service_identity_before_reading_ledger(
+    monkeypatch, capsys, identity,
+):
+    calls = []
+    runtime_module = ModuleType("app.styling_runtime")
+
+    def status():
+        calls.append("read-only-status")
+        return READY
+
+    runtime_module.production_styling_status = status
+    monkeypatch.setitem(sys.modules, "app.styling_runtime", runtime_module)
+    for name, value in zip(("getuid", "geteuid", "getgid", "getegid"), identity, strict=True):
+        monkeypatch.setattr(os, name, lambda value=value: value)
+
+    exec(compile(MODULE._REMOTE_STYLING_DIAGNOSTIC, "<budget-probe>", "exec"), {})
+
+    emitted = json.loads(capsys.readouterr().out)
+    if identity == (10001,) * 4:
+        assert calls == ["read-only-status"]
+        assert emitted == READY
+    else:
+        assert calls == []
+        assert emitted == {"unavailable": True}
+
+
+def test_remote_budget_probe_redacts_service_read_failure(monkeypatch, capsys):
+    runtime_module = ModuleType("app.styling_runtime")
+
+    def status():
+        raise PermissionError(SECRET_CANARY)
+
+    runtime_module.production_styling_status = status
+    monkeypatch.setitem(sys.modules, "app.styling_runtime", runtime_module)
+    for name in ("getuid", "geteuid", "getgid", "getegid"):
+        monkeypatch.setattr(os, name, lambda: 10001)
+
+    exec(compile(MODULE._REMOTE_STYLING_DIAGNOSTIC, "<budget-probe>", "exec"), {})
+
+    captured = capsys.readouterr()
+    assert json.loads(captured.out) == {"unavailable": True}
+    assert SECRET_CANARY not in captured.out + captured.err
 
 
 @pytest.mark.parametrize("changes, detail, expected_status", [
