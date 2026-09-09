@@ -34,15 +34,19 @@ gate now reports OPEN `styling-disabled`, as required while AI is off. This is d
 not a complete pre-upload review or AI-enablement approval. No ledger/provider mutation or paid
 model call occurred, and no backend deployment is required for this operator-tool correction.
 
-Final regression including the local cost checker passed 690 backend tests, dependency audit,
+Final regression including the local cost checker passed 780 backend tests, dependency audit,
 Bandit, Ruff, application mypy and strict checker mypy. XcodeGen and the full iOS suite passed
-236/236 tests (226 Swift and 10 UI) at `2026-09-09T00:42:26Z`; all 44 release-script tests also
+236/236 tests (226 Swift and 10 UI) at `2026-09-09T00:57:21Z`; all 44 release-script tests also
 passed. Independent review found no actionable defect. The iOS bundle and runtime inputs are
 unchanged; no new TestFlight build is required. Private source/log bindings retain this evidence.
 The PR review's policy-binding finding is corrected: the checker recomputes a canonical digest
 of all policy contents except the digest field before evaluating evidence. Edited policies with
 stale digests fail closed, and evidence must reference the corrected digest. This verifies local
 content consistency without implying owner approval or authenticated source data.
+The peer-feed review finding is also corrected: after shared billing metadata passes, each view
+is validated independently. A valid warning/hold survives an invalid or missing peer, including
+wrong JSON numeric types through the CLI. Invalid-view fields are never reused; shared metadata
+or malformed whole-file failures remain closed. Reconciliation stays OPEN on a rejected peer.
 
 The [proposed privacy policy](privacy-policy-proposed-20260909.md) reconciles the separate aggregate
 budget store and its retention/deletion behavior. It is an unpublished draft with no effective

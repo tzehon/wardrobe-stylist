@@ -150,14 +150,16 @@ class ExplorerView(BillingView):
 
 
 class BillingEvidence(PrivateModel):
+    """Validate shared metadata before independently validating either optional raw view."""
+
     schema_version: Annotated[int, Field(strict=True, ge=1, le=1)]
     policy_revision: Revision
     currency: Literal["USD"]
     unit: Literal["millionth_usd"]
     period_starts_at: str
     period_ends_at: str
-    invoice: InvoiceView
-    cost_explorer: ExplorerView
+    invoice: object = None
+    cost_explorer: object = None
 
 
 def utc_time(value: str) -> datetime:
@@ -251,9 +253,17 @@ def assess_billing(
         following = datetime(now.year + (now.month == 12), now.month % 12 + 1, 1, tzinfo=UTC)
         if start != current or end != following:
             return ["BILLING_PERIOD_NOT_CURRENT"], "UNKNOWN"
-        views = (evidence.invoice, evidence.cost_explorer)
-        coverages: list[tuple[datetime | None, datetime | None]] = []
-        for view in views:
+    except (ValidationError, ValueError, TypeError, RecursionError):
+        return ["BILLING_EVIDENCE_INVALID"], "UNKNOWN"
+
+    views: list[BillingView] = []
+    coverages: list[tuple[datetime | None, datetime | None]] = []
+    invalid_view = False
+    for model, raw_view in (
+        (InvoiceView, evidence.invoice), (ExplorerView, evidence.cost_explorer),
+    ):
+        try:
+            view = model.model_validate(raw_view)
             observed = utc_time(view.observed_at)
             covered_start = utc_time(view.coverage_starts_at) if view.coverage_starts_at else None
             covered_end = utc_time(view.coverage_ends_at) if view.coverage_ends_at else None
@@ -268,9 +278,12 @@ def assess_billing(
                 and covered_start > covered_end
             ):
                 raise ValueError("invalid coverage")
+        except (ValidationError, ValueError, TypeError, RecursionError):
+            invalid_view = True
+        else:
+            # Salvage neither fields nor amounts from an invalid view. A valid peer remains usable.
+            views.append(view)
             coverages.append((covered_start, covered_end))
-    except (ValidationError, ValueError, TypeError, RecursionError):
-        return ["BILLING_EVIDENCE_INVALID"], "UNKNOWN"
 
     known = [view.pretax_consumption_units for view in views
              if view.pretax_consumption_units is not None]
@@ -280,16 +293,16 @@ def assess_billing(
         "HOLD_REQUIRED" if largest >= policy.hold_units else
         "WARNING" if largest >= policy.warning_units else "UNKNOWN"
     )
-    reasons = []
-    if len(known) != 2:
+    reasons = ["BILLING_EVIDENCE_INVALID"] if invalid_view else []
+    if len(known) != len(views):
         reasons.append("BILLING_PRETAX_CONSUMPTION_MISSING")
-    elif known[0] != known[1]:
+    elif len(known) == 2 and known[0] != known[1]:
         reasons.append("BILLING_TOTALS_UNRECONCILED")
     if any(start_value is None or end_value is None for start_value, end_value in coverages):
         reasons.append("BILLING_COVERAGE_UNKNOWN")
     elif any(start_value != start for start_value, _ in coverages):
         reasons.append("BILLING_COVERAGE_INCOMPLETE")
-    if coverages[0] != coverages[1]:
+    if len(coverages) == 2 and coverages[0] != coverages[1]:
         reasons.append("BILLING_COVERAGE_UNRECONCILED")
     if any((now - utc_time(view.observed_at)).total_seconds()
            > policy.billing_observation_max_age_seconds for view in views):
@@ -375,8 +388,8 @@ def _bounded_object(document: object) -> object:
     return document
 
 
-def load_document(path: Path | None) -> object:
-    """Read one bounded owner-only regular file, without echoing data or failure details."""
+def load_document(path: Path | None, *, allow_json_floats: bool = False) -> object:
+    """Read one bounded private file, without output; billing isolates valid-JSON view errors."""
     if path is None:
         return None
     try:
@@ -395,7 +408,8 @@ def load_document(path: Path | None) -> object:
         if len(data) > MAX_INPUT_BYTES:
             return INVALID_DOCUMENT
         return _bounded_object(json.loads(
-            data, object_pairs_hook=_pairs, parse_float=_reject_number,
+            data, object_pairs_hook=_pairs,
+            parse_float=float if allow_json_floats else _reject_number,
             parse_constant=_reject_number,
         ))
     except FileNotFoundError:
@@ -422,7 +436,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     result = assess(
         load_document(arguments.policy), load_document(arguments.resources),
-        load_document(arguments.billing), now=datetime.now(UTC),
+        load_document(arguments.billing, allow_json_floats=True), now=datetime.now(UTC),
     )
     print(json.dumps(result, sort_keys=True))
     return 0 if result["assessment"] == "CONSISTENT_LOCAL_EVIDENCE" else 2

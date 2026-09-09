@@ -129,7 +129,12 @@ Output contains fixed labels only and always states `LOCAL_EVIDENCE_ONLY`, unaut
 provenance, no activation authority and no forecast assessment. Missing or unknown source coverage,
 unreconciled totals, stale observations and resource changes remain OPEN. A validated observed
 amount crossing a warning or hold threshold still produces its warning alongside an OPEN billing
-result. `HOLD_REQUIRED` is an operator signal, not permission or execution of a shutdown.
+result. After the shared policy, currency, units and current-month metadata pass, the invoice and
+Cost Explorer views are validated independently. An invalid view is discarded and keeps billing
+OPEN; a warning/hold amount from the independently valid peer is preserved. Invalid shared
+metadata or an unreadable/malformed whole document cannot supply a threshold signal. Fields from
+an invalid view are never salvaged. `HOLD_REQUIRED` is an operator signal, not permission or
+execution of a shutdown.
 Even exit zero means only consistent supplied local evidence, not that monitoring, live spend,
 the month-end forecast or public-launch readiness has passed.
 
