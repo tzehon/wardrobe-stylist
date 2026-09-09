@@ -144,6 +144,8 @@ means monitoring and an invoice ceiling must not be claimed as installed or guar
 The new [local evidence checker](docs/fly-spend-controls.md#local-evidence-checker) assesses explicit
 private resource and billing records, preserving unknown coverage and crossed thresholds as
 separate signals. It neither collects live data nor activates alerts or a service hold.
+It verifies each policy's content digest before comparing the evidence's policy references;
+a matching digest establishes consistency, not approval or authenticated billing.
 Its private demonstration remains OPEN for incomplete service coverage, divergent billing totals
 and unknown usage coverage. A separate hourly GitHub Actions job with a free external heartbeat
 is [proposed for monitoring](docs/fly-spend-controls.md#external-runner-proposal); the repository's

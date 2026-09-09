@@ -1,6 +1,7 @@
 """Local evidence consistency cannot stand in for live billing or monitor acceptance."""
 
 import copy
+import hashlib
 import json
 import os
 from datetime import UTC, datetime
@@ -10,7 +11,7 @@ import pytest
 import verify_fly_spend as spend
 
 NOW = datetime(2026, 7, 12, 12, tzinfo=UTC)
-POLICY_REVISION = "a" * 64
+PLACEHOLDER_REVISION = "0" * 64
 SOURCE_REVISION = "b" * 64
 CANARY = "private-canary-never-output"
 
@@ -35,15 +36,16 @@ def documents():
         "linked_organizations": [],
     }
     policy = {
-        "schema_version": 1, "policy_revision": POLICY_REVISION,
+        "schema_version": 1, "policy_revision": PLACEHOLDER_REVISION,
         "currency": "USD", "unit": "millionth_usd",
         "warning_units": 150_000_000, "hold_units": 250_000_000,
         "operating_target_units": 500_000_000,
         "resource_max_age_seconds": 3600, "billing_observation_max_age_seconds": 3600,
         "billing_coverage_max_age_seconds": 3600, "expected": envelope,
     }
+    bind_policy(policy)
     resources = {
-        "schema_version": 1, "policy_revision": POLICY_REVISION,
+        "schema_version": 1, "policy_revision": policy["policy_revision"],
         "source": "flyctl_and_console_manual_v1", "source_revision": SOURCE_REVISION,
         "observed_at": "2026-07-12T11:55:00Z",
         "inventory_coverage": sorted(spend.REQUIRED_COVERAGE),
@@ -56,7 +58,7 @@ def documents():
         "coverage_ends_at": "2026-07-12T11:50:00Z",
     }
     billing = {
-        "schema_version": 1, "policy_revision": POLICY_REVISION,
+        "schema_version": 1, "policy_revision": policy["policy_revision"],
         "currency": "USD", "unit": "millionth_usd",
         "period_starts_at": "2026-07-01T00:00:00Z",
         "period_ends_at": "2026-08-01T00:00:00Z",
@@ -64,6 +66,12 @@ def documents():
         "cost_explorer": view | {"source": "fly_cost_explorer_manual_v1"},
     }
     return policy, resources, billing
+
+
+def bind_policy(policy, *evidence):
+    policy["policy_revision"] = spend.policy_content_sha256(spend.Policy.model_validate(policy))
+    for document in evidence:
+        document["policy_revision"] = policy["policy_revision"]
 
 
 def evaluate(policy, resources, billing):
@@ -77,7 +85,8 @@ def write_private(path, value):
 
 
 def test_consistent_supplied_evidence_does_not_claim_live_readiness_or_authority():
-    result = evaluate(*documents())
+    policy, resources, billing = documents()
+    result = evaluate(policy, resources, billing)
     assert result == {
         "scope": "LOCAL_EVIDENCE_ONLY", "assessment": "CONSISTENT_LOCAL_EVIDENCE",
         "resources": "CONSISTENT", "billing": "CONSISTENT",
@@ -87,7 +96,7 @@ def test_consistent_supplied_evidence_does_not_claim_live_readiness_or_authority
         "reason_codes": [],
     }
     assert CANARY not in json.dumps(result)
-    assert POLICY_REVISION not in json.dumps(result)
+    assert policy["policy_revision"] not in json.dumps(result)
     assert "150000000" not in json.dumps(result)
 
 
@@ -207,6 +216,111 @@ def test_invalid_policy_cannot_produce_a_budget_assessment(field, value):
     assert evaluate(policy, resources, billing)["reason_codes"] == ["POLICY_INVALID"]
 
 
+@pytest.mark.parametrize("path, value", [
+    (("warning_units",), 200_000_000),
+    (("hold_units",), 300_000_000),
+    (("operating_target_units",), 600_000_000),
+    (("resource_max_age_seconds",), 7200),
+    (("billing_observation_max_age_seconds",), 7200),
+    (("billing_coverage_max_age_seconds",), 7200),
+    (("expected", "organization"), "different-organization"),
+    (("expected", "machines", 0, "memory_mb"), 512),
+    (("expected", "machines", 0, "image_revision"), "different-image"),
+    (("expected", "volumes", 0, "size_gb"), 2),
+    (("expected", "volumes", 0, "automatic_snapshots"), False),
+    (("expected", "ips", 0, "kind"), "dedicated_v4"),
+    (("expected", "services"), [{"id": "new-service", "kind": "database"}]),
+    (("expected", "linked_organizations"), ["new-organization"]),
+])
+def test_changed_policy_content_cannot_reuse_revision_even_with_matching_resources(path, value):
+    policy, resources, billing = documents()
+    previous_revision = policy["policy_revision"]
+    target = policy
+    for segment in path[:-1]:
+        target = target[segment]
+    target[path[-1]] = value
+    resources["envelope"] = copy.deepcopy(policy["expected"])
+    assert spend.policy_content_sha256(spend.Policy.model_validate(policy)) != previous_revision
+    result = evaluate(policy, resources, billing)
+    assert result["assessment"] == "OPEN"
+    assert result["reason_codes"] == ["POLICY_CONTENT_REVISION_MISMATCH"]
+    assert result["observed_consumption"] == "UNKNOWN"
+
+
+def test_increasing_warning_cannot_erase_existing_warning_under_old_revision():
+    policy, resources, billing = documents()
+    for view in (billing["invoice"], billing["cost_explorer"]):
+        view["pretax_consumption_units"] = 200_000_000
+    assert evaluate(policy, resources, billing)["observed_consumption"] == "WARNING"
+    policy["warning_units"] = 225_000_000
+    assert evaluate(policy, resources, billing)["reason_codes"] == [
+        "POLICY_CONTENT_REVISION_MISMATCH",
+    ]
+
+
+def test_recomputed_changed_policy_still_rejects_evidence_bound_to_old_policy():
+    policy, resources, billing = documents()
+    policy["billing_coverage_max_age_seconds"] += 1
+    bind_policy(policy)
+    result = evaluate(policy, resources, billing)
+    assert result["reason_codes"] == [
+        "RESOURCE_POLICY_REVISION_MISMATCH", "BILLING_POLICY_REVISION_MISMATCH",
+    ]
+    bind_policy(policy, resources, billing)
+    rebound = evaluate(policy, resources, billing)
+    assert rebound["assessment"] == "CONSISTENT_LOCAL_EVIDENCE"
+    assert rebound["live_provenance"] == "NOT_VERIFIED"
+    assert rebound["activation_authority"] == "NONE"
+
+
+def test_policy_digest_excludes_only_revision_and_matches_canonical_json_contract():
+    policy, resources, billing = documents()
+    content = {key: value for key, value in policy.items() if key != "policy_revision"}
+    expected = hashlib.sha256(
+        json.dumps(
+            content, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
+    assert policy["policy_revision"] == expected
+    policy["policy_revision"] = "f" * 64
+    assert spend.policy_content_sha256(spend.Policy.model_validate(policy)) == expected
+    assert evaluate(policy, resources, billing)["reason_codes"] == [
+        "POLICY_CONTENT_REVISION_MISMATCH",
+    ]
+
+
+def test_equivalent_reparsed_json_and_resource_order_keep_policy_binding(tmp_path):
+    policy, resources, billing = documents()
+    envelope = policy["expected"]
+    envelope["apps"].append("another-app")
+    envelope["machines"].append(envelope["machines"][0] | {
+        "id": "another-machine", "app": "another-app", "volume_ids": [],
+    })
+    envelope["volumes"].append(envelope["volumes"][0] | {"id": "another-volume"})
+    envelope["machines"][0]["volume_ids"].append("another-volume")
+    envelope["ips"].append(envelope["ips"][0] | {"id": "another-ip"})
+    envelope["services"] = [{"id": "one", "kind": "database"}, {"id": "two", "kind": "cache"}]
+    envelope["linked_organizations"] = ["first", "second"]
+    resources["envelope"] = copy.deepcopy(envelope)
+    bind_policy(policy, resources, billing)
+
+    def reordered(value):
+        if isinstance(value, dict):
+            return {key: reordered(item) for key, item in reversed(value.items())}
+        if isinstance(value, list):
+            return [reordered(item) for item in reversed(value)]
+        return value
+
+    path = write_private(tmp_path / "reordered-policy.json", reordered(policy))
+    path.write_text(json.dumps(reordered(policy), indent=3) + "\n")
+    reparsed = spend.load_document(path)
+    assert spend.policy_content_sha256(spend.Policy.model_validate(reparsed)) == policy[
+        "policy_revision"
+    ]
+    result = evaluate(reparsed, reordered(resources), billing)
+    assert result["assessment"] == "CONSISTENT_LOCAL_EVIDENCE"
+
+
 @pytest.mark.parametrize("changes", [
     {"period_starts_at": "2026-06-01T00:00:00Z"},
     {"period_starts_at": "2026-07-02T00:00:00Z"},
@@ -296,6 +410,7 @@ def test_resource_order_does_not_create_drift():
     policy["expected"]["ips"].append(extra)
     resources["envelope"]["ips"].insert(0, extra)
     resources["inventory_coverage"].reverse()
+    bind_policy(policy, resources, billing)
     assert evaluate(policy, resources, billing)["resources"] == "CONSISTENT"
 
 
