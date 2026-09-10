@@ -32,7 +32,7 @@
 - **Retained release compliance:** Repository enforcement and the historical Gmail-free Fly v10
   deployment were verified; Fly provider and manual-operations boundaries are explicitly accepted; the v10
   post-change review, late historical v9 review, historical v8/v7 reviews, build-4 signed archive
-  and Apple distribution, historical build-5 distribution, current build-6 production-signed archive
+  and Apple distribution, historical build-5 distribution, historical build-6 production-signed archive
   and Apple distribution, and Gmail-free public support/privacy/Terms routes are retained. The required v9 post-deploy/pre-
   upload review was missed and is not backdated; the late review records that process miss while
   restoring current operational evidence. The build-4 and build-5 identity-safe handoffs are
@@ -55,8 +55,11 @@
   completed at `11:02:18Z`, followed by the distinct final Apple Distribution archive at
   `11:03:10Z` and strict verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads
   refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. Snapshot-list expiry,
-  deletion-specific restore/non-return, build-7 validation/distribution, and clean physical Dark
-  Mode visual retest remain incomplete.
+  deletion-specific restore/non-return and clean physical Dark Mode visual retest remain incomplete.
+  The 10 September beta-only review and separately approved validation/upload completed; Apple
+  processing, `Family` internal assignment and saved/reloaded AI-disabled notes are verified.
+  Owner-controlled identity-safe handoff and clean physical QA remain open; delivery is not AI
+  activation or public-submission authorization.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, separate aggregate AI budget/reservation store, application logs, manual
@@ -429,6 +432,15 @@ Each row preserves its dated outcome and next actions as recorded then; use the
 | 2026-09-07T10:39:08Z | PASS · exact v11 source/image/platform · original healthy Machine/volume · zero High/Critical · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · single-user band only · official last-2-days metric: 200/404, no 5xx · bounded logs | OPEN · partial console check: active key, spend below warning, no last-24h saturation; low prepaid credit, no alert rows visible; delivery unverified | PASS · public pages verified | OPEN · disabled scope only | Historical checkpoint: budget unprovisioned and policy unapplied; later September 8 setup supersedes those states; no paid calls | historical checkpoint; superseded below |
 | 2026-09-08T09:32:49Z | PASS · v12 · same scanned image and original healthy Machine/volume · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · approved public-capacity band · bounded logs; fresh full manual metrics still required | OPEN · configured limits/notification settings and usable credit verified · auto-reload off · real delivery unverified | PASS · public pages verified | OPEN · configured-but-disabled setup passed; full pre-upload remains open | Preserve applied policy and existing zero ledger; correct ordinary diagnostic ownership context, prove monitoring/delivery and reconcile Fly billing feeds before enablement | before enablement or upload; full review remains open |
 | 2026-09-10T11:25:45Z | PASS · unchanged v12 runtime/source/configuration · recovery image/scan verified · AI disabled | PASS · automatic · 14d · latest created 2026-09-10T07:48:53Z | below-warning | PASS · auth/store and bounded logs · official 2d metric 200/404, no 5xx | PASS for disabled beta · public status operational · configured spend below warning · expected workspace/key unexpired · no observed production usage or saturation | PASS · public pages | PASS_INTERNAL_BETA_ONLY · intact, below-warning, idle ledger · styling-disabled expected | Same-session App Store Connect check passed with build 7 absent; refresh before upload/after change. Exact upload approval, processing/assignment, physical QA, AI activation and public release remain open; no deployment, paid call or upload | daily cost review 2026-09-11; full review before upload/after change |
+
+Following the 10 September pre-upload review, the owner approved the exact package. Xcode
+validation passed and Content Delivery recorded normal-route build-7 upload success at
+`2026-09-10T11:47:49.338Z`; Xcode's terminal success was observed at `11:48:11Z`.
+Apple processing and `Family` internal assignment were verified at `11:50:45Z`, with one group
+tester and no individual testers; approved notes persisted after reload at `11:51:22Z`. The
+group's existing **Automatic for Xcode Builds** setting was preserved. This later
+upload is recorded in the [runbook](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+and is not a new operations review, AI activation or public submission.
 
 The 2026-09-07 row retains the observed disabled-deployment checks and partial signed-in views.
 At that checkpoint, the complete helper's manual-review inputs remained open, including App Store
@@ -884,10 +896,10 @@ Required before APP-009 can close:
   credential, deep-signature, and matching arm64 app/dSYM verification passed at `11:04:02Z`. The
   signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest and **Ready to
   Submit**, with build 7 absent.
-- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
-  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
-  owner approval at that boundary, then complete normal-route validation/upload, Apple processing,
-  `Family` assignment, and the truthful tester-note loop.
+- [x] Validate and distribute only the exact verified build-7 archive. The 10 September beta-only
+  review preceded separate owner approval and normal-route validation/upload. Apple processing,
+  `Family` internal assignment and saved/reloaded AI-disabled notes are verified in the
+  [distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 - [ ] Clean-install the processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
 - [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata

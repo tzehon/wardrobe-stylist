@@ -33,8 +33,9 @@ live operations and App Store Connect still needed fresh evidence; the later com
 recorded below. No iOS bundle or API-contract change was made, so the refactor requires
 no new TestFlight build. [PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) merged at
 `2026-09-10T01:04:48Z` after the documentation correction, a clear current-head Codex review and
-both CI checks passed. The exact build-7 beta upload package now includes the scoped review below
-and truthful draft tester notes. Distribution and AI activation remain open.
+both CI checks passed. Build 7 has completed Xcode validation/upload, Apple processing and
+`Family` internal distribution with saved/reload-verified AI-disabled tester notes. Owner-controlled
+physical handoff/QA and separate AI activation remain open.
 
 ## AI-disabled beta pre-upload review — 2026-09-10
 
@@ -57,11 +58,50 @@ reconciliation. The fixed outcome is also recorded in the
 [manual review register](app-attest-data-lifecycle-policy.md#manual-review-register).
 
 Refresh the full review immediately before upload, after a backend/configuration change, or when
-same-session evidence expires. The next daily owner cost review is due **2026-09-11**. Exact
-upload approval, Xcode validation/upload, Apple processing, `Family` assignment, saved/reloaded
-tester notes and candidate-specific physical QA remain open. Preserve the identity-safe handoff
+same-session evidence expires. The next daily owner cost review is due **2026-09-11**. At this
+pre-upload checkpoint, exact upload approval, Xcode validation/upload, Apple processing, `Family`
+assignment, saved/reloaded tester notes and candidate-specific physical QA remained open; the
+later approved upload is recorded below. Preserve the identity-safe handoff
 before replacing an installation. This beta-only pass authorizes neither upload, AI activation
-nor public submission; no upload or distribution was performed.
+nor public submission; the read-only review performed no upload or distribution.
+
+## Build-7 distribution — 2026-09-10
+
+The owner separately approved the exact build-7 validation/upload, `Family` Internal Testing
+assignment, truthful AI-disabled notes and three-document evidence publication package. Xcode
+Validate App succeeded at approximately `2026-09-10T11:32Z` for the preserved `1.0.0 (7)` archive.
+The first normal-route upload stalled during App Store Connect analysis with repeated
+unauthorized status polls. It was cancelled at `11:44:54Z` without confirmed asset-upload
+completion or terminal success. A fresh signed-in Build Uploads check at approximately `11:45Z`
+still showed build 6 **Complete** as the highest upload, with build 7 absent.
+
+A retry of the same archive began at `2026-09-10T11:46:34Z` using **Custom → App Store Connect →
+Upload** within the original same-session manual-evidence window; the Apple build-list refresh
+was not a new full operations review. The reviewed settings kept automatic build
+number management off, symbols on and **TestFlight Internal Only** off. The selected Apple
+Distribution profile and summary retained build 7 with production App Attest. This is the normal
+App Store Connect-eligible route. Content Delivery recorded success at
+`2026-09-10T11:47:49.338Z`; at `11:48:11Z`, Xcode's **App upload complete** result was observed for
+Wardrobe `1.0.0 (7)`. The retry's exported app, profile, code, entitlements and matching dSYM
+passed independent verification. Build 7 is now used and must never be reused.
+
+At `2026-09-10T11:50:45Z`, the signed-in Build Uploads view showed `1.0.0 (7)` **Complete** and the
+version's build record showed **Ready to Submit**. Build details confirmed exactly one group,
+`Family` Internal Testing, with one tester, and zero individual testers. The existing group's
+**Automatic for Xcode Builds** setting delivered the build; it was preserved, not changed or
+verified off, and no manual assignment was needed.
+
+The approved AI-disabled notes were saved and reload-verified at `2026-09-10T11:51:22Z` with Save
+disabled. The processed metadata check at `11:51:27Z` confirmed **Binary State: Validated**,
+`1.0.0 (7)`, expected bundle/application identity, included symbols, no non-exempt encryption,
+minimum iOS 18.0, arm64 iPhone support, production App Attest, debugging disabled and beta reporting
+enabled. This completes the approved validation/upload, processing, internal assignment and
+tester-note loop. **Ready to Submit** is Apple's build status, not public-submission authorization.
+
+Owner-controlled identity-safe handoff, clean installation and candidate-specific physical QA
+remain open. Keep the existing installation in place until the owner clears
+its identity-safe handoff. No backend deployment, AI activation or paid styling call occurred;
+this internal-beta upload does not authorize public App Store submission.
 
 ## Distribution policy
 
@@ -500,8 +540,9 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   Clean main `0cc0fa7` then produced the distinct Apple Distribution-signed `1.0.0 (7)` archive at
   `11:03:10Z`; strict verification passed at `11:04:02Z`, and the signed-in `11:05:38Z` post-archive
   Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent.
-  Validation/upload, Apple processing, assignment, tester notes, and clean physical visual retest
-  remain open. Keep the root `README.md` current with implementation and release status; this
+  Validation/upload, Apple processing, assignment, tester notes and physical retest were open at
+  that archive-era checkpoint. The 10 September distribution record above closes the delivery
+  pipeline; owner-controlled physical handoff/QA remains open. Keep the root `README.md` current with implementation and release status; this
   runbook and the release backlog retain the detailed ordered evidence.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
@@ -810,9 +851,9 @@ deletion-specific recovery/non-return remain open. The visual-control assessment
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
 The current Fly v12 runtime has its private policy applied with AI disabled, as recorded above.
-The build-7 exact-source regression and strict signed-archive verification have passed. Its
-validation/upload, Apple processing, assignment, tester-note, and clean physical Dark Mode visual
-retest gates remain open:
+The build-7 exact-source regression, strict signed-archive verification and 10 September internal
+distribution have passed. Owner-controlled handoff, clean installation and the physical Dark Mode
+visual retest remain open. The following entries retain the completed predecessor sequence:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -991,7 +1032,8 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    confirmed unused and selected with `MARKETING_VERSION = 1.0.0`. The later completed normal-route
    upload consumes build 6; never reuse it. For build 7, the signed-in final post-archive Build
    Uploads refresh at `2026-08-29T11:05:38Z` showed build 6 as the highest upload and **Ready to
-   Submit**, with build 7 absent. Build 7 remains unused; refresh again immediately before upload.
+   Submit**, with build 7 absent. That established availability at the archive checkpoint; the
+   completed 10 September upload consumed build 7. Never reuse it.
 3. **Regenerate and verify.** Run the locked backend pytest/pip-audit/Bandit/Ruff/mypy suite, full Swift and UI suite,
    public Release configuration tests, request-capture/privacy guards, Release build, and simulator
    artifact preflight. Xcode strips App Attest from simulator signatures, so the signed entitlement
@@ -1022,10 +1064,11 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    profile/identity, public configuration, privacy manifest, Gmail-free removed-capability guards,
    separate non-emitting credential scan, deep signature, and matching app/dSYM checks passed. The
    `11:05:38Z` signed-in post-archive Build Uploads refresh showed build 6 highest and **Ready to
-   Submit**, with build 7 absent. This is archive evidence only; no validation, upload, processing,
-   group assignment, or tester-note gate has run for build 7.
+   Submit**, with build 7 absent. This paragraph retains archive evidence only. The later
+   [10 September distribution](#build-7-distribution--2026-09-10) completed validation/upload,
+   processing, internal group assignment and saved/reloaded notes for build 7.
 
-   Current build-6 archive and distribution evidence: clean synchronized source context
+   Historical build-6 archive and distribution evidence: clean synchronized source context
    `de7c540275fb16e61aabf1884538b18cf6edf76f` produced
    `ios/DerivedData/ReleaseValidation/Wardrobe-1.0.0-6-de7c540-appstore.xcarchive` at
    `2026-08-22T11:42:24Z`. The strict verifier, deep signature check, matching app/dSYM check,
@@ -1095,9 +1138,11 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
 6. **Wait for processing.** In App Store Connect review Build Upload status, warnings, privacy
    manifests, entitlements, supported devices, version/build, and export-compliance state. Resolve
    every error before testing.
-7. **Distribute internally.** Add the processed build only to the chosen Internal Testing group,
-   enter truthful **What to Test** notes, and keep automatic distribution off when a deliberate QA
-   gate is desired.
+7. **Distribute internally.** Confirm the processed build belongs only to the chosen Internal
+   Testing group and enter truthful **What to Test** notes. Record the group's actual automatic
+   distribution setting: the existing `Family` group had **Automatic for Xcode Builds** enabled
+   during build-7 distribution. Do not describe that setting as off or assume distribution waits
+   for a manual assignment. Physical installation remains subject to the identity-safe handoff.
 8. **Run automated regression, then a targeted fresh-install physical delta.** Never install a
    fresh-reset candidate over an older app. The complete matrix remains the release inventory, not
    a manual script to replay in full. Simulator/UI automation owns deterministic first launch and
@@ -1299,13 +1344,16 @@ identity or notification evidence.
   Anthropic console, signed-in Build Uploads view, and separate owner upload approval as live gates.
   This release-operations tooling/test/documentation change does not alter the preserved build-7
   archive or shipped iOS/backend behavior and does not require build 8.
-- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
-  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
-  owner approval at that boundary, use the normal App-Store-eligible validation/upload route, wait
-  for Apple processing, assign only `Family`, and save truthful tester notes.
-- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7, make one
-  production App-Attest-protected styling request, and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion. When the current
+- [x] Validate and distribute only the exact verified build-7 archive. After the beta-only review
+  and explicit owner approval, normal-route validation/upload completed on 10 September. Apple
+  processing and the existing automatic `Family` assignment were verified, with one group tester
+  and no individual testers; the approved AI-disabled notes persisted after reload. See the
+  [distribution checkpoint](#build-7-distribution--2026-09-10). Build 7 is consumed.
+- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
+  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
+  Dark Mode. Keep AI unavailable during this beta; production App-Attest-protected styling proof
+  belongs to separately approved AI activation and its bounded verification call. Include the
+  approved brief local/catalog/Demo smoke from the saved tester notes. When the current
   automated suite is green and retained build-6 physical evidence still applies, do not repeat the
   unchanged catalog, cached-Today, Wear/History, or reminder flows.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
@@ -1387,7 +1435,7 @@ Saved and reload-verified on processed build `1.0.0 (6)` for the `Family` Intern
 pre-install identity-safe handoff instruction; the later clean physical evidence is recorded above
 and does not rewrite the historically saved note.
 
-## Draft truthful What to Test wording for build 7
+## Saved truthful What to Test wording for build 7
 
 > Wardrobe 1.0.0 (7) — internal beta
 >
@@ -1401,7 +1449,9 @@ and does not rewrite the historically saved note.
 > Follow the agreed installation handoff before replacing an existing Wardrobe installation. These
 > notes do not authorize deleting local or server data.
 
-This wording is a draft until build 7 is processed, assigned only to `Family`, saved, and reloaded.
+Saved and reload-verified at `2026-09-10T11:51:22Z` for processed build `1.0.0 (7)`, assigned only
+to `Family` Internal Testing with one group tester and no individual testers. The existing
+**Automatic for Xcode Builds** setting was preserved; distribution was not held for manual assignment.
 Keep the existing installation until the owner confirms its identity-safe handoff is complete.
 Do not install/update build 7 over it or perform local/server deletion, uninstall or reinstall
 without the owner's direction for the applicable runbook stage. Production styling/App Attest

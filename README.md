@@ -24,24 +24,30 @@ the decisions required before the paid release.
 
 ## Current release
 
-The next milestone is **a usable internal TestFlight build**, using the existing `1.0.0 (7)`
-candidate after fresh archive, operations and App Store Connect checks. The local wardrobe,
+**Build `1.0.0 (7)` is processed and assigned to the `Family` internal TestFlight group.** The
+approved AI-disabled tester notes are saved and reload-verified. The next step is the
+owner-controlled identity-safe handoff, clean install and targeted physical QA. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
 Fly v12 configuration has AI styling disabled; the app shows temporary unavailability for
 remote styling requests.
 
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
-1. Distribute and physically verify the existing beta candidate.
+1. Complete the owner-controlled installation handoff and physically verify the delivered beta.
 2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
 3. Finish the applicable privacy/recovery and store-submission work for the Free Singapore launch.
 
 The preserved signed build-7 archive passed strict verification on 10 September. The combined
 operations review passed `PASS_INTERNAL_BETA_ONLY` at `2026-09-10T11:25:45Z`: AI remained disabled,
 the intact budget was below warning and idle, and every other check passed. The same-session
-App Store Connect view showed build 6 as the highest upload and no build 7. Refresh the full review
-immediately before upload and after any change. Exact upload approval, validation/upload,
-processing, internal-group assignment and candidate-specific physical QA remain open.
+App Store Connect view showed build 6 as the highest upload and no build 7. The owner then
+approved the exact package; Xcode validation passed and Content Delivery recorded upload success
+at `2026-09-10T11:47:49.338Z`, observed in Xcode at `11:48:11Z`. Apple processing and `Family`
+assignment were verified at `11:50:45Z`,
+and the approved notes persisted after reload at `11:51:22Z`. The existing group's **Automatic
+for Xcode Builds** setting delivered the build without a manual assignment change; it was not
+turned off. Physical installation and candidate-specific QA remain open. Build 7 is used and
+must not be reused.
 Build 6 is already used and non-promotable after the consent-button visual defect; the fix is
 implemented in build 7. Preserve the owner-controlled identity-safe handoff before replacing an
 installed build.
@@ -115,10 +121,11 @@ Independent review found no actionable defect in the scoped beta check. The arch
 tests remain historical evidence, not production features.
 [PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) merged on 10 September after the
 monitoring-instruction correction, a clear current-head Codex review and both CI checks passed.
-The exact build-7 AI-disabled beta upload package has truthful draft tester notes and the scoped
-review recorded in the [runbook](docs/app-store/internal-testflight-runbook.md#ai-disabled-beta-pre-upload-review--2026-09-10).
-No upload, deployment or paid model call was performed; AI remains disabled. The next daily owner
-cost review is due 11 September, alongside the full review before upload or after a change.
+The scoped review and approved build-7 upload are recorded in the
+[runbook](docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10), with
+truthful saved AI-disabled tester notes. No deployment or paid model call was performed; AI
+remains disabled. The next daily owner cost review is due 11 September, alongside the full
+review before any later upload or after a backend/configuration change.
 
 The current operations checker distinguishes an intentionally AI-disabled internal beta from
 AI-launch readiness. The default AI-launch purpose remains strict; a beta-only result does not
