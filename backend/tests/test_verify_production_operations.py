@@ -1269,6 +1269,91 @@ def test_argument_errors_do_not_render_private_values(capsys: pytest.CaptureFixt
     assert output_text.err == "Production operational preflight received invalid command options.\n"
 
 
+@pytest.mark.parametrize("argument", [None, "ai-launch", "internal-beta-ai-disabled"])
+@pytest.mark.parametrize("enabled", [False, True])
+def test_cli_purpose_requires_matching_ai_state_and_reports_beta_scope(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    argument: str | None,
+    enabled: bool,
+) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_review(**kwargs: Any) -> Any:
+        captured.update(kwargs)
+        return MODULE.ReviewReport(
+            checked_at=NOW,
+            results=tuple(
+                MODULE._open(name, "styling-disabled")
+                if name == "styling_budget" and not enabled
+                else MODULE._pass(name, MODULE._PASS_DETAILS[name])
+                for name in MODULE.CHECK_ORDER
+            ),
+            purpose=kwargs["purpose"],
+        )
+
+    monkeypatch.setattr(MODULE, "run_review", fake_review)
+    monkeypatch.setattr(MODULE.ReviewConfig, "load", classmethod(lambda _cls, _path: config()))
+    argv = ["preflight"] + (["--purpose", argument] if argument is not None else [])
+    beta = argument == "internal-beta-ai-disabled"
+
+    assert MODULE.main(argv) == (0 if beta != enabled else 1)
+
+    purpose = MODULE.ReviewPurpose(argument or "ai-launch")
+    assert captured["purpose"] is purpose
+    output_text = capsys.readouterr()
+    assert f"review_purpose={purpose.value}" in output_text.out
+    assert SECRET_CANARY not in output_text.out + output_text.err
+    if beta and not enabled:
+        assert "preupload_evidence=PASS_INTERNAL_BETA_ONLY" in output_text.out
+        assert "styling_budget=OPEN styling-disabled" in output_text.out
+        assert "AI launch remains blocked" in output_text.err
+        assert "explicit owner upload approval is still required" in output_text.err
+    elif enabled and not beta:
+        assert "preupload_evidence=PASS owner-upload-approval-still-required" in output_text.out
+        assert "Production operational evidence passed" in output_text.err
+    else:
+        assert "preupload_evidence=OPEN" in output_text.out
+        assert "no upload was attempted" in output_text.err
+
+
+def test_cli_rejects_unknown_purpose_before_live_review_without_private_value(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr(
+        MODULE, "run_review", lambda **_kwargs: pytest.fail("live review attempted"),
+    )
+    with pytest.raises(SystemExit) as caught:
+        MODULE.main(["preflight", "--purpose", SECRET_CANARY])
+    assert caught.value.code == 2
+    output_text = capsys.readouterr()
+    assert output_text.out == ""
+    assert output_text.err == "Production operational preflight received invalid command options.\n"
+
+
+@pytest.mark.parametrize("purpose", [None, SECRET_CANARY, "internal-beta-ai-disabled", True])
+def test_run_review_rejects_unvalidated_purpose_before_loading_or_checking(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, purpose: Any,
+) -> None:
+    monkeypatch.setattr(
+        MODULE.ReviewConfig, "load",
+        classmethod(lambda _cls, _path: pytest.fail("configuration load attempted")),
+    )
+    runner = FakeRunner()
+    with pytest.raises(MODULE.ReviewConfigurationError, match="^review purpose is invalid$"):
+        MODULE.run_review(
+            repo_root=tmp_path,
+            archive_path=tmp_path / "Wardrobe.xcarchive",
+            evidence_path=None,
+            refresh_registry_auth=True,
+            runner=runner,
+            getter=FakeGetter({}),
+            clock=lambda: NOW,
+            purpose=purpose,
+        )
+    assert runner.calls == []
+
+
 @pytest.mark.parametrize(
     ("auth_count", "service_count", "expected"),
     [
@@ -1604,8 +1689,13 @@ def test_stale_future_or_extra_manual_evidence_is_open() -> None:
         assert all(result.status is MODULE.Status.OPEN for result in results)
 
 
-def test_run_review_rechecks_source_and_manual_evidence_at_completion(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+@pytest.mark.parametrize("purpose", tuple(MODULE.ReviewPurpose))
+@pytest.mark.parametrize("source_changed, manual_stale", [
+    (False, False), (True, False), (False, True), (True, True),
+])
+def test_run_review_requires_unchanged_source_and_fresh_manual_evidence_for_each_purpose(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, purpose: Any,
+    source_changed: bool, manual_stale: bool,
 ) -> None:
     review_config = config()
     evidence = tmp_path / "manual.toml"
@@ -1649,7 +1739,7 @@ def test_run_review_rechecks_source_and_manual_evidence_at_completion(
     source_results = iter(
         (
             (MODULE._pass("source", "clean-synchronized"), "a" * 40),
-            (MODULE._pass("source", "clean-synchronized"), "b" * 40),
+            (MODULE._pass("source", "clean-synchronized"), ("b" if source_changed else "a") * 40),
         )
     )
     monkeypatch.setattr(
@@ -1707,8 +1797,10 @@ def test_run_review_rechecks_source_and_manual_evidence_at_completion(
     monkeypatch.setattr(
         MODULE,
         "check_styling_budget",
-        lambda *_args, **_kwargs: MODULE._pass(
-            "styling_budget", "bounded-enabled-below-warning"
+        lambda *_args, **_kwargs: (
+            MODULE._open("styling_budget", "styling-disabled")
+            if purpose is MODULE.ReviewPurpose.INTERNAL_BETA_AI_DISABLED
+            else MODULE._pass("styling_budget", "bounded-enabled-below-warning")
         ),
     )
     monkeypatch.setattr(
@@ -1739,7 +1831,8 @@ def test_run_review_rechecks_source_and_manual_evidence_at_completion(
             "recovery_scan", "exact-linux-amd64-zero-high-critical"
         ),
     )
-    clock_values = iter((NOW, NOW, NOW + timedelta(minutes=31)))
+    completed_at = NOW + timedelta(minutes=31 if manual_stale else 1)
+    clock_values = iter((NOW, NOW, completed_at))
 
     report = MODULE.run_review(
         repo_root=tmp_path,
@@ -1749,14 +1842,19 @@ def test_run_review_rechecks_source_and_manual_evidence_at_completion(
         runner=FakeRunner(),
         getter=FakeGetter({}),
         clock=lambda: next(clock_values),
+        purpose=purpose,
     )
 
     by_name = {result.name: result for result in report.results}
-    assert report.checked_at == NOW + timedelta(minutes=31)
-    assert by_name["official_fly_metrics"].status is MODULE.Status.OPEN
-    assert by_name["anthropic_console"].status is MODULE.Status.OPEN
-    assert by_name["app_store_connect"].status is MODULE.Status.OPEN
-    assert by_name["source"].status is MODULE.Status.OPEN
+    assert report.checked_at == completed_at
+    assert report.purpose is purpose
+    manual_status = MODULE.Status.OPEN if manual_stale else MODULE.Status.PASS
+    for name in ("official_fly_metrics", "anthropic_console", "app_store_connect"):
+        assert by_name[name].status is manual_status
+    assert by_name["source"].status is (
+        MODULE.Status.OPEN if source_changed else MODULE.Status.PASS
+    )
+    assert report.passed is (not source_changed and not manual_stale)
 
 
 def test_recovery_scan_uses_only_read_only_registry_commands() -> None:

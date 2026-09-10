@@ -29,6 +29,17 @@ READY = {
 }
 
 
+def report_with_budget(result, *, purpose=MODULE.ReviewPurpose.AI_LAUNCH):
+    return MODULE.ReviewReport(
+        checked_at=NOW,
+        results=tuple(
+            result if name == "styling_budget" else MODULE._pass(name, MODULE._PASS_DETAILS[name])
+            for name in MODULE.CHECK_ORDER
+        ),
+        purpose=purpose,
+    )
+
+
 class BudgetRunner:
     def __init__(self, value=None, *, returncode=0, timed_out=False):
         self.value = READY if value is None else value
@@ -134,12 +145,119 @@ def test_budget_bands_and_disabled_or_pending_state_block_preflight(
     assert result.status is expected_status
 
 
+@pytest.mark.parametrize("changes, detail, expected_status", [
+    ({"spend_band": "warning"}, "spend-warning", MODULE.Status.WARNING),
+    ({"spend_band": "critical"}, "spend-critical", MODULE.Status.WARNING),
+    ({"spend_band": "exhausted"}, "spend-exhausted", MODULE.Status.OPEN),
+    ({"concurrency": "pending"}, "requests-pending", MODULE.Status.OPEN),
+    (
+        {"spend_band": "warning", "concurrency": "pending"},
+        "spend-warning", MODULE.Status.WARNING,
+    ),
+])
+def test_disabled_styling_never_masks_adverse_budget_state(changes, detail, expected_status):
+    runtime, _ = valid_runtime()
+    result = MODULE.check_styling_budget(
+        BudgetRunner(READY | {"enabled": "no"} | changes), runtime=runtime,
+    )
+    assert result == MODULE.CheckResult("styling_budget", expected_status, detail)
+    for purpose in MODULE.ReviewPurpose:
+        assert report_with_budget(result, purpose=purpose).passed is False
+
+
+def test_verified_disabled_budget_is_eligible_only_for_explicit_internal_beta():
+    runtime, _ = valid_runtime()
+    result = MODULE.check_styling_budget(BudgetRunner(READY | {"enabled": "no"}), runtime=runtime)
+    default_report = report_with_budget(result)
+    beta_report = report_with_budget(
+        result, purpose=MODULE.ReviewPurpose.INTERNAL_BETA_AI_DISABLED,
+    )
+
+    assert default_report.purpose is MODULE.ReviewPurpose.AI_LAUNCH
+    assert default_report.passed is False
+    assert beta_report.passed is True
+    assert beta_report.results == default_report.results
+    assert "styling_budget=OPEN styling-disabled" in beta_report.render()
+    assert "review_purpose=internal-beta-ai-disabled" in beta_report.render()
+    assert (
+        "preupload_evidence=PASS_INTERNAL_BETA_ONLY owner-upload-approval-still-required"
+        in beta_report.render()
+    )
+    assert "preupload_evidence=PASS " not in beta_report.render()
+    assert json.dumps({"purpose": beta_report.purpose}) == (
+        '{"purpose": "internal-beta-ai-disabled"}'
+    )
+
+
+def test_enabled_budget_does_not_match_disabled_beta_purpose():
+    runtime, _ = valid_runtime()
+    result = MODULE.check_styling_budget(BudgetRunner(), runtime=runtime)
+    assert report_with_budget(result).passed is True
+    report = report_with_budget(result, purpose=MODULE.ReviewPurpose.INTERNAL_BETA_AI_DISABLED)
+    assert report.passed is False
+    assert "styling_budget=PASS bounded-enabled-below-warning" in report.render()
+    assert "preupload_evidence=OPEN" in report.render()
+
+
+@pytest.mark.parametrize("name, detail, status", [
+    (name, detail, MODULE.Status.WARNING if (name, detail) in MODULE._WARNING_RESULTS
+     else MODULE.Status.OPEN)
+    for name, details in MODULE._DETAILS.items()
+    if name != "styling_budget"
+    for detail in sorted(details)
+    if detail != MODULE._PASS_DETAILS[name]
+    and (name, detail) not in MODULE._ADDITIONAL_PASS_RESULTS
+])
+def test_disabled_beta_does_not_relax_any_other_open_or_warning_check(name, detail, status):
+    budget = MODULE._open("styling_budget", "styling-disabled")
+    otherwise_ready = report_with_budget(
+        budget, purpose=MODULE.ReviewPurpose.INTERNAL_BETA_AI_DISABLED,
+    )
+    results = tuple(
+        MODULE.CheckResult(name, status, detail) if result.name == name else result
+        for result in otherwise_ready.results
+    )
+    for purpose in MODULE.ReviewPurpose:
+        report = MODULE.ReviewReport(checked_at=NOW, results=results, purpose=purpose)
+        assert report.passed is False
+        assert "preupload_evidence=OPEN" in report.render()
+
+
+@pytest.mark.parametrize("alteration", ["missing", "duplicate", "reordered"])
+def test_disabled_beta_requires_complete_unique_ordered_checks(alteration):
+    report = report_with_budget(
+        MODULE._open("styling_budget", "styling-disabled"),
+        purpose=MODULE.ReviewPurpose.INTERNAL_BETA_AI_DISABLED,
+    )
+    if alteration == "missing":
+        results = report.results[1:]
+    elif alteration == "duplicate":
+        results = (report.results[0], *report.results)
+    else:
+        results = tuple(reversed(report.results))
+    malformed = MODULE.ReviewReport(checked_at=NOW, results=results, purpose=report.purpose)
+    assert malformed.passed is False
+
+
+@pytest.mark.parametrize("purpose", [None, SECRET_CANARY, "internal-beta-ai-disabled", True])
+def test_report_rejects_unvalidated_purpose_without_rendering_it(purpose):
+    with pytest.raises(MODULE.ReviewConfigurationError, match="^review purpose is invalid$"):
+        report_with_budget(
+            MODULE._open("styling_budget", "styling-disabled"), purpose=purpose,
+        )
+
+
 @pytest.mark.parametrize("value", [
     {}, {"unavailable": True},
     READY | {"model": "pinned-haiku"},
     READY | {"model": "claude-opus-4-8"},
     READY | {"policy": "unbounded"},
     READY | {"ledger": "missing"},
+    READY | {"enabled": "no", "ledger": "corrupt"},
+    READY | {"enabled": "no", "policy": "unbounded"},
+    READY | {"enabled": "no", "concurrency": "unknown"},
+    READY | {"enabled": False},
+    {key: value for key, value in (READY | {"enabled": "no"}).items() if key != "ledger"},
     READY | {"spend_band": ["below-warning"]},
     READY | {"private_monthly_limit": SECRET_CANARY},
     READY | {"spend_band": SECRET_CANARY},
@@ -149,13 +267,10 @@ def test_old_runtime_or_untrusted_diagnostic_fails_closed_and_redacts(value):
     runtime, _ = valid_runtime()
     result = MODULE.check_styling_budget(BudgetRunner(value), runtime=runtime)
     assert result == MODULE._open("styling_budget", "styling-budget-evidence-open")
-    results = tuple(
-        result if name == "styling_budget" else MODULE._pass(name, MODULE._PASS_DETAILS[name])
-        for name in MODULE.CHECK_ORDER
-    )
-    report = MODULE.ReviewReport(checked_at=NOW, results=results)
-    assert report.passed is False
-    assert SECRET_CANARY not in report.render()
+    for purpose in MODULE.ReviewPurpose:
+        report = report_with_budget(result, purpose=purpose)
+        assert report.passed is False
+        assert SECRET_CANARY not in report.render()
 
 
 @pytest.mark.parametrize("options", [{"returncode": 1}, {"timed_out": True}])
