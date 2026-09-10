@@ -15,6 +15,13 @@ public Singapore release. The beta uses the explicit `internal-beta-ai-disabled`
 review; its result does not authorize AI activation or public submission. Applicable signing,
 auth/storage, privacy and distribution checks remain required for each milestone.
 
+Build `1.0.0 (7)` has completed internal distribution: **Complete / Ready to Submit**, only
+`Family` Internal Testing with one group tester and no individual testers, and approved AI-disabled
+notes saved/reload-verified. It is consumed and must never be reused. The
+[distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10) retains proof;
+next are owner-controlled handoff, clean installation and physical QA. AI activation and public
+submission remain separate. Apple's **Ready to Submit** status is not public-release approval.
+
 ## 1. External decisions and account readiness
 
 - [ ] Confirm legal seller name/entity, copyright owner, postal address, support/privacy/security
@@ -81,8 +88,9 @@ auth/storage, privacy and distribution checks remain required for each milestone
   do not repeat provisioning. Actual provider alert delivery remains unproven. Under the
   10 September reset, the small pilot uses daily owner review of AI/provider spend, Fly billing
   and resources, with discrepancies and unknown coverage retained; new monitoring infrastructure
-  is deferred. Key rotation before 8 October, separate AI enablement and fresh operations evidence
-  for the declared milestone remain open. The ordinary diagnostic correction passed live
+  is deferred. The later beta-only review and internal distribution are complete. Key rotation
+  before 8 October, separate AI enablement and fresh checks for later changes remain required.
+  The ordinary diagnostic correction passed live
   read-only verification on 9 September;
   the normal budget gate now returns OPEN `styling-disabled`. Earlier excluded
   evaluation uncertainty remains separate from the launch ledger. This disabled setup is not
@@ -143,8 +151,9 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
   same healthy v12 image, Machine and configuration. It now connects as `wardrobe`, requires
   real/effective UID and GID 10001 before inspecting status, and uses `-B` to avoid bytecode writes.
   No runtime, provider or ledger mutation and no paid call occurred. The local correction passed
-  590 backend tests and the locked security/type/lint checks. The broader launch and pre-upload
-  gates remain open; follow the
+  590 backend tests and the locked security/type/lint checks. At that diagnostic checkpoint the
+  broader launch and pre-upload gates remained open; the later beta-only review and distribution
+  are recorded above. Preserve the historical
   [launch-readiness follow-up](internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
 
 ## 2. Public pages and truthful data declarations
@@ -201,15 +210,16 @@ against white is approximately `1.38:1`; build 6 is therefore non-promotable. PR
 and verified the replacement control implementation. At the earlier build-selection checkpoint on
 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the highest upload and
 **Complete**, with build 7 absent.
-Build `1.0.0 (7)` is selected with `MARKETING_VERSION = 1.0.0`; source configuration records
+That checkpoint selected `1.0.0 (7)` with `MARKETING_VERSION = 1.0.0`; source configuration records
 accepted builds `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as Fly v10 and passed the
 required post-change review on 2026-08-29, and the exact-source regression passed. The `04:21:50Z`
 review and `07:15:57Z` archive are timing-stale/non-uploadable evidence; the earlier development-
 signed archive is separately invalid/non-uploadable. A fresh full review completed at `11:02:18Z`,
 followed by the distinct final signed archive at `11:03:10Z` and strict verification at `11:04:02Z`.
 The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with
-build 7 absent. Snapshot-list expiry, deletion-specific recovery/non-return, build-7 validation/
-upload/distribution, and clean physical Dark Mode visual retest remain open.
+build 7 absent. The later 10 September internal distribution is complete. Snapshot-list expiry,
+deletion-specific recovery/non-return and owner-controlled build-7 handoff/clean physical Dark Mode
+visual retest remain open; the archive-era absence is not permission to reuse build 7.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -374,12 +384,13 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   all 9 UI tests, and 43 release-script tests; both GitHub iOS checks are green.
 - [x] Select and source-prepare build 7 without claiming deployment. The signed-in TestFlight
   **Build Uploads** view on 2026-08-29 showed build 6 as the highest upload and **Complete**, with
-  build 7 absent. Select `1.0.0 (7)`, keep `MARKETING_VERSION = 1.0.0`, and prepare source
+  build 7 absent. That selected `1.0.0 (7)`, kept `MARKETING_VERSION = 1.0.0` and prepared source
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
   2026-08-29. The [current Fly v12 runtime has AI disabled](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
-  and retains the verified auth/build allowlist; its broader pre-upload gates remain open.
+  and retains the verified auth/build allowlist. The 10 September beta-only review and internal
+  distribution subsequently passed; separate AI activation and public-submission gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -395,12 +406,15 @@ upload/distribution, and clean physical Dark Mode visual retest remain open.
   credential, deep-signature, and matching arm64 app/dSYM verification passed at `11:04:02Z`. The
   signed-in `11:05:38Z` post-archive Build Uploads refresh showed build 6 highest and **Ready to
   Submit**, with build 7 absent.
-- [ ] Validate and distribute only the exact verified build-7 archive. Repeat the full operations/
-  recovery review and signed-in Build Uploads refresh immediately before upload, obtain explicit
-  owner approval at that boundary, then complete normal-route validation/upload, Apple processing,
-  `Family` assignment, and truthful tester-note gates.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+- [x] Validate and distribute only the exact verified build-7 archive. The 10 September beta-only
+  review preceded separate owner approval and normal-route validation/upload. Apple processing,
+  `Family` assignment and saved/reloaded AI-disabled notes passed; see the
+  [canonical distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+  Build 7 is consumed; do not repeat this upload.
+- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
+  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
+  Dark Mode, plus the brief local/catalog/Demo smoke. Keep AI disabled; a production styling call
+  belongs to separately approved AI activation.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live
@@ -429,8 +443,10 @@ physical evidence are also complete, but the confirmed styling-consent control p
 makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff remains valid. PR #31
 merged and verified the replacement implementation; build `1.0.0 (7)` is selected/source-prepared,
 and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact-source regression,
-and strict signed-archive verification pass. Snapshot lifecycle, build-7 validation/upload/
-distribution, and clean physical Dark Mode visual-retest gates remain open.
+and strict signed-archive verification passed at the archive checkpoint. The 10 September
+validation/upload, processing, `Family` assignment and saved-note loop are complete. Snapshot
+lifecycle, owner-controlled build-7 handoff/clean physical Dark Mode QA, AI activation and public
+submission remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -455,6 +471,12 @@ distribution, and clean physical Dark Mode visual-retest gates remain open.
   Internal Testing Only** off. Processing reached **Ready to Submit**; the record shows `1.0.0 (6)`,
   arm64 iPhone support, iOS 18.0 minimum, included symbols, and no non-exempt encryption. Exactly
   `Family` is assigned with one group tester, no individual testers, and saved truthful tester notes.
+
+- [x] Complete build-7 internal distribution with AI disabled. The
+  [canonical record](internal-testflight-runbook.md#build-7-distribution--2026-09-10) verifies
+  normal-route validation/upload, **Complete / Ready to Submit**, only `Family` with one group
+  tester and no individual testers, and saved/reloaded notes. The existing automatic Xcode
+  distribution setting was preserved. Physical installation and QA are not completed by delivery.
 
 - [x] Upload exactly the verified archive; wait for processing and resolve any compliance prompts.
   Build `1.0.0 (4)` completed processing by `2026-08-21T08:20:20Z` with no unresolved prompt.

@@ -220,8 +220,8 @@ and public provider-status checks passed.
 At this checkpoint the ordinary budget checker reported OPEN `styling-budget-evidence-open`: its
 root-SSH diagnostic had an ownership-context gap, corrected by the September 9 follow-up above. The independent
 configured probe passed under the required service identity. Do not force that ordinary checker
-green or relax ownership guards. The full pre-upload gate remains OPEN with manual and enabled-launch
-checks outstanding.
+green or relax ownership guards. The full pre-upload gate remained OPEN at that setup checkpoint;
+the later beta-only review and completed distribution are recorded above. AI-launch checks remain separate.
 
 Fresh pre-deployment inventory confirmed no resource growth. The approximately 09:25–09:29 UTC
 signed-in billing refresh showed divergent invoice-preview and Cost Explorer totals across the
@@ -356,8 +356,8 @@ archive. Keep README current with these changes.
 
 The [fictional model evaluation](../model-evaluation.md) and local implementation are accepted;
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
-checks, Codex review, and merge state. The disabled rollout is recorded above; AI enablement and
-distribution remain open.
+checks, Codex review, and merge state. AI enablement and distribution were open at those preparation
+checkpoints; the completed AI-disabled internal distribution is recorded above.
 The following retains the evaluation history.
 The first owner-approved Haiku run, with at most 28 paid calls and a $6 pre-tax ceiling,
 stopped on 2026-09-06 on its first request after 30.046 seconds with `APITimeoutError`.
@@ -488,8 +488,8 @@ runtime/health/configuration, auth integrity and historical single-user bands, v
 policy, bounded events, public backend/pages, and public Anthropic status. Source alignment,
 budget evidence, recovery scan, and the three manual inputs remained OPEN. This was not a
 completed operational review, public-capacity acceptance, zero-liability proof, or deployment
-approval. Production provisioning, registry publication/deployment, AI enablement, and Build 7
-upload remain separate gates; no paid call, production change, or phone/snapshot action occurred.
+approval. Production provisioning, registry publication/deployment, AI enablement and Build 7
+upload were separate pending gates at that checkpoint; no paid call, production change or phone/snapshot action occurred.
 
 ## Retained release evidence — 2026-09-01
 
@@ -718,9 +718,9 @@ upload remain separate gates; no paid call, production change, or phone/snapshot
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
   `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v12 runtime keeps AI paused under the approved disabled-setup conditions above. Complete the full fresh
-  operational review before AI enablement or build-7 upload and after any further backend or
-  production-configuration change; the historical deadline is not current upload approval.
+  v12 runtime keeps AI paused. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
+  completed the build-7 upload path. Refresh the applicable operations review before AI activation
+  or any later candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
   any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
@@ -945,8 +945,8 @@ visual retest remain open. The following entries retain the completed predecesso
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, build-7 validation/TestFlight
-  distribution, clean physical visual retest, or final Google retirement.
+  not snapshot-list expiry, deletion-specific recovery/non-return, clean physical visual retest or
+  final Google retirement. Build-7 internal distribution was separately completed on 10 September.
 
 ## Mandatory clean-uninstall transition for build 4
 
@@ -1365,9 +1365,9 @@ identity or notification evidence.
 Build 4 is not promotable because of the Today offline-cache defect, and build 5 is not promotable
 because of the delivered-reminder tap crash. Build 6 passed the affected identity and notification
 routes but is non-promotable because it failed the styling-consent control presentation gate. The
-replacement is selected as `1.0.0 (7)` but remains undistributed until its exact backend and complete
-release loop pass. When that replacement candidate is fully approved for public release, do not
-rebuild unless something changed:
+replacement `1.0.0 (7)` has completed internal distribution with AI disabled. Owner-controlled
+handoff, clean physical QA and the separate AI/public-release work remain open. When that candidate
+is fully approved for public release, do not rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, Gmail-free privacy answers, screenshots, review
   contact, and review notes. Verify App Store Connect shows price **Free**, only **Singapore**

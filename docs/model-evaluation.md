@@ -27,8 +27,10 @@ evaluation or numeric-score evidence. The ordinary budget diagnostic's service-i
 passed live read-only verification on 9 September; the normal budget gate now reports OPEN
 `styling-disabled`. Provider alert delivery remains unproven and billing-feed uncertainty remains
 unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review for the
-small pilot and defers external monitoring. Separate AI enablement and fresh operations evidence
-for the declared milestone remain open; the explicit internal-beta review purpose accepts only
+small pilot and defers external monitoring. The
+[10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+are complete; separate AI enablement and its fresh operations checks remain open.
+The explicit internal-beta review purpose accepts only
 the verified disabled state with an intact, below-warning, idle ledger and every other check
 passing. That beta-only result does not establish AI readiness. See the
 [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
