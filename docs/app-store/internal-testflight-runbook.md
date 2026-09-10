@@ -28,10 +28,40 @@ and all 44 release-script tests passed. Independent review found no actionable d
 purpose-specific preflight. A separate read-only verification at `2026-09-10T00:42:09Z` passed the
 preserved build-7 archive's strict signing/profile, production App Attest, public/Gmail-free content
 and locked app/dSYM identity checks. The initial sandbox trust failure passed with macOS trust
-access; neither the archive nor its signature was changed. Live operations and App Store Connect
-still need fresh evidence. No iOS bundle or API-contract change was made, so the refactor requires
-no new TestFlight build. [PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) records source
-publication, review corrections and merge status. Distribution and AI activation remain open.
+access; neither the archive nor its signature was changed. At that archive-only checkpoint,
+live operations and App Store Connect still needed fresh evidence; the later combined review is
+recorded below. No iOS bundle or API-contract change was made, so the refactor requires
+no new TestFlight build. [PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) merged at
+`2026-09-10T01:04:48Z` after the documentation correction, a clear current-head Codex review and
+both CI checks passed. The exact build-7 beta upload package now includes the scoped review below
+and truthful draft tester notes. Distribution and AI activation remain open.
+
+## AI-disabled beta pre-upload review — 2026-09-10
+
+The combined read-only operations review completed at `2026-09-10T11:25:45Z` with exit 0 and
+`PASS_INTERNAL_BETA_ONLY`. Every required check passed except the intentionally OPEN
+`styling_budget: styling-disabled` result accepted only for this purpose. AI remains disabled;
+the existing ledger is intact, below warning and idle. Archive, source/configuration, live
+runtime, auth/store, recovery image/scan, storage, snapshots, bounded logs and public-page checks
+passed. The newest automatic snapshot was `created` at `2026-09-10T07:48:53Z` with 14-day retention,
+and volume use was below warning. No ledger initialization/reset, deployment or paid model call
+was performed.
+
+Same-session signed-in manual checks passed: App Store Connect showed `1.0.0 (6)` as the highest
+upload, **Complete**, with no build 7; Fly's official two-day HTTP view showed 200/404 responses
+and no 5xx; the expected production provider workspace/key was present and unexpired, configured
+spend was below the warning band, and no production model-cost series, usage or saturation was
+observed. The automated provider-status check passed. These observations support disabled beta
+readiness; they do not prove a successful production styling call, alert delivery or final billing
+reconciliation. The fixed outcome is also recorded in the
+[manual review register](app-attest-data-lifecycle-policy.md#manual-review-register).
+
+Refresh the full review immediately before upload, after a backend/configuration change, or when
+same-session evidence expires. The next daily owner cost review is due **2026-09-11**. Exact
+upload approval, Xcode validation/upload, Apple processing, `Family` assignment, saved/reloaded
+tester notes and candidate-specific physical QA remain open. Preserve the identity-safe handoff
+before replacing an installation. This beta-only pass authorizes neither upload, AI activation
+nor public submission; no upload or distribution was performed.
 
 ## Distribution policy
 
@@ -1359,19 +1389,24 @@ and does not rewrite the historically saved note.
 
 ## Draft truthful What to Test wording for build 7
 
-> Build 7 is a clean-install visual replacement for build 6. Keep build 6 installed until the owner
-> confirms its identity-safe handoff is complete; do not install or update build 7 over build 6.
+> Wardrobe 1.0.0 (7) — internal beta
 >
-> After approval and a clean install, use Dark Mode to open **Settings → Connected Features**. Confirm
-> **Allow AI styling** has a centered title, no empty icon slot, and legible enabled, pressed, and
-> disabled states. Grant styling and make one online **Style a look** request to verify the processed
-> build's production App Attest path. The green automated regression already covers unchanged local
-> catalog, cached-Today/offline-Restyle, Wear/History, reminder controls, and Gmail-free UI; do not
-> manually repeat those flows unless this targeted smoke exposes a regression.
+> AI styling is intentionally unavailable in this beta. Style a look and Restyle may show temporary
+> unavailability; the local wardrobe and Demo Mode remain usable.
 >
-> Do not perform local/server deletion, uninstall, or reinstall until the runbook clears those stages.
+> Please check the updated Allow AI styling control in Dark Mode for centered, readable text. Also
+> check manual/photo item entry, catalog editing and browsing, offline Demo Mode, wear history and
+> local reminders. Report the steps and what you expected if a problem occurs.
+>
+> Follow the agreed installation handoff before replacing an existing Wardrobe installation. These
+> notes do not authorize deleting local or server data.
 
 This wording is a draft until build 7 is processed, assigned only to `Family`, saved, and reloaded.
+Keep the existing installation until the owner confirms its identity-safe handoff is complete.
+Do not install/update build 7 over it or perform local/server deletion, uninstall or reinstall
+without the owner's direction for the applicable runbook stage. Production styling/App Attest
+success proof belongs to the separately approved AI activation; these beta notes request no paid
+styling call.
 
 ## Official Apple references
 
