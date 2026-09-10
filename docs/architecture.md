@@ -338,8 +338,9 @@ flowchart LR
   warning band, and free of pending requests. The explicit `internal-beta-ai-disabled` purpose
   requires verified disabled styling with an intact, below-warning, idle ledger and every other
   check passing. It reports beta-only eligibility and does not authorize AI or public submission.
-  Configured-but-disabled v12 returns OPEN `styling-disabled`; live manual inputs still need a
-  fresh review. The 9 September diagnostic correction connects as `wardrobe`,
+  Configured-but-disabled v12 returns OPEN `styling-disabled` under the default `ai-launch`
+  purpose. The 10 September combined beta-only review passed; each later operations review
+  requires fresh same-session manual inputs. The 9 September diagnostic correction connects as `wardrobe`,
   requires real/effective UID and GID 10001 before status inspection, and suppresses bytecode writes
   with `-B`. Live read-only verification passed without changing the runtime or ledger. The
   earlier 8 September `styling-budget-evidence-open` result remains historical evidence.

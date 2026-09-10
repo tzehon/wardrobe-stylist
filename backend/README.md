@@ -45,7 +45,12 @@ guard returns 503, and runtime/auth/public-capacity/storage/snapshot/log/archive
 pass. The 9 September diagnostic correction uses SSH account `wardrobe` and checks real/effective
 UID/GID 10001 before ledger access. Its targeted live check passed on unchanged v12 at
 `2026-09-09T00:05:29Z`; the ordinary budget gate remains OPEN `styling-disabled`. Storage guards
-are unchanged. The finite disabled setup is verified; the full pre-upload pass remains open. See the
+are unchanged. The finite disabled setup and 10 September beta-only pre-upload review are verified.
+Build `1.0.0 (7)` completed validation/upload, Apple processing and `Family` internal distribution
+with saved/reloaded AI-disabled notes; it is consumed and must never be uploaded again. See the
+[distribution record](../docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+Owner-controlled installation handoff, physical QA, AI activation and public submission remain open.
+Earlier setup evidence remains in the
 [diagnostic follow-up](../docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 and the historical
@@ -149,7 +154,9 @@ relied on; residual Fly cost exposure and the manual response remain explicit. T
 review passed on 2026-08-20, and the v10 post-change review passed at `2026-08-29T02:21:41Z`. A
 fresh full operations/recovery review against exact v10 completed at `2026-08-29T11:02:18Z`,
 including a fresh private-registry match and zero-High/Critical Docker Scout scan, immediately
-before the distinct final build-7 archive. Repeat the full review immediately before upload. The
+before the distinct final build-7 archive. The later beta-only review and internal distribution
+completed on 10 September. Refresh the applicable review before a future candidate upload and
+after every backend/configuration change; do not repeat build 7's upload. The
 Gmail-free public pages are live; snapshot-list expiry and deletion-specific recovery remain release
 gates.
 
@@ -168,13 +175,15 @@ flow. Historical v10 manual reviews and the build-7 pre-archive repeat passed. T
 review passed its scoped checks. The later v12 review verified the applied private budget policy,
 existing ledger and usable provider credit with AI disabled. Provider alert delivery remains
 unproven and billing reconciliation remains unresolved; the daily owner-review path does not rely
-on delivery or require the deferred external monitor. Fresh operations evidence is still required
-for the declared milestone. Snapshot-list expiry, final App Privacy publication and
+on delivery or require the deferred external monitor. The completed beta review does not substitute
+for fresh checks on later changes or AI activation. Snapshot-list expiry, final App Privacy publication and
 deletion-specific recovery remain open in the public-release track; the manual review must remain
 current under the approved cadence.
 
-Run the repeatable read-only part of the fresh internal-beta pre-upload review from the repository
-root on clean synchronized `main`, keeping AI disabled:
+For later backend/configuration changes or a future internal-beta candidate, use the applicable
+review procedure in the runbook. The read-only disabled-beta command below is a reference for those
+future checks, not an outstanding build-7 upload step. Run it from the repository root on clean
+synchronized `main`, keeping AI disabled:
 
 ```bash
 python3 backend/verify_production_operations.py \
@@ -199,7 +208,9 @@ The ledger and private policy are applied with AI disabled. The ordinary budget 
 OPEN `styling-disabled`. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
-Both purposes use the locked final build-7 archive by default. The command captures Fly/Docker/HTTP/SQLite output
+Both purposes currently use the locked final build-7 archive as a verification baseline; this is
+not permission to upload that consumed build again. Before a future iOS candidate, confirm the next
+unused build number and review its archive/deployment lock. The command captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
 `/recommend` path. It deliberately returns nonzero until the official Fly response-class metric,
@@ -216,8 +227,8 @@ the temporary TOML is not the long-lived review record.
 The historical single-user aggregate profile remains the default. The deployed backend also
 supports `--auth-capacity-profile public-launch --auth-capacity-policy PRIVATE_TOML` with
 independently approved private installation/session bounds and active-session ownership checks.
-The owner-approved public-capacity policy is now installed locally; select it explicitly for the
-remaining live review. It changes review bounds only, not runtime auth or customer quotas. See the
+The owner-approved public-capacity policy is installed locally; select it explicitly for applicable
+future live reviews. It changes review bounds only, not runtime auth or customer quotas. See the
 [capacity-policy schema and review procedure](../docs/ai-spend-controls.md#public-launch-observed-capacity-preflight).
 
 The Apple receipt is stored as an opaque blob only after core attestation succeeds. Its
