@@ -99,9 +99,10 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7 validation/
-upload/distribution, and clean physical Dark Mode visual retest remain release gates; the signed-
-archive creation gate itself is complete. The
+enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy and clean physical
+Dark Mode visual QA remain release gates. Build-7 validation/upload, processing, internal assignment
+and saved/reloaded notes are complete in the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+Owner-controlled installation handoff and separate AI/public-release work remain open. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
 has since merged and verified the replacement implementation. At the earlier build-selection
 checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the
@@ -241,7 +242,8 @@ while keeping `MARKETING_VERSION = 1.0.0`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
   [AI-disabled Fly v12 runtime](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) retains
-  the verified auth/build allowlist; its broader pre-upload gates remain open.
+  the verified auth/build allowlist. The beta-only review and internal distribution are complete;
+  later AI activation and public-release checks remain separate.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -251,9 +253,10 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`; the final archive
   `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` was created at `11:03:10Z`
   and verified at `11:04:02Z`. Both earlier archives remain non-uploadable.
-- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
-  before upload, obtain separate explicit owner approval, then complete normal-route validation/
-  upload, processing, `Family` assignment, and the truthful tester-note gates.
+- [x] Complete the beta-only review, separate owner approval and exact build-7 distribution.
+  Validation/upload, processing, `Family` internal assignment and saved/reloaded AI-disabled notes
+  are verified in the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+  Build 7 is consumed; do not repeat its upload.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
 

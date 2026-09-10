@@ -20,8 +20,10 @@ provisioning, provider workspace/cap/email settings, sufficient prepaid credit a
 setup are complete. The ledger must be preserved; do not run first provisioning again.
 No paid AI call was made. Provider alert delivery remains unproven and billing-feed reconciliation
 remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
-for the small pilot and defers external monitoring. Separate AI enablement, fresh operations
-evidence for the declared milestone and distribution remain open. The ordinary budget
+for the small pilot and defers external monitoring. The beta-only review and build-7 internal
+distribution are complete; owner-controlled physical handoff/QA, separate AI enablement and
+public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 the normal budget gate now reports OPEN `styling-disabled`. Follow the
 [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
@@ -260,7 +262,8 @@ the live manual inputs still need a fresh review. The local diagnostic connects 
 requires real/effective UID and GID 10001 before reading status, and uses `-B` to avoid bytecode
 writes. Its 9 September live read-only check passed without changing the runtime or existing ledger.
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
-ownership-context defect. This is not a full pre-upload pass.
+ownership-context defect. That 9 September diagnostic check was not a full pre-upload pass;
+the later 10 September combined beta-only review is recorded in the runbook.
 The unchanged immutable image used by v11/v12 is the disabled recovery reference; the v12 restart
 verified it reads the existing ledger without initialization or reset. Pre-budget v10 lacks these
 controls and must not become a normal rollback target after cutover. Preserve the same ledger,
@@ -288,8 +291,8 @@ Before AI activation, review existing limits, billing uncertainty and residual F
 obtain approval for the exact activation. Do not rely on unproven alert delivery or infer a public
 allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
-validation/distribution, and clean physical Dark Mode visual retest remain open work, scoped to
+Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy and the
+owner-controlled build-7 handoff/clean physical Dark Mode visual retest remain open work, scoped to
 their beta, AI-activation or public-release milestone in the release plan. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
@@ -297,27 +300,35 @@ final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separ
 build-6 visual-control failure, making build 6 non-promotable; PR #31 has since merged and verified
 the replacement implementation. At the earlier build-selection checkpoint on 2026-08-29, the
 signed-in TestFlight **Build Uploads** view showed build 6 as the highest upload and **Complete**,
-with build 7 absent. Build `1.0.0 (7)` is
-selected while `MARKETING_VERSION` remains `1.0.0`; source configuration records accepted builds
+with build 7 absent. That checkpoint selected `1.0.0 (7)` while keeping `MARKETING_VERSION` at
+`1.0.0`; source configuration records accepted builds
 `4,5,6,7`. The exact merged Linux/AMD64 backend deployed as completed Fly v10 and passed the
 required post-change review on 2026-08-29. The `04:21:50Z` review and `07:15:57Z` archive are
 timing-stale/non-uploadable evidence, and the earlier development-signed archive is separately
 invalid/non-uploadable. A fresh full review completed at `11:02:18Z`, followed by the distinct final
 signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed-in `11:05:38Z`
-Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. Historical
-Apple processing/internal assignment and a healthy `/health` response do not close the remaining
-gates.
+Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
+later 10 September validation/upload, processing, internal assignment and saved-note checks are
+complete; neither that delivery nor a healthy `/health` response closes the remaining physical,
+AI-activation or public-release gates.
 
 ## TestFlight distribution
 
-Every internal beta is built as an App Store candidate. Follow the
-[internal TestFlight runbook](app-store/internal-testflight-runbook.md):
+Every internal beta is built as an App Store candidate. Build `1.0.0 (7)` is now **Complete /
+Ready to Submit**, assigned only to `Family` Internal Testing with one group tester and no
+individual testers; approved AI-disabled notes are saved and reload-verified. Build 7 is consumed
+and must never be reused. Follow the
+[current runbook](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) for
+owner-controlled handoff, clean installation and targeted physical QA. Keep AI disabled.
+
+The sequence below retains preparation requirements and dated predecessor evidence; do not
+repeat completed archive/upload steps for the delivered build 7:
 
 1. keep the remaining APP-009 snapshot-list expiry and deletion-specific recovery/non-return
    evidence explicitly open and the manual review current.
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards.
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`.
-4. treat processed candidates `1.0.0 (4)`, `1.0.0 (5)`, and `1.0.0 (6)` as consumed and never
+4. treat processed candidates `1.0.0 (4)` through `1.0.0 (7)` as consumed and never
    reuse any build number. Build 5 is also non-promotable after its physical notification-tap
    crash. The final build-5 pre-validation refresh at `2026-08-22T03:16:16Z` showed builds 1–4
    only and build 5 absent. A later signed-in TestFlight Build Uploads refresh at
@@ -325,12 +336,13 @@ Every internal beta is built as an App Store candidate. Follow the
    build 6 unused before the replacement. PR #27 later merged `CURRENT_PROJECT_VERSION = 6` and
    accepted builds `4,5,6` while keeping `MARKETING_VERSION = 1.0.0`; the completed upload now
    consumes build 6. On 2026-08-29, a fresh signed-in view showed build 6 as the highest upload and
-   **Complete**, with build 7 absent. Select `1.0.0 (7)` and prepare source configuration with
+   **Complete**, with build 7 absent. This selected `1.0.0 (7)` and prepared source configuration with
    `CURRENT_PROJECT_VERSION = 7` and accepted builds `4,5,6,7`. At selection time, Fly v9 still
    accepted `4,5,6`; the exact merged backend subsequently deployed as completed Fly v10 and passed
    its required post-change review on 2026-08-29. After the distinct final archive passed, the
    signed-in `2026-08-29T11:05:38Z` refresh still showed build 6 highest and **Ready to Submit**,
-   with build 7 absent. Refresh again immediately before upload.
+   with build 7 absent. That availability evidence preceded the completed 10 September upload;
+   it is not permission to reuse build 7.
 5. run the complete backend, Swift, UI, public-config, and artifact suites. Retained historical
    pre-archive build-5 evidence is green: 221 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift
    unit tests, 9 UI flows, 43 release-script tests, Release simulator/artifact checks, and an exact
@@ -338,7 +350,7 @@ Every internal beta is built as an App Store candidate. Follow the
    and pins encoded keys; its strengthened focused suite passed 12/12. The full backend and iOS
    gates reran on that tree; the uninterrupted iOS result bundle finalized 227/227 canonical cases
    at `2026-08-22T02:04:17Z` with no failure, skip, or retry.
-6. create and strictly verify a new build-5 signed Release archive. The exact
+6. retain the historical creation and strict verification of the build-5 signed Release archive. The exact
    `Wardrobe-1.0.0-5-695c562-appstore.xcarchive` was created at `2026-08-22T01:10:32Z`; its strict
    signature/profile, scalar production App Attest, privacy, public-configuration, and Gmail-free
    checks passed at `2026-08-22T01:11:17Z`; its quiet credential/removed-capability scan passed at
@@ -411,11 +423,15 @@ Every internal beta is built as an App Store candidate. Follow the
   High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`; the final archive
   `Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive` was created at `11:03:10Z`
   and verified at `11:04:02Z`. Both earlier archives remain non-uploadable.
-- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
-  before upload, obtain separate explicit owner approval, then complete normal-route validation/
-  upload, processing, `Family` assignment, and the truthful tester-note loop.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+- [x] Complete build-7 validation and internal distribution. The 10 September beta-only review
+  preceded separate owner approval and normal-route validation/upload; Apple processing, `Family`
+  assignment and saved/reloaded AI-disabled notes passed. Retain the
+  [canonical distribution evidence](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10);
+  do not repeat the upload.
+- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
+  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
+  Dark Mode, plus the brief local/catalog/Demo smoke. Keep AI disabled; a production styling call
+  belongs to separately approved AI activation.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all

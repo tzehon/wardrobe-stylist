@@ -37,15 +37,16 @@ access; hidden owner input transferred and staged it without local secret persis
 deploys the new key and private policy while preserving the session secret, with all eight expected
 secrets deployed. Rotation before its 8 October 2026 expiry remains an operations gate.
 Actual alert delivery remains OPEN; no native test control was seen.
-AI enablement and distribution retain separate approval gates.
+AI enablement retains its separate approval gate. Build 7 completed its separately approved
+AI-disabled internal distribution; see the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary checker's earlier `styling-budget-evidence-open` result recorded its root-SSH
 ownership-context gap. The corrected local diagnostic connects as `wardrobe`, requires
 real/effective UID and GID 10001, and uses `-B` to avoid bytecode writes. Live read-only verification
 on 9 September passed against unchanged v12 and returned OPEN `styling-disabled`; it changed no
 runtime settings or ledger state. See the
 [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
-The broader pre-upload review
-has not passed. The approved public-capacity profile passed the disabled post-review; alert-delivery
+The 10 September beta-only pre-upload review passed; this does not close AI-launch readiness.
+The approved public-capacity profile passed the disabled post-review; alert-delivery
 verification remains open. Prepaid-credit readiness now passes the approved setup check; refresh
 it before later activation. The earlier
 [preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)

@@ -2,6 +2,10 @@
 
 > Reconcile these notes with the exact submitted Gmail-free build. Remove every TODO and
 > placeholder before submission.
+>
+> Current release state: `1.0.0 (7)` has completed
+> [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+> with AI disabled. Physical QA, consent/privacy reconciliation and public submission remain open.
 
 ## Product summary
 
@@ -41,7 +45,7 @@ session.
 
 ## Optional AI styling path
 
-Current preparation state: the [configured Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+Current internal-beta state: the [configured Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 keeps remote AI disabled. The connected reviewer path below is prospective and must be verified
 only after the remaining launch gates and separate enablement approval; do not paste it as a
 currently available feature path.
@@ -142,8 +146,11 @@ passed. The `04:21:50Z` review and `07:15:57Z` archive are timing-stale/non-uplo
 the earlier development-signed archive is separately invalid/non-uploadable. A fresh full review
 completed at `11:02:18Z`, followed by the distinct final signed archive at `11:03:10Z` and strict
 verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest
-and **Ready to Submit**, with build 7 absent. Snapshot lifecycle evidence, build-7 validation/
-distribution, and clean physical Dark Mode visual retest remain open. Reviewed
+and **Ready to Submit**, with build 7 absent at that historical checkpoint. The later
+[10 September distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+completed build-7 validation/upload, processing, internal assignment and saved/reloaded tester
+notes with AI disabled. Snapshot lifecycle evidence, clean physical Dark Mode visual retest,
+consent/privacy reconciliation and public submission remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
@@ -210,8 +217,10 @@ backend/configuration change.
 - [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
   The current [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
-  retains the verified targeted logger and `4,5,6,7` allowlist; its broader pre-upload gates remain
-  open. The historical v10 post-change review passed on 2026-08-29. Predecessor v8's payload-free
+  retains the verified targeted logger and `4,5,6,7` allowlist. The
+  [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+  records the completed AI-disabled beta distribution; public-release privacy/recovery checks
+  remain open. The historical v10 post-change review passed on 2026-08-29. Predecessor v8's payload-free
   review passed, and the late non-backdated historical v9
   review passed at `2026-08-23T02:13:12Z`. The first historical v9 post-
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
@@ -249,7 +258,9 @@ backend/configuration change.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
   [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) retains
-  the verified auth/build allowlist; its broader pre-upload gates remain open.
+  the verified auth/build allowlist. The later beta-only review and
+  [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
+  AI activation and public-release gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -260,9 +271,12 @@ backend/configuration change.
   created at `11:03:10Z` and verified at `11:04:02Z`. The signed-in `11:05:38Z` refresh showed build
   6 highest and **Ready to Submit**, with build 7 absent. The stale-review and development-signed
   archives remain non-uploadable.
-- [ ] Repeat the full operations/recovery review and signed-in Build Uploads refresh immediately
-  before upload, obtain separate explicit owner approval, then complete normal-route validation/
-  upload, processing, `Family` assignment, and the truthful tester-note loop.
+- [x] Complete build-7 internal distribution after the beta-only operations review and separate
+  owner approval. Normal-route validation/upload and processing passed on 10 September;
+  `1.0.0 (7)` is assigned only to `Family` Internal Testing with one group tester and no individual
+  testers, and the approved AI-disabled notes persisted after reload. See the
+  [distribution checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+  Build 7 is consumed; this does not authorize public submission or prove physical QA.
 - [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
   absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The

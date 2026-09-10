@@ -16,8 +16,10 @@ workspace/cap/email settings, sufficient prepaid credit and public-capacity setu
 Preserve the ledger and approved limits; do not initialize or reset it again. No paid AI call was
 made during deployment or verification. Provider alert delivery remains unproven and billing-feed
 reconciliation remains unresolved. The [10 September release plan](release-plan.md) uses daily
-owner cost review for the small pilot and defers external monitoring. Separate AI enablement,
-fresh operations evidence for the declared milestone and distribution remain open.
+owner cost review for the small pilot and defers external monitoring. The
+[10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
+are complete. Owner-controlled physical QA, separate AI activation and public release remain open;
+refresh operations evidence for later changes and their declared milestone.
 The ordinary budget diagnostic now uses the service identity; live read-only verification on
 9 September returned OPEN `styling-disabled` on the unchanged v12 runtime and existing ledger.
 See the [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
