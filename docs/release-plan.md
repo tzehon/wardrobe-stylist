@@ -4,36 +4,39 @@ Updated 10 September 2026 after the owner requested a reset and simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
-## Next outcome: a usable TestFlight build
+## Next outcome: verify the delivered TestFlight build
 
-Deliver the existing local-first app to the intended internal testers. Cataloging clothing,
+Build **1.0.0 (7)** has completed validation/upload and Apple processing. App Store Connect shows
+it **Complete / Ready to Submit**, assigned only to `Family` Internal Testing with one group
+tester and no individual testers. The approved AI-disabled notes are saved and reload-verified.
+The existing **Automatic for Xcode Builds** setting was preserved; no manual assignment was needed.
+See the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+
+The next work is the owner-controlled handoff, clean installation and physical QA. Cataloging clothing,
 photos, editing, wear history, reminders and Demo Mode are the core of this beta. Remote AI is
-explicitly unavailable while its separate activation work remains open. Tester notes must say so.
+explicitly unavailable while its separate activation work remains open, as the saved notes explain.
 This is a testing milestone, not a change to the approved Free, Singapore-only public launch.
 
-The recorded candidate is **1.0.0 (7)**. Its signed archive was verified on 29 August; it has not
-been recorded as uploaded. Recheck App Store Connect and the exact archive before using it.
-Builds 4–6 are consumed; build 6 is non-promotable because of the consent-button presentation
-defect. The replacement control is already implemented in build 7. This refactor changes no
-iOS bundle, API contract, production resource or stored data and does not itself require build 8.
+Builds **4–7 are consumed and must never be reused**. Build 6 is non-promotable because of the
+consent-button presentation defect; the replacement control is implemented in build 7. The
+purpose-specific preflight passed for the AI-disabled beta before the separately approved upload.
+PR #46 merged the release refactor. Documentation corrections do not change the iOS bundle,
+API contract, production resources or stored data and do not require build 8.
 
-1. **Freeze and review the candidate.** Merge the release-tool/documentation refactor through the
-   normal review process. Verify the preserved archive, matching source/configuration and current
-   App Store Connect upload list. If an iOS change is actually needed, determine the next unused
-   build number first. Do not rebuild solely because operator documentation changed.
-2. **Perform one fresh, purpose-specific operations review.** For this beta, use the explicit
-   `internal-beta-ai-disabled` purpose. AI must be confirmed disabled with an intact, below-warning,
-   idle budget store; source, signing, auth/storage, recovery, public endpoints and same-session
-   manual checks still apply. A beta-only result does not authorize AI activation or public launch.
-3. **Approve and distribute the exact build.** Present one concrete upload package. After approval,
-   validate/upload through the normal TestFlight & App Store route, verify Apple processing and
-   assignment to the intended `Family` internal group, and save truthful beta notes.
-4. **Test the actual candidate on the phone.** Preserve the installation's identity-safe handoff.
-   Verify clean install, the fixed consent control in Dark Mode, and a short local/catalog/Demo
-   smoke test. Repeat other physical rows only when their behavior changed or existing evidence
-   is missing. Do not replay the entire historical test matrix.
+1. **Complete the owner-controlled identity-safe handoff.** Keep the existing installation until
+   the owner clears the applicable runbook stage. Delivery does not authorize local/server
+   deletion, uninstall or replacement.
+2. **Install the processed build cleanly after the handoff.** Use the delivered `1.0.0 (7)` beta;
+   do not re-upload it or install it over the predecessor before the handoff is complete.
+3. **Verify the physical delta.** Check the fixed consent control in Dark Mode and perform the
+   brief local/catalog/Demo smoke in the saved tester notes. Keep AI disabled; a production
+   styling call belongs to separately approved AI activation. Repeat other physical rows only
+   when behavior changed or retained evidence is missing, rather than replaying the full matrix.
 
-The outcome is a processed build that the owner can install and use. Internal testers must meet
+If this QA requires an iOS fix, determine the next unused build number and repeat the applicable
+review/distribution checks for that new candidate. Do not rebuild or re-upload because operator
+documentation changed. **Ready to Submit** is Apple's build status, not public-submission approval.
+Internal testers must meet
 Apple's App Store Connect tester requirements; a wider external beta is a separate distribution
 choice, not a reason to grant account roles casually.
 [Apple internal testing](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers/).

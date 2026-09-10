@@ -45,8 +45,12 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
-Use `docs/release-plan.md` for the current sequence: usable internal TestFlight, separately
-approved AI pilot, then public Singapore submission. The backlog is an inventory and the runbook
+Use `docs/release-plan.md` for the current sequence: physical QA of the delivered internal beta,
+separately approved AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
+validation/upload, Apple processing and `Family` internal distribution on 10 September, with
+saved/reload-verified AI-disabled tester notes. Build 7 is consumed and must never be reused;
+owner-controlled identity-safe handoff, clean installation and physical QA remain open.
+The backlog is an inventory and the runbook
 retains dated evidence; do not replay completed history or turn every open item into a blocker for
 all three milestones. The owner requested this simplification on 10 September 2026.
 
@@ -255,9 +259,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   credential guards, deep signature verification, and matching arm64 app/dSYM evidence at
   `2026-08-29T11:04:02Z`; its minimum OS is iOS 18.0. A signed-in post-archive Build Uploads refresh
   at `2026-08-29T11:05:38Z` showed build 6 as the highest upload and **Ready to Submit**, with build 7
-  absent. Repeat the full review and refresh App Store Connect immediately before upload, then obtain
-  separate explicit owner approval. Validation/upload, Apple processing, `Family` assignment,
-  truthful tester notes, and clean physical Dark Mode visual retest remain open.
+  absent. Validation/upload, Apple processing, `Family` assignment and tester notes remained open
+  at that archive-era checkpoint. The 10 September beta-only review, separate owner approval and
+  completed distribution are recorded in `docs/app-store/internal-testflight-runbook.md`.
+  Build 7 is consumed; owner-controlled handoff and clean physical Dark Mode QA remain open.
 - The 2026-08-29 APP-014/APP-023 automation tranche passed 222 backend tests plus locked
   audit/Bandit/Ruff/mypy, 236/236 iOS tests (226 Swift unit plus 10 UI), all 44 release-script tests,
   and the clean Release simulator/artifact gate. The isolated process-relaunch harness and transport
@@ -362,7 +367,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   It expires at `2026-10-08T09:13Z`; rotation before expiry is required. The finite disabled setup
   and independent post-review are complete.
   Provider alert delivery, separate AI enablement, full pre-upload review and distribution
-  remain open. The 10 September reset defers the external Fly monitor and uses the owner-run
+  remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
+  distribution have since passed; AI activation and public release remain separate open work.
+  The 10 September reset defers the external Fly monitor and uses the owner-run
   daily review in `docs/fly-spend-controls.md`; unproven alert delivery is not relied on.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
   private policy adds a separate hosting envelope and warning/hold thresholds; those private
