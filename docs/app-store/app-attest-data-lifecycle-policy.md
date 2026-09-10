@@ -12,10 +12,13 @@
   closed admission, App Attest-only configuration, auth schema v4/integrity, non-root/NoNewPrivs,
   bounded logs, fresh automatic 14-day snapshots, below-warning volume use and public pages.
   Provider limits and notification settings persisted, prepaid-credit readiness passed, and
-  auto-reload stayed off. No paid model call ran. Actual alert delivery, Fly cost-monitoring and
-  billing-feed reconciliation, separate AI enablement and the full pre-upload/manual gates remain
-  open. The ordinary diagnostic's service-identity correction passed live read-only verification
-  at `2026-09-09T00:05:29Z`; the unchanged v12 runtime now returns OPEN `styling-disabled`.
+  auto-reload stayed off. No paid model call ran. Actual provider alert delivery remains unproven;
+  billing discrepancies and unknown coverage remain unresolved until reviewed. The 10 September
+  [release plan](../release-plan.md) uses daily owner cost review for the small pilot and defers
+  new monitoring infrastructure. Separate AI enablement and fresh operations evidence for the
+  declared milestone remain open. The ordinary diagnostic's service-identity correction passed
+  live read-only verification at `2026-09-09T00:05:29Z`; the unchanged v12 runtime now returns
+  OPEN `styling-disabled`.
   It connects as `wardrobe`, requires real/effective UID and GID 10001 and suppresses bytecode
   writes with `-B`. The earlier `styling-budget-evidence-open` result remains historical evidence.
   Preserve the existing ledger, limits, charges and uncertainty for every recovery. The same
@@ -61,7 +64,9 @@ aggregate store remain APP-016 verification.
 The limits below are requirements, not claims that every control is already enforced. The
 [compliance checklist](#compliance-and-release-evidence) distinguishes verified behavior from
 remaining work. APP-009 stays open until every unchecked release requirement is implemented and
-evidenced.
+evidenced. The [release plan](../release-plan.md) assigns that work to the internal beta, AI
+activation and public-release milestones; waiting privacy/recovery evidence does not stop
+unrelated beta preparation or visual QA and must not be marked complete prematurely.
 
 ## Owner-approved Fly provider boundary
 
@@ -121,9 +126,10 @@ the monitored support route. Retain only the review timestamp, fixed check names
 pass/warning/open result,
 coarse aggregate bands where available, remediation outcome, and next due date. Never backdate a
 missed review; record it as missed when discovered. Do not retain log samples, request content,
-identifiers, credentials, exact billing data, screenshots, or provider response bodies. Reconsider
-automated monitoring before multi-user distribution, paid operation, or any availability
-commitment.
+identifiers, credentials, exact billing data, screenshots, or provider response bodies. Reassess
+operational adequacy before expanding the pilot, paid operation, or any availability commitment.
+The 10 September reset retains daily owner cost review for the initial small pilot; reassessment
+does not automatically require the deferred monitoring runner or a new alert service.
 
 An owner-triggered local helper may automate repeatable read-only collection without reversing the
 decision against continuous alerting. `backend/verify_production_operations.py` can pass only from
@@ -134,6 +140,12 @@ the newest safe snapshot UTC/status/retention. Missing, malformed, stale, timed-
 evidence is `OPEN`; raw provider output is never copied into the report. The helper does not probe
 unauthenticated `/recommend`, because that path consumes durable abuse-rate state, and it never
 deploys, scales, restores, deletes, uploads, or changes App Store assignment.
+
+For the internal beta, the explicit `internal-beta-ai-disabled` purpose requires AI to remain
+disabled with an intact, below-warning, idle budget store. Every other required check must pass.
+That beta-only result neither clears AI activation nor authorizes public submission or upload.
+The default `ai-launch` purpose remains strict and requires the enabled-state checks; use it
+after separately approved activation, not as a prerequisite that demands AI already be enabled.
 
 The helper cannot convert the whole review into an offline test. Fly's official response-class
 metric remains a signed-in live check when no supported aggregate API is available, and a current
@@ -183,10 +195,24 @@ pre-archive and post-change checks reduce that risk but do not eliminate it.
 
 On 2026-09-06 the owner approved a private launch spend/admission policy and owner-operated daily
 monitoring. The separate September 8 approval applied the policy and activated private public-capacity
-review bounds on disabled v12; its aggregate checks passed within that profile. Historical single-user
-checks and the 30-day baseline do not establish public-launch operations. The approved daily review,
-real alert delivery, Fly cost-monitoring proof and separate AI enablement remain required; the full
-pre-upload gate stays open.
+review bounds on disabled v12; its aggregate checks passed within that profile. Under the
+10 September reset, the small pilot uses daily review of the AI ledger/provider spend, Fly invoice,
+Cost Explorer and resource list, also repeated after configuration changes or reported problems.
+This daily cost routine supplements the full operations-review cadence above. The owner must be
+available for it or arrange a reviewed alternative. Retain the approved private resource envelope,
+warning/hold triggers, discrepancies and unknown billing coverage. Manual review has detection
+delay; traffic is not bounded by tester count, storage charges continue after compute stops, and
+the hosting target is not an enforced invoice cap. See the
+[hosting policy and response](../fly-spend-controls.md).
+
+Provider notifications remain useful supplements with delivery unproven. Hourly GitHub/Healthchecks
+automation and complete edge-counter coverage are deferred improvements, not automatic beta or AI
+activation gates. Before AI activation, resolve the applicable provider-terms/consent questions,
+verify the existing limits, key and ledger while AI remains disabled, and obtain the bounded
+enablement/verification-call approval. Then confirm the enabled state and protected-device flow.
+The AI-disabled beta and separate AI pilot do not close the public release's applicable privacy,
+deletion/recovery and App Store requirements. Historical single-user reviews do not replace fresh
+evidence for the declared milestone.
 
 This policy does not settle:
 
@@ -363,9 +389,10 @@ only aggregate table counts and integrity results, then destroy the temporary re
 
 ## Manual operations and support
 
-The owner performs the manual review defined above instead of operating an automated alerting
-stack for the initial single-user release. A failed check is a release blocker until remediated and
-rechecked. Future automated alerting must follow the same payload and identifier prohibitions as
+The owner performs the manual review defined above for the initial small pilot. A failed check
+required for the declared milestone blocks that step until remediated and rechecked; only the
+explicit internal-beta purpose accepts the verified intentionally disabled AI state described above.
+Future automated alerting must follow the same payload and identifier prohibitions as
 logs and requires the inventory, processor, retention, and public-disclosure review described in
 [Logging and telemetry](#logging-and-telemetry) before activation.
 
@@ -377,6 +404,8 @@ meet the 24-hour live-deletion deadline after installation control is verified.
 
 This fixed-field table is the long-lived compliance attestation. It must never contain raw metric
 values, logs, screenshots, identifiers, exact billing data, or provider response bodies.
+Each row preserves its dated outcome and next actions as recorded then; use the
+[release plan](../release-plan.md) for the current work order and deferred monitoring decision.
 
 | Checked at UTC | Health / Fly | Snapshot | Volume | Auth / 5xx | Anthropic | Support | Overall | Remediation / next action | Next due |
 |---|---|---|---|---|---|---|---|---|---|

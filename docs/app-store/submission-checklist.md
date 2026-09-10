@@ -9,6 +9,12 @@ audience, not a weaker binary: use Xcode's **TestFlight & App Store** route and 
 build only to an Internal Testing group. Do not use **TestFlight Internal Only** when the build may
 later be promoted to customers.
 
+Use the [release plan](../release-plan.md) to distinguish the three milestones: the internal
+local-first beta with AI disabled, separately approved AI activation for the small pilot, and the
+public Singapore release. The beta uses the explicit `internal-beta-ai-disabled` operations
+review; its result does not authorize AI activation or public submission. Applicable signing,
+auth/storage, privacy and distribution checks remain required for each milestone.
+
 ## 1. External decisions and account readiness
 
 - [ ] Confirm legal seller name/entity, copyright owner, postal address, support/privacy/security
@@ -26,12 +32,16 @@ later be promoted to customers.
   The owner approved those limits on 6 September and the finite disabled setup, Fly hosting policy
   and private capacity-review bounds on 8 September. Preserve those approvals; do not request or
   initialize them again merely because later launch gates remain open.
-- [ ] Complete the controlled AI launch: prove the fail-closed global spend/admission ceiling,
-  bounded request/token/retry exposure, alert delivery and emergency-disable response. Complete
-  acceptance of the selected Sonnet migration and verify the exact locked SDK/model/API
-  configuration. Do not publish exact billing values
-  or treat the current personal/single-user manual-review exception as multi-user public-launch
-  proof.
+- [ ] Complete the controlled AI launch: verify the fail-closed global spend/admission ceiling,
+  bounded request/token/retry exposure, approved daily owner cost review and emergency-disable
+  response. Retain the recorded Sonnet acceptance and verify the exact locked SDK/model/API
+  configuration. Review privacy/provider terms and consent before requesting approval of the
+  bounded enablement and verification call; confirm the enabled state afterward. Daily review
+  has detection delay and cannot hard-cap Fly charges. Provider notification settings do not
+  prove delivery; hourly monitoring and a new alert service remain deferred under the
+  [current cost routine](../release-plan.md#small-pilot-cost-routine). Keep exact billing values
+  private. This AI milestone does not block the explicitly AI-disabled internal beta or close
+  the public release's separate privacy, recovery and App Store requirements.
   Local model/SDK migration, synthetic evaluation tooling, and durable spend controls are
   prepared; see [model evaluation](../model-evaluation.md) and
   [spend controls](../ai-spend-controls.md). The first approved evaluation stopped after its
@@ -68,9 +78,12 @@ later be promoted to customers.
   private release records. The approved 8 September setup provisioned the ledger once, applied
   the policy and workspace key in Fly v12 with AI false, verified usable prepaid credit with
   auto-reload off, and passed the approved public-capacity review. Preserve the existing ledger;
-  do not repeat provisioning. Alert delivery, Fly monitoring and billing reconciliation,
-  key rotation before 8 October, separate AI enablement and the full operational review remain
-  open. The ordinary diagnostic correction passed live read-only verification on 9 September;
+  do not repeat provisioning. Actual provider alert delivery remains unproven. Under the
+  10 September reset, the small pilot uses daily owner review of AI/provider spend, Fly billing
+  and resources, with discrepancies and unknown coverage retained; new monitoring infrastructure
+  is deferred. Key rotation before 8 October, separate AI enablement and fresh operations evidence
+  for the declared milestone remain open. The ordinary diagnostic correction passed live
+  read-only verification on 9 September;
   the normal budget gate now returns OPEN `styling-disabled`. Earlier excluded
   evaluation uncertainty remains separate from the launch ledger. This disabled setup is not
   public-launch authorization; see the

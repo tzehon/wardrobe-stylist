@@ -18,8 +18,10 @@ approved private policy and workspace-scoped provider key are applied, the servi
 existing v2 ledger with zero current-month state, and the disabled guard returns 503. First
 provisioning, provider workspace/cap/email settings, sufficient prepaid credit and public-capacity
 setup are complete. The ledger must be preserved; do not run first provisioning again.
-No paid AI call was made. Provider alert delivery, Fly monitoring and billing-feed reconciliation,
-separate AI enablement, full pre-upload review and distribution remain open. The ordinary budget
+No paid AI call was made. Provider alert delivery remains unproven and billing-feed reconciliation
+remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
+for the small pilot and defers external monitoring. Separate AI enablement, fresh operations
+evidence for the declared milestone and distribution remain open. The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 the normal budget gate now reports OPEN `styling-disabled`. Follow the
 [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
@@ -250,9 +252,11 @@ separate validation policy is implemented and evidenced.
 
 The separate AI ledger contains aggregate month/token/admission counters and random pending
 reservation metadata only. It receives no installation identifier, item identifier, wardrobe,
-prompt, or model-response payload. The complete preflight requires a ready, enabled budget below
-its warning band with no pending requests. Configured-but-disabled v12 now reports OPEN
-`styling-disabled`; manual-review rows remain OPEN. The local diagnostic connects as `wardrobe`,
+prompt, or model-response payload. The default `ai-launch` preflight requires a ready, enabled budget below
+its warning band with no pending requests. The explicit `internal-beta-ai-disabled` purpose accepts
+verified disabled styling only with an intact, below-warning, idle ledger and every other check
+passing; its result is beta-only. Configured-but-disabled v12 reports OPEN `styling-disabled`;
+the live manual inputs still need a fresh review. The local diagnostic connects as `wardrobe`,
 requires real/effective UID and GID 10001 before reading status, and uses `-B` to avoid bytecode
 writes. Its 9 September live read-only check passed without changing the runtime or existing ledger.
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
@@ -278,11 +282,15 @@ Production operations follow the
 That retained cadence and the preflight's `single-user-band` auth check describe the personal
 deployment. The owner-approved private public-capacity file is installed, and the configured public
 band passed the v12 post-review; future reviews must select it explicitly. These are review bounds,
-not runtime customer quotas. Provider/Fly monitoring and delivery remain open launch gates; do not
-infer a public allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
+not runtime customer quotas. The small pilot uses the approved daily owner cost review and
+response procedure in the [release plan](release-plan.md); the external monitor is deferred.
+Before AI activation, review existing limits, billing uncertainty and residual Fly exposure, then
+obtain approval for the exact activation. Do not rely on unproven alert delivery or infer a public
+allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
 
 Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy, build-7
-validation/distribution, and clean physical Dark Mode visual retest remain release gates. Real
+validation/distribution, and clean physical Dark Mode visual retest remain open work, scoped to
+their beta, AI-activation or public-release milestone in the release plan. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
@@ -460,9 +468,11 @@ The historical 2026-09-07 v11 review covered only disabled operation. Its signed
 found an active key, spend below the warning band, and
 no saturation in the last 24 hours, but prepaid credit was low and no alert rows were visible;
 the v12 setup above supersedes that low-credit/unconfigured-alert state. Actual alert delivery
-and full manual-review rows remain open; the later diagnostic correction is verified above.
-Complete the outstanding operational gates before enablement
-or upload, using the approved daily monitoring policy when launch operation begins.
+remains unproven and is not relied on by the daily owner-review plan; the later diagnostic
+correction is verified above. Complete the fresh operations checks for the declared milestone.
+The AI-disabled beta uses its explicit review purpose; separately approved AI activation follows
+disabled pre-enable checks and then enabled confirmation. Use the approved daily cost routine
+when pilot operation begins, without making the deferred monitor another upload prerequisite.
 
 Run `ios/scripts/verify-release-artifact.sh` against the simulator Release product and signed
 archive. The Gmail-free verifier must require App Attest and fail if it finds Google frameworks or

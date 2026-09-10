@@ -314,5 +314,7 @@ For an incident, follow this order:
 
 Snapshot expiry and deletion-specific recovery remain independent APP-009 work. Do not mutate
 Fly snapshots or perform a restore as part of this migration. Public provider/privacy declarations
-and alert delivery remain external acceptance gates. A backward-compatible backend rollout
+remain external acceptance gates for the applicable milestone. Provider alert delivery is still
+unproven and is not relied on by the current daily owner-review path; the deferred monitoring
+stack is not an activation prerequisite. A backward-compatible backend rollout
 preserves Build 7 and does not require Build 8.

@@ -107,6 +107,8 @@ The 10 September reset passed **840 backend tests**, locked dependency audit, Ba
 application mypy, plus **236 iOS tests** (226 Swift and 10 UI) and **44 release-script tests**.
 Independent review found no actionable defect in the scoped beta check. The archived monitor's
 tests remain historical evidence, not production features.
+Source publication and the correction of older monitoring instructions are tracked in
+[PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46).
 
 The current operations checker distinguishes an intentionally AI-disabled internal beta from
 AI-launch readiness. The default AI-launch purpose remains strict; a beta-only result does not
