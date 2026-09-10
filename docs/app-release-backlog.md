@@ -584,8 +584,9 @@ handoff, clean installation and the physical Dark Mode visual retest remain open
   The public-capacity check and independent configured ledger probe passed. Provider alert delivery
   remains unproven. Under the 10 September reset, the small pilot uses daily owner review;
   the deferred external monitor is not an activation prerequisite. Prior excluded uncertain-call
-  liability remains unresolved, and AI enablement and fresh operations evidence for the declared
-  milestone remain open. The provider workspace/cap/email settings are saved and verified; one approved
+  liability remains unresolved. The 10 September beta-only operations review and build-7 internal
+  distribution passed; AI enablement and its fresh operations review remain open. The provider
+  workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The
   [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
   records post-deployment ledger verification and the unchanged image/Machine/volume topology.

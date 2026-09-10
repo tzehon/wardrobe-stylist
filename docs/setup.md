@@ -257,8 +257,9 @@ reservation metadata only. It receives no installation identifier, item identifi
 prompt, or model-response payload. The default `ai-launch` preflight requires a ready, enabled budget below
 its warning band with no pending requests. The explicit `internal-beta-ai-disabled` purpose accepts
 verified disabled styling only with an intact, below-warning, idle ledger and every other check
-passing; its result is beta-only. Configured-but-disabled v12 reports OPEN `styling-disabled`;
-the live manual inputs still need a fresh review. The local diagnostic connects as `wardrobe`,
+passing; its result is beta-only. Configured-but-disabled v12 reports OPEN `styling-disabled`
+under the default `ai-launch` purpose. The 10 September combined beta-only review passed; each
+later operations review requires fresh same-session manual inputs. The local diagnostic connects as `wardrobe`,
 requires real/effective UID and GID 10001 before reading status, and uses `-B` to avoid bytecode
 writes. Its 9 September live read-only check passed without changing the runtime or existing ledger.
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
