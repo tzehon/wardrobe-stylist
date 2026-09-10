@@ -36,9 +36,15 @@ Follow **[the release plan](docs/release-plan.md)** for the current work order:
 2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
 3. Finish the applicable privacy/recovery and store-submission work for the Free Singapore launch.
 
-The signed build-7 archive was verified on 29 August; upload and candidate-specific physical QA
-remain open. Build 6 is already used and non-promotable after the consent-button visual defect;
-the fix is implemented in build 7. Recheck live build availability before any upload.
+The preserved signed build-7 archive passed strict verification on 10 September. The combined
+operations review passed `PASS_INTERNAL_BETA_ONLY` at `2026-09-10T11:25:45Z`: AI remained disabled,
+the intact budget was below warning and idle, and every other check passed. The same-session
+App Store Connect view showed build 6 as the highest upload and no build 7. Refresh the full review
+immediately before upload and after any change. Exact upload approval, validation/upload,
+processing, internal-group assignment and candidate-specific physical QA remain open.
+Build 6 is already used and non-promotable after the consent-button visual defect; the fix is
+implemented in build 7. Preserve the owner-controlled identity-safe handoff before replacing an
+installed build.
 
 The 10 September reset defers the unshipped hourly monitoring system. Its prototype is preserved
 privately, and the active path uses the existing fixed Fly resources, provider budget controls
@@ -107,8 +113,12 @@ The 10 September reset passed **840 backend tests**, locked dependency audit, Ba
 application mypy, plus **236 iOS tests** (226 Swift and 10 UI) and **44 release-script tests**.
 Independent review found no actionable defect in the scoped beta check. The archived monitor's
 tests remain historical evidence, not production features.
-Source publication and the correction of older monitoring instructions are tracked in
-[PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46).
+[PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) merged on 10 September after the
+monitoring-instruction correction, a clear current-head Codex review and both CI checks passed.
+The exact build-7 AI-disabled beta upload package has truthful draft tester notes and the scoped
+review recorded in the [runbook](docs/app-store/internal-testflight-runbook.md#ai-disabled-beta-pre-upload-review--2026-09-10).
+No upload, deployment or paid model call was performed; AI remains disabled. The next daily owner
+cost review is due 11 September, alongside the full review before upload or after a change.
 
 The current operations checker distinguishes an intentionally AI-disabled internal beta from
 AI-launch readiness. The default AI-launch purpose remains strict; a beta-only result does not

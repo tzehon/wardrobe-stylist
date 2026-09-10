@@ -15,8 +15,11 @@
   auto-reload stayed off. No paid model call ran. Actual provider alert delivery remains unproven;
   billing discrepancies and unknown coverage remain unresolved until reviewed. The 10 September
   [release plan](../release-plan.md) uses daily owner cost review for the small pilot and defers
-  new monitoring infrastructure. Separate AI enablement and fresh operations evidence for the
-  declared milestone remain open. The ordinary diagnostic's service-identity correction passed
+  new monitoring infrastructure. The later combined review passed `PASS_INTERNAL_BETA_ONLY` at
+  `2026-09-10T11:25:45Z`, as recorded in the [manual review register](#manual-review-register).
+  AI remains disabled; separate AI enablement and public-release requirements remain open, and
+  operations evidence must be refreshed before upload or after a change. The ordinary diagnostic's
+  service-identity correction passed
   live read-only verification at `2026-09-09T00:05:29Z`; the unchanged v12 runtime now returns
   OPEN `styling-disabled`.
   It connects as `wardrobe`, requires real/effective UID and GID 10001 and suppresses bytecode
@@ -425,10 +428,11 @@ Each row preserves its dated outcome and next actions as recorded then; use the
 | 2026-08-29T11:02:18Z | PASS · exact v10 release/Machine/image · fresh registry match · zero High/Critical | PASS · automatic · 14d · latest <36h · no failed/unknown | below-warning | PASS · official 2d metric: 2xx/4xx only, no 5xx; bounded application failure classes zero | PASS · public status operational · <80% of configured limit · expected Wardrobe key/model · no saturation warning | PASS · pages/contact/target/reciprocal links confirmed | PASS | Final build-7 archive completed; repeat immediately before upload | before upload; otherwise 2026-09-28 |
 | 2026-09-07T10:39:08Z | PASS · exact v11 source/image/platform · original healthy Machine/volume · zero High/Critical · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · single-user band only · official last-2-days metric: 200/404, no 5xx · bounded logs | OPEN · partial console check: active key, spend below warning, no last-24h saturation; low prepaid credit, no alert rows visible; delivery unverified | PASS · public pages verified | OPEN · disabled scope only | Historical checkpoint: budget unprovisioned and policy unapplied; later September 8 setup supersedes those states; no paid calls | historical checkpoint; superseded below |
 | 2026-09-08T09:32:49Z | PASS · v12 · same scanned image and original healthy Machine/volume · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · approved public-capacity band · bounded logs; fresh full manual metrics still required | OPEN · configured limits/notification settings and usable credit verified · auto-reload off · real delivery unverified | PASS · public pages verified | OPEN · configured-but-disabled setup passed; full pre-upload remains open | Preserve applied policy and existing zero ledger; correct ordinary diagnostic ownership context, prove monitoring/delivery and reconcile Fly billing feeds before enablement | before enablement or upload; full review remains open |
+| 2026-09-10T11:25:45Z | PASS · unchanged v12 runtime/source/configuration · recovery image/scan verified · AI disabled | PASS · automatic · 14d · latest created 2026-09-10T07:48:53Z | below-warning | PASS · auth/store and bounded logs · official 2d metric 200/404, no 5xx | PASS for disabled beta · public status operational · configured spend below warning · expected workspace/key unexpired · no observed production usage or saturation | PASS · public pages | PASS_INTERNAL_BETA_ONLY · intact, below-warning, idle ledger · styling-disabled expected | Same-session App Store Connect check passed with build 7 absent; refresh before upload/after change. Exact upload approval, processing/assignment, physical QA, AI activation and public release remain open; no deployment, paid call or upload | daily cost review 2026-09-11; full review before upload/after change |
 
 The 2026-09-07 row retains the observed disabled-deployment checks and partial signed-in views.
-The complete helper's manual-review inputs remain open, including App Store Connect; this row
-does not claim a combined pre-upload pass or verify alert delivery.
+At that checkpoint, the complete helper's manual-review inputs remained open, including App Store
+Connect; that historical row does not claim a combined pre-upload pass or verify alert delivery.
 
 ### Processed build-4 aggregate evidence and identity-safe handoff — 2026-08-21/22
 
