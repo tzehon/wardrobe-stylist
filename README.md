@@ -8,16 +8,52 @@ The approved launch is **Free, Singapore only, version 1.0.0 / Build 7**, with n
 purchases or subscriptions. Transparent freemium in Singapore comes next; country expansion
 follows only after its pricing, budget controls, and operations are proven.
 
-## Non-negotiable constraints
+## How freemium will work
 
-- 🔒 **Local-first catalog.** Wardrobe items, selected photos, outfits, and wear history stay on
-  the device. There is no developer-operated wardrobe sync in v1.
-- 🕵️ **Optional, minimized AI.** Styling happens only after an explicit action and consent. The app
-  sends compact text attributes and recent-wear summaries—not wardrobe photos—to the backend and
-  Anthropic; the developer application does not persist the request or response payload.
-- 🛡️ **Anonymous backend access.** Apple App Attest authorizes one installation without a human
-  account. Local wardrobe and Demo Mode remain available when connected AI is unavailable.
-- ✅ **Tests at every stage.** Every feature ships with tests, run before moving on; CI runs them on every push.
+The local wardrobe, photos, history, reminders and Demo Mode remain free. The planned paid
+monthly subscription adds a larger fixed allowance of fresh AI outfit generations. The app
+will show the current plan, remaining allowance, reset date, localized price and restore/manage
+controls. Existing looks and local features do not consume a new AI generation.
+
+**This is planned, not implemented:** the current v1 has no subscription, purchase flow or
+customer-level monthly quota. The earlier **5 Free / 60 Plus** allowances are draft options;
+the actual numbers, reset rules, paid name and price are undecided. Per-customer allowances will
+sit behind the owner's separate global AI spending limit; paying users do not automatically
+raise that limit. See the [freemium model](docs/freemium-model.md) for inclusions, metering and
+the decisions required before the paid release.
+
+## Current release
+
+The next milestone is **a usable internal TestFlight build**, using the existing `1.0.0 (7)`
+candidate after fresh archive, operations and App Store Connect checks. The local wardrobe,
+photos, history, reminders and Demo Mode are available without remote AI. The last verified
+Fly v12 configuration has AI styling disabled; the app shows temporary unavailability for
+remote styling requests.
+
+Follow **[the release plan](docs/release-plan.md)** for the current work order:
+
+1. Distribute and physically verify the existing beta candidate.
+2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
+3. Finish the applicable privacy/recovery and store-submission work for the Free Singapore launch.
+
+The signed build-7 archive was verified on 29 August; upload and candidate-specific physical QA
+remain open. Build 6 is already used and non-promotable after the consent-button visual defect;
+the fix is implemented in build 7. Recheck live build availability before any upload.
+
+The 10 September reset defers the unshipped hourly monitoring system. Its prototype is preserved
+privately, and the active path uses the existing fixed Fly resources, provider budget controls
+and owner-run daily cost review. Full edge-counter coverage is not a beta distribution gate.
+Fly still has variable charges; see [hosting controls](docs/fly-spend-controls.md).
+
+## Core safeguards
+
+- Wardrobe data and photos stay on device; optional AI sends only disclosed compact text.
+- The Anthropic key stays on the server. App Attest provides anonymous per-installation access.
+- The backend stores minimum security metadata and separate aggregate budget metadata, never
+  wardrobe, prompt or model-response payloads.
+- The existing durable AI ledger, conservative reservations and disable switch bound the
+  approved AI path. Keep their state across restarts and recovery.
+- Public v1 contains no Google sign-in, Gmail access or receipt import.
 
 ## Repository layout
 
@@ -32,12 +68,15 @@ wardrobe-stylist/
 
 ## Quick start
 
-See **[`docs/setup.md`](docs/setup.md)** for the full, step-by-step setup. TL;DR:
+See **[`docs/setup.md`](docs/setup.md)** for the full setup. Run each platform's commands from
+the repository root:
 
 ```bash
 # Backend
 cd backend && uv sync --locked && uv run --locked pytest && uv run --locked pip-audit && uv run --locked bandit -r app container_entrypoint.py -q && uv run --locked ruff check . && uv run --locked mypy app
+```
 
+```bash
 # iOS (generates Wardrobe.xcodeproj from project.yml, then runs tests)
 cd ios && xcodegen generate
 xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
@@ -48,148 +87,34 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 
 | Doc | What |
 |---|---|
+| [`docs/release-plan.md`](docs/release-plan.md) | Current short path to TestFlight, AI activation and public release |
+| [`docs/freemium-model.md`](docs/freemium-model.md) | Free launch, planned paid offering, usage/reset behavior and undecided prices/limits |
 | [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, App Attest, Anthropic key, Fly.io) |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
 | [`docs/model-evaluation.md`](docs/model-evaluation.md) | Fictional model quality, latency, cost, and cache evaluation; paid-call approval procedure |
 | [`docs/ai-spend-controls.md`](docs/ai-spend-controls.md) | Durable monthly AI ceiling, private provisioning, alerts, and disable/recovery procedure |
-| [`docs/fly-spend-controls.md`](docs/fly-spend-controls.md) | Approved hosting policy, resource restrictions, open monitoring gates and service-hold procedure |
+| [`docs/fly-spend-controls.md`](docs/fly-spend-controls.md) | Hosting limits, daily cost review, variable-charge risks and service-hold procedure |
 | [`docs/google-setup.md`](docs/google-setup.md) | Historical/deferred read-only Gmail OAuth setup; not used by public v1 |
 | [`docs/privacy.md`](docs/privacy.md) | Current local-first and App Attest privacy architecture |
-| [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | App fixes, polish, features, and App Store readiness checklist |
+| [`docs/app-release-backlog.md`](docs/app-release-backlog.md) | Work inventory and retained completion status; not a sequence to replay |
 | [`docs/gcp-oauth-production-sequence.md`](docs/gcp-oauth-production-sequence.md) | Historical/deferred Google OAuth production sequence; not a v1 release gate |
 | [`docs/app-store/`](docs/app-store/) | Draft privacy/support copy, data inventory, review notes, metadata, and screenshot narrative |
 | [`AGENTS.md`](AGENTS.md) | Durable guidance for Codex and other coding agents in this repo |
 
-## Status
+## Verification and open work
 
-The approved public-v1 cut is manual/photo cataloging, browse/edit/history, local reminders,
-offline Demo Mode, and optional AI styling protected by App Attest. The earlier read-only Gmail/
-receipt-import subsystem has been removed from active v1 source and is deferred to a separately
-reviewed future release.
+The 10 September reset passed **840 backend tests**, locked dependency audit, Bandit, Ruff and
+application mypy, plus **236 iOS tests** (226 Swift and 10 UI) and **44 release-script tests**.
+Independent review found no actionable defect in the scoped beta check. The archived monitor's
+tests remain historical evidence, not production features.
 
-The deployed backend selects pinned `claude-sonnet-5` with Anthropic SDK 1.4.0,
-the synchronous Messages API at the standard service tier, strict forced tool output,
-no extended thinking or retries, and
-the evaluated 1,024-token response limit. Runtime admission and preflight reject any different
-output cap before ledger/provider access. Prompt caching is off until measured reads justify it.
-A separate SQLite accounting store reserves worst-case cost before each request, enforces a
-global monthly admission/spend ceiling and concurrency, and retains uncertain charges across
-restarts. It stores no wardrobe, prompt, response, or installation payload. Remote styling is
-disabled by default until an explicit private budget is provisioned and enabled.
+The current operations checker distinguishes an intentionally AI-disabled internal beta from
+AI-launch readiness. The default AI-launch purpose remains strict; a beta-only result does not
+authorize AI, App Store submission or an upload. No iOS bundle/API-contract change is part of
+this refactor, so it does not itself require a new TestFlight build.
 
-Fly **v12**, source `d2866a2`, now has the approved private budget and provider key configured with
-**AI styling disabled**. Independent post-deployment review passed at `2026-09-08T09:32:49Z`:
-the same scanned immutable image, original Machine and encrypted volume are healthy; the serving
-user reads the intact v2 ledger with zero current-month state, and the disabled guard returns 503.
-App Attest, public-capacity review, snapshots, bounded logs, archive and public-page checks passed.
-No paid call was made. The 9 September diagnostic correction selects the `wardrobe` SSH account
-and verifies real/effective UID/GID 10001 before reading the ledger. Its live read-only check
-passed against the same v12 configuration at `2026-09-09T00:05:29Z`; the ordinary budget gate
-now truthfully remains OPEN `styling-disabled`. Storage protections are unchanged.
-This is not a complete pre-upload operational pass; see the
-[launch-readiness follow-up and open gates](docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
-[PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) records source publication, required
-checks, Codex review, and merge state. The revised Sonnet 5 evaluation on 6 September 2026
-**passed every automatic gate**: all six hard content checks passed 24/24, targeted avoidance
-passed 4/4, preferred items passed 3/4, and p95 latency was 12.665 seconds. All 28 calls completed
-for US$0.360167 before tax, with no provider errors or retries. The owner approved all 24
-proposals qualitatively and selected Sonnet; the partial numeric scorecards remain unchanged
-and are not reported as a numeric-rubric pass. Both earlier Haiku failures and the first
-Sonnet failure remain recorded, and no threshold was changed. Sonnet's revised warm cache pair
-saved about 20.9% of input cost, but production reuse remains unproven and caching stays off.
-No new paid evaluation or verification call was made during the rollout.
-The deployed runtime and durable-budget implementation are aligned with Sonnet pricing and its full context;
-the v2 ledger rejects old or mismatched pricing policy without resetting charges. This work
-is deployed with AI disabled. On 6 September 2026 the owner approved the private launch spend/admission
-limits and owner-operated daily monitoring policy, based on up to 10 initial AI users. Exact
-limits remain in ignored private release records. The owner subsequently approved the finite
-billing-reviewed setup phase and Fly hosting policy on 8 September. Fresh automated operational
-checks, including recovery-image verification, passed at `2026-09-08T08:54:09Z`; the budget gate
-and manual rows remained OPEN. The original v11 source, Machine and volume were unchanged.
-First-ever budget provisioning succeeded at `2026-09-08T08:56:32Z`, recording the approved policy,
-zero current-month charges/admissions and no reservations with the required non-root ownership
-and private permissions. Independent read-only verification passed at `2026-09-08T09:00:32Z`;
-the initializer was not repeated. The approved public-capacity policy is installed locally as review bounds.
-The dedicated production provider workspace now exists in the approved US geography. Its monthly
-limit and two email-notification settings were saved and verified after reload. One approved
-credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
-Actual alert delivery remains unverified; no native test control was available. The workspace-scoped
-key, without Admin API access, was transferred through hidden owner input and staged without local
-secret persistence. Fly v12 deploys all six approved private AI settings and the new key while
-preserving the session secret; AI remains false. Rotation before the key's 8 October 2026 expiry
-is an operations gate. The finite disabled setup and diagnostic correction are verified;
-monitoring and separately approved AI enablement remain open.
-This does not close migration acceptance or the full pre-upload pass; see the
-[approved setup checkpoint](docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
-The 7 September preparation review supports zero prior liability within the
-approved selected-model production budget: the earlier runtime used Opus, and the first Sonnet
-deployment has remained disabled. Evaluations are expressly excluded from that budget; their
-unresolved charges remain separate. Fresh production verification at `2026-09-07T11:51:58Z`
-confirmed the original healthy runtime, disabled defaults and absent budget directory. The private
-provisioning/provider/capacity proposal was prepared without changes at that checkpoint; its later
-approval and first provisioning are recorded above. See the
-[budget preparation checkpoint](docs/app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07).
-On 8 September the owner requested Fly hosting cost protection as well. The revised private
-policy, now approved for the finite setup phase, adds a separate hosting target, earlier cost/traffic warnings, fixed resource limits and
-a reversible service-hold procedure. Current read-only inventory confirms one Singapore
-shared-CPU/512 MB Machine, one 1 GB volume, shared IPv4/IPv6 and only one app in its organization.
-The latest signed-in 9 September refresh found an increased invoice preview while same-period
-Cost Explorer remained unchanged across the same five expected resource categories. The higher preview is used
-for private planning; the feeds are not reconciled. The reviewed organization has no
-linked organizations, active support package, Managed Postgres clusters or Upstash Redis databases.
-The billing feed provides no coverage cutoff or refresh lag; final taxes/adjustments and other
-unreviewed add-ons are not ruled out. Monitoring readiness remains open, and the month-end cost
-scenario is not a guaranteed provider projection. Fly's documented lack of native billing alerts
-means monitoring and an invoice ceiling must not be claimed as installed or guaranteed.
-The new [local evidence checker](docs/fly-spend-controls.md#local-evidence-checker) assesses explicit
-private resource and billing records, preserving unknown coverage and crossed thresholds as
-separate signals. It neither collects live data nor activates alerts or a service hold.
-It verifies each policy's content digest before comparing the evidence's policy references;
-a matching digest establishes consistency, not approval or authenticated billing.
-Within valid shared billing metadata, each feed is checked separately so an invalid peer cannot
-hide a warning or hold amount from the other valid feed; reconciliation remains OPEN.
-Its private demonstration remains OPEN for incomplete service coverage, divergent billing totals
-and unknown usage coverage. A separate hourly GitHub Actions job with a free external heartbeat
-is [proposed for monitoring](docs/fly-spend-controls.md#external-runner-proposal); the repository's
-public visibility was verified, but no workflow, credentials, monitoring account or alerts are active.
-The configuration deployment preserved the fixed resource envelope. No Fly monitor, service hold
-or Fly credit purchase has been performed; see
-[hosting spend controls](docs/fly-spend-controls.md). A separate
-[proposed privacy revision](docs/app-store/privacy-policy-proposed-20260909.md) now describes the
-aggregate ledger and deletion behavior; publication and APP-016 review remain open.
-Setup approval does not authorize AI enablement
-or an automatic service hold.
-The new verified budget-aware image is retained privately for disabled
-redeployment; pre-budget v10 is no longer a normal recovery target. The earlier timeout's cost remains unconfirmed, conservatively
-bounded by US$0.205120; a separate successful diagnostic
-cost US$0.004222. See the [evaluation and owner acceptance record](docs/model-evaluation.md#optional-item-clarification--automatic-pass-and-owner-qualitative-acceptance).
-No new iOS build is needed: the request/response schemas and shipped iOS sources are unchanged.
-The preserved Build 7 archive still needs fresh operational review, owner-approved upload, Apple
-processing, internal assignment, and its clean physical visual retest. Snapshot expiry remains a
-separate deletion/recovery evidence gate.
-
-Final PR-review verification on 6 September 2026 passed 583 backend tests plus
-dependency/security/lint/type checks, 226 Swift tests and all 10 UI tests, 44 release-script tests, the Release simulator build
-and artifact checks. The preserved Build 7 archive is unchanged; its earlier local
-signature/privacy verification remains recorded in the release evidence.
-Numeric scoring now rejects reports whose complete manifest/hash differs from the current
-source and selected model; historical ratings and qualitative approval remain separate evidence.
-These results do not substitute for fresh production release evidence.
-
-PR #41 rebase-merged on 6 September 2026 to `e3a837b`; the reviewed source and merged tree
-match. A subsequent Linux/AMD64 image scan found four High-severity findings in the inherited
-`util-linux` package. The follow-up requires `libuuid>=2.42.3-r1` while preserving the
-pinned base images and crypto updates. Its rebuilt image contains `libuuid 2.42.3-r1` and passes
-the zero-High/Critical scan, native UUID loading, non-root/no-new-privileges, bounded logging,
-separate storage, and restart-persistence checks.
-[PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records the owner-approved source
-publication, required checks, Codex review, and merge state. That image first deployed as v11 and
-now runs in configured v12 with AI disabled; full migration acceptance and enablement remain open.
-The preserved Build 7 archive is unchanged. The remediation passed all 583 backend tests and
-security/type/lint checks, 236 iOS tests, 44 release-script tests, and fresh Release artifact
-checks. No new TestFlight build is required. See the
-[runtime security checkpoint](docs/app-store/internal-testflight-runbook.md#runtime-security-follow-up--2026-09-06).
-
-For current candidate status, consumed build numbers, clean-install requirements, and physical
-TestFlight QA evidence, see [`docs/app-release-backlog.md`](docs/app-release-backlog.md) and
-[`docs/app-store/internal-testflight-runbook.md`](docs/app-store/internal-testflight-runbook.md).
+Provider-key rotation before the recorded 8 October expiry, truthful AI disclosures/consent,
+snapshot-expiry/deletion-recovery proof and App Store metadata remain tracked in the
+[release plan](docs/release-plan.md) and [TestFlight runbook](docs/app-store/internal-testflight-runbook.md).
+Detailed historical model evaluations, releases and test counts remain in those linked records
+and Git history; they are not additional tasks to repeat.

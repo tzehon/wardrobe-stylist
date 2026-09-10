@@ -97,8 +97,11 @@ resource categories, with no linked organizations, active support package, Manag
 clusters or Upstash Redis databases in the reviewed organization. The snapshot does not establish
 the billing feed's coverage cutoff/refresh lag, final taxes/adjustments or the absence of every
 possible add-on. Private planning uses the higher preview; feed reconciliation remains OPEN.
-The revised setup still requires fresh billing reconciliation and verified
-monitoring before AI enablement; the month-end estimate remains a planning scenario.
+Before AI enablement, refresh the billing observations and review the current owner-run daily
+cost procedure, unresolved coverage and residual Fly exposure in the concrete activation package.
+The [10 September release plan](release-plan.md) defers the external runner; installing it or
+proving its alert delivery is not a prerequisite for this manual operating path. A month-end
+estimate remains a planning scenario, and any disagreement between feeds remains explicit.
 
 The route admits at most 200 catalog items, 32,768 bytes of normalized request JSON, and
 64 characters per color. The HTTP receive layer limits `/recommend` to 128 KiB even when
@@ -184,8 +187,12 @@ policy match. Update the production-operations lock's deployed revision/release 
 secret names from actual deployment evidence; do not fabricate a future release number or reuse
 the historical v10 source lock as proof. The v12 configuration-deployment evidence binds unchanged source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. `production_styling_status()` emits fixed bands only
-and is read-only. The full operations helper requires a ready, enabled budget; configured-but-disabled
-v12 returns OPEN `styling-disabled` after the verified diagnostic correction described above.
+and is read-only. The default `ai-launch` purpose requires a ready, enabled budget; configured-but-disabled
+v12 returns OPEN `styling-disabled`. For an intentionally AI-disabled internal beta, the explicit
+`internal-beta-ai-disabled` purpose can accept that disabled evidence only after below-warning,
+no-pending-work checks pass and every other review check passes. Its output is beta-only, not
+AI-launch readiness. Complete disabled pre-enable checks first, then enable only under the
+separate approved change and verify enabled operation afterward; there is no circular prerequisite.
 The bounded launch policy is approved, but the
 remaining operational gates and explicit AI-enable approval are still required.
 
@@ -204,7 +211,9 @@ The ledger exposes below-80%, 80% warning, 95% critical, and exhausted bands. Ex
 insufficient room for one full reservation even if some allowance remains. A bounded
 `styling_budget_event` warning signals admission/storage/settlement problems or an 80% review
 threshold; logs contain no amounts, catalog data, IDs, or credentials. Preflight fails closed on
-warnings, exhaustion, disabled styling, pending requests, or absent/untrusted evidence.
+warnings, exhaustion, pending requests, or absent/untrusted evidence. Disabled styling remains
+open under the default AI-launch purpose; the explicit internal-beta purpose requires that
+disabled state and does not permit enabling AI.
 
 The owner accepted responsibility for daily provider/ledger review during launch, same-day
 review of warning events, and immediate response to critical spend, anomalous traffic, uncertain

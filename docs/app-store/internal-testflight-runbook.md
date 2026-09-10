@@ -4,6 +4,32 @@ Use this runbook for every internal beta. The audience is internal, but the bina
 an App Store release candidate from the moment it is archived. This prevents a separate, weaker
 "beta build" configuration from drifting away from what will eventually be reviewed.
 
+## Current work order — 10 September 2026
+
+Start with [the short release plan](../release-plan.md). This runbook retains operator procedures
+and historical evidence; it is not a request to repeat every completed row. Internal beta
+availability, optional AI activation and public App Store submission have separate requirements.
+The owner requested a reset of the overgrown monitoring/release workflow on 10 September.
+
+The unshipped hourly monitor was archived and removed from the active checkout. Use existing
+budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
+account are deferred. A local-first beta may intentionally have AI unavailable, with truthful
+What to Test notes. Preserve privacy/deletion work and all applicable current security checks.
+
+Use `--purpose internal-beta-ai-disabled` for that beta's read-only operations review, alongside
+the normal archive/manual/recovery arguments. Its `PASS_INTERNAL_BETA_ONLY` result requires
+verified disabled, below-warning, idle budget state and all other checks; it is not permission to
+enable AI or submit publicly. The default purpose remains `ai-launch`. Do disabled pre-enable
+checks before an approved activation and the enabled confirmation afterward.
+
+The local reset regression passed 840 backend tests plus locked dependency audit, Bandit, Ruff
+and application mypy; XcodeGen and the full iOS suite passed 236/236 tests (226 Swift and 10 UI),
+and all 44 release-script tests passed. Independent review found no actionable defect in the
+purpose-specific preflight. The preserved build-7 archive is still present locally; this check
+does not renew its signing, live-operations or App Store Connect evidence. No iOS bundle or
+API-contract change was made, so the refactor requires no new TestFlight build. Publication,
+distribution and AI activation have not been performed as part of this reset.
+
 ## Distribution policy
 
 - Upload with Xcode's **TestFlight & App Store** distribution option, then add the processed build
@@ -68,8 +94,11 @@ the exact collector, credential scope, actual alert receipt and independent miss
 still need review and proof.
 No monitor, notification test, service hold or new resource has been activated.
 
-Before enabling AI, complete provider-alert delivery, Fly monitoring and billing reconciliation,
-public privacy/consent review, key usability/rotation readiness, and the fresh operational review.
+At this historical checkpoint, the proposed automation/delivery work was still open. The
+10 September reset defers that automation: before AI activation, complete truthful privacy/consent,
+key and budget checks plus the simple pilot cost/response review. Retain billing discrepancies
+and residual exposure explicitly. Confirm enabled operation after the approved change; the
+enabled check is not a prerequisite to the disabled pre-enable review.
 AI enablement and distribution remain separate approvals. Never repeat first provisioning,
 the consumed credit purchase or key staging to reproduce earlier setup evidence.
 
@@ -908,8 +937,9 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    Copy those four candidate fields exactly from `backend/production-operations.toml`; they bind the
    signed-in observations to the locked archive and deployment. Rerun the helper with
    `--refresh-registry-auth --manual-evidence
-   backend/production-operations-evidence.toml`. It must pass within 30 minutes of those
-   observations. Missing, malformed, stale, timed-out, or weaker evidence stays `OPEN`. After a
+   backend/production-operations-evidence.toml`. For an intentionally AI-disabled internal beta,
+   include `--purpose internal-beta-ai-disabled`; otherwise retain the default `ai-launch`
+   purpose. It must be eligible for the declared purpose within 30 minutes of those observations. Missing, malformed, stale, timed-out, or weaker evidence stays `OPEN`. After a
    pass, add one identifier-free fixed-field row—including remediation outcome and next due—to the
    policy's long-lived manual-review register; the gitignored TOML is only same-session input and is
    not the retained review record. Explicit owner upload approval is still a separate gate.
@@ -1260,8 +1290,9 @@ rebuild unless something changed:
   verification/CASA is not a public-v1 gate.
 - Approve and verify the private Singapore-launch AI spend envelope, hard global capacity ceiling,
   bounded request/token/retry exposure, alert/disable response, and public multi-user operations
-  cadence. First migrate to the lowest-cost current Anthropic model that passes the recorded
-  Wardrobe quality gate and verify the exact locked SDK/model/API configuration. Never describe the
+  cadence. Use the already accepted model/evaluation and approved budget policy; verify their current
+  SDK/model/API configuration. Repeat model selection only if a concrete change invalidates
+  that evidence, not as a new bakeoff on every submission. Never describe the
   current hourly abuse limit or a provider console warning as a proven monthly monetary circuit
   breaker.
 - Select the already-tested build on the matching App Store version.
@@ -1270,9 +1301,11 @@ rebuild unless something changed:
   against the retained evidence.
 - Choose **Add for Review**, inspect the complete submission, then **Submit for Review**.
 
-If code, resources, configuration, backend contract, disclosures, or version metadata changes,
-increment the build number and repeat the full loop. Never "patch" an uploaded candidate in place.
-App Store Connect-only price/territory choices and documentation do not require a new binary.
+If the shipped iOS sources/resources/configuration, bundled disclosure, version metadata or
+client-required API contract changes, use the next unused build and repeat the applicable
+distribution checks. Never patch an uploaded binary in place. Backward-compatible backend-only
+changes require their operations review, not an automatic new iOS build. Documentation and
+App Store Connect-only price/territory choices do not require a new binary.
 Future Plan & Usage UI, StoreKit, entitlement, metering, quota-response, or other user-visible
 freemium behavior does require the next unused build and the full loop.
 

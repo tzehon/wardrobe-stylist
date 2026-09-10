@@ -19,9 +19,20 @@ Statuses:
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
 
+## Current work order — 10 September 2026
+
+Follow [the release plan](release-plan.md): deliver the local-first internal beta, complete optional
+AI activation, then finish public Singapore submission. This backlog is a work inventory, not a
+single serial checklist. Previously verified work is retained; open AI/commerce/automation items
+do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
+is deferred; existing budget controls and owner-run daily pilot checks remain.
+
+The [freemium model](freemium-model.md) distinguishes the Free/no-IAP launch from the planned paid
+release. Proposed allowance examples and unresolved prices are not customer promises.
+
 ## Progress snapshot
 
-Last updated: **2026-09-07**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-10**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -228,7 +239,11 @@ deployment at that review point. Later physical QA observed build-4 identity del
 build-5 registration/assertion markers without payloads or identifiers. Protected `/recommend`
 success intentionally has no developer event and remains aggregate/client-evidenced.
 
-## Immediate next milestone — remaining recovery and release gates
+## Retained recovery and release inventory
+
+The current sequence is in [the release plan](release-plan.md). The dated evidence and checkboxes
+below preserve prior candidates and remaining work; they are not a single blocking sequence for
+the AI-disabled beta, AI activation and public submission.
 
 App Store Connect showed builds 1–4 only and build 5 absent at the final pre-validation refresh,
 `2026-08-22T03:16:16Z`. The exact `1.0.0 (5)` production-signed archive then validated, uploaded,
