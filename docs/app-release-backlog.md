@@ -159,8 +159,10 @@ geography; its monthly limit and two email settings were verified after reload. 
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
 The workspace-scoped key was created without Admin API access and transferred through hidden owner
 input without local secret persistence; it and the private settings are deployed in v12. Rotation
-before its 8 October 2026 expiry is required. Actual alert delivery, Fly monitoring,
-full pre-upload verification, AI enablement and distribution remain open. The earlier
+before its 8 October 2026 expiry is required. Actual provider alert delivery remains unproven.
+The 10 September plan uses daily owner cost review for the small pilot and defers external
+monitoring. Fresh operations evidence for the declared milestone, AI enablement and distribution
+remain open. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
@@ -170,16 +172,17 @@ the v12 restart without reset. See the [approved setup checkpoint](app-store/int
 
 On 8 September the owner added [Fly hosting cost protection](fly-spend-controls.md) to that pending
 proposal, then approved its private hosting envelope and warning/hold thresholds with the finite
-setup. Monitoring/delivery verification remains unfinished, and no service hold is authorized by
-the policy alone. Current CLI inventory confirms the small fixed topology. The
+setup. The current daily owner-review path does not rely on unproven provider alert delivery or
+require the deferred external monitor; no service hold is authorized by the policy alone.
+The retained CLI inventory confirms the small fixed topology. The
 latest signed-in 9 September billing refresh shows an increased invoice preview while same-period
 Cost Explorer is unchanged across the same five expected categories. Private planning uses the higher preview, with feed
 reconciliation OPEN. The reviewed organization has no linked organizations,
 active support package, Managed Postgres clusters or Upstash Redis databases. This snapshot does
 not establish billing-feed coverage/lag, final taxes/adjustments or the absence of every possible
-add-on. Verified monitoring and fresh reconciliation remain open, and the month-end estimate is a
-planning scenario. No native hard bill cap is established;
-do not close this gate from the AI ledger or an AI-disabled runtime. A
+add-on. Fresh reconciliation remains open, and the month-end estimate is a planning scenario.
+Review the current billing observations, discrepancies and residual exposure before AI activation.
+Neither the AI ledger nor an AI-disabled runtime establishes a hard Fly bill cap. A
 [local evidence checker](fly-spend-controls.md#local-evidence-checker) now assesses supplied private
 records without live collection, notification or hold authority; unknown billing coverage remains
 OPEN. No new TestFlight build is
@@ -552,13 +555,14 @@ open.
   44 release-script tests, and a fresh Release simulator build/artifact check. The preserved
   Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain
   recorded. No public push, deployment, upload, or phone/snapshot mutation occurred.
-- [ ] **Establish the free Singapore launch spend envelope.** Before public distribution, approve a
-  private maximum monthly AI budget and prove a hard, fail-closed global ceiling whose worst-case
-  exposure fits it. Bound request input, output, concurrency, and retry exposure; lock the selected
-  production limits in configuration and the redacted operations preflight; define alert and
-  emergency-disable handling; and replace the personal/single-user monitoring assumption with an
-  explicitly accepted Singapore public-launch capacity and response cadence. Do not record exact
-  billing or secret values in release evidence, and do not describe AI styling as unlimited.
+- [ ] **Complete the controlled Singapore AI pilot within the approved spend envelope.** Preserve
+  the approved private budget and capacity policy. Before AI activation, verify the fail-closed
+  global ceiling and bounded input, output, concurrency and retry exposure; refresh the existing
+  limits/key/ledger, privacy/consent and daily cost-response checks while styling remains disabled.
+  Review residual Fly exposure, obtain the bounded activation/verification-call approval, then
+  confirm enabled operation. This AI milestone does not block the explicitly AI-disabled internal
+  beta or close the public release's separate privacy, recovery and App Store requirements.
+  Do not record exact billing or secret values in release evidence, or describe AI as unlimited.
   Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
@@ -568,10 +572,11 @@ open.
   files, not tracked source. On 8 September the owner approved the finite billing-reviewed setup
   and private capacity bounds. First-ever provisioning and local installation of the capacity
   review file are complete; Fly v12 applies the private policy/key while keeping AI disabled.
-  The public-capacity check and independent configured ledger probe passed. Alert delivery,
-  Fly monitoring,
-  prior excluded uncertain-call liability, AI enablement and the full operational review
-  remain open. The provider workspace/cap/email settings are saved and verified; one approved
+  The public-capacity check and independent configured ledger probe passed. Provider alert delivery
+  remains unproven. Under the 10 September reset, the small pilot uses daily owner review;
+  the deferred external monitor is not an activation prerequisite. Prior excluded uncertain-call
+  liability remains unresolved, and AI enablement and fresh operations evidence for the declared
+  milestone remain open. The provider workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The
   [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
   records post-deployment ledger verification and the unchanged image/Machine/volume topology.

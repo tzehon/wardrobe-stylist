@@ -52,15 +52,17 @@ and the historical
 [disabled rollout](../docs/app-store/internal-testflight-runbook.md#disabled-runtime-rollout--2026-09-07).
 The request/response contract and iOS bundle are unchanged; Build 8 is not required.
 The revised 8 September setup proposal also includes separate
-[Fly hosting cost controls](../docs/fly-spend-controls.md). The policy is approved; monitoring is
-not installed and a service hold requires its own execution approval. The AI budget and disabled switch do not cap Fly
-charges. The latest signed-in 9 September refresh shows an increased September invoice preview
+[Fly hosting cost controls](../docs/fly-spend-controls.md). The policy is approved; the
+[10 September release plan](../docs/release-plan.md) uses daily owner cost review and defers the
+external monitor. A service hold requires its own execution approval. The AI budget and disabled
+switch do not cap Fly charges. The latest signed-in 9 September refresh shows an increased September invoice preview
 while same-period Cost Explorer is unchanged across the same five expected categories; private planning uses the higher
 preview and retains feed reconciliation OPEN. The reviewed organization has no linked
 organizations, active support package, Managed Postgres clusters or Upstash Redis databases. This
 is a current billing snapshot, not proof of final charges or the absence of every possible add-on.
-The feed's coverage cutoff/refresh lag and monitoring readiness remain open; month-end amounts
-remain planning scenarios. The standalone
+The feed's coverage cutoff/refresh lag remains unknown; month-end amounts remain planning
+scenarios. The daily review does not rely on unproven provider alert delivery or remove residual
+hosting exposure. The standalone
 [`verify_fly_spend.py`](verify_fly_spend.py) validates explicitly supplied private policy/resource/
 billing JSON and emits fixed local-evidence labels. It has no live collection, scheduler,
 notification or shutdown path; see the
@@ -140,9 +142,10 @@ checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
 synchronously removes the proven installation and its sessions, and the iOS Privacy & Data screen
 exposes that server-only control. The exact live and retained-recovery digests and scan evidence are
 kept in ignored private release records; the internal-TestFlight runbook records fixed outcomes.
-The owner-approved payload-free manual operations
-review remains part of the operating policy; it does not close the new provider/Fly alert-delivery
-and monitoring gates for public launch. The first manual
+The owner-approved payload-free manual operations review remains part of the operating policy.
+The [current release plan](../docs/release-plan.md) supplements it with daily owner cost review
+for the small pilot and defers the new monitoring stack. Unproven provider alert delivery is not
+relied on; residual Fly cost exposure and the manual response remain explicit. The first manual
 review passed on 2026-08-20, and the v10 post-change review passed at `2026-08-29T02:21:41Z`. A
 fresh full operations/recovery review against exact v10 completed at `2026-08-29T11:02:18Z`,
 including a fresh private-registry match and zero-High/Critical Docker Scout scan, immediately
@@ -163,24 +166,40 @@ Fly's fixed seven-day customer-visible stream and undisclosed provider-internal 
 retention. The 2026-08-20 manual-operations decision adds no monitoring processor or backend data
 flow. Historical v10 manual reviews and the build-7 pre-archive repeat passed. The v11 disabled-only
 review passed its scoped checks. The later v12 review verified the applied private budget policy,
-existing ledger and usable provider credit with AI disabled; alert delivery, Fly monitoring and
-billing reconciliation and the full pre-upload repeat
-remain open. Snapshot-list expiry, final App
-Privacy publication, and deletion-specific recovery remain release gates; the manual review must
-remain current under the approved cadence.
+existing ledger and usable provider credit with AI disabled. Provider alert delivery remains
+unproven and billing reconciliation remains unresolved; the daily owner-review path does not rely
+on delivery or require the deferred external monitor. Fresh operations evidence is still required
+for the declared milestone. Snapshot-list expiry, final App Privacy publication and
+deletion-specific recovery remain open in the public-release track; the manual review must remain
+current under the approved cadence.
 
-Run the repeatable read-only part of the fresh pre-upload review from clean synchronized `main`:
+Run the repeatable read-only part of the fresh internal-beta pre-upload review from the repository
+root on clean synchronized `main`, keeping AI disabled:
 
 ```bash
-python3 backend/verify_production_operations.py --refresh-registry-auth
+python3 backend/verify_production_operations.py \
+  --purpose internal-beta-ai-disabled --refresh-registry-auth
 ```
+
+This purpose accepts only verified disabled styling with an intact, below-warning, idle ledger;
+every other required check must pass. Its `PASS_INTERNAL_BETA_ONLY` result does not authorize
+AI activation, public submission or upload. Verify the existing limits/key/ledger and current
+privacy/consent and daily cost-response checks before requesting separate AI activation approval.
+After approved activation, use the enabled-state review:
+
+```bash
+python3 backend/verify_production_operations.py --purpose ai-launch --refresh-registry-auth
+```
+
+`ai-launch` is the default purpose and requires enabled styling. It is not a prerequisite that
+demands AI already be enabled before activation is approved.
 
 The lock identifies the verified v12 configuration deployment with unchanged merged source.
 The ledger and private policy are applied with AI disabled. The ordinary budget check remains
 OPEN `styling-disabled`. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
-The command defaults to the locked final build-7 archive. It captures Fly/Docker/HTTP/SQLite output
+Both purposes use the locked final build-7 archive by default. The command captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
 `/recommend` path. It deliberately returns nonzero until the official Fly response-class metric,

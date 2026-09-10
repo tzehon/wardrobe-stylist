@@ -25,10 +25,13 @@ checks before an approved activation and the enabled confirmation afterward.
 The local reset regression passed 840 backend tests plus locked dependency audit, Bandit, Ruff
 and application mypy; XcodeGen and the full iOS suite passed 236/236 tests (226 Swift and 10 UI),
 and all 44 release-script tests passed. Independent review found no actionable defect in the
-purpose-specific preflight. The preserved build-7 archive is still present locally; this check
-does not renew its signing, live-operations or App Store Connect evidence. No iOS bundle or
-API-contract change was made, so the refactor requires no new TestFlight build. Publication,
-distribution and AI activation have not been performed as part of this reset.
+purpose-specific preflight. A separate read-only verification at `2026-09-10T00:42:09Z` passed the
+preserved build-7 archive's strict signing/profile, production App Attest, public/Gmail-free content
+and locked app/dSYM identity checks. The initial sandbox trust failure passed with macOS trust
+access; neither the archive nor its signature was changed. Live operations and App Store Connect
+still need fresh evidence. No iOS bundle or API-contract change was made, so the refactor requires
+no new TestFlight build. [PR #46](https://github.com/tzehon/wardrobe-stylist/pull/46) records source
+publication, review corrections and merge status. Distribution and AI activation remain open.
 
 ## Distribution policy
 
@@ -154,7 +157,9 @@ Fresh pre-deployment inventory confirmed no resource growth. The approximately 0
 signed-in billing refresh showed divergent invoice-preview and Cost Explorer totals across the
 same five expected products. Private planning uses the higher preview, without attributing the
 difference to lag or claiming a proved forecast. Billing-feed freshness/reconciliation, final
-adjustments, provider alert delivery and Fly monitoring implementation/delivery remain OPEN.
+adjustments, provider alert delivery and Fly monitoring implementation/delivery were OPEN at that
+checkpoint. The 10 September plan supersedes the automation/delivery requirement with daily owner
+review; it does not convert missing billing or delivery evidence into a pass.
 Post-deployment resource inventory again passed with no additional billable resources. The
 provider console recheck confirmed the saved cap/notification settings, usable credit and disabled
 auto-reload; the Fly invoice preview was unchanged. These checks do not reconcile the divergent feeds.
@@ -263,7 +268,9 @@ autostart/minimum-one/restart behavior before verifying stopped state. It preser
 snapshots and uncertain provider liabilities. Native billing alerts and an enforceable total
 monetary cap are not established; proposed monitoring/response is not a guaranteed bill ceiling.
 Monitoring implementation, feed/delivery verification, acceptance of residual cost exposure and
-any hold execution remain separate open gates. No monitor, shutdown, deployment or purchase ran.
+any hold execution were separate open gates in this September 8 proposal. The 10 September plan
+defers automated monitoring and retains current billing observations, explicit residual exposure
+and the reviewed manual response. No monitor, shutdown, deployment or purchase ran at this checkpoint.
 This is documentation-only preparation; the preserved Build 7 archive is unchanged.
 
 ## Local launch preparation — 2026-09-06

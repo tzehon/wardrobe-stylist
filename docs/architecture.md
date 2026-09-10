@@ -14,8 +14,10 @@ current-month state, and the disabled guard returns 503. The selected Sonnet req
 automatic evaluation and received qualitative owner acceptance. First provisioning, provider
 workspace/cap/email settings, sufficient prepaid credit and public-capacity setup are complete.
 Preserve the ledger and approved limits; do not initialize or reset it again. No paid AI call was
-made during deployment or verification. Provider alert delivery, Fly monitoring and billing-feed
-reconciliation, separate AI enablement and the full pre-upload/distribution gates remain open.
+made during deployment or verification. Provider alert delivery remains unproven and billing-feed
+reconciliation remains unresolved. The [10 September release plan](release-plan.md) uses daily
+owner cost review for the small pilot and defers external monitoring. Separate AI enablement,
+fresh operations evidence for the declared milestone and distribution remain open.
 The ordinary budget diagnostic now uses the service identity; live read-only verification on
 9 September returned OPEN `styling-disabled` on the unchanged v12 runtime and existing ledger.
 See the [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
@@ -244,7 +246,9 @@ retry, timeout refund, or fresh-database recreation can reopen the approved allo
 ledger persists its model, unit, rate, and token-bound policy; old Haiku or mismatched storage
 fails closed without an automatic upgrade. See
 [AI spend controls](ai-spend-controls.md) for private provisioning, alerts, disable/recovery, and
-the approved public-capacity review bounds and remaining monitoring/enablement gates.
+the approved public-capacity review bounds and remaining enablement checks. The
+[release plan](release-plan.md) uses daily owner cost review for the small pilot and defers the
+external monitoring prototype.
 
 ## Data model
 
@@ -319,7 +323,8 @@ flowchart LR
 - The provisioned `/data/ai-budget/budget.sqlite3` stores only aggregate
   counters and random reservation metadata. Its private limits must match the approved runtime configuration.
   The v12 restart verified the existing ledger is readable without reset. Keep AI disabled until
-  the remaining monitoring and launch gates pass and separate enablement is approved.
+  the privacy/consent, existing budget and daily cost/response checks pass and separate
+  enablement is approved. Review residual Fly exposure; automated monitor delivery is deferred.
   Every application process must use the same ledger on the verified single-Machine volume;
   independent per-replica budgets would not enforce a global ceiling.
 - Backend auth state, logs, snapshots, deletion, and manual operations follow the
@@ -327,15 +332,19 @@ flowchart LR
   customer-visible stream and undisclosed provider-internal in-service retention are accepted and
   publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
 - Public v1 has no Google OAuth dependency or Gmail network route.
-- The complete preflight requires the bounded budget to be enabled, ready, below its warning band,
-  and free of pending requests. Configured-but-disabled v12 now returns OPEN `styling-disabled`;
-  manual-review rows remain OPEN. The 9 September diagnostic correction connects as `wardrobe`,
+- The default `ai-launch` preflight requires the bounded budget to be enabled, ready, below its
+  warning band, and free of pending requests. The explicit `internal-beta-ai-disabled` purpose
+  requires verified disabled styling with an intact, below-warning, idle ledger and every other
+  check passing. It reports beta-only eligibility and does not authorize AI or public submission.
+  Configured-but-disabled v12 returns OPEN `styling-disabled`; live manual inputs still need a
+  fresh review. The 9 September diagnostic correction connects as `wardrobe`,
   requires real/effective UID and GID 10001 before status inspection, and suppresses bytecode writes
   with `-B`. Live read-only verification passed without changing the runtime or ledger. The
   earlier 8 September `styling-budget-evidence-open` result remains historical evidence.
   The approved public-capacity file is installed and its configured band passed the post-review.
-  Saved provider limits/notifications and sufficient credit do not prove alert delivery or Fly
-  monitoring readiness; those remain open.
+  Saved provider limits/notifications and sufficient credit do not prove alert delivery. The
+  current daily owner-review path does not rely on that unproven delivery or require the deferred
+  Fly monitor; variable hosting charges and detection delay remain explicit operating risks.
 - The unchanged privately recorded image used by v11/v12 is the disabled recovery reference.
   The v12 restart verified compatibility with the existing ledger and limits without initialization
   or reset. Pre-budget v10 must not become a normal rollback target after cutover. Recovery must
