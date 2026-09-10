@@ -128,6 +128,11 @@ class Status(StrEnum):
     OPEN = "OPEN"
 
 
+class ReviewPurpose(StrEnum):
+    AI_LAUNCH = "ai-launch"
+    INTERNAL_BETA_AI_DISABLED = "internal-beta-ai-disabled"
+
+
 _DETAILS: dict[str, frozenset[str]] = {
     "source": frozenset({"clean-synchronized", "local-source-open"}),
     "archive": frozenset({"strict-artifact-match", "archive-open"}),
@@ -267,16 +272,31 @@ class ReviewReport:
     checked_at: datetime
     results: tuple[CheckResult, ...]
     snapshot: SnapshotMetadata | None = None
+    purpose: ReviewPurpose = ReviewPurpose.AI_LAUNCH
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.purpose, ReviewPurpose):
+            raise ReviewConfigurationError("review purpose is invalid")
 
     @property
     def passed(self) -> bool:
-        return (
-            tuple(result.name for result in self.results) == CHECK_ORDER
-            and all(result.status is Status.PASS for result in self.results)
-        )
+        if tuple(result.name for result in self.results) != CHECK_ORDER:
+            return False
+        if self.purpose is ReviewPurpose.INTERNAL_BETA_AI_DISABLED:
+            # Keep disabled styling OPEN as evidence; it is acceptable only for this beta.
+            return all(
+                result.status is Status.OPEN and result.detail == "styling-disabled"
+                if result.name == "styling_budget"
+                else result.status is Status.PASS
+                for result in self.results
+            )
+        return all(result.status is Status.PASS for result in self.results)
 
     def render(self) -> str:
-        lines = [f"checked_at_utc={_format_utc(self.checked_at)}"]
+        lines = [
+            f"checked_at_utc={_format_utc(self.checked_at)}",
+            f"review_purpose={self.purpose.value}",
+        ]
         by_name = {result.name: result for result in self.results}
         for name in CHECK_ORDER:
             result = by_name[name]
@@ -289,14 +309,14 @@ class ReviewReport:
                     f"snapshot_retention_days={self.snapshot.retention_days}",
                 )
             )
-        lines.append(
-            "preupload_evidence="
-            + (
-                "PASS owner-upload-approval-still-required"
-                if self.passed
-                else "OPEN owner-upload-approval-not-requested"
+        eligibility = "OPEN owner-upload-approval-not-requested"
+        if self.passed:
+            eligibility = (
+                "PASS_INTERNAL_BETA_ONLY owner-upload-approval-still-required"
+                if self.purpose is ReviewPurpose.INTERNAL_BETA_AI_DISABLED
+                else "PASS owner-upload-approval-still-required"
             )
-        )
+        lines.append("preupload_evidence=" + eligibility)
         return "\n".join(lines)
 
 
@@ -1520,14 +1540,14 @@ def check_styling_budget(
         for key, allowed in _STYLING_DIAGNOSTIC_VALUES.items()
     ):
         return fallback
-    if diagnostic["enabled"] != "yes":
-        return _open("styling_budget", "styling-disabled")
     if diagnostic["spend_band"] == "exhausted":
         return _open("styling_budget", "spend-exhausted")
     if diagnostic["spend_band"] in {"warning", "critical"}:
         return _warning("styling_budget", "spend-" + diagnostic["spend_band"])
     if diagnostic["concurrency"] != "clear":
         return _open("styling_budget", "requests-pending")
+    if diagnostic["enabled"] != "yes":
+        return _open("styling_budget", "styling-disabled")
     return _pass("styling_budget", "bounded-enabled-below-warning")
 
 
@@ -2091,7 +2111,10 @@ def run_review(
     getter: HTTPGetting,
     clock: Callable[[], datetime],
     capacity_policy: AuthCapacityPolicy | None = None,
+    purpose: ReviewPurpose = ReviewPurpose.AI_LAUNCH,
 ) -> ReviewReport:
+    if not isinstance(purpose, ReviewPurpose):
+        raise ReviewConfigurationError("review purpose is invalid")
     config = ReviewConfig.load(repo_root / "backend/production-operations.toml")
     local_fly, app = _load_local_fly(repo_root / "backend/fly.toml")
     if not _fly_binding_matches(app=app, config=config):
@@ -2180,6 +2203,7 @@ def run_review(
         checked_at=completed_at,
         results=tuple(by_name[name] for name in CHECK_ORDER),
         snapshot=storage.snapshot if storage is not None else None,
+        purpose=purpose,
     )
 
 
@@ -2195,6 +2219,16 @@ def build_parser() -> argparse.ArgumentParser:
             "Run the redacted Wardrobe production pre-upload preflight. "
             "This command never uploads or mutates provider resources."
         )
+    )
+    parser.add_argument(
+        "--purpose",
+        type=ReviewPurpose,
+        choices=tuple(ReviewPurpose),
+        default=ReviewPurpose.AI_LAUNCH,
+        help=(
+            "defaults to AI-launch readiness; internal-beta-ai-disabled requires "
+            "verified disabled styling and does not establish AI-launch readiness"
+        ),
     )
     parser.add_argument(
         "--archive",
@@ -2251,6 +2285,7 @@ def main(argv: list[str]) -> int:
             getter=UrllibHTTPGetter(),
             clock=lambda: datetime.now(UTC),
             capacity_policy=capacity_policy,
+            purpose=args.purpose,
         )
     except ReviewConfigurationError:
         print(
@@ -2265,10 +2300,18 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    print(
-        "Production operational evidence passed; explicit owner upload approval is still required.",
-        file=sys.stderr,
-    )
+    if report.purpose is ReviewPurpose.INTERNAL_BETA_AI_DISABLED:
+        print(
+            "Internal-beta operational evidence passed with AI disabled; AI launch remains "
+            "blocked and explicit owner upload approval is still required.",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            "Production operational evidence passed; explicit owner upload approval "
+            "is still required.",
+            file=sys.stderr,
+        )
     return 0
 
 
