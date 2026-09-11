@@ -13,7 +13,9 @@ editing, wear history, local reminders and Demo Mode without payment or a Wardro
 Optional AI styling is implemented, but the last verified production configuration has it
 disabled. Remote requests currently receive temporary unavailability; local features still work.
 Build 7 has completed [internal TestFlight distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
-Owner-controlled installation handoff, physical QA, AI activation and public release remain open.
+The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+records the completed handoff, clean installation and scoped local-beta QA. AI activation and
+public release remain open; the planned freemium offering is unchanged.
 
 There is no StoreKit purchase flow, subscription entitlement service, customer-level monthly
 allowance, Plan & Usage screen, Restore Purchases or Manage Subscription control in the current

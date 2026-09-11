@@ -25,15 +25,31 @@ the decisions required before the paid release.
 ## Current release
 
 **Build `1.0.0 (7)` is processed and assigned to the `Family` internal TestFlight group.** The
-approved AI-disabled tester notes are saved and reload-verified. The next step is the
-owner-controlled identity-safe handoff, clean install and targeted physical QA. The local wardrobe,
+approved AI-disabled tester notes are saved and reload-verified. The owner-controlled identity-safe
+handoff, clean installation and scoped local-beta QA passed on 11 September. The next stage is
+preparing the separately approved AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
 Fly v12 configuration has AI styling disabled; the app shows temporary unavailability for
 remote styling requests.
 
+On 11 September the owner confirmed that TestFlight updated the existing installation to build 7.
+A Dark Mode screenshot after withdrawing the saved styling permission shows the replacement
+button with centered, title-only white text and a solid blue fill. The owner also confirms existing
+wardrobe items and wear history remain visible, and that Offline Demo opens and its sample wardrobe
+can be browsed with Airplane Mode on and Wi-Fi off. The normal-state visual, retained-data presence
+and offline Demo smoke checks pass. Automated tests cover enabled/pressed/disabled contrast;
+pressed/disabled device captures were not collected. See the
+[physical checkpoint](docs/app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial).
+The scoped live handoff precheck passed with one anonymous installation and a fresh automatic
+snapshot. After owner-approved in-app server deletion, live installation/session/challenge counts
+are zero and one bounded deletion-success marker was observed. The owner subsequently confirmed
+the **Local Data Deleted** result, app removal and a clean TestFlight installation of `1.0.0 (7)`.
+First launch with AI permission off shows an empty Wardrobe and History; a fresh server check
+remains at zero installations, sessions and challenges. The handoff is complete. AI remains disabled.
+
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
-1. Complete the owner-controlled installation handoff and physically verify the delivered beta.
+1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
 2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
 3. Finish the applicable privacy/recovery and store-submission work for the Free Singapore launch.
 
@@ -46,7 +62,7 @@ at `2026-09-10T11:47:49.338Z`, observed in Xcode at `11:48:11Z`. Apple processin
 assignment were verified at `11:50:45Z`,
 and the approved notes persisted after reload at `11:51:22Z`. The existing group's **Automatic
 for Xcode Builds** setting delivered the build without a manual assignment change; it was not
-turned off. Physical installation and candidate-specific QA remain open. Build 7 is used and
+turned off. Clean installation and scoped local-beta QA have since passed. Build 7 is used and
 must not be reused.
 Build 6 is already used and non-promotable after the consent-button visual defect; the fix is
 implemented in build 7. Preserve the owner-controlled identity-safe handoff before replacing an
@@ -56,6 +72,16 @@ The 10 September reset defers the unshipped hourly monitoring system. Its protot
 privately, and the active path uses the existing fixed Fly resources, provider budget controls
 and owner-run daily cost review. Full edge-counter coverage is not a beta distribution gate.
 Fly still has variable charges; see [hosting controls](docs/fly-spend-controls.md).
+
+## Automated QA
+
+Routine catalog edits, Demo, Today/History relaunch, consent and reminder controls are covered by
+the iOS test suite. Enabled, pressed and disabled consent-button contrast has automated coverage.
+A disk-backed regression now checks that a photo, thumbnail and edited item name survive separate
+store reopens. These are automation-owned checks, not another manual checklist for the owner.
+Physical-device evidence remains separate for real App Attest, system permissions/notification
+delivery and a changed visual presentation. Reuse unchanged physical evidence; see the
+[QA ownership record](docs/app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
 
 ## Core safeguards
 
@@ -114,6 +140,12 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 | [`AGENTS.md`](AGENTS.md) | Durable guidance for Codex and other coding agents in this repo |
 
 ## Verification and open work
+
+The 11 September automation correction passed **237 iOS tests** (227 Swift and 10 UI), including
+the new photo/edit/disk-reopen regression, **840 backend tests** plus the locked dependency audit,
+Bandit, Ruff and application mypy, and **44 release-script tests**. These results were obtained
+locally; CI runs provide separate verification. No shipped iOS/backend behavior changed and no new
+TestFlight build is required. The completed local-beta QA does not authorize AI or public release.
 
 The 10 September reset passed **840 backend tests**, locked dependency audit, Bandit, Ruff and
 application mypy, plus **236 iOS tests** (226 Swift and 10 UI) and **44 release-script tests**.

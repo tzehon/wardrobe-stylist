@@ -35,7 +35,8 @@ no new TestFlight build. [PR #46](https://github.com/tzehon/wardrobe-stylist/pul
 `2026-09-10T01:04:48Z` after the documentation correction, a clear current-head Codex review and
 both CI checks passed. Build 7 has completed Xcode validation/upload, Apple processing and
 `Family` internal distribution with saved/reload-verified AI-disabled tester notes. Owner-controlled
-physical handoff/QA and separate AI activation remain open.
+physical handoff/QA remained open at distribution; the 11 September checkpoint records the
+completed handoff and normal-state visual check. AI activation remains separate.
 
 ## AI-disabled beta pre-upload review — 2026-09-10
 
@@ -98,10 +99,86 @@ minimum iOS 18.0, arm64 iPhone support, production App Attest, debugging disable
 enabled. This completes the approved validation/upload, processing, internal assignment and
 tester-note loop. **Ready to Submit** is Apple's build status, not public-submission authorization.
 
-Owner-controlled identity-safe handoff, clean installation and candidate-specific physical QA
-remain open. Keep the existing installation in place until the owner clears
-its identity-safe handoff. No backend deployment, AI activation or paid styling call occurred;
-this internal-beta upload does not authorize public App Store submission.
+The owner-controlled identity-safe handoff, clean installation and scoped local-beta QA later
+completed as recorded below. Do not repeat deletion, uninstall or upload. No backend deployment,
+AI activation or paid styling call occurred; this internal-beta upload does not authorize public
+App Store submission.
+
+## Build-7 physical checkpoint — 2026-09-11 (PARTIAL)
+
+The owner reports `1.0.0 (7)` installed through a TestFlight update over the existing installation.
+The supplied Dark Mode screenshot at 11:04 SGT shows saved AI styling permission allowed and the
+daily reminder off. After the owner withdrew styling permission, the 11:05 screenshot shows the
+replacement **Allow AI styling** control: centered, title-only white text, no leading icon slot,
+solid blue fill and visually readable normal-state presentation. The normal-state visual check
+passes by screenshot inspection; no measured contrast ratio is claimed. The owner then opened
+Wardrobe and History and confirmed that existing items and wear history are still present. This
+passes the retained-data presence smoke check; no full data comparison was performed.
+The owner subsequently confirmed that Offline Demo opens and its sample wardrobe can be browsed
+with Airplane Mode on and Wi-Fi off. The brief offline Demo smoke passes; no remote styling call
+was part of this test.
+
+A subsequent scoped live read-only handoff check passed the locked runtime, auth-store integrity,
+approved aggregate band, volume and automatic snapshot checks. Safe aggregates were one active
+installation, zero active sessions, zero pending challenges and zero failed challenges. The newest
+snapshot was `created` at `2026-09-10T07:48:53Z` with 14-day retention. The budget guard remained
+OPEN `styling-disabled`, confirming AI is still disabled. This is preparation for an owner-approved
+handoff, not a full operations review or deletion authorization. In-app proof of possession and
+successful server deletion must precede any local-data removal or uninstall.
+The owner subsequently approved that ordered deletion and clean-install test. Approval covers
+the current live server record and local wardrobe/photos/history, followed by uninstall and clean
+installation of processed build 7. The owner then reported **Live server security record deleted**.
+Fresh read-only verification returned zero active installations, active sessions, pending challenges
+and failed challenges; the auth-store integrity, runtime, volume and snapshot checks still passed,
+and AI remained disabled. At `2026-09-11T03:14:30Z`, the bounded log-buffer check observed exactly
+one deletion-success marker and no deletion-rejection marker since approval. This verifies the
+live server-deletion stage. The owner next confirmed that **Local Data Deleted** appeared after
+the approved in-app local deletion. The owner then confirmed app removal, clean TestFlight
+installation, **Start with my wardrobe**, empty Wardrobe and History, AI permission off and
+version `1.0.0 (7)` in Settings. A fresh scoped read-only check after first launch again returned
+zero active installations, active sessions, pending challenges and failed challenges. The runtime,
+auth-store, aggregate-band, volume and snapshot checks passed; AI remained disabled. Its newest
+automatic snapshot was `created` at `2026-09-11T07:49:53Z` with 14-day retention. This completes
+the owner-controlled handoff and clean-install first-launch checks. No separate intermediate
+post-uninstall server sample was taken; the zero-state observations bracket server deletion and
+the subsequent clean-install first launch. This did not prove snapshot-list expiry or deletion-
+specific recovery/non-return, which remain separate evidence gates.
+
+This evidence does not establish pressed/disabled presentation or complete wardrobe/history
+integrity. The server-deletion stage passed while the inherited installation was still available;
+local deletion and clean installation are owner-confirmed. The completed regression and retained
+physical evidence close the scoped local-beta QA below; broader AI/public-release evidence remains
+open. Do not repeat deletion, uninstall or upload. No AI activation or styling call was requested.
+No shipped app/backend behavior changed and no new TestFlight build is required.
+
+## QA automation ownership — 2026-09-11
+
+The owner challenged the repeated manual catalog/photo/edit/relaunch request. That request is
+withdrawn. Reuse the automated and retained physical evidence before requesting another device
+step; an uncovered deterministic scenario belongs in a regression test.
+
+| Scenario | Automated evidence and limits |
+| --- | --- |
+| Local add/edit/delete, Demo catalog and Photo Library presentation | `WardrobeUITests.testManualItemCanBeAddedEditedAndDeletedLocally`, `testDemoCatalogCanFilterSearchEditDeleteAndRestoreOnRelaunch`, and `testPhotoLibraryStaysPresentedUntilTheUserCancels`. The picker test covers presentation/cancellation, not camera hardware or photo selection on the owner's device. |
+| Photo and edited name after reopening persistent storage | New `WardrobeStoreDiskPersistenceTests.photoAndEditedNameSurviveSeparateStoreReopens` uses a generated image and isolated temporary disk store. It checks saved identity, photo/thumbnail bytes and image decoding after separate store opens. This is a persistence integration test, not a real-app process-termination or camera-permission claim. |
+| Today/History across process termination and offline failure | `WardrobeUITests.testTodayCacheRestoresWithoutNetworkAfterProcessRelaunchAndSurvivesOfflineRestyle` uses the production views with an isolated fake transport and persistent test store. |
+| Consent-button appearance and behavior | `StylingConsentButtonPresentationTests` checks enabled/pressed/disabled contrast; `testSettingsHubAndStylingConsentStayExplicitAndReversible` checks rendered title centering, width, contrast and grant/withdraw behavior in Dark Mode. The owner's build-7 screenshot provides the candidate-specific normal-state device observation. |
+
+Do not request another manual pass over these deterministic scenarios. Preserve the already
+completed owner-controlled production deletion and clean installation, the build-7 visual
+screenshot, and applicable earlier media/notification physical evidence. Production App Attest
+and a protected styling call remain in the separately approved AI pilot. No additional routine
+phone checklist is assigned. Any newly required device step needs a specific uncovered physical
+risk; missing pressed/disabled device captures must not be presented as missing automated contrast
+coverage. No new TestFlight build is required for this test-only addition.
+
+Local verification completed on 11 September: the new focused persistence test passed, followed
+by all 237 iOS tests (227 Swift and 10 UI), 840 backend tests plus the locked dependency audit,
+Bandit, Ruff and application mypy, and all 44 release-script tests. The remaining local-beta QA
+is complete using those results and the retained device evidence; no extra routine phone test
+is assigned. These are local test results; the PR's CI checks provide separate verification.
+AI activation/protected-call proof, public submission, wider accessibility review and outstanding
+privacy/snapshot/recovery evidence remain separately scoped work.
 
 ## Distribution policy
 
@@ -852,8 +929,9 @@ failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` 
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
 The current Fly v12 runtime has its private policy applied with AI disabled, as recorded above.
 The build-7 exact-source regression, strict signed-archive verification and 10 September internal
-distribution have passed. Owner-controlled handoff, clean installation and the physical Dark Mode
-visual retest remain open. The following entries retain the completed predecessor sequence:
+distribution have passed. The 11 September handoff, clean first launch and scoped local-beta QA
+are complete; use that checkpoint and its automation ownership record for current status.
+The following entries retain the completed predecessor sequence:
 
 - [x] **Freeze the fixes.** Reviewed PR #23 merged the Today offline-cache fix, its focused
   tests, the production registration/assertion success-marker logging fix, and the TestFlight build
@@ -1349,13 +1427,14 @@ identity or notification evidence.
   processing and the existing automatic `Family` assignment were verified, with one group tester
   and no individual testers; the approved AI-disabled notes persisted after reload. See the
   [distribution checkpoint](#build-7-distribution--2026-09-10). Build 7 is consumed.
-- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
-  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
-  Dark Mode. Keep AI unavailable during this beta; production App-Attest-protected styling proof
-  belongs to separately approved AI activation and its bounded verification call. Include the
-  approved brief local/catalog/Demo smoke from the saved tester notes. When the current
-  automated suite is green and retained build-6 physical evidence still applies, do not repeat the
-  unchanged catalog, cached-Today, Wear/History, or reminder flows.
+- [x] Complete the build-7 local-beta verification using the
+  [11 September physical evidence](#build-7-physical-checkpoint--2026-09-11-partial) and
+  [automation ownership](#qa-automation-ownership--2026-09-11). Handoff and clean first launch
+  passed; the device screenshot covers normal-state centering/legibility and automated tests own
+  enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
+  Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
+  catalog or button-state phone checklist remains. Keep AI unavailable; protected production
+  styling proof belongs to separately approved activation and its bounded verification call.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
@@ -1365,8 +1444,9 @@ identity or notification evidence.
 Build 4 is not promotable because of the Today offline-cache defect, and build 5 is not promotable
 because of the delivered-reminder tap crash. Build 6 passed the affected identity and notification
 routes but is non-promotable because it failed the styling-consent control presentation gate. The
-replacement `1.0.0 (7)` has completed internal distribution with AI disabled. Owner-controlled
-handoff, clean physical QA and the separate AI/public-release work remain open. When that candidate
+replacement `1.0.0 (7)` has completed distribution, owner-controlled handoff and clean first
+launch with AI disabled. The normal-state device screenshot passed; automation owns the remaining
+deterministic regression. The separate AI/public-release work remains open. When that candidate
 is fully approved for public release, do not rebuild unless something changed:
 
 - Finish `APP-016` through `APP-018`, agreements, Gmail-free privacy answers, screenshots, review

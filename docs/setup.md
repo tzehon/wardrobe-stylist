@@ -292,9 +292,10 @@ Before AI activation, review existing limits, billing uncertainty and residual F
 obtain approval for the exact activation. Do not rely on unproven alert delivery or infer a public
 allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return, App Privacy and the
-owner-controlled build-7 handoff/clean physical Dark Mode visual retest remain open work, scoped to
-their beta, AI-activation or public-release milestone in the release plan. Real
+Unchecked snapshot-list expiry, deletion-specific restore/non-return and App Privacy remain
+public-release work. The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+records completed build-7 handoff, clean installation and scoped local-beta QA; AI activation
+remains a separate milestone in the release plan. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the

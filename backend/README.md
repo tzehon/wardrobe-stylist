@@ -49,7 +49,9 @@ are unchanged. The finite disabled setup and 10 September beta-only pre-upload r
 Build `1.0.0 (7)` completed validation/upload, Apple processing and `Family` internal distribution
 with saved/reloaded AI-disabled notes; it is consumed and must never be uploaded again. See the
 [distribution record](../docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
-Owner-controlled installation handoff, physical QA, AI activation and public submission remain open.
+The [11 September checkpoint](../docs/app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+records completed owner-controlled deletion, clean installation and scoped local-beta QA. AI
+activation, broader public-release checks and public submission remain open.
 Earlier setup evidence remains in the
 [diagnostic follow-up](../docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)

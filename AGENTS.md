@@ -45,14 +45,25 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
-Use `docs/release-plan.md` for the current sequence: physical QA of the delivered internal beta,
-separately approved AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
+Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
+prepare the separately approved AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
 saved/reload-verified AI-disabled tester notes. Build 7 is consumed and must never be reused;
-owner-controlled identity-safe handoff, clean installation and physical QA remain open.
+the owner-controlled identity-safe handoff and clean-install first launch passed on 11 September.
+The owner confirmed empty Wardrobe/History and version 7 with AI permission off; fresh server
+security aggregates remained zero. The normal-state device screenshot and automated regression
+complete the scoped local-beta QA; AI/public-release evidence remains separate. Do not repeat the completed
+deletion/uninstall sequence; see the 11 September checkpoint in the runbook.
 The backlog is an inventory and the runbook
 retains dated evidence; do not replay completed history or turn every open item into a blocker for
 all three milestones. The owner requested this simplification on 10 September 2026.
+
+The owner reiterated on 11 September that repeatable QA belongs in the test suite. Before asking
+for another manual step, check the existing test and retained physical evidence. Add an automated
+regression for a deterministic coverage gap instead of assigning the user a manual test. Limit
+device requests to a concrete uncovered physical boundary or changed visual behavior, and state
+why automation and retained evidence cannot cover it. Do not request routine catalog/photo-edit,
+relaunch, Demo or button-state contrast checks already assigned to automation.
 
 The hourly GitHub/Healthchecks prototype is deferred and privately archived. Do not rebuild or
 activate it merely because an old readiness record mentions monitoring. Use the existing approved
@@ -262,7 +273,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   absent. Validation/upload, Apple processing, `Family` assignment and tester notes remained open
   at that archive-era checkpoint. The 10 September beta-only review, separate owner approval and
   completed distribution are recorded in `docs/app-store/internal-testflight-runbook.md`.
-  Build 7 is consumed; owner-controlled handoff and clean physical Dark Mode QA remain open.
+  Build 7 is consumed. The 11 September handoff/clean installation and normal-state device
+  screenshot are recorded in the runbook; routine regression belongs to automation.
 - The 2026-08-29 APP-014/APP-023 automation tranche passed 222 backend tests plus locked
   audit/Bandit/Ruff/mypy, 236/236 iOS tests (226 Swift unit plus 10 UI), all 44 release-script tests,
   and the clean Release simulator/artifact gate. The isolated process-relaunch harness and transport

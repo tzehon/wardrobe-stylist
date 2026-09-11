@@ -55,11 +55,16 @@
   completed at `11:02:18Z`, followed by the distinct final Apple Distribution archive at
   `11:03:10Z` and strict verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads
   refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. Snapshot-list expiry,
-  deletion-specific restore/non-return and clean physical Dark Mode visual retest remain incomplete.
+  deletion-specific restore/non-return and clean physical Dark Mode visual retest were incomplete
+  at that archive-era checkpoint.
   The 10 September beta-only review and separately approved validation/upload completed; Apple
   processing, `Family` internal assignment and saved/reloaded AI-disabled notes are verified.
-  Owner-controlled identity-safe handoff and clean physical QA remain open; delivery is not AI
-  activation or public-submission authorization.
+  The [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  subsequently records approved server/local deletion, clean installation and scoped local-beta
+  QA. Post-deletion and post-clean-first-launch aggregates were zero; the bounded log check
+  observed one deletion-success marker. No intermediate post-uninstall sample was taken.
+  Snapshot-list expiry and deletion-specific recovery/non-return remain open. Neither this
+  evidence nor delivery authorizes AI activation or public submission.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, separate aggregate AI budget/reservation store, application logs, manual
