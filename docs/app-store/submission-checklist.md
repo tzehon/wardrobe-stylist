@@ -219,7 +219,10 @@ signed archive is separately invalid/non-uploadable. A fresh full review complet
 followed by the distinct final signed archive at `11:03:10Z` and strict verification at `11:04:02Z`.
 The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with
 build 7 absent. The later internal distribution and 11 September handoff/clean local-beta QA are
-complete. Snapshot-list expiry and deletion-specific recovery/non-return remain open; the
+complete. The monitored 25/28 August snapshots were later observed absent from the customer-visible
+list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific
+recovery/non-return were not proven; the owner waived only that evidence sub-gate for the Free
+Singapore v1 and accepted the residual risk. The
 archive-era absence is not permission to reuse build 7.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
@@ -370,9 +373,12 @@ archive-era absence is not permission to reuse build 7.
   zero failed challenges, one completed challenge, exactly one registration-success marker, and
   expected runtime category/build-field absence on iOS 26.6. No identifiers, payloads, credentials,
   or raw log samples are retained.
-- [ ] Finish eligible 14-day snapshot-list disappearance and deletion-specific recovery/non-return.
-  The completed final-client handoff and generic isolated restore rehearsal do not prove that a
-  deleted production identity cannot return.
+- [x] Record the owner-approved snapshot/recovery evidence waiver for Free Singapore v1. The
+  monitored 25/28 August snapshots were observed absent from the customer-visible list, while the
+  10 September Build-7 pre-deletion snapshot remained listed. The completed final-client handoff
+  and generic isolated restore rehearsal do not prove that a deleted production identity cannot
+  return. On 2026-09-11 the owner accepted that snapshot's unproved later listing disappearance and
+  the non-return residual risk; this checks the waiver decision, not the missing evidence as passed.
 - [x] Confirm that build 6 fails the **Allow AI styling** presentation gate. The 2026-08-28 owner-
   supplied Dark Mode screenshot places the title approximately 21 points right of center and
   measures the sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is consumed,
@@ -427,7 +433,9 @@ archive-era absence is not permission to reuse build 7.
   `17:04` produced `assertion_succeeded`; the preceding build-4 identity-safe handoff produced
   exactly one `installation_deleted` marker and `0/0/0` live aggregates. Protected `/recommend`
   remains aggregate/client-evidenced. This closes marker observation only: actual 14-day snapshot-
-  list disappearance and deletion-specific restore/non-return evidence remain open.
+  list disappearance of the later 10 September Build-7 pre-deletion snapshot and deletion-specific
+  restore/non-return were not proven and were owner-waived for the Free Singapore v1 with the
+  residual risk accepted. The monitored 25/28 August snapshots were separately observed absent.
 - [x] Retain the historical build-6 App Store Connect check performed before changing
   `CURRENT_PROJECT_VERSION` or archiving that replacement. The signed-in TestFlight Build Uploads
   view at `2026-08-22T10:02:31Z` showed builds
@@ -448,7 +456,8 @@ and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact
 and strict signed-archive verification passed at the archive checkpoint. The 10 September
 validation/upload, processing, `Family` assignment and saved-note loop are complete. The
 11 September handoff, clean installation and scoped local-beta QA have since passed. Snapshot
-lifecycle, AI activation and public submission remain open.
+lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; AI
+activation and public submission remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

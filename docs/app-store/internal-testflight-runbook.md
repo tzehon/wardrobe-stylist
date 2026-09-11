@@ -142,7 +142,7 @@ automatic snapshot was `created` at `2026-09-11T07:49:53Z` with 14-day retention
 the owner-controlled handoff and clean-install first-launch checks. No separate intermediate
 post-uninstall server sample was taken; the zero-state observations bracket server deletion and
 the subsequent clean-install first launch. This did not prove snapshot-list expiry or deletion-
-specific recovery/non-return, which remain separate evidence gates.
+specific recovery/non-return; the owner-waived evidence exception is recorded below.
 
 This evidence does not establish pressed/disabled presentation or complete wardrobe/history
 integrity. The server-deletion stage passed while the inherited installation was still available;
@@ -150,6 +150,28 @@ local deletion and clean installation are owner-confirmed. The completed regress
 physical evidence close the scoped local-beta QA below; broader AI/public-release evidence remains
 open. Do not repeat deletion, uninstall or upload. No AI activation or styling call was requested.
 No shipped app/backend behavior changed and no new TestFlight build is required.
+
+## Snapshot/recovery evidence waiver — 2026-09-11
+
+The owner explicitly waived the remaining snapshot-list-expiry and deletion-specific recovery/non-
+return evidence sub-gate for the Free Singapore v1. A read-only check at
+`2026-09-11T08:11:59Z` confirmed that the monitored `2026-08-25T07:35:53Z` and
+`2026-08-28T07:37:13Z` snapshots were no longer customer-visible. A later same-day read-only check
+at `2026-09-11T08:35:05Z` confirmed that the successful automatic snapshot created at
+`2026-09-10T07:48:53Z`, before the verified Build-7 server deletion at
+`2026-09-11T03:14:30Z`, remained customer-visible with status `created` and 14-day retention. The
+scheduled wait was stopped and its automation deleted.
+
+This is an accepted-risk exception, not passing evidence. It does not prove the 10 September
+snapshot's later customer-list disappearance, replica/backup/all-copy purge, or that a deleted
+identity cannot return if an ineligible pre-deletion snapshot is restored. Fly's all-copy purge
+timing remains undisclosed.
+Pre-deletion snapshots remain ineligible for normal service recovery; an emergency recovery must
+use fresh auth state and re-enrollment while preserving the separate budget ledger, and AI stays
+disabled if accounting consistency cannot be established. No Fly resource, production or app/local
+data, installed app, or TestFlight state changed for this decision. The waiver removes only this
+evidence sub-gate as a Free Singapore v1 submission blocker; every other APP-009/APP-036, privacy,
+AI, Google-retirement and App Store gate retains its own status.
 
 ## QA automation ownership — 2026-09-11
 
@@ -178,7 +200,8 @@ Bandit, Ruff and application mypy, and all 44 release-script tests. The remainin
 is complete using those results and the retained device evidence; no extra routine phone test
 is assigned. These are local test results; the PR's CI checks provide separate verification.
 AI activation/protected-call proof, public submission, wider accessibility review and outstanding
-privacy/snapshot/recovery evidence remain separately scoped work.
+privacy evidence remain separately scoped work. The 10 September snapshot-list/deletion-recovery
+evidence is unproved but owner-waived only for the Free Singapore v1.
 
 ## Distribution policy
 
@@ -690,8 +713,10 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   fields were absent as expected. Clean builds 5 and 6 repeated production enrollment, cold
   assertion renewal, and protected styling, with the same expected runtime-field absence. Build 5's
   later notification crash prevents it from being final-candidate evidence; build 6 passed that
-  route and has since completed its final deletion/reinstall/new-enrollment handoff. Snapshot-list
-  expiry and deletion-specific recovery/non-return proof remain open.
+  route and has since completed its final deletion/reinstall/new-enrollment handoff. The monitored
+  25/28 August snapshots were later observed absent from the customer-visible list. The 10 September
+  Build-7 pre-deletion snapshot's later disappearance and deletion-specific recovery/non-return were
+  not proven and were owner-waived only for the Free Singapore v1.
 - Superseded Gmail-free repository proof: 202 locked backend tests and all dependency/security/type
   gates passed; 209 unique iOS tests passed (200 Swift tests plus all 9 UI flows); 31/31 release-
   script tests passed; and a clean Release simulator artifact for `1.0.0 (4)` passed public-config,
@@ -782,8 +807,10 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   enrollment, assertion renewal, protected styling, server markers, media flows, and the Today
   regression before its reminder-tap crash. Build 5's handoff and clean build-6 replacement proof
   through the fixed reminder tap later passed, and build 6 subsequently completed its final ordered
-  deletion/reinstall/new-enrollment handoff. Snapshot-list expiry and deletion-specific recovery/
-  non-return evidence are still required.
+  deletion/reinstall/new-enrollment handoff. The monitored 25/28 August snapshots were later
+  observed absent from the customer-visible list. The 10 September Build-7 pre-deletion snapshot's
+  later disappearance and deletion-specific recovery/non-return were not proven and were owner-
+  waived only for the Free Singapore v1.
   Apple upload/processing and internal assignment alone do not satisfy those lifecycle
   checks. The first payload-free
   manual operations review passed at `2026-08-20T00:15:07Z`; the required post-v6 review passed at
@@ -924,8 +951,10 @@ superseded `dd3d990` archive but are historical now that physical QA requires bu
 The historical build-5 path and build-6 replacement path are ordered. Build-5 Apple distribution,
 build-4 identity-safe recovery, partial clean build-5 physical QA, the build-6 availability check,
 review/merge, Fly v9, strict archive, Apple internal distribution, clean build-6 physical QA, and
-the final build-6 deletion/reinstall/new-enrollment handoff are complete. Snapshot-list expiry and
-deletion-specific recovery/non-return remain open. The visual-control assessment is complete and
+the final build-6 deletion/reinstall/new-enrollment handoff are complete. The monitored 25/28 August
+snapshots were later observed absent from the customer-visible list. The 10 September Build-7 pre-
+deletion snapshot's later disappearance and deletion-specific recovery/non-return were not proven
+and were owner-waived only for the Free Singapore v1. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
 The current Fly v12 runtime has its private policy applied with AI disabled, as recorded above.
@@ -1025,6 +1054,7 @@ The following entries retain the completed predecessor sequence:
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
   not snapshot-list expiry, deletion-specific recovery/non-return or final Google retirement.
+  The snapshot/recovery evidence was later owner-waived only for the Free Singapore v1.
   Build-7 internal distribution completed on 10 September; its scoped local-beta QA completed on
   11 September as recorded above.
 
@@ -1161,7 +1191,9 @@ styled a look. These are fresh-install and deletion proofs, not upgrade or migra
    `Family` Internal Testing group is assigned with one group tester and no individual testers; the
    build-6 What to Test wording reproduced below is saved. Distribution remains distinct from the
    later clean physical proof. The final build-6 deletion/reinstall/new-enrollment handoff is now
-   complete; snapshot-list expiry and deletion-specific recovery/non-return remain open.
+   complete. The monitored 25/28 August snapshots were later observed absent from the customer-
+   visible list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-
+   specific recovery/non-return were not proven and were owner-waived only for the Free Singapore v1.
 
    Historical build-5 archive evidence: fresh private-registry authentication re-resolved exact
    Gmail-free v6 recovery digest
@@ -1317,7 +1349,7 @@ cleanly. This is not upgrade or migration evidence.
 | Reminder fix | The local reminder delivered at `20:53 SGT`; tapping it opened Today without crashing. The explicit **Style a look** action restored the cached `20:45` look, and Wardrobe/History state remained intact |
 | Final deletion / uninstall | The `2026-08-25T07:35:53Z` automatic snapshot was `created` with 14-day retention and postdated enrollment. The pre-deletion aggregate was `1/0/0`; assertion-verified deletion emitted exactly one bounded success marker and returned it to `0/0/0`, which persisted after local deletion and uninstall |
 | Clean reinstall / new identity | Clean reinstall, launch, two local wardrobe additions, and styling-consent grant left the backend at `0/0/0`. Explicit **Style a look** at `2026-08-28 17:17 SGT` created one active installation and one active session, zero pending and zero failed challenges, one completed challenge, and exactly one registration-success marker. Runtime category/build fields remained absent as expected on iOS 26.6 |
-| Remaining lifecycle boundary | Eligible 14-day snapshot-list disappearance and deletion-specific recovery/non-return evidence remain open |
+| Remaining lifecycle boundary | The monitored 25/28 August snapshots were observed absent. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific recovery/non-return were not proven; the owner waived only this evidence sub-gate for Free Singapore v1 on 2026-09-11 and accepted the residual risk |
 
 The intermediate idle state before explicit cache restoration matches the no-network-call-on-tab-
 appearance design. A deterministic DEBUG-only process-relaunch XCUITest now pins that exact
@@ -1359,9 +1391,12 @@ identity or notification evidence.
   new identity has one active installation and one active session, zero pending/failed challenges, one
   completed challenge, one registration-success marker, and expected iOS 26.6 runtime-field
   absence. No identifier, payload, credential, or raw log sample is retained.
-- [ ] Finish the remaining observable operations evidence: eligible 14-day snapshot-list
-  disappearance and deletion-specific recovery/non-return. The generic isolated restore-path
-  rehearsal does not prove that a deleted production identity cannot return.
+- [x] Record the owner-approved snapshot/recovery evidence waiver for Free Singapore v1. On
+  2026-09-11 the monitored 25/28 August snapshots were observed absent, while the 10 September
+  Build-7 pre-deletion snapshot remained listed. The owner accepted its unproved later listing
+  disappearance, all-copy purge and deleted-identity recovery risk and stopped the scheduled wait.
+  This marks the waiver decision,
+  not the missing evidence as passed; other APP-009/APP-036 work remains open.
 - [x] Confirm that build 6 fails the **Allow AI styling** presentation gate. The 2026-08-28 owner-
   supplied Dark Mode screenshot places the title approximately 21 points right of center and
   measures the sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is consumed,

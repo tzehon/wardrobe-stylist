@@ -313,8 +313,11 @@ For an incident, follow this order:
    enable styling, and complete the fresh operational review. Record only timestamp, bands,
    outcome, and next review due. Any paid smoke call needs its own authorization.
 
-Snapshot expiry and deletion-specific recovery remain independent APP-009 work. Do not mutate
-Fly snapshots or perform a restore as part of this migration. Public provider/privacy declarations
+The monitored 25/28 August snapshots were observed absent from the customer-visible list. The 10
+September Build-7 pre-deletion snapshot's later disappearance and deletion-specific recovery remain
+unproved APP-009 history; the owner waived only that evidence sub-gate for the Free Singapore v1 on
+2026-09-11 and accepted the residual risk.
+Do not mutate Fly snapshots or perform a restore as part of this migration. Public provider/privacy declarations
 remain external acceptance gates for the applicable milestone. Provider alert delivery is still
 unproven and is not relied on by the current daily owner-review path; the deferred monitoring
 stack is not an activation prerequisite. A backward-compatible backend rollout

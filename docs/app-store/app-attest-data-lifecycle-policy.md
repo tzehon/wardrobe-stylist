@@ -3,6 +3,7 @@
 - **Decision approved:** 2026-08-18
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
+- **Snapshot/recovery evidence exception approved:** 2026-09-11
 - **Current disabled deployment:** Fly v12 retains source
   `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the same scanned Linux/AMD64 immutable image and the
   original Machine and durable volume. The owner-approved September 8 setup provisioned the
@@ -63,8 +64,11 @@
   subsequently records approved server/local deletion, clean installation and scoped local-beta
   QA. Post-deletion and post-clean-first-launch aggregates were zero; the bounded log check
   observed one deletion-success marker. No intermediate post-uninstall sample was taken.
-  Snapshot-list expiry and deletion-specific recovery/non-return remain open. Neither this
-  evidence nor delivery authorizes AI activation or public submission.
+  The monitored 25/28 August snapshots were later observed absent from the customer-visible list.
+  The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific
+  recovery/non-return were not proven. On 11 September the owner explicitly waived only that
+  evidence sub-gate for the Free Singapore v1 and accepted the residual risk described below.
+  Neither this evidence nor delivery authorizes AI activation or public submission.
 
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, separate aggregate AI budget/reservation store, application logs, manual
@@ -74,8 +78,9 @@ aggregate store remain APP-016 verification.
 
 The limits below are requirements, not claims that every control is already enforced. The
 [compliance checklist](#compliance-and-release-evidence) distinguishes verified behavior from
-remaining work. APP-009 stays open until every unchecked release requirement is implemented and
-evidenced. The [release plan](../release-plan.md) assigns that work to the internal beta, AI
+remaining work. APP-009 stays open until every other unchecked release requirement is implemented
+and evidenced. The snapshot/recovery item is a named owner-waived exception for the Free Singapore
+v1, not a passing check or closure of APP-009. The [release plan](../release-plan.md) assigns that work to the internal beta, AI
 activation and public-release milestones; waiting privacy/recovery evidence does not stop
 unrelated beta preparation or visual QA and must not be marked complete prematurely.
 
@@ -281,7 +286,7 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Active installation metadata, verified public key, counter, and opaque Apple receipt | 90 days after the last successful authenticated request | `last_seen_at` advances after successful enrollment, assertion renewal, or bearer authentication; Fly v12 retains deadline purging of inactive installations and cascading deletion of their sessions |
 | Revoked installation metadata | 30 days after revocation | Fly v12 retains deadline purging of revoked installations and cascading deletion of their sessions. Anonymous identities are not linked, so this applies only to individually revoked records |
 | Verified server-data deletion request | Remove live installation, sessions, and associated auth rows within 24 hours | `POST /auth/app-attest/delete` requires a fresh one-time deletion assertion and synchronously deletes the proven installation, key-bound challenges, sessions, and rate rows derived with the current HMAC secret. Merged replacement source persists the post-dispatch deletion fence across termination/relaunch and retains its local key only for an idempotent retry until deletion is confirmed; historical `dd3d990` fenced only the running actor. Any unlinkable pre-rotation rate hash expires under the 65-minute outer limit. Fly v10 enforcement and historical build-4 archive/upload evidence are verified. The build-4, build-5, and final build-6 identity-safe handoffs each preserved proof of possession through server deletion, returned live aggregates to zero, then deleted local data and the app before the next clean install. Build 6's final handoff observed `1/0/0` before deletion, exactly one bounded deletion marker, and `0/0/0` after deletion and uninstall; explicit Style after reinstall enrolled a new anonymous identity |
-| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v12 retains automatic 14-day snapshots on the original volume; the 2026-09-08 configured-but-disabled review passed the fresh-snapshot policy check. The `2026-08-23T07:34:23Z` successful snapshot, status `created`, retention 14 days, enabled the build-5 handoff. The eligible `2026-08-25T07:35:53Z` snapshot with the same status and retention enabled the completed build-6 handoff. The archive-era reviewed snapshot was `2026-08-28T07:37:13Z`, status `created`, retention 14 days. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; actual listing disappearance and deletion-specific restore/non-return remain to be observed. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
+| Automatic or manual auth-volume snapshots | Customer-visible listing for 14 days; no developer-created or customer-configured monthly/indefinite archive. Separate provider all-copy purge timing is accepted as undisclosed | Fly v12 retains automatic 14-day snapshots on the original volume; the 2026-09-08 configured-but-disabled review passed the fresh-snapshot policy check. The `2026-08-23T07:34:23Z` successful snapshot, status `created`, retention 14 days, enabled the build-5 handoff. The eligible `2026-08-25T07:35:53Z` snapshot with the same status and retention enabled the completed build-6 handoff. The archive-era reviewed snapshot was `2026-08-28T07:37:13Z`, status `created`, retention 14 days. A read-only check at `2026-09-11T08:11:59Z` found the monitored 25/28 August snapshots absent from the customer-visible list. The Build-7 pre-deletion snapshot from `2026-09-10T07:48:53Z` was still customer-visible with status `created` and 14-day retention in a later same-day check, when the owner waived further listing/recovery evidence. Fly says a snapshot stops appearing in the snapshot list at the configured deadline, but does not publish separate purge-completion, replica, or backup semantics; that snapshot's later listing disappearance and deletion-specific restore/non-return were not observed and are accepted residual risk for Free Singapore v1. Fly Security summarized optional DPA termination periods of 30 days for personal-data deletion and 90 days for residual encrypted backups, but the account has no active DPA and those periods are not active per-snapshot guarantees |
 | Temporary restore volume | Delete within 24 hours after the rehearsal or incident closes | On 2026-08-19 a production snapshot was restored cross-app into a secret-free temporary app with no public IP or service. A one-shot Machine remounted the source read-only and reported schema v4, SQLite integrity `ok`, zero foreign-key errors, and zero rows in each of the four auth tables. The Machine auto-destroyed; the encrypted temporary volume and empty app were then deleted, and control-plane absence was verified within 391 seconds of volume creation. This proves attended list removal, not physical-media purge |
 | Wardrobe application access logs | None | Fly v12's single UID-10001 Uvicorn process retains `--no-access-log`, and a regression pins that production command |
 | Developer-emitted application security events | 7 days maximum | Application-owned event fields are minimized and tested. Fly v12 retains application `INFO` only for the non-propagating `app.auth.service` logger while other application INFO and access logs remain off. Historical bounded observation captured clean build-5 registration/assertion events, the build-4 deletion event, and exactly one final build-6 deletion marker plus one post-reinstall registration marker. Protected `/recommend` intentionally has no developer success event and uses aggregate admission plus client-result evidence. Fly retains the customer-visible stream for seven days, which is not configurable per app |
@@ -392,11 +397,23 @@ Build 6 handoff. The owner-controlled sequence observed `1/0/0` before server de
 bounded deletion marker, and `0/0/0` after deletion and uninstall. Reinstall and local-only actions
 remained at zero; explicit Style at `2026-08-28 17:17 SGT` created a new anonymous installation and
 session. These sequences close the live build-4, build-5, and build-6 handoffs, not snapshot-list
-expiry or deletion-specific restore/non-return evidence.
+expiry or deletion-specific restore/non-return evidence. Those evidence items were later owner-
+waived only for the Free Singapore v1.
 
 Restore work must use an isolated, non-serving volume/Machine without application secrets. Record
 only aggregate table counts and integrity results, then destroy the temporary restore volume within
 24 hours. Never retain raw database copies in release evidence.
+
+On 2026-09-11, after the monitored 25/28 August snapshots were observed absent, the owner explicitly
+waived waiting for the still-listed 10 September Build-7 pre-deletion snapshot and performing the
+deletion-specific recovery/non-return rehearsal for the Free Singapore v1. This exception does not
+establish that snapshot's later customer-list disappearance, physical or all-copy purge, or that an
+operator could not reintroduce a deleted identity by restoring an ineligible pre-deletion snapshot.
+Fly's replica, backup and all-copy purge timing remains undisclosed. The existing safety rule remains binding: never restore a
+pre-deletion snapshot into service; use fresh auth state and re-enrollment, preserve the separate
+budget ledger, and keep AI disabled if its consistency cannot be established. The decision changed
+no Fly resource, app or production/local data, installed app, or TestFlight state. It removes only
+this evidence item as a Free Singapore v1 submission blocker.
 
 ## Manual operations and support
 
@@ -468,7 +485,8 @@ of possession remained available after build 5 appeared installed in place unexp
 identity's assertion-verified server deletion produced exactly one `installation_deleted` marker
 and `0/0/0` installations/sessions/challenges. Local data and the app were then deleted, and build
 5 was clean-installed. This is the completed build-4 live handoff; it is not migration evidence and
-does not close snapshot listing expiry or deletion-specific restore/non-return evidence.
+does not close snapshot listing expiry or deletion-specific restore/non-return evidence. Those
+evidence items were later owner-waived only for the Free Singapore v1.
 
 ### Processed build-5 clean physical evidence and release blocker — 2026-08-22 (PARTIAL)
 
@@ -508,7 +526,8 @@ The explicit **Style a look** action at `2026-08-28 17:17 SGT` then created one 
 installation and one active session, with zero pending or failed challenges, one completed
 challenge, and one bounded registration marker. Signed runtime category/build fields were absent
 as expected on iOS 26.6; this is not iOS 27+ enforcement evidence. This closes deletion/reinstall
-and new enrollment only. Snapshot-list expiry and deletion-specific restore/non-return remain open.
+and new enrollment only. Snapshot-list expiry and deletion-specific restore/non-return were not
+proven and were later owner-waived only for the Free Singapore v1.
 Retain no raw identifiers, tokens, request bodies, database rows, wardrobe payloads, or log samples.
 
 ## Compliance and release evidence
@@ -530,9 +549,11 @@ Verified as of 2026-08-29:
   QA and `installation_deleted` during the preceding build-4 identity-safe handoff. Style at
   `16:30`, Restyle at `17:04`, and exactly one deletion marker supplied the bounded observations;
   the deletion aggregate reached `0/0/0`. Protected `/recommend` intentionally remains aggregate/
-  client-evidenced; this marker evidence does not close snapshot-list expiry or restore proof.
+  client-evidenced; this marker evidence does not close snapshot-list expiry or restore proof. Those
+  evidence items were later owner-waived only for the Free Singapore v1.
 - [x] The production auth volume is encrypted and Fly reports a configured 14-day snapshot-listing
-  period; actual listing disappearance remains an external evidence item below.
+  period. The monitored 25/28 August snapshots were observed absent; the 10 September Build-7 pre-
+  deletion snapshot's later disappearance is unproved and owner-waived only for Free Singapore v1.
 - [x] Structural review guardrails pin the exact auth schema, block common durable-write patterns
   and direct auth-store use from payload modules, allowlist current application log calls, and
   exercise payload-free error behavior. These guardrails supplement review; they are not a proof
@@ -576,7 +597,8 @@ Verified as of 2026-08-29:
   release instead of an automated alert/incident service. This records the accepted slower-detection
   risk and supersedes the old alert-delivery gate without claiming it passed.
 
-Required before APP-009 can close:
+Required before APP-009 can close, except for the explicitly owner-waived snapshot/recovery evidence
+item recorded below:
 
 - [x] On 2026-08-19, Fly release v5 deployed policy-enforced `linux/amd64` digest
   `sha256:ff1befcbeede04e426f0da57d811f5d94366d4d7b83809bcb7a666325236ad17`
@@ -855,11 +877,13 @@ Required before APP-009 can close:
   session renewal with bounded registration/assertion marker observation. Style at `16:30` and
   Restyle at `17:04` passed; protected `/recommend` was proved separately by aggregate admission-
   counter delta plus the visible non-cached client result. This does not make build 5 promotable.
-- [ ] Observe eligible snapshot-list disappearance and complete deletion-specific restore/non-return
-  evidence for the final processed replacement client. The eligible `2026-08-25T07:35:53Z`
-  snapshot enabled the completed build-6 deletion/reinstall/new-enrollment handoff, but the handoff
-  itself does not prove that the deleted production identity cannot return from retained snapshot
-  copies. The generic isolated restore-path rehearsal above does not close that evidence.
+- [x] Record the owner-approved snapshot/recovery evidence waiver for Free Singapore v1. On
+  2026-09-11 the monitored 25/28 August snapshots were observed absent, while the 10 September
+  Build-7 pre-deletion snapshot remained customer-visible with status `created` and 14-day
+  retention. The owner accepted that snapshot's unproved later listing disappearance, all-copy
+  purge and deleted-identity non-return through recovery. This check marks the waiver decision, not the missing evidence as passed;
+  the fresh-auth-store recovery rule remains binding and every other APP-009 requirement retains
+  its own status.
 - [x] Confirm the build-6 **Allow AI styling** presentation failure. The 2026-08-28 owner-supplied
   Dark Mode screenshot places the title approximately 21 points right of center and measures the
   sampled `#C2DFFC` fill against white at approximately `1.38:1`. Build 6 is non-promotable; its
@@ -919,8 +943,9 @@ Required before APP-009 can close:
 The provider questions and redacted written outcome are recorded in
 [`fly-data-retention-inquiry-draft.md`](fly-data-retention-inquiry-draft.md). The response proves
 that Fly could not meet the former hard 24-hour provider raw-IP maximum; the owner explicitly
-superseded that requirement on 2026-08-19. Retain the later timestamped snapshot-list-expiry
-observation separately.
+superseded that requirement on 2026-08-19. Retain the 11 September observation that the monitored
+25/28 August snapshots were absent and the separate owner waiver for the still-listed 10 September
+Build-7 pre-deletion snapshot and deletion-specific non-return evidence.
 
 Retain only redacted evidence: source SHA, immutable image digest, policy/config names, aggregate
 counts, timestamps, snapshot retention, manual check/remediation result, and deletion/restore outcome.

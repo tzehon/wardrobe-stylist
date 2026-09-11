@@ -152,7 +152,8 @@ and **Ready to Submit**, with build 7 absent at that historical checkpoint. The 
 [10 September distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 completed build-7 validation/upload, processing, internal assignment and saved/reloaded tester
 notes with AI disabled. The 11 September checkpoint records completed handoff and scoped
-local-beta QA. Snapshot lifecycle evidence, consent/privacy reconciliation and public submission
+local-beta QA. The 10 September snapshot-list/deletion-recovery evidence is unproved but owner-
+waived only for the Free Singapore v1. Consent/privacy reconciliation and public submission
 remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
@@ -217,13 +218,16 @@ backend/configuration change.
 - [x] Confirm processed build 6 completes production registration and assertion renewal on iPhone
   16 Pro/iOS 26.6, with expected signed runtime-field absence. Do not claim iOS 27+ category/build
   enforcement.
-- [ ] Confirm durable auth storage, snapshot/restore evidence, logging/retention claims, rate
+- [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
   The current [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
   retains the verified targeted logger and `4,5,6,7` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-  records the completed AI-disabled beta distribution; public-release privacy/recovery checks
-  remain open. The historical v10 post-change review passed on 2026-08-29. Predecessor v8's payload-free
+  records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
+  observed absent; the 10 September Build-7 pre-deletion snapshot's later disappearance and
+  deletion-specific non-return are unproved but owner-waived only for the Free Singapore v1. Other
+  public-release privacy/recovery checks remain open. The historical v10 post-change review passed
+  on 2026-08-29. Predecessor v8's payload-free
   review passed, and the late non-backdated historical v9
   review passed at `2026-08-23T02:13:12Z`. The first historical v9 post-
   deploy bounded query was zero because no lifecycle flow had yet been exercised. Later clean
@@ -236,15 +240,20 @@ backend/configuration change.
   at zero; explicit Style at `2026-08-28 17:17 SGT` created one new anonymous installation and
   active session, with zero pending/failed challenges, one completed challenge, and one bounded
   registration marker. Signed runtime fields were absent on iOS 26.6; do not claim iOS 27+
-  category/build enforcement. Protected `/recommend` remains aggregate/client-evidenced. Listing
-  expiry and deletion-specific restore/non-return remain open. The former v5 image is only a pre-
+  category/build enforcement. Protected `/recommend` remains aggregate/client-evidenced. The
+  monitored 25/28 August snapshots were later observed absent from the customer-visible list. The
+  10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific restore/
+  non-return were not proven; the owner waived only that evidence sub-gate for the Free Singapore
+  v1 on 2026-09-11 and accepted the residual risk. The former v5 image is only a pre-
   build-4 abort because it re-exposes `/extract` and halts release.
 - [x] Confirm live server-security-data deletion using only redacted evidence: build 4 and final
   build 6 each produced exactly one bounded success marker and reached aggregate `0/0/0` before
   local data/app removal. No identifiers, raw logs, or payloads were retained.
-- [ ] Confirm snapshot-list expiry and deletion-specific restore/non-return for the deleted Build 6
-  identity. The final handoff is complete, but it does not prove that retained snapshot copies have
-  disappeared or that the deleted identity cannot return through recovery.
+- [x] Record the owner-approved snapshot/recovery evidence waiver for Free Singapore v1. The final
+  handoff does not prove that the still-listed 10 September pre-deletion snapshot later disappeared
+  or that the deleted identity cannot return through recovery. The monitored 25/28 August snapshots
+  were separately observed absent. The 2026-09-11 decision accepts the remaining residual risk;
+  this marks the waiver, not the missing evidence as passed.
 - [x] Confirm the build-6 **Allow AI styling** presentation failure before using these notes for
   submission. The 2026-08-28 owner-supplied Dark Mode screenshot places the title approximately
   21 points right of center and measures the sampled `#C2DFFC` fill against white at approximately
