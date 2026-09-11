@@ -106,9 +106,11 @@ Internal Only** artifact type.
   Uvicorn access logs.
 - [x] Build, scan, and deploy the policy-enforced `linux/amd64` image by immutable digest; retain and
   revalidate an App-Attest-only rollback digest.
-- [ ] Externally evidence Fly volume/snapshot-list expiry, the owner-accepted provider logging and
-  manual-operations boundaries, monitored support, and deletion/restore behavior. Provider-internal
-  in-service retention and all-copy snapshot purge timing are explicitly accepted as undisclosed.
+- [ ] Externally evidence the owner-accepted provider logging and manual-operations boundaries and
+  monitored support. The monitored 25/28 August Fly snapshots were observed absent. The owner
+  waived waiting for the 10 September Build-7 pre-deletion snapshot's later disappearance and the
+  deletion-specific non-return rehearsal for the Free Singapore v1 on 2026-09-11; provider-internal
+  in-service retention and all-copy snapshot purge timing remain explicitly accepted as undisclosed.
   Treat receipt validation/risk metrics as a separate policy gate before trusting or redeeming
   that evidence.
 - [ ] Inspect the signed distribution archive/profile and verify production enrollment, assertion

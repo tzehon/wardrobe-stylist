@@ -51,7 +51,7 @@ kept “In progress.”
 | Items | Status | Verified branch outcome |
 |---|---|---|
 | APP-001–APP-008, APP-010 | **Historical / done** | Completed earlier Gmail-capable implementation work remains valuable history, but APP-036 supersedes its Gmail/OAuth/receipt-import release scope. Preserve applicable security/deletion guarantees while using the separately approved clean-uninstall transition |
-| APP-009 | **External gate** | Repository enforcement, the exact Gmail-free Fly v10 runtime and post-change review, the late non-backdated historical v9 review, earlier reviews, an isolated read-only restore rehearsal, and the build-4/build-5 identity-safe handoffs are retained. Build 6's final server/local deletion, uninstall, clean reinstall, and explicit-action new anonymous enrollment passed after an eligible snapshot. Snapshot-list expiry and deletion-specific recovery/non-return remain open |
+| APP-009 | **External gate; snapshot sub-gate owner-waived for Free Singapore v1** | Repository enforcement, the exact Gmail-free Fly v10 runtime and post-change review, the late non-backdated historical v9 review, earlier reviews, an isolated read-only restore rehearsal, and the build-4/build-5 identity-safe handoffs are retained. Build 6's final server/local deletion, uninstall, clean reinstall, and explicit-action new anonymous enrollment passed after an eligible snapshot. The monitored 25/28 August snapshots were later observed absent from the customer-visible list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific recovery/non-return were not proven; on 11 September the owner accepted that residual risk and waived only that evidence sub-gate for the Free Singapore v1. Other APP-009 work retains its own status |
 | APP-011 | **Done** | Product identity, Debug/Release split, Gmail-free Release configuration, public URLs, Team ID, and simulator guards remain implemented. Historical build-4/build-5/build-6 archives are retained; the exact final build-7 production-signed archive passed profile, entitlement, identity, and public-configuration verification |
 | APP-012 | **Done** | Dependency/privacy-manifest and removed-capability enforcement remains implemented. The final build-7 signed archive passed the privacy-manifest and Gmail-free absence guards plus a separate non-emitting credential scan |
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
@@ -63,7 +63,7 @@ kept “In progress.”
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. Deletion-specific recovery, final Google retirement and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; final Google retirement and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -219,7 +219,10 @@ plus post-uninstall aggregates were `0/0/0`. Clean reinstall, first launch, loca
 and styling consent alone stayed `0/0/0`. Explicit styling at `2026-08-28 17:17 SGT` then created
 one new anonymous installation and one active session, with zero pending/failed challenges, one
 completed challenge, one bounded registration marker, and expected signed runtime-field absence on
-iOS 26.6. Snapshot-list expiry and deletion-specific recovery/non-return remain open.
+iOS 26.6. The monitored 25/28 August snapshots were later observed absent from the customer-visible
+list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific
+recovery/non-return were not proven and were owner-waived for the Free Singapore v1 with the
+residual risk explicitly accepted.
 
 The required v9 post-deploy/pre-upload payload-free review was missed and cannot be backdated. A
 late full review completed at `2026-08-23T02:13:12Z`: exact release/runtime/source, health,
@@ -283,8 +286,11 @@ and must never be reused. The late non-backdated v9 operational review then pass
 identity-safe handoff and clean build-6 QA through the delivered-reminder tap have since passed. An
 eligible `2026-08-25T07:35:53Z` automatic snapshot then cleared build 6's final-client handoff; the
 owner-controlled deletion, zero-aggregate checks, local deletion, uninstall, clean reinstall, and
-explicit-action new anonymous enrollment passed on 2026-08-28. The remaining APP-009 evidence is
-snapshot-list expiry plus deletion-specific recovery/non-return. A 2026-08-28 owner-supplied Dark
+explicit-action new anonymous enrollment passed on 2026-08-28. The 25/28 August snapshots were
+later observed absent from the customer-visible list. The 10 September Build-7 pre-deletion
+snapshot's later disappearance and deletion-specific recovery/non-return remained unproved and
+were owner-waived for the Free Singapore v1 on 2026-09-11; this is accepted residual risk, not
+passing evidence. A 2026-08-28 owner-supplied Dark
 Mode screenshot separately confirmed that the build-6 styling-consent control fails its visual gate,
 so build 6 is non-promotable. PR #31 has since merged the replacement implementation. At the earlier
 build-selection checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed
@@ -432,9 +438,15 @@ remaining deterministic checks belong to the suite.
   session, with zero pending/failed challenges, one completed challenge, one bounded registration
   marker, and expected signed runtime-field absence on iOS 26.6. This is deletion and fresh-
   installation evidence, not upgrade or migration proof.
-- [ ] **Finish snapshot-list expiry and deletion-specific recovery/non-return evidence.** Observe
-  the eligible 14-day snapshot leaving the customer-visible list and prove that a deleted production
-  identity cannot return. The generic isolated restore-path rehearsal does not close this gate.
+- [x] **Record the owner-approved snapshot/recovery evidence waiver for Free Singapore v1.** On
+  2026-09-11 the owner waived further snapshot-list waiting and deletion-specific recovery/non-
+  return rehearsal. The earlier monitored 25/28 August snapshots were no longer customer-visible,
+  but the 10 September Build-7 pre-deletion snapshot was still listed with status `created` and
+  14-day retention. That snapshot's later disappearance, all-copy purge and deleted-identity non-
+  return through recovery remain unproved; Fly's replica, backup and all-copy purge timing remains
+  undisclosed. This accepted-risk exception
+  removes only this evidence item as a Singapore-v1 submission blocker and does not close APP-009
+  as a whole or weaken the fresh-auth-store recovery policy.
 - [x] **Confirm that build 6 fails the styling-consent control presentation gate.** In the
   2026-08-28 owner-supplied Dark Mode screenshot, the **Allow AI styling** title is approximately
   21 points right of the button center, and the sampled `#C2DFFC` fill against the white title is
@@ -790,9 +802,12 @@ recovery, APP-019, APP-036, or public-submission gate.
 - [ ] **Complete replacement post-upload APP-009/APP-036 proof and cleanup.** Clean build 6 has
   passed through the delivered-reminder tap and completed final-client server/local deletion,
   uninstall, clean reinstall, and explicit-action new anonymous enrollment after an eligible
-  snapshot. Finish deletion-specific recovery/non-return and eligible 14-day snapshot-list
-  disappearance. After the replacement is proven and with a separate final owner confirmation,
-  retire only the inventoried Wardrobe Google Cloud/OAuth projects; do not touch unrelated projects.
+  snapshot. The monitored 25/28 August snapshots were later observed absent. The 10 September
+  Build-7 pre-deletion snapshot's later disappearance and deletion-specific non-return were not
+  proven and are explicitly owner-waived for the Free Singapore v1. Other APP-009/APP-036 work
+  remains separate. With a separate
+  final owner confirmation, retire only the inventoried Wardrobe Google Cloud/OAuth projects; do
+  not touch unrelated projects.
 
 Using an internal tester group does not relax the binary standard. **TestFlight Internal Only** is
 not used because Apple prevents that artifact from being submitted to customers later.
@@ -928,7 +943,9 @@ governed by APP-036's Gmail-free guards.
   restores the cached look only after an explicit tap without a request, preserves it through a
   failed Restyle, and records Wear in History. Production App Attest, the processed TestFlight
   installation, real media permissions and notification delivery, live deletion, snapshot/recovery,
-  and uninstall/reinstall remain physical release boundaries rather than missing automation.
+  and uninstall/reinstall are generally physical release boundaries rather than missing automation.
+  For this Free Singapore v1, the specific 10 September snapshot-list/deletion-non-return evidence
+  sub-gate is owner-waived and must not be reopened as routine testing.
   The 11 September owner correction withdraws repeated routine phone checks. The explicit
   photo/edit/disk-reopen gap is covered by `WardrobeStoreDiskPersistenceTests`; the narrower
   automation/hardware boundaries are listed in the
@@ -973,7 +990,8 @@ governed by APP-036's Gmail-free guards.
   verification passed at the archive checkpoint. The 10 September beta-only review and separately
   approved validation/upload, Apple processing, `Family` assignment and saved/reloaded AI-disabled
   notes are complete. The later handoff/clean install and normal-state visual check passed. Finish
-  the applicable snapshot lifecycle and public-submission work; keep backend health available through review.
+  the applicable public-submission work and retain the owner-waived, unproved snapshot/recovery
+  exception; keep backend health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -992,7 +1010,7 @@ governed by APP-036's Gmail-free guards.
   and the [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Clean build 6
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Build-7 distribution, handoff/clean first launch and normal-state
-  device appearance have passed. Deletion-specific recovery/non-return,
+  device appearance have passed. Deletion-specific recovery/non-return is owner-waived but unproved;
   final Google retirement and public submission remain open.
 
 ## P1 — core experience polish

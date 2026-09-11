@@ -292,8 +292,12 @@ Before AI activation, review existing limits, billing uncertainty and residual F
 obtain approval for the exact activation. Do not rely on unproven alert delivery or infer a public
 allowance from historical controls. See [AI spend controls](ai-spend-controls.md).
 
-Unchecked snapshot-list expiry, deletion-specific restore/non-return and App Privacy remain
-public-release work. The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+The monitored 25/28 August snapshots were later observed absent from the customer-visible list. The
+10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific restore/non-
+return were not proven; on 2026-09-11 the owner waived only that evidence sub-gate for the Free
+Singapore v1 and accepted the residual risk. App Privacy and other applicable public-release work
+retain their own status. The
+[11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed build-7 handoff, clean installation and scoped local-beta QA; AI activation
 remains a separate milestone in the release plan. Real
 registration, assertion, and deletion success markers have now been observed;
@@ -327,8 +331,8 @@ steps. Keep AI disabled pending its separately approved pilot.
 The sequence below retains preparation requirements and dated predecessor evidence; do not
 repeat completed archive/upload steps for the delivered build 7:
 
-1. keep the remaining APP-009 snapshot-list expiry and deletion-specific recovery/non-return
-   evidence explicitly open and the manual review current.
+1. retain the owner-waived, unproved APP-009 snapshot/deletion-recovery evidence exception and keep
+   the manual review current; do not describe the exception as passing evidence.
 2. validate the Gmail-free iOS removal, fresh local schema, and artifact-absence guards.
 3. populate the HTTPS backend, public-page URLs, and Team ID in `Distribution.xcconfig`.
 4. treat processed candidates `1.0.0 (4)` through `1.0.0 (7)` as consumed and never
@@ -441,7 +445,9 @@ The notification-router source fix merged through PR #27. Focused tests passed 1
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all
 43 release-script tests. The exact build-6 archive, internal distribution, clean physical proof
 through notification tap, and final identity-safe deletion/reinstall/new enrollment are retained
-above. Snapshot-list expiry and deletion-specific restore/non-return remain open.
+above. The monitored 25/28 August snapshots were later observed absent from the customer-visible
+list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific
+restore/non-return were not proven and were owner-waived only for the Free Singapore v1.
 
 ### Completed clean-uninstall transition before build 4
 
@@ -476,9 +482,11 @@ remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and b
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
 pre-deletion aggregate was `1/0/0`, exactly one bounded deletion marker was observed, post-deletion/
 post-uninstall aggregates were `0/0/0`, and the explicit `2026-08-28 17:17 SGT` Style action created
-a new anonymous installation/session after reinstall. Actual listing expiry and deletion-specific
-restore/non-return remain open; the handoff does not prove that the deleted identity cannot return
-from retained snapshot copies.
+a new anonymous installation/session after reinstall. The monitored 25/28 August snapshots were
+later observed absent from the customer-visible list. The 10 September Build-7 pre-deletion
+snapshot's later disappearance and deletion-specific restore/non-return were not proven and were
+owner-waived only for the Free Singapore v1; the handoff does not prove that the deleted identity
+cannot return from retained snapshot copies.
 
 The required v9 post-deploy/pre-upload payload-free review was missed and is not backdated. A late
 full review passed at `2026-08-23T02:13:12Z`, restoring current operational evidence while retaining

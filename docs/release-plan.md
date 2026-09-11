@@ -88,11 +88,22 @@ truthful privacy/support/Terms pages and App Privacy answers, screenshots/descri
 and actual account agreements. Submit the reviewed build when those items are complete.
 Apple processing/review time is outside this project's control.
 
-The existing snapshot-expiry and deletion-specific recovery evidence remain open until verified.
-They are a separate privacy/recovery track; their waiting period does not stop unrelated beta
-preparation or visual QA. Do not mark them complete from elapsed time, erase the evidence, or make
-an unsupported deletion promise. Historical Google cleanup stays separate from the Gmail-free
-candidate and does not expand into new Gmail product work.
+On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-
+specific recovery/non-return evidence sub-gate for the Free Singapore v1. A read-only check first
+confirmed that the monitored 25/28 August snapshots were no longer customer-visible; a later same-
+day check confirmed that the 10 September Build-7 pre-deletion snapshot was still listed with
+status `created` and 14-day retention. This is accepted residual risk, not evidence that this later
+snapshot disappeared, all copies were purged, or the deleted identity cannot return through
+recovery; Fly's replica, backup and all-copy purge timing remains undisclosed. The
+waiver removes only this evidence item as a Singapore-v1 submission blocker. Pre-deletion snapshots
+remain ineligible for normal service recovery; emergency recovery uses fresh auth state and re-
+enrollment, preserves the separate budget ledger, and keeps AI disabled if accounting consistency
+cannot be proved. The scheduled snapshot wait was stopped without changing Fly resources, app or
+production/local data, the installed app, or TestFlight state.
+
+Historical Google cleanup stays separate from the Gmail-free candidate and does not expand into new
+Gmail product work. APP-009/APP-036, privacy and submission items not covered by this specific waiver
+retain their own status.
 
 Paid plans, subscriptions, country expansion, widgets, new infrastructure and broader polish stay
 out of this release. The [freemium model](freemium-model.md) documents the future offering without

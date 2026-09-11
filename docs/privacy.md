@@ -99,8 +99,12 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return and App Privacy remain
-public-release gates. Build-7 validation/upload, processing, internal assignment
+enabled. The monitored 25/28 August snapshots were later observed absent from the customer-visible
+list. The 10 September Build-7 pre-deletion snapshot's later disappearance and deletion-specific
+restore/non-return were not proven; on 2026-09-11 the owner waived only that evidence sub-gate for
+the Free Singapore v1 and accepted the residual risk. App Privacy and other applicable public-
+release work remain gates. Build-7
+validation/upload, processing, internal assignment
 and saved/reloaded notes are complete in the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed owner-controlled deletion, clean installation and scoped local-beta QA.
@@ -173,8 +177,10 @@ field absence. An eligible automatic snapshot created at `2026-08-22T07:33:23Z` 
 appeared installed in place unexpectedly. While that inherited identity was still installed, **Delete Server
 Security Data** produced exactly one bounded success marker and live installations, sessions, and
 challenges reached `0/0/0`. The owner then deleted local data, deleted the app, and installed build
-5 cleanly. This is identity-safe deletion evidence, not migration support. Actual snapshot-list
-expiry and deletion-specific restore/non-return remain open.
+5 cleanly. This is identity-safe deletion evidence, not migration support. The later-observed
+absence of the monitored 25/28 August snapshots does not prove all-copy purge. The 10 September
+Build-7 pre-deletion snapshot's later disappearance and deletion-specific restore/non-return were
+not proven and were owner-waived only for the Free Singapore v1.
 
 Physical QA also found that a failed offline Restyle hid an otherwise persisted cached look until
 relaunch/tap. Build 4 is not promotable. Build 5 was selected after App Store Connect showed build
@@ -224,8 +230,11 @@ zero baseline. Explicit Style at `2026-08-28 17:17 SGT` created one new anonymou
 active session, with zero pending or failed challenges, one completed challenge, and one bounded
 registration marker. Signed runtime fields were absent as expected on iOS 26.6; this does not prove
 iOS 27+ category/build enforcement. No identifiers, raw logs, or payloads were retained. This closes
-deletion/reinstall/new enrollment only. Snapshot-list expiry and deletion-specific restore/non-return
-remain open. Separately, the 2026-08-28 owner-supplied Dark Mode screenshot confirms that build 6's
+deletion/reinstall/new enrollment only. The monitored 25/28 August snapshots were later observed
+absent from the customer-visible list. The 10 September Build-7 pre-deletion snapshot's later
+disappearance and deletion-specific restore/non-return were not proven and were owner-waived only
+for the Free Singapore v1. Separately, the
+2026-08-28 owner-supplied Dark Mode screenshot confirms that build 6's
 **Allow AI styling** title is approximately 21 points right of the button center and that the sampled
 `#C2DFFC` fill against the white title is approximately `1.38:1`. Build 6 is therefore non-promotable;
 its completed identity and notification evidence remains valid. The earlier 2026-08-29 signed-in

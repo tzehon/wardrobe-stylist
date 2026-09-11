@@ -54,6 +54,15 @@ The owner confirmed empty Wardrobe/History and version 7 with AI permission off;
 security aggregates remained zero. The normal-state device screenshot and automated regression
 complete the scoped local-beta QA; AI/public-release evidence remains separate. Do not repeat the completed
 deletion/uninstall sequence; see the 11 September checkpoint in the runbook.
+On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-
+specific recovery/non-return evidence sub-gate for the Free Singapore v1. The earlier monitored
+25/28 August snapshots were no longer customer-visible, but the 10 September Build-7 pre-deletion
+snapshot was still listed. Record the waiver as accepted residual risk, never as passed evidence:
+that snapshot's later listing disappearance, all-copy purge and deleted-identity non-return through
+recovery remain unproved, and Fly's replica/backup/all-copy purge timing remains undisclosed. The
+waiver removes only that evidence item as a Singapore-v1 submission
+blocker. It does not close the rest of APP-009/APP-036 or authorize a restore, Fly mutation, AI
+activation, Google retirement or App Store submission.
 The backlog is an inventory and the runbook
 retains dated evidence; do not replay completed history or turn every open item into a blocker for
 all three milestones. The owner requested this simplification on 10 September 2026.
@@ -161,8 +170,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   saved truthful What to Test notes. Build 6 is now used and must never be reused. This closes the
   replacement distribution pipeline only. Build 5's identity-safe handoff, clean build-6 QA
   through the delivered-reminder tap, and build 6's final identity-safe deletion/reinstall/new-
-  enrollment sequence have since passed. Snapshot-list expiry and deletion-specific recovery/non-
-  return evidence remain open. The required Fly v9 post-deploy/pre-
+  enrollment sequence have since passed. The earlier monitored 25/28 August snapshots were later
+  observed absent from the customer-visible list. The 10 September Build-7 pre-deletion snapshot's
+  later disappearance and deletion-specific recovery/non-return were not proven; the owner waived
+  that evidence sub-gate for the Free Singapore v1 while accepting the documented residual risk.
+  The required Fly v9 post-deploy/pre-
   upload payload-free review was missed and is
   not backdated; a late full review passed at `2026-08-23T02:13:12Z`, restoring current operational
   evidence while retaining the process defect. Repeat it before any future archive/upload and after

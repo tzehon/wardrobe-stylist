@@ -333,7 +333,11 @@ flowchart LR
 - Backend auth state, logs, snapshots, deletion, and manual operations follow the
   [APP-009 lifecycle policy](app-store/app-attest-data-lifecycle-policy.md). Fly's fixed seven-day
   customer-visible stream and undisclosed provider-internal in-service retention are accepted and
-  publicly disclosed. Snapshot-list expiry and deletion-specific recovery evidence remain open.
+  publicly disclosed. The monitored 25/28 August snapshots were later observed absent from the
+  customer-visible list. The 10 September Build-7 pre-deletion snapshot's later disappearance and
+  deletion-specific recovery evidence were not proven; on 2026-09-11 the owner waived only that
+  evidence sub-gate for the Free Singapore v1 and accepted the residual risk. Pre-deletion snapshots
+  remain ineligible for service recovery.
 - Public v1 has no Google OAuth dependency or Gmail network route.
 - The default `ai-launch` preflight requires the bounded budget to be enabled, ready, below its
   warning band, and free of pending requests. The explicit `internal-beta-ai-disabled` purpose

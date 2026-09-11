@@ -47,11 +47,22 @@ the **Local Data Deleted** result, app removal and a clean TestFlight installati
 First launch with AI permission off shows an empty Wardrobe and History; a fresh server check
 remains at zero installations, sessions and challenges. The handoff is complete. AI remains disabled.
 
+The owner waived the remaining snapshot-list-expiry and deletion-specific recovery/non-return
+evidence sub-gate for the Free Singapore v1 on 11 September. The earlier monitored 25/28 August
+snapshots were no longer customer-visible; the 10 September Build-7 pre-deletion snapshot remained
+listed. This is an accepted-risk exception, not proof of that snapshot's later listing disappearance,
+all-copy purge, or deleted-identity non-return through recovery. Fly's replica, backup and all-copy
+purge timing remains undisclosed. Pre-deletion snapshots remain ineligible for service recovery;
+emergency recovery uses fresh auth state and re-enrollment
+while preserving the separate budget ledger. The waiver did not change Fly, the app, production or
+local data, the installed build, or TestFlight state.
+
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
 2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
-3. Finish the applicable privacy/recovery and store-submission work for the Free Singapore launch.
+3. Finish the remaining privacy and store-submission work for the Free Singapore launch; the
+   snapshot/recovery evidence sub-gate is owner-waived, not proven.
 
 The preserved signed build-7 archive passed strict verification on 10 September. The combined
 operations review passed `PASS_INTERNAL_BETA_ONLY` at `2026-09-10T11:25:45Z`: AI remained disabled,
@@ -165,7 +176,7 @@ authorize AI, App Store submission or an upload. No iOS bundle/API-contract chan
 this refactor, so it does not itself require a new TestFlight build.
 
 Provider-key rotation before the recorded 8 October expiry, truthful AI disclosures/consent,
-snapshot-expiry/deletion-recovery proof and App Store metadata remain tracked in the
+the accepted snapshot/recovery residual risk and App Store metadata remain tracked in the
 [release plan](docs/release-plan.md) and [TestFlight runbook](docs/app-store/internal-testflight-runbook.md).
 Detailed historical model evaluations, releases and test counts remain in those linked records
 and Git history; they are not additional tasks to repeat.
