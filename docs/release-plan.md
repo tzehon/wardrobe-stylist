@@ -4,7 +4,7 @@ Updated 10 September 2026 after the owner requested a reset and simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
-## Next outcome: verify the delivered TestFlight build
+## Completed: verify the delivered local-first TestFlight beta
 
 Build **1.0.0 (7)** has completed validation/upload and Apple processing. App Store Connect shows
 it **Complete / Ready to Submit**, assigned only to `Family` Internal Testing with one group
@@ -12,10 +12,26 @@ tester and no individual testers. The approved AI-disabled notes are saved and r
 The existing **Automatic for Xcode Builds** setting was preserved; no manual assignment was needed.
 See the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 
-The next work is the owner-controlled handoff, clean installation and physical QA. Cataloging clothing,
+The owner-controlled handoff, clean installation and scoped local-beta QA passed on 11 September.
+Preparing the separately approved AI pilot is the next work. Cataloging clothing,
 photos, editing, wear history, reminders and Demo Mode are the core of this beta. Remote AI is
 explicitly unavailable while its separate activation work remains open, as the saved notes explain.
 This is a testing milestone, not a change to the approved Free, Singapore-only public launch.
+
+11 September partial physical evidence: the owner reports an in-place TestFlight update to build 7.
+The normal-state consent button passes visual inspection in the supplied Dark Mode screenshot,
+and the owner confirms existing wardrobe items and wear history remain visible. Offline Demo
+opening and sample-wardrobe browsing also pass with Airplane Mode on and Wi-Fi off.
+Those initial observations were from the in-place update. Pressed/disabled device captures were
+not collected; their deterministic contrast checks are automated. The later clean installation
+and full regression complete this local-beta milestone without repeating the unchanged screen.
+The approved in-app server deletion has since passed: the owner saw success, fresh live aggregates
+are zero and one bounded deletion-success marker was observed. The owner subsequently confirmed
+**Local Data Deleted**, removal of the app and clean installation of TestFlight `1.0.0 (7)`.
+After **Start with my wardrobe**, Wardrobe and History are empty, AI permission remains off and
+the confirmed version is `1.0.0 (7)`. Fresh live installation/session/challenge counts remain zero.
+The owner-controlled handoff and clean-install first-launch checks are complete.
+See the [physical checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial).
 
 Builds **4–7 are consumed and must never be reused**. Build 6 is non-promotable because of the
 consent-button presentation defect; the replacement control is implemented in build 7. The
@@ -23,15 +39,18 @@ purpose-specific preflight passed for the AI-disabled beta before the separately
 PR #46 merged the release refactor. Documentation corrections do not change the iOS bundle,
 API contract, production resources or stored data and do not require build 8.
 
-1. **Complete the owner-controlled identity-safe handoff.** Keep the existing installation until
-   the owner clears the applicable runbook stage. Delivery does not authorize local/server
-   deletion, uninstall or replacement.
-2. **Install the processed build cleanly after the handoff.** Use the delivered `1.0.0 (7)` beta;
-   do not re-upload it or install it over the predecessor before the handoff is complete.
-3. **Verify the physical delta.** Check the fixed consent control in Dark Mode and perform the
-   brief local/catalog/Demo smoke in the saved tester notes. Keep AI disabled; a production
-   styling call belongs to separately approved AI activation. Repeat other physical rows only
-   when behavior changed or retained evidence is missing, rather than replaying the full matrix.
+1. **Handoff complete.** Owner-approved server deletion was verified before local deletion and
+   app removal. Do not repeat deletion or uninstall for the remaining QA.
+2. **Clean installation complete.** The owner confirmed processed `1.0.0 (7)`, empty local state
+   and AI permission off; the subsequent live check remained at zero security aggregates.
+3. **Automated verification complete.** Retain the normal-state Dark Mode screenshot, completed
+   handoff and brief smoke observations. The 11 September owner correction withdraws the extra
+   manual photo/edit/relaunch request: routine catalog, persistence, Demo and button-state contrast
+   checks belong in the suite. The added disk-persistence test and full regression passed:
+   237 iOS tests, 840 backend tests with all locked checks, and 44 release-script tests. Ask for
+   another device action only for a concrete uncovered physical boundary; see
+   [QA ownership](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
+   Keep AI disabled; protected production styling proof belongs to separately approved activation.
 
 If this QA requires an iOS fix, determine the next unused build number and repeat the applicable
 review/distribution checks for that new candidate. Do not rebuild or re-upload because operator
@@ -41,7 +60,7 @@ Apple's App Store Connect tester requirements; a wider external beta is a separa
 choice, not a reason to grant account roles casually.
 [Apple internal testing](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers/).
 
-## Then: activate AI for the small pilot
+## Next: prepare and separately approve the small AI pilot
 
 Keep the existing backend, anonymous App Attest access, server-held provider key and durable global
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another

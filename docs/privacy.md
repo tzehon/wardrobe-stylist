@@ -99,10 +99,12 @@ The repository deploys application-owned cleanup, deletion, SQLite/WAL maintenan
 guards, payload-free logging guards, and a no-access-log production command. On 2026-08-20 the
 owner approved payload-free manual operations before archive/upload, after each backend or
 production-configuration change, and at least every 30 days while production remains deployed or
-enabled. Snapshot-list expiry, deletion-specific restore/non-return, App Privacy and clean physical
-Dark Mode visual QA remain release gates. Build-7 validation/upload, processing, internal assignment
+enabled. Snapshot-list expiry, deletion-specific restore/non-return and App Privacy remain
+public-release gates. Build-7 validation/upload, processing, internal assignment
 and saved/reloaded notes are complete in the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
-Owner-controlled installation handoff and separate AI/public-release work remain open. The
+The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+records completed owner-controlled deletion, clean installation and scoped local-beta QA.
+AI activation and the separate public-release work remain open. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
 has since merged and verified the replacement implementation. At the earlier build-selection
 checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the

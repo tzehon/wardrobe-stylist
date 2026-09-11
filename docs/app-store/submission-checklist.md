@@ -19,7 +19,8 @@ Build `1.0.0 (7)` has completed internal distribution: **Complete / Ready to Sub
 `Family` Internal Testing with one group tester and no individual testers, and approved AI-disabled
 notes saved/reload-verified. It is consumed and must never be reused. The
 [distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10) retains proof;
-next are owner-controlled handoff, clean installation and physical QA. AI activation and public
+the [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+records completed handoff, clean installation and scoped local-beta QA. AI activation and public
 submission remain separate. Apple's **Ready to Submit** status is not public-release approval.
 
 ## 1. External decisions and account readiness
@@ -217,9 +218,9 @@ review and `07:15:57Z` archive are timing-stale/non-uploadable evidence; the ear
 signed archive is separately invalid/non-uploadable. A fresh full review completed at `11:02:18Z`,
 followed by the distinct final signed archive at `11:03:10Z` and strict verification at `11:04:02Z`.
 The signed-in `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with
-build 7 absent. The later 10 September internal distribution is complete. Snapshot-list expiry,
-deletion-specific recovery/non-return and owner-controlled build-7 handoff/clean physical Dark Mode
-visual retest remain open; the archive-era absence is not permission to reuse build 7.
+build 7 absent. The later internal distribution and 11 September handoff/clean local-beta QA are
+complete. Snapshot-list expiry and deletion-specific recovery/non-return remain open; the
+archive-era absence is not permission to reuse build 7.
 
 - [x] Review and freeze the Today offline-cache fix, its focused tests, the backend registration/
   assertion success-marker logging fix, and source `4,5` TestFlight allowlist. Reviewed PR #23
@@ -444,9 +445,9 @@ makes it non-promotable. Its final deletion/reinstall/new-enrollment handoff rem
 merged and verified the replacement implementation; build `1.0.0 (7)` is selected/source-prepared,
 and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact-source regression,
 and strict signed-archive verification passed at the archive checkpoint. The 10 September
-validation/upload, processing, `Family` assignment and saved-note loop are complete. Snapshot
-lifecycle, owner-controlled build-7 handoff/clean physical Dark Mode QA, AI activation and public
-submission remain open.
+validation/upload, processing, `Family` assignment and saved-note loop are complete. The
+11 September handoff, clean installation and scoped local-beta QA have since passed. Snapshot
+lifecycle, AI activation and public submission remain open.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

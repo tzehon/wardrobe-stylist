@@ -21,12 +21,19 @@ Statuses:
 
 ## Current work order — 10 September 2026
 
-Follow [the release plan](release-plan.md): complete the owner-controlled handoff, clean install
-and physical QA of the delivered local-first beta, then separately activate AI and finish public
+Follow [the release plan](release-plan.md): retain completed local-beta QA, prepare the separately
+approved AI pilot, and finish public
 Singapore submission. Build `1.0.0 (7)` is **Complete / Ready to Submit**, assigned only to
 `Family` Internal Testing with one group tester and no individual testers; approved AI-disabled
 notes are saved and reload-verified. Build 7 is used and must never be reused. See the
 [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+The 11 September owner-approved server/local deletion, removal and clean installation have since
+passed. The owner confirmed version 7, empty Wardrobe/History and AI permission off; a fresh
+server check remained at zero security aggregates. The normal-state Dark Mode screenshot and
+brief offline Demo smoke passed before that handoff. The added persistence regression and full
+suite passed; scoped local-beta QA is complete. Wider AI/public-release checks stay separate. Use the
+[physical checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+to distinguish completed stages from the older status rows below.
 This backlog is a work inventory, not a
 single serial checklist. Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
@@ -37,7 +44,7 @@ release. Proposed allowance examples and unresolved prices are not customer prom
 
 ## Progress snapshot
 
-Last updated: **2026-09-10**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-11**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -51,12 +58,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. Owner-controlled handoff/clean visual QA, final store metadata and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; final store metadata and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
-| APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 internal distribution is complete and owner-controlled handoff/clean physical Dark Mode retest remain open. Broader localization remains APP-028 |
+| APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Build-7 internal distribution is complete. Owner-controlled handoff/clean physical visual retest, deletion-specific recovery, final Google retirement and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. Deletion-specific recovery, final Google retirement and public submission remain open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -297,8 +304,9 @@ and zero-High/Critical Docker Scout scan, completed at `2026-08-29T11:02:18Z`. T
 signed archive was then created at `11:03:10Z` and strictly verified at `11:04:02Z`; the signed-in
 `11:05:38Z` Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7
 absent. Validation/upload/distribution and physical retest were open at that archive checkpoint.
-The 10 September internal distribution is now complete; build 7 is consumed, while owner-controlled
-handoff, clean installation and the physical Dark Mode visual retest remain open.
+The 10 September internal distribution is complete and build 7 is consumed. The later
+11 September handoff, clean installation and normal-state Dark Mode evidence are recorded above;
+remaining deterministic checks belong to the suite.
 
 - [x] **Freeze the current fixes.** Reviewed PR #23 merged the Today offline-cache fix and
   focused tests, the payload-free production registration/assertion success-marker logging fix,
@@ -645,14 +653,15 @@ handoff, clean installation and the physical Dark Mode visual retest remain open
   setting was preserved, and approved AI-disabled notes persisted after reload. The
   [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   retains the observed outcome. Build 7 is consumed; do not repeat this upload.
-- [ ] **Clean-install and physically retest the build-7 delta.** Complete the owner-controlled
-  identity-safe handoff, install the processed TestFlight build cleanly and confirm the title is
-  centered with no invisible icon slot and that enabled, pressed and disabled presentation remains
-  legible in Dark Mode. Include the brief local/catalog/Demo smoke from the saved notes. AI remains
-  disabled; a production App-Attest-protected styling request belongs to separately approved AI
-  activation and its bounded verification call. When the current
-  automated suite is green and retained build-6 physical evidence still applies, do not repeat the
-  unchanged catalog, cached-Today, Wear/History, or reminder flows.
+- [x] **Complete the build-7 local-beta verification.** The owner-controlled handoff and clean
+  first launch passed. The build-7 device screenshot confirms normal-state title centering,
+  icon-slot absence and readable Dark Mode appearance; the existing automated presentation tests
+  cover enabled/pressed/disabled contrast. Retain the brief local/Demo observations and unchanged
+  build-6 media/notification evidence. The added disk-persistence regression and full suite passed
+  (237 iOS, 840 backend with locked checks, 44 release-script tests). No extra routine phone
+  checklist is needed. This follows the 11 September
+  [QA ownership correction](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
+  AI stays disabled; protected production styling proof belongs to separately approved activation.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any replacement-candidate physical, deletion,
@@ -920,6 +929,10 @@ governed by APP-036's Gmail-free guards.
   failed Restyle, and records Wear in History. Production App Attest, the processed TestFlight
   installation, real media permissions and notification delivery, live deletion, snapshot/recovery,
   and uninstall/reinstall remain physical release boundaries rather than missing automation.
+  The 11 September owner correction withdraws repeated routine phone checks. The explicit
+  photo/edit/disk-reopen gap is covered by `WardrobeStoreDiskPersistenceTests`; the narrower
+  automation/hardware boundaries are listed in the
+  [QA ownership record](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
 - [x] **APP-015 · Done · Strengthen CI/release gates.** Run backend contract tests when `shared/**`
   changes; build/test a Release configuration; run an archive/privacy report guard; and retain
   full locked pytest/pip-audit/Bandit/Ruff/mypy plus Swift test regressions. The clean complete
@@ -959,8 +972,8 @@ governed by APP-036's Gmail-free guards.
   deployment, post-change/pre-archive reviews, exact-source regression, and signed-archive
   verification passed at the archive checkpoint. The 10 September beta-only review and separately
   approved validation/upload, Apple processing, `Family` assignment and saved/reloaded AI-disabled
-  notes are complete. Finish the owner-controlled build-7 handoff/clean install/visual QA, snapshot
-  lifecycle evidence and public-submission work; keep backend health available through review.
+  notes are complete. The later handoff/clean install and normal-state visual check passed. Finish
+  the applicable snapshot lifecycle and public-submission work; keep backend health available through review.
 - [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
@@ -978,9 +991,9 @@ governed by APP-036's Gmail-free guards.
   merged, historical Fly v9 compatibility and archive-era Fly v10 deployment evidence are retained,
   and the [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). Clean build 6
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
-  deletion/reinstall/new enrollment. Build-7 internal distribution is complete. Owner-controlled
-  build-7 handoff/clean physical QA, deletion-specific recovery/non-return, final Google retirement
-  and public submission remain open.
+  deletion/reinstall/new enrollment. Build-7 distribution, handoff/clean first launch and normal-state
+  device appearance have passed. Deletion-specific recovery/non-return,
+  final Google retirement and public submission remain open.
 
 ## P1 — core experience polish
 
@@ -1017,9 +1030,11 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   screenshot confirms that build 6's **Allow AI styling** title is approximately 21 points right of
   center and its sampled `#C2DFFC` fill against white is approximately `1.38:1`. Build 6 is therefore
   non-promotable. PR #31 merged the title-only centered full-width opaque replacement with
-  enabled/pressed/disabled contrast coverage and a screenshot UI assertion; close APP-025 only after
-  the delivered build 7 passes its owner-controlled handoff, clean installation and physical visual
-  retest. Internal distribution is complete; this physical gate remains open.
+  enabled/pressed/disabled contrast coverage and a screenshot UI assertion. The delivered build-7
+  handoff/clean first launch and normal-state physical screenshot have since passed. Apply the
+  11 September QA ownership rule: automated button-state contrast is not another phone checklist.
+  Broader accessibility/adaptive-layout review remains separate; these observations do not prove
+  the entire accessibility matrix.
 - [x] **APP-026 · Done · Standardize loading, empty, failure, offline, and retry states.** Avoid raw
   SDK/backend errors and indefinite spinners. Preserve user input on failure and make destructive
   or privacy-impacting actions explicit.
