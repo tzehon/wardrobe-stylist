@@ -174,8 +174,8 @@ input without local secret persistence; it and the private settings are deployed
 before its 8 October 2026 expiry is required. Actual provider alert delivery remains unproven.
 The 10 September plan uses daily owner cost review for the small pilot and defers external
 monitoring. The 10 September beta-only operations review and separately approved internal
-distribution passed; fresh checks for later changes/AI activation remain required. AI activation,
-owner-controlled physical QA and public submission remain open. The earlier
+distribution passed; fresh checks for later changes/AI activation remain required. AI activation
+and public submission remain open; handoff and scoped local-beta QA passed on 11 September. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.

@@ -430,10 +430,11 @@ repeat completed archive/upload steps for the delivered build 7:
   assignment and saved/reloaded AI-disabled notes passed. Retain the
   [canonical distribution evidence](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10);
   do not repeat the upload.
-- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
-  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
-  Dark Mode, plus the brief local/catalog/Demo smoke. Keep AI disabled; a production styling call
-  belongs to separately approved AI activation.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.
 
 The notification-router source fix merged through PR #27. Focused tests passed 17/17; merged-source
 evidence retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and all

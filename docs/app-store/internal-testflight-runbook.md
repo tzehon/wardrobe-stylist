@@ -619,7 +619,8 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent.
   Validation/upload, Apple processing, assignment, tester notes and physical retest were open at
   that archive-era checkpoint. The 10 September distribution record above closes the delivery
-  pipeline; owner-controlled physical handoff/QA remains open. Keep the root `README.md` current with implementation and release status; this
+  pipeline; the 11 September checkpoint closes handoff and scoped local-beta QA. Keep the root
+  `README.md` current with implementation and release status; this
   runbook and the release backlog retain the detailed ordered evidence.
 - Notification-fix merged evidence: focused tests passed 17/17. Merged-source verification retained
   221 backend tests plus locked dependency audit/Bandit/Ruff/mypy, 231/231 iOS tests (222 Swift unit
@@ -1023,8 +1024,9 @@ The following entries retain the completed predecessor sequence:
   `2026-08-28 17:17 SGT` then created one active installation and one active session, with zero
   pending and zero failed challenges, one completed challenge, exactly one registration-success
   marker, and expected runtime-field absence on iOS 26.6. This closes the owner-controlled handoff,
-  not snapshot-list expiry, deletion-specific recovery/non-return, clean physical visual retest or
-  final Google retirement. Build-7 internal distribution was separately completed on 10 September.
+  not snapshot-list expiry, deletion-specific recovery/non-return or final Google retirement.
+  Build-7 internal distribution completed on 10 September; its scoped local-beta QA completed on
+  11 September as recorded above.
 
 ## Mandatory clean-uninstall transition for build 4
 

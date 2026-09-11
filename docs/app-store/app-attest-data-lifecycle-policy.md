@@ -905,8 +905,11 @@ Required before APP-009 can close:
   review preceded separate owner approval and normal-route validation/upload. Apple processing,
   `Family` internal assignment and saved/reloaded AI-disabled notes are verified in the
   [distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
-- [ ] Clean-install the processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.
 - [x] Retain the historical build-6 App Store Connect number check. Before changing version metadata
   or archiving that replacement, the `2026-08-22T10:02:31Z` signed-in TestFlight Build Uploads view
   showed builds 1–5 only, build 5 **Complete**, and no build 6. Build 6 is confirmed unused and

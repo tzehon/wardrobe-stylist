@@ -259,8 +259,11 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   Validation/upload, processing, `Family` internal assignment and saved/reloaded AI-disabled notes
   are verified in the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
   Build 7 is consumed; do not repeat its upload.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled Dark Mode legibility before promotion.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.
 
 ## Secrets and release boundaries
 
