@@ -5,7 +5,9 @@
 >
 > Current release state: `1.0.0 (7)` has completed
 > [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-> with AI disabled. Physical QA, consent/privacy reconciliation and public submission remain open.
+> with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
+> AI activation, consent/privacy reconciliation and public submission remain open; do not repeat
+> the completed handoff or routine QA.
 
 ## Product summary
 
