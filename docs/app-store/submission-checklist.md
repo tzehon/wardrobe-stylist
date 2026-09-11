@@ -412,10 +412,11 @@ archive-era absence is not permission to reuse build 7.
   `Family` assignment and saved/reloaded AI-disabled notes passed; see the
   [canonical distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
   Build 7 is consumed; do not repeat this upload.
-- [ ] Complete the owner-controlled identity-safe handoff, clean-install processed build 7 and
-  physically retest title centering, icon-slot absence and enabled/pressed/disabled legibility in
-  Dark Mode, plus the brief local/catalog/Demo smoke. Keep AI disabled; a production styling call
-  belongs to separately approved AI activation.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.
 - [x] Complete the pre-upload clean-uninstall transition. The installed development build
   disconnected Google and deleted local data, but predated the server-deletion UI; production had
   zero installations, zero sessions, and zero pending challenges before uninstall, so no live

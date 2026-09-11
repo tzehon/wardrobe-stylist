@@ -78,7 +78,9 @@ struct WardrobeStoreDiskPersistenceTests {
             ])
             let context = ModelContext(container)
             context.autosaveEnabled = false
-            return try body(context)
+            return try withExtendedLifetime(container) {
+                try body(context)
+            }
         }
     }
 }

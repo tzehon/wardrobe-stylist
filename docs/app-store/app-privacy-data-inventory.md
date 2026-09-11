@@ -209,6 +209,9 @@ The exact approved developer-controlled schedule and its current compliance stat
   `1.0.0 (7)` is assigned only to `Family` Internal Testing with one group tester and no individual
   testers, and the approved AI-disabled notes persisted after reload. See the
   [distribution checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
-  Build 7 is consumed; this does not close physical QA or the remaining privacy requirements.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before promotion.
+  Build 7 is consumed; distribution alone does not close the remaining privacy requirements.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.

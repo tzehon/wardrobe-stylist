@@ -149,8 +149,9 @@ verification at `11:04:02Z`. The signed-in `11:05:38Z` Build Uploads refresh sho
 and **Ready to Submit**, with build 7 absent at that historical checkpoint. The later
 [10 September distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 completed build-7 validation/upload, processing, internal assignment and saved/reloaded tester
-notes with AI disabled. Snapshot lifecycle evidence, clean physical Dark Mode visual retest,
-consent/privacy reconciliation and public submission remain open. Reviewed
+notes with AI disabled. The 11 September checkpoint records completed handoff and scoped
+local-beta QA. Snapshot lifecycle evidence, consent/privacy reconciliation and public submission
+remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
@@ -277,8 +278,11 @@ backend/configuration change.
   testers, and the approved AI-disabled notes persisted after reload. See the
   [distribution checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10).
   Build 7 is consumed; this does not authorize public submission or prove physical QA.
-- [ ] Clean-install processed build 7 and physically retest title centering, icon-slot
-  absence, and enabled/pressed/disabled legibility in Dark Mode before submission.
+- [x] Complete build-7 handoff, clean installation and scoped local-beta QA. The
+  [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+  records the completed owner-controlled sequence and normal-state Dark Mode screenshot.
+  Automated tests cover enabled/pressed/disabled contrast; retain unchanged device evidence.
+  Do not repeat deletion, uninstall or routine QA. AI activation and public submission remain separate.
 - [x] Retain the historical build-6 App Store Connect number check before archive/upload. The
   signed-in TestFlight Build Uploads view at `2026-08-22T10:02:31Z` showed builds 1–5 only,
   build 5 **Complete**, and no build 6. Build 6 is confirmed unused and selected;
