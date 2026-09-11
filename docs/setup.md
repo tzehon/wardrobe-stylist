@@ -21,8 +21,8 @@ setup are complete. The ledger must be preserved; do not run first provisioning 
 No paid AI call was made. Provider alert delivery remains unproven and billing-feed reconciliation
 remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
 for the small pilot and defers external monitoring. The beta-only review and build-7 internal
-distribution are complete; owner-controlled physical handoff/QA, separate AI enablement and
-public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+distribution are complete. Handoff, clean installation and scoped local-beta QA passed on
+11 September; separate AI enablement and public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 the normal budget gate now reports OPEN `styling-disabled`. Follow the
@@ -311,8 +311,8 @@ invalid/non-uploadable. A fresh full review completed at `11:02:18Z`, followed b
 signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed-in `11:05:38Z`
 Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
 later 10 September validation/upload, processing, internal assignment and saved-note checks are
-complete; neither that delivery nor a healthy `/health` response closes the remaining physical,
-AI-activation or public-release gates.
+complete; the 11 September checkpoint separately records completed handoff and scoped local-beta
+QA. AI-activation and public-release gates remain open.
 
 ## TestFlight distribution
 
@@ -320,8 +320,9 @@ Every internal beta is built as an App Store candidate. Build `1.0.0 (7)` is now
 Ready to Submit**, assigned only to `Family` Internal Testing with one group tester and no
 individual testers; approved AI-disabled notes are saved and reload-verified. Build 7 is consumed
 and must never be reused. Follow the
-[current runbook](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) for
-owner-controlled handoff, clean installation and targeted physical QA. Keep AI disabled.
+[11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
+for the completed handoff, clean installation and scoped local-beta QA. Do not repeat those
+steps. Keep AI disabled pending its separately approved pilot.
 
 The sequence below retains preparation requirements and dated predecessor evidence; do not
 repeat completed archive/upload steps for the delivered build 7:
