@@ -2,8 +2,9 @@
 
 The approved listing is saved to App Store Connect. The existing record is Apple ID
 `6789053566`, bundle ID and immutable SKU `com.tth.Wardrobe`, primary language English (U.K.).
-The public candidate remains **1.0.0 (7)**, selected on the store's **1.0.0** draft. This is saved
-preparation, not an App Review submission or public release.
+The public candidate remains **1.0.0 (7)**, selected on the store's **1.0.0** draft. Add for Review
+validation passed and the draft submission is **Ready for Review**; Submit for Review has not been
+clicked. The app has not been submitted to Apple or publicly released.
 
 ## Saved listing
 
@@ -81,3 +82,5 @@ No real wardrobe images, identity or backend details appear. See [capture plan](
 and [submission preparation](submission-preparation-20260912.md).
 
 Use the concise [review notes](review-notes-1.0.0.txt), not the historical operational draft.
+The corrected 2,068-character notes, with separate support/privacy links, are saved and
+reload-verified in Apple.

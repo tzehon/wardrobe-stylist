@@ -93,9 +93,12 @@ has saved the listing, Lifestyle category, age rating 9+, owner-confirmed conten
 reviewer instructions, no-sign-in/manual-release settings and existing build 7. Five fictional
 screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
 availability are also saved and reload-verified. Agreements and bank/tax/DSA status are active; only Singapore is
-selected. Categories `2,4` are prepared in source but the live backend remains category `2` until
-deployment and independent post-change verification. Final submission remains open. No new
-TestFlight build is required for these backend-compatible and store-draft changes.
+selected. Fly v14 now accepts categories `2,4`; independent configuration verification passed at
+`2026-09-12T06:36:24Z` with the exact original image/resources, secrets, policy and intact ledger.
+No paid call was made. The full post-change operations review remains pending. Apple's Add for
+Review validation passed: version `1.0.0` with build 7 is **Ready for Review** in a draft
+submission. Submit for Review remains unclicked, and release stays manual. The corrected reviewer
+notes are saved and reload-verified. No new TestFlight build is required.
 
 Finish the candidate-specific physical QA, applicable privacy/deletion/recovery evidence,
 truthful privacy/support/Terms pages and App Privacy answers, screenshots/description, availability

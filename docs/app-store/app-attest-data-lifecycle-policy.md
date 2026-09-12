@@ -783,7 +783,7 @@ item recorded below:
   current backend behavior. No raw metric, identifier, exact billing amount, key name/value, log
   sample, screenshot, or provider response is retained. Repeat the review before every future
   archive/upload and after every backend/configuration change. The historical v10 review's next
-  due date was 2026-09-28; the current enabled v13 review and completed protected-call proof and open public-release gates are recorded above.
+  due date was 2026-09-28; the v13 activation review, completed protected-call proof, v14 configuration postcheck and open public-release gates are recorded above.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub

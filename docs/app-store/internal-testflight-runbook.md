@@ -11,9 +11,13 @@ and historical evidence; it is not a request to repeat every completed row. Inte
 availability, optional AI activation and public App Store submission have separate requirements.
 The owner requested a reset of the overgrown monitoring/release workflow on 10 September.
 
-The separately approved bounded AI pilot is now enabled as Fly v13. Its enabled review passed
+The separately approved bounded AI pilot remains enabled on Fly v14. Its v13 activation review passed
 with the approved Cowork-only status exception; the first owner-controlled protected styling
 request passed on 12 September. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
+The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-september-2026) records
+the later approved categories `2,4` deployment and independent configuration postcheck. The full
+v14 operations review remains pending; Apple's version/build-7 draft is Ready for Review but has
+not been submitted.
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -512,7 +516,7 @@ was prepared locally with independent private installation/session bounds and ow
 those bounds were not yet approved. The later v11 disabled rollout still had an unprovisioned
 budget and OPEN preflight. The [8 September setup](#approved-disabled-budget-setup--2026-09-08)
 supersedes those provisioning, credit and capacity-decision states; it records the historical disabled v12
-configuration; the 12 September v13 activation checkpoint records the current pilot state. Snapshot expiry/deletion-specific recovery is separate.
+configuration; the 12 September v14 compatibility checkpoint records the current pilot state. Snapshot expiry/deletion-specific recovery is separate.
 Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
 rollback target after the disabled cutover.
 
@@ -963,7 +967,7 @@ deletion snapshot's later disappearance and deletion-specific recovery/non-retur
 and were owner-waived only for the Free Singapore v1. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
-The current Fly v13 runtime has the same private policy applied with the bounded pilot enabled;
+The current Fly v14 runtime has the same private policy applied with the bounded pilot enabled;
 see the 12 September activation checkpoint.
 The build-7 exact-source regression, strict signed-archive verification and 10 September internal
 distribution have passed. The 11 September handoff, clean first launch and scoped local-beta QA
@@ -1163,7 +1167,7 @@ All checks passed except the preserved aggregate Anthropic `OPEN public-status-o
 Fresh official summary evidence matched the owner's approved exception: API/Console operational,
 only the identified Cowork-on-Windows incident, no API incident or maintenance. The outcome is
 **PASS with the approved Cowork-only exception**, not an unqualified all-green preflight or public-
-submission approval. The operations lock now records the observed v13. Private full results,
+submission approval. The operations lock recorded observed v13 at that checkpoint. Private full results,
 original nonzero reports, approval/proposal binding and resource identity comparisons are retained.
 
 Build 7's What to Test text now describes the enabled bounded pilot, one initial styling request,
@@ -1195,6 +1199,32 @@ cost review is due 13 September, sooner after a problem or configuration change.
 approved AI-disable response on failed verification, unexpected charge or uncertain work, preserving
 charges and reservations. The global AI ceiling does not cap the Fly invoice. Public Singapore
 submission remains separate. No new TestFlight build is required.
+
+### App Store compatibility deployment — 12 September 2026
+
+PR [#54](https://github.com/tzehon/wardrobe-stylist/pull/54) merged the approved App Store
+compatibility/configuration-verifier work after review corrections, current-head Codex approval
+and passing checks. The exact reviewed tree passed 870 backend tests, locked audit/Bandit/Ruff/mypy,
+237 iOS tests and 44 release-script tests. No shipped iOS source or API contract changed.
+
+The approved configuration-only deployment completed as **Fly v14**. Independent post-verification
+at `2026-09-12T06:36:24Z` returned **PASS_CONFIGURATION_ONLY_POSTCHECK**. The live App Attest
+categories are `2,4`, with accepted builds `4,5,6,7`; the exact immutable image/source, original
+Machine and encrypted volume, keys, approved policy and intact ledger remain unchanged. AI stays
+enabled, with ready/below-warning ledger and clear concurrency. No paid call was made. Provider
+IDs, secret hashes and exact private policy/accounting values remain only in ignored evidence.
+
+The operations lock records observed release 14/categories `2,4`, preserving every other binding,
+including source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` and the signed build-7 archive.
+**The full post-change operations review is pending.** The configuration postcheck must not be
+reported as a completed public/manual/recovery operations review.
+
+Apple draft evidence: Add for Review validation passed; version `1.0.0` with build 7 is **Ready
+for Review** in a draft submission. Listing/declarations, the five fictional screenshots in the
+verified order, Free price, Singapore-only availability and disabled Mac/Vision availability are
+saved and reload-verified. The corrected owner contact remains private; the corrected 2,068-character
+reviewer notes have separate support/privacy links and are saved/reload-verified. Manual release
+is retained. **Submit for Review has not been clicked.** No new TestFlight build is required.
 
 ## Per-build release-candidate loop
 

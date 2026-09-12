@@ -1,6 +1,6 @@
 # Singapore submission preparation — 12 September 2026
 
-Status: **approved Apple draft work in progress; not submitted or publicly released**. Build
+Status: **Apple draft Ready for Review; compatibility deployed; full operations review pending**. Build
 `1.0.0 (7)` remains the existing processed candidate. The owner approved source publication,
 saving the prepared Apple draft and the minimal App Store compatibility deployment. The later
 contact correction retains that scope; private approval/amendment records bind the corrected
@@ -12,11 +12,13 @@ preflight correction need **no new TestFlight build**.
 App Store Connect inspection and approved draft saves confirmed:
 
 - Existing bundle ID and immutable SKU: `com.tth.Wardrobe`; Apple ID `6789053566`.
-- Primary language English (U.K.); store draft is now `1.0.0`, Prepare for Submission.
+- Primary language English (U.K.); version `1.0.0` passed Add for Review validation and is
+  **Ready for Review** in a draft submission. Submit for Review remains unclicked.
 - Free/Paid agreements active; bank and tax records active/complete; DSA trader status active.
 - Singapore is the sole available territory; 174 territories are not available.
 - Tax category is App Store software; Apple Standard License Agreement is selected.
-- Listing text, subtitle, Lifestyle category, URLs, copyright and reviewer notes are saved.
+- Listing text, subtitle, Lifestyle category, URLs and copyright are saved. Corrected reviewer
+  notes are saved and reload-verified at 2,068 characters, with separate support/privacy links.
 - Existing build 7 is selected. No sign-in is required; manual release is saved.
 - Age rating is 9+ from the lifestyle-content questionnaire, with medical content None. Content
   rights is Yes on the owner's explicit assurance. No accessibility capability was asserted.
@@ -53,10 +55,13 @@ character/keyword-byte validation. The subsequent backend compatibility/prefligh
 870 backend tests, locked pip-audit, Bandit, Ruff and mypy, 237 iOS tests and all 44 release-script
 tests. No shipped iOS source or API contract changed.
 
-## Backend source and configuration preparation
+## Backend configuration deployment
 
-`backend/fly.toml` now proposes categories `2,4`, retaining builds `4,5,6,7`. The live runtime is
-still Fly v13/category `2`; no compatibility deployment has occurred at this checkpoint.
+PR #54 merged the reviewed categories `2,4`, retaining builds `4,5,6,7`. The approved configuration
+deployment completed as **Fly v14**. An independent postcheck passed at
+`2026-09-12T06:36:24Z`: exact original image, Machine, volume, keys, policy and intact ledger were
+preserved, with no paid call. The lock now records observed v14/categories `2,4` while retaining
+all image/archive bindings. The full post-change operations review remains pending.
 
 `fly.toml` is deployment configuration and is not copied into the Docker image. The read-only
 operations verifier therefore excludes it from immutable-image source equivalence while keeping
@@ -69,18 +74,14 @@ revision unchanged when updating the post-deployment release/category review loc
 ## Remaining execution
 
 1. Retain the verified Free/Singapore/iPhone-only draft, screenshot order, saved build 7,
-   declarations, corrected review contact and manual release. Apply the review-notes correction
-   that links the support and privacy pages separately, then verify the final saved draft.
-2. Add App Store category `4` alongside TestFlight category `2` in the production App Attest
-   allowlist. The proposed value is `2,4`; accepted builds remain `4,5,6,7`. Preserve the exact
-   runtime image, Machine, volume, key, approved policy and intact budget ledger. This is a
-   backward-compatible configuration change; no iOS rebuild or additional paid test is proposed.
-   The live configuration still accepts only category `2`; do not claim App Store support live.
-3. Before applying that configuration, follow the normal reviewed-source/configuration process.
-   Afterwards verify the exact serving settings, health, storage, budget and payload-free
-   operations review. Keep the existing cost envelope and daily review; Fly has no hard invoice
-   cap. A failed check stops submission and uses the applicable approved recovery procedure.
-4. Resolve Apple's actual validation errors, then obtain the final public-submission approval
+   declarations, corrected review contact/notes and manual release. Add for Review validation
+   is complete; do not repeat the upload or draft-entry work.
+2. Complete the full post-change operations review from clean synchronized main using the observed
+   v14 lock. The configuration postcheck is not that full review. Keep the existing cost envelope
+   and daily review; Fly has no hard invoice cap. A failed check stops submission and uses the
+   applicable approved recovery procedure. Preserve the exact image, resources, keys, policy and
+   intact ledger; no iOS rebuild or additional paid test is proposed.
+3. Obtain the final public-submission approval
    if not already explicitly granted for the reviewed final package. Submit to App Review with
    **manual release** selected. Apple approval does not itself publish the app under that setting.
 

@@ -31,8 +31,10 @@ bounded pilot and first protected call are complete. The approved listing, revie
 no-sign-in/manual-release settings, age/content-rights declarations and build 7 are saved. Five
 fictional screenshots are uploaded, ordered and reload-verified. Free pricing, Singapore-only
 availability and disabled Mac/Vision availability are also saved and reload-verified. Categories
-`2,4` are source-prepared only; live compatibility deployment,
-post-change verification and public submission remain open. Older unchecked historical checklist
+`2,4` are deployed as Fly v14, with independent configuration postcheck PASS at
+`2026-09-12T06:36:24Z`. Full post-change operations and public submission remain open. Apple's
+version `1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review; Submit for
+Review has not been clicked. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
 
 ## 1. External decisions and account readiness
@@ -200,12 +202,12 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
 - [x] Enter the final name, subtitle, primary language, categories, description, keywords,
   promotional text, copyright, support URL, and optional marketing URL from
   [`metadata-draft.md`](metadata-draft.md).
-- [ ] Complete content rights, export compliance, DSA, tax category, and region-specific
+- [x] Complete content rights, export compliance, DSA, tax category, and region-specific
   declarations; verify App Store Connect shows price **Free**, only **Singapore** enabled, and no
   in-app purchase or subscription offered with version 1.0. Content rights, DSA and tax category
   are saved; Free price (Singapore base SGD 0.00), only Singapore/174 unavailable territories and
-  disabled Mac/Vision availability are reload-verified. Resolve any remaining Apple validation
-  or compliance prompt before submission.
+  disabled Mac/Vision availability are reload-verified. Add for Review validation passed with no
+  blocking metadata/compliance prompt; refresh any new Apple notice before submission.
 - [x] Upload and reload-verify the five fictional screenshots in Catalog/editor/detail/Today/History
   order using [`screenshot-plan.md`](screenshot-plan.md). The 6.5-inch slot automatically uses
   the 6.9-inch images.
@@ -418,7 +420,7 @@ archive-era absence is not permission to reuse build 7.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29. The [current Fly v13 bounded pilot is enabled](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+  2026-08-29. The [current Fly v14 bounded pilot is enabled](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
   distribution subsequently passed; bounded activation is complete; protected-device styling proof passed on 12 September; public-submission gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
@@ -523,9 +525,11 @@ lifecycle non-return evidence is unproved but owner-waived only for the Free Sin
   ended at the notification-tap crash described in section 4. Build 6 is also assigned only to
   `Family`; its later clean physical evidence through the fixed notification route is retained in
   the runbook.
-- [ ] Add the version to a draft review submission, inspect all items, then submit. Apple's current
-  flow requires choosing the build and completing required metadata before **Add for Review** and
-  **Submit for Review**: [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
+- [x] Add version `1.0.0` with build 7 to a draft review submission. Add for Review validation
+  passed; Apple shows Ready for Review with manual release retained.
+- [ ] Complete the full post-change operations review and final approved submission inspection,
+  then choose **Submit for Review**. It has not been clicked:
+  [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
 - [ ] Keep the production backend healthy and the review contact reachable during review; respond
   to App Review in the App Review section.
 - [ ] After approval, execute the chosen release method, verify the live product page/install, and

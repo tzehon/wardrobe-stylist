@@ -327,9 +327,12 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v13, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
+- **Models in use:** Fly v14, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
   selects pinned `claude-sonnet-5` with AI styling enabled under the separately approved bounded
-  pilot. The 12 September post-change review passed at `04:28:57Z`, with the owner-approved
+  pilot. The v14 App Store compatibility deployment accepts categories `2,4`, with builds
+  `4,5,6,7` and the exact image, Machine, volume, keys, policy and intact ledger retained.
+  Independent configuration verification passed at `2026-09-12T06:36:24Z`; the full v14 operations
+  review remains pending. The earlier v13 activation review passed at `04:28:57Z`, with the owner-approved
   Cowork-only aggregate-status exception and operational API/Console evidence. The same image,
   Machine, volume, key and exact policy are preserved; the ledger is ready, below warning and idle.
   One protected-device styling call passed on 12 September. Disable AI under the approved response if
@@ -372,7 +375,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy was applied to the disabled v12 runtime and is retained by enabled v13; its original approval did not authorize source publication, provisioning,
+  again. The policy was applied to the disabled v12 runtime and is retained by enabled v14; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability

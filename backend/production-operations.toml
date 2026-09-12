@@ -6,7 +6,7 @@ schema_version = 1
 expected_deployed_revision = "d2866a2375dd4795f40a3ab13d273ed138cedd7e"
 expected_source_repository = "https://github.com/tzehon/wardrobe-stylist"
 expected_fly_app = "wardrobe-backend-faithful-silence-9494"
-expected_fly_release_version = 13
+expected_fly_release_version = 14
 expected_region = "sin"
 
 expected_archive_basename = "Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive"
@@ -19,7 +19,7 @@ expected_backend_url = "https://wardrobe-backend-faithful-silence-9494.fly.dev"
 expected_auth_schema_version = 4
 expected_app_attest_app_id_prefix = "29NT767Y9P"
 expected_app_attest_bundle_id = "com.tth.Wardrobe"
-expected_validation_categories = ["2"]
+expected_validation_categories = ["2", "4"]
 expected_bundle_versions = ["4", "5", "6", "7"]
 required_secret_names = [
   "ANTHROPIC_API_KEY",
