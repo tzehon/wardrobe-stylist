@@ -1228,8 +1228,9 @@ reported as a completed public/manual/recovery operations review.
 Apple draft evidence: Add for Review validation passed; version `1.0.0` with build 7 is **Ready
 for Review** in a draft submission. Listing/declarations, the five fictional screenshots in the
 verified order, Free price, Singapore-only availability and disabled Mac/Vision availability are
-saved and reload-verified. The corrected owner contact remains private; the corrected 2,068-character
-reviewer notes have separate support/privacy links and are saved/reload-verified. Manual release
+saved and reload-verified. The corrected owner contact remains private; the corrected 2,064-character
+reviewer notes have separate support/privacy links and a complete fictional top/trousers/shoes
+example. The exact text was saved and reload-verified after the review correction. Manual release
 is retained. **Submit for Review has not been clicked.** No new TestFlight build is required.
 
 ## Per-build release-candidate loop

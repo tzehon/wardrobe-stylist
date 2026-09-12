@@ -73,10 +73,10 @@ model to finish this release.
   verified. Retain build 7 and notice version 3 for the unchanged flow; no new iOS build is needed
   for this disclosure/documentation update.
 - The disabled review and separate bounded activation approval completed on 12 September. Fly v13
-  enables styling on the same image, Machine and volume, with the exact approved policy and intact
+  enabled styling on the same image, Machine and volume, with the exact approved policy and intact
   ledger. Retain the provider cap, credits and auto-reload-off setting. Rotate the key before its
   recorded 8 October expiry.
-- The enabled `ai-launch` checks passed at `2026-09-12T04:28:57Z`, with the approved Cowork-only
+- The v13 enabled `ai-launch` checks passed at `2026-09-12T04:28:57Z`, with the approved Cowork-only
   status exception and fresh API/Console operational evidence. The owner's one protected-device
   styling request passed on 12 September. Use the simple cost routine below; residual Fly invoice
   exposure is accepted, not capped. A failed protected call or enabled-state check closes AI again

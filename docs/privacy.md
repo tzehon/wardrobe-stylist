@@ -254,7 +254,7 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   selection time.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [enabled bounded Fly v14 pilot](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
+  [enabled bounded Fly v14 pilot](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026) retains
   the verified auth/build allowlist. The beta-only review and internal distribution are complete;
   bounded activation is complete, while protected-device styling proof passed on 12 September; public-release checks remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main

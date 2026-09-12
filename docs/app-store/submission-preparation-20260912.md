@@ -18,7 +18,8 @@ App Store Connect inspection and approved draft saves confirmed:
 - Singapore is the sole available territory; 174 territories are not available.
 - Tax category is App Store software; Apple Standard License Agreement is selected.
 - Listing text, subtitle, Lifestyle category, URLs and copyright are saved. Corrected reviewer
-  notes are saved and reload-verified at 2,068 characters, with separate support/privacy links.
+  notes are saved and reload-verified at 2,064 characters, with separate support/privacy links
+  and a complete fictional top/trousers/shoes example.
 - Existing build 7 is selected. No sign-in is required; manual release is saved.
 - Age rating is 9+ from the lifestyle-content questionnaire, with medical content None. Content
   rights is Yes on the owner's explicit assurance. No accessibility capability was asserted.
@@ -35,7 +36,7 @@ publish the app.
 ## Reviewable materials
 
 - [Saved listing copy and remaining settings](metadata-draft.md).
-- [Concise reviewer instructions](review-notes-1.0.0.txt), including the real two-item minimum
+- [Concise reviewer instructions](review-notes-1.0.0.txt), including a complete fictional outfit catalog
   and Settings → Connected Features consent path. There is no review-fixture import feature.
 - Five screenshots: Catalog, item editor, item detail, Today and History. The optional sixth
   settings frame is omitted to avoid confusing Demo-only availability with the real app.
