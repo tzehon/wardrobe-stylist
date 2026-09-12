@@ -7,8 +7,8 @@
 - **Current deployment:** Fly v13 has the bounded AI pilot enabled under the owner's separate
   12 September approval. The enabled review at `04:28:57Z` passed with the approved Cowork-only
   status exception and operational API/Console evidence. The same image, original resources,
-  exact private policy and ready/idle ledger are preserved. Physical protected-call proof remains
-  pending. See the [activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+  exact private policy and ready/idle ledger are preserved. Physical protected-call proof passed on
+  12 September. See the [activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 - **Historical disabled setup:** Fly v12 retained source
   `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the same scanned Linux/AMD64 immutable image and the
   original Machine and durable volume. The owner-approved September 8 setup provisioned the
