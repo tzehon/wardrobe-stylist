@@ -4,7 +4,7 @@ Status: owner-approved policy and Apple privacy answers published on 12 Septembe
 publication itself made no paid call or AI activation. Reviewed repository source: `3c58dce`,
 with the delivered build `1.0.0 (7)` notice. Fly v12 was the disabled baseline at that checkpoint.
 The subsequent separately approved [v13 activation](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
-and enabled operations review are complete; protected-device styling proof remains pending.
+and enabled operations review are complete; protected-device styling proof passed on 12 September.
 This document is the privacy assessment, not live operations evidence. Private limits, provider
 identifiers and credentials are excluded.
 
@@ -107,7 +107,7 @@ The disabled pre-enable review and separately approved activation completed on 1
 Fly v13 is enabled within the existing policy and fixed resource envelope. The enabled review
 passed with the approved Cowork-only status exception; see the
 [activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
-The first protected TestFlight styling request remains pending. Preserve residual Fly invoice
+The first protected TestFlight styling request passed on 12 September. Preserve residual Fly invoice
 exposure and keep physical proof separate from the automated local QA already passed.
 
 The independently approved snapshot/recovery waiver merged through PR #49 and remains unchanged.

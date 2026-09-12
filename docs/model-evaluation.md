@@ -30,8 +30,7 @@ unresolved. The [10 September release plan](release-plan.md) uses daily owner co
 small pilot and defers external monitoring. The
 [10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 are complete. The separately approved [v13 activation and enabled operations review](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
-passed on 12 September with the scoped Cowork-only exception. Protected-device styling proof
-remains pending; activation adds no new model-evaluation or numeric-score evidence.
+passed on 12 September with the scoped Cowork-only exception. Protected-device styling proof passed on 12 September; activation adds no new model-evaluation or numeric-score evidence.
 The explicit internal-beta review purpose accepts only
 the verified disabled state with an intact, below-warning, idle ledger and every other check
 passing. That beta-only result does not establish AI readiness. See the

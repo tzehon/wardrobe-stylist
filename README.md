@@ -32,8 +32,11 @@ the owner-approved bounded AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
 Fly v13 configuration has AI styling enabled within the existing approved global limits.
 The enabled operational review passed on 12 September with the approved exception for an unrelated
-Cowork-on-Windows incident; Claude API and Console were operational. The first protected styling
-request from the owner's TestFlight app is pending. No new build or installation is required.
+Cowork-on-Windows incident; Claude API and Console were operational. The owner's first protected
+TestFlight styling request displayed an outfit at 13:34 SGT. A read-only server check confirmed
+one settled admission, no pending or uncertain reservations, and spend below warning. See the
+[physical call checkpoint](docs/app-store/internal-testflight-runbook.md#first-protected-testflight-call--12-september-2026).
+No new build or installation is required.
 
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
 intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now
@@ -72,13 +75,13 @@ The [12 September AI privacy review](docs/app-store/ai-pilot-privacy-review-2026
 records the approved [published policy](https://blog.tth.dev/wardrobe/privacy/) and reload-verified
 Apple privacy answers. The existing build-7 consent covers the unchanged styling flow; this work
 needs no new TestFlight build. The disabled checks and separately approved activation are complete;
-protected-device styling proof remains open.
+protected-device styling proof passed on 12 September.
 
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
-2. Privacy publication, consent assessment and bounded AI activation are complete; verify one
-   protected styling request from the existing TestFlight app, then continue the daily cost review.
+2. Privacy publication, consent assessment, bounded AI activation and the first protected
+   TestFlight styling call are complete; continue the daily cost review.
 3. Finish the remaining privacy and store-submission work for the Free Singapore launch; the
    snapshot/recovery evidence sub-gate is owner-waived, not proven.
 

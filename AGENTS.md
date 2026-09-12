@@ -46,7 +46,7 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 ## Current work order
 
 Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
-verify the enabled bounded AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
+operate the verified bounded AI pilot, then prepare public Singapore submission. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
 saved/reload-verified AI-disabled tester notes, replaced by verified enabled-pilot notes on
 12 September. Build 7 is consumed and must never be reused;
@@ -332,7 +332,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   pilot. The 12 September post-change review passed at `04:28:57Z`, with the owner-approved
   Cowork-only aggregate-status exception and operational API/Console evidence. The same image,
   Machine, volume, key and exact policy are preserved; the ledger is ready, below warning and idle.
-  One protected-device styling call remains pending. Disable AI under the approved response if
+  One protected-device styling call passed on 12 September. Disable AI under the approved response if
   that call or enabled verification fails; never retry uncertain work or clear liability.
   Historical v12 setup: the owner-approved configuration
   deployment retains the v11 immutable image and original Machine/volume. Independent review
@@ -400,7 +400,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Provider alert delivery, separate AI enablement, full pre-upload review and distribution
   remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
   distribution have since passed. Separately approved AI activation completed on 12 September;
-  protected-device styling proof and public release remain open.
+  protected-device styling proof passed on 12 September; public release remains open.
   The 10 September reset defers the external Fly monitor and uses the owner-run
   daily review in `docs/fly-spend-controls.md`; unproven alert delivery is not relied on.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
@@ -427,7 +427,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   published through website PR #6. The four reviewed Apple privacy categories are published and
   reload-verified. The unchanged flow retains build 7/consent version 3; see
   `docs/app-store/ai-pilot-privacy-review-20260912.md`. Disabled pre-enable checks and separate AI
-  activation completed on 12 September; the physical protected call and public submission remain open.
+  activation completed on 12 September; the physical protected call passed at 13:34 SGT; public submission remains open.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;

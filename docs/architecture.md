@@ -8,7 +8,7 @@ minimum App Attest authentication/security metadata and anonymous aggregate AI-b
 Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
 the owner-approved Cowork-only status exception and operational API/Console evidence. The same
 image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
-idle. The first protected TestFlight call remains pending. See the
+idle. The first protected TestFlight call passed on 12 September. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 
 Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
@@ -23,8 +23,7 @@ made during deployment or verification. Provider alert delivery remains unproven
 reconciliation remains unresolved. The [10 September release plan](release-plan.md) uses daily
 owner cost review for the small pilot and defers external monitoring. The
 [10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-are complete. Handoff and scoped local-beta QA passed on 11 September; v13 activation is complete; protected-device styling proof and public
-release remain open;
+are complete. Handoff and scoped local-beta QA passed on 11 September; v13 activation is complete; protected-device styling proof passed on 12 September; public release remains open;
 refresh operations evidence for later changes and their declared milestone.
 The ordinary budget diagnostic now uses the service identity; live read-only verification on
 9 September returned OPEN `styling-disabled` on the unchanged v12 runtime and existing ledger.
@@ -56,7 +55,7 @@ The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certi
 installation for optional connected styling. When enabled, the developer backend proxies a
 minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
 processing. Fly v13 enables the provider-call path under the existing approved budget policy.
-The first protected TestFlight styling result remains pending.
+The first protected TestFlight styling result passed on 12 September.
 
 ```mermaid
 flowchart TB

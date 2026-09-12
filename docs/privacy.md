@@ -55,7 +55,7 @@ configured-but-disabled review verified an intact, zero current-month ledger aft
 12 September [privacy review and publication](app-store/ai-pilot-privacy-review-20260912.md)
 reconciled the aggregate store, provider terms, consent and Apple declarations. The hosted policy
 and Apple answers are published. Separately approved v13 activation and enabled operations checks
-passed on 12 September; protected-device styling proof remains pending.
+passed on 12 September; protected-device styling proof passed on 12 September.
 The fictional evaluation uses no real wardrobes and never shadows production requests.
 See [spend controls and recovery](ai-spend-controls.md) for exact persistence and failure rules.
 
@@ -110,7 +110,7 @@ validation/upload, processing, internal assignment
 and saved/reloaded notes are complete in the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed owner-controlled deletion, clean installation and scoped local-beta QA.
-Bounded v13 activation is complete; protected-device styling proof and public-release work remain open. The
+Bounded v13 activation is complete; protected-device styling proof passed on 12 September; public-release work remains open. The
 2026-08-28 assessment confirmed that build 6 fails that visual gate and is non-promotable; PR #31
 has since merged and verified the replacement implementation. At the earlier build-selection
 checkpoint on 2026-08-29, the signed-in TestFlight **Build Uploads** view showed build 6 as the
@@ -256,7 +256,7 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
   [enabled bounded Fly v13 pilot](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
   the verified auth/build allowlist. The beta-only review and internal distribution are complete;
-  bounded activation is complete, while protected-device styling proof and public-release checks remain open.
+  bounded activation is complete, while protected-device styling proof passed on 12 September; public-release checks remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
