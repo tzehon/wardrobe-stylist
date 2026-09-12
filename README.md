@@ -38,6 +38,15 @@ one settled admission, no pending or uncertain reservations, and spend below war
 [physical call checkpoint](docs/app-store/internal-testflight-runbook.md#first-protected-testflight-call--12-september-2026).
 No new build or installation is required.
 
+The [Singapore submission package](docs/app-store/submission-preparation-20260912.md) now has
+prepared listing copy, reviewer instructions and five fictional screenshots. Apple agreements,
+bank/tax status and DSA status are active; Singapore is the sole selected territory. The store
+draft still needs the prepared metadata/assets, Free price, build selection and declarations.
+Before submission, approve/apply App Store App Attest category `4` alongside TestFlight `2`,
+verify the changed runtime, and approve the final submission. The proposed release is manual after
+Apple approval. This preparation has not changed production or submitted the app and needs no
+new TestFlight build.
+
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
 intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now
 normalizes HTML whitespace so a line-wrapped privacy paragraph does not falsely fail; missing

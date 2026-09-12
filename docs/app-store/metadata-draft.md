@@ -1,94 +1,78 @@
-# App Store metadata source — draft
+# App Store metadata — prepared 12 September 2026
 
-## Identity
+Prepared for owner review; not saved to App Store Connect. The existing record is Apple ID
+`6789053566`, bundle ID and immutable SKU `com.tth.Wardrobe`, primary language English (U.K.).
+The public candidate remains **1.0.0 (7)**. App Store Connect currently labels the draft version
+**1.0**; align the editable store version to **1.0.0** when preparing the submission.
 
-- Product name: **Wardrobe Stylist**
-- Subtitle (30 characters max): **Catalog. Style. Wear more.** (candidate)
-- Bundle ID: `com.tth.Wardrobe` — confirm before first public version
-- SKU: `wardrobe-stylist-ios` (candidate; immutable after record creation)
-- Primary category: **Lifestyle** (candidate)
-- Secondary category: **Productivity** (candidate)
-- Copyright: [YEAR LEGAL OWNER]
-- Public version: **1.0.0**
+## Proposed listing
 
-## Launch model and availability
+### Name
 
-- Price: **Free**
-- In-app purchases/subscriptions: **None in version 1.0**
-- Initial availability: **Singapore only**
-- Sequenced follow-up: transparent, budget-bounded freemium in Singapore, then controlled country
-  expansion after the paid model and its operations are proven
+Wardrobe Stylist
 
-Do not advertise AI styling as unlimited. Future paid products, limits, prices, and countries must
-not appear in version-1.0 copy before they are implemented, reviewed, and available.
+### Subtitle
 
-## Description draft
+Catalog. Style. Wear more.
 
-Build a wardrobe you can actually use. Add pieces manually or from photos, browse and edit your
-catalog, then ask Aria for a coordinated look that considers what you recently wore.
+### Copyright (owner approval pending)
 
-Wardrobe Stylist is local-first and requires no account. Cataloging, photos, outfit history, and
-local reminders stay available without connected AI. Styling is optional and runs only when you
-request it and consent to sending minimized text attributes.
+2026 Tan Tze Hon
 
-Version 1.0 is free, with no subscription or in-app purchase. Every feature listed below is
-included at launch.
+### Promotional text
 
-Features planned for the public v1 cut:
+Build your wardrobe from manual entries and photos. Keep your collection on your iPhone, and ask Aria for outfit ideas when you want inspiration.
 
-- Manual and photo wardrobe catalog
-- Search, categories, sorting and item details
-- Daily outfit suggestions with occasion context and anti-repeat history
-- Outfit history and local reminders
-- Clear privacy, styling-consent and deletion controls
-- Offline sample/demo path for product review
+### Keywords
 
-## Promotional text candidate
+closet,outfit,clothes,fashion,catalog,organizer,lookbook,wear,styling,daily
 
-Build your wardrobe locally from manual entries and photos, then ask Aria for a thoughtful look
-when you need one.
+### Description
 
-## Keywords candidate
+Make more of the clothes you already own.
 
-`closet,outfit,clothes,fashion,catalog,organizer,lookbook,wear,styling,daily`
+Wardrobe Stylist helps you organise your wardrobe on your iPhone and find outfits from your own pieces. Add items manually, take a photo or choose one from your library, then keep useful details together: category, brand, colours, material and notes.
 
-Recount the UTF-8 byte total after any localization or market-research changes. Do not add the
-app name, category names, competitors, or other companies.
+YOUR WARDROBE, CLOSE AT HAND
+Browse by category, search your collection, mark favourites and archive pieces. Your wardrobe and photos stay on your device. No account is required.
 
-## URLs
+OUTFIT IDEAS WHEN YOU ASK
+Opt in to AI styling and ask Aria for a coordinated look. Add an occasion for your next restyle, see the suggested pieces and read why they work together. Recent wear history helps inform the suggestion. Tap “Wear this” to record a look and revisit it in History.
 
-- Marketing: `https://blog.tth.dev/wardrobe/`
-- Support: `https://blog.tth.dev/wardrobe/`
-- Privacy policy: `https://blog.tth.dev/wardrobe/privacy/`
+YOU CONTROL CONNECTED FEATURES
+AI styling is off until you allow it. Styling sends the disclosed compact text details to the developer-operated backend and Anthropic Claude; wardrobe photos are not included. You can withdraw permission in Settings. AI styling requires an internet connection and a supported iPhone, and may be temporarily unavailable when service usage limits are reached.
 
-## Required questionnaires and declarations
+KEEP EXPLORING OFFLINE
+Your local catalog and saved history remain available without AI. Optional local reminders prompt you to open Today; they do not generate outfits in the background. Try the offline Demo Mode to explore a fictional wardrobe before adding your own pieces.
 
-- [x] App Privacy answers reconciled with `app-privacy-data-inventory.md`, published and
-  reload-verified on 12 September; see the [publication record](ai-pilot-privacy-review-20260912.md).
-  Reassess if the provider, purpose or data flow changes.
-- [ ] Updated age-rating questionnaire
-- [ ] DSA trader/non-trader status; public trader contact if applicable in EU
-- [ ] Content rights
-- [ ] Export compliance (`ITSAppUsesNonExemptEncryption=false` only while system HTTPS/TLS is the
-  sole cryptography)
-- [ ] Advertising identifier/tracking declarations: expected no; verify archive and SDKs
-- [ ] Accessibility Nutrition Labels only for capabilities manually verified in the final build
-- [x] Launch price/territory decision: Free, no in-app purchase/subscription, Singapore only
-- [ ] Verify the exact App Store Connect price, territory, tax category, and agreements
+Version 1.0 is free, with no subscriptions or in-app purchases. Initially available in Singapore.
 
-## Screenshot narrative
+## Settings and URLs
 
-Use fictional/demo data and current device specifications. Each frame should communicate one idea:
+- Primary category: **Lifestyle**; secondary category omitted.
+- Price: **Free**, no in-app purchases or subscriptions; **Singapore only**.
+- Release method: **manual release after Apple approval**.
+- iPhone launch; turn off default Apple silicon Mac and Apple Vision Pro availability.
+- Marketing/support: https://blog.tth.dev/wardrobe/
+- Privacy: https://blog.tth.dev/wardrobe/privacy/
+- Keep the existing Apple Standard License Agreement and account trader status.
+- No sign-in required. Review contact stays in the private prepared package.
+- Age/content-rights declarations require truthful completion; do not claim a rating before Apple
+  calculates it. Do not assert unverified accessibility support.
 
-1. **Your wardrobe, without an account** — polished populated catalog.
-2. **Make every piece yours** — full edit form with useful local details.
-3. **Keep useful details close** — fictional item details and local organization.
-4. **A thoughtful look for today** — coordinated item strip and rationale.
-5. **Remember what worked** — fictional worn-look history and wardrobe snapshot.
-6. **AI styling stays optional** — concise privacy/settings view.
+The existing account's Free/Paid agreements, bank/tax status and DSA status were active on
+12 September. Singapore was the sole selected territory, but the price schedule was unset.
+These observations are not proof that the proposed listing/settings have been saved.
 
-The detailed capture matrix, current Apple dimensions, safety checks, and evidence naming live in
-[`screenshot-plan.md`](screenshot-plan.md).
+The current launch is Free. Future paid names, prices and allowances remain undecided and are
+excluded from this listing. See [freemium model](../freemium-model.md).
 
-Never show a real person's wardrobe photos, email address, tokens, test credentials, backend
-details, debug banners, or raw error messages.
+## Screenshots and reviewer notes
+
+Five native fictional Demo Mode frames are prepared: Catalog, item editor, item detail, Today,
+and History. The original PNGs and opaque 1320 × 2868 JPEG upload assets are privately retained
+with hashes. Demo Settings is omitted because “Unavailable in demo” would confuse the listing.
+No real wardrobe images, identity or backend details appear. See [capture plan](screenshot-plan.md)
+and [submission preparation](submission-preparation-20260912.md).
+
+Use the concise [review notes](review-notes-1.0.0.txt), not the historical operational draft.

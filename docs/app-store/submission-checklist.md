@@ -23,6 +23,14 @@ the [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-ch
 records completed handoff, clean installation and scoped local-beta QA. AI activation and public
 submission remain separate. Apple's **Ready to Submit** status is not public-release approval.
 
+## 12 September preparation checkpoint
+
+See the [prepared package](submission-preparation-20260912.md) for current account observations,
+listing and assets. Existing bundle/SKU, agreements and bank/tax/DSA status are verified. The
+bounded pilot and first protected call are complete. Final store drafts/declarations, the App Store
+category allowlist change and public submission remain open. Older unchecked historical checklist
+rows do not require replaying the completed handoff, local QA or pilot.
+
 ## 1. External decisions and account readiness
 
 - [ ] Confirm legal seller name/entity, copyright owner, postal address, support/privacy/security
@@ -32,15 +40,18 @@ submission remain separate. Apple's **Ready to Submit** status is not public-rel
   freemium in Singapore, then controlled country expansion.
 - [ ] Decide the tax category, automatic/manual/phased release method, and EU Digital Services Act
   trader status.
-- [ ] Confirm all Apple agreements, tax, banking, and any account compliance review are current.
-- [ ] Decide the final bundle ID and immutable SKU before creating the App Store Connect record.
+- [x] Confirm current Apple agreements, tax, banking and DSA status: active/complete in the
+  signed-in 12 September inspection; refresh any new Apple notice before submission.
+- [x] Confirm the existing bundle ID and immutable SKU: both `com.tth.Wardrobe`, inspected
+  12 September. Do not create another app record.
 - [ ] Confirm the approved public-v1 scope is Gmail-free and no Google OAuth verification,
   restricted-scope, or review-account dependency remains in the candidate.
 - [x] Approve the private Singapore-launch AI spend/admission envelope and daily monitoring policy.
   The owner approved those limits on 6 September and the finite disabled setup, Fly hosting policy
   and private capacity-review bounds on 8 September. Preserve those approvals; do not request or
   initialize them again merely because later launch gates remain open.
-- [ ] Complete the controlled AI launch: verify the fail-closed global spend/admission ceiling,
+- [x] Complete the controlled AI pilot (enabled review and first protected call passed
+  12 September; public submission remains separate): verify the fail-closed global spend/admission ceiling,
   bounded request/token/retry exposure, approved daily owner cost review and emergency-disable
   response. Retain the recorded Sonnet acceptance and verify the exact locked SDK/model/API
   configuration. Review privacy/provider terms and consent before requesting approval of the
