@@ -70,9 +70,9 @@ billing. A monthly operating target is not a maximum invoice.
 
 The September 9 billing views disagreed and did not provide a verified usage cutoff. The live
 resource probe passed; VM counters were fresh, but edge counters were stale/intermittent. Those
-unknowns remain recorded. They do not require a custom collector before distributing the
-AI-disabled local-first beta. The AI-enable approval must disclose the residual Fly exposure and
-the manual response plan. If an absolute bill ceiling is essential, it requires a different
+unknowns remain recorded. The completed local-first beta distribution and bounded v13 pilot
+do not require a custom collector. The 12 September activation approval accepted the residual
+Fly exposure and manual response plan. If an absolute bill ceiling is essential, it requires a different
 verified control; do not represent this plan as one.
 
 ## Local evidence checker

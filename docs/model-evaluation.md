@@ -1,6 +1,6 @@
 # Fictional Wardrobe model acceptance
 
-The selected runtime is deployed as Fly v12 with AI disabled. It pins `claude-sonnet-5`, synchronous
+The selected runtime is deployed as the enabled bounded Fly v13 pilot. It pins `claude-sonnet-5`, synchronous
 Messages, thinking disabled, explicit standard service tier, forced strict `propose_outfit`, and
 1,024 output tokens.
 The evaluation
@@ -22,14 +22,16 @@ this backend/evaluation work does not require Build 8.
 The [approved disabled setup](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 has provisioned the existing-volume ledger, applied the private policy and workspace-scoped key,
 verified provider controls and usable prepaid credit, and activated the private capacity review
-profile. The same immutable image reads the zero current-month ledger after restart. This adds no
+profile. The v12 restart verified that the same immutable image read the then-zero current-month ledger. This adds no
 evaluation or numeric-score evidence. The ordinary budget diagnostic's service-identity correction
-passed live read-only verification on 9 September; the normal budget gate now reports OPEN
+passed live read-only verification on 9 September; that historical budget check reported OPEN
 `styling-disabled`. Provider alert delivery remains unproven and billing-feed uncertainty remains
 unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review for the
 small pilot and defers external monitoring. The
 [10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-are complete; separate AI enablement and its fresh operations checks remain open.
+are complete. The separately approved [v13 activation and enabled operations review](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+passed on 12 September with the scoped Cowork-only exception. Protected-device styling proof
+remains pending; activation adds no new model-evaluation or numeric-score evidence.
 The explicit internal-beta review purpose accepts only
 the verified disabled state with an intact, below-warning, idle ledger and every other check
 passing. That beta-only result does not establish AI readiness. See the

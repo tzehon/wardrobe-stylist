@@ -176,12 +176,13 @@ original source/image/Machine/volume are unchanged. The dedicated production wor
 geography; its monthly limit and two email settings were verified after reload. One approved
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
 The workspace-scoped key was created without Admin API access and transferred through hidden owner
-input without local secret persistence; it and the private settings are deployed in v12. Rotation
+input without local secret persistence; it and the private settings were deployed in v12 and retained by v13. Rotation
 before its 8 October 2026 expiry is required. Actual provider alert delivery remains unproven.
 The 10 September plan uses daily owner cost review for the small pilot and defers external
 monitoring. The 10 September beta-only operations review and separately approved internal
-distribution passed; fresh checks for later changes/AI activation remain required. AI activation
-and public submission remain open; handoff and scoped local-beta QA passed on 11 September. The earlier
+distribution passed; fresh checks remain required for later changes. Bounded v13 activation
+and enabled verification passed on 12 September; protected-device styling proof and public
+submission remain open. Handoff and scoped local-beta QA passed on 11 September. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
@@ -614,7 +615,8 @@ remaining deterministic checks belong to the suite.
   AI users. Exact limits and the disabled configuration are retained in ignored private release
   files, not tracked source. On 8 September the owner approved the finite billing-reviewed setup
   and private capacity bounds. First-ever provisioning and local installation of the capacity
-  review file are complete; Fly v12 applies the private policy/key while keeping AI disabled.
+  review file are complete; Fly v12 applied the private policy/key while keeping AI disabled,
+  before the separately approved v13 activation.
   The public-capacity check and independent configured ledger probe passed. Provider alert delivery
   remains unproven. Under the 10 September reset, the small pilot uses daily owner review;
   the deferred external monitor is not an activation prerequisite. Prior excluded uncertain-call

@@ -1,9 +1,12 @@
 # AI pilot privacy review — 12 September 2026
 
-Status: owner-approved policy and Apple privacy answers published on 12 September. No paid call
-or AI activation. Reviewed repository source: `3c58dce`, with the delivered build `1.0.0 (7)` notice.
-The last verified Fly v12 runtime remains the disabled baseline; this review is not a fresh live
-operations check. Private limits, provider identifiers and credentials are excluded.
+Status: owner-approved policy and Apple privacy answers published on 12 September. This privacy
+publication itself made no paid call or AI activation. Reviewed repository source: `3c58dce`,
+with the delivered build `1.0.0 (7)` notice. Fly v12 was the disabled baseline at that checkpoint.
+The subsequent separately approved [v13 activation](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+and enabled operations review are complete; protected-device styling proof remains pending.
+This document is the privacy assessment, not live operations evidence. Private limits, provider
+identifiers and credentials are excluded.
 
 ## Decision
 

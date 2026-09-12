@@ -30,7 +30,7 @@ distribution are complete. Handoff, clean installation and scoped local-beta QA 
 11 September; v13 activation is complete; protected-device styling proof and public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
-the normal budget gate now reports OPEN `styling-disabled`. Follow the
+that historical budget check reported OPEN `styling-disabled`. Follow the
 [launch-readiness follow-up](app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved disabled setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
 and [AI spend controls](ai-spend-controls.md). Retained Fly v10/v11 records describe the earlier
@@ -210,9 +210,8 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
-on 2026-09-06 after measured Sonnet costs; those values remain private and are now applied in v12
-with AI disabled. The verified existing ledger supplies the admission ceiling for any later
-enabled calls. The production workspace, monthly cap and email settings are saved and verified;
+on 2026-09-06 after measured Sonnet costs; those values remain private and are applied to the
+enabled v13 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
 persistence. Rotate it before its 8 October 2026 expiry. Saved notifications do not prove actual
@@ -262,7 +261,7 @@ reservation metadata only. It receives no installation identifier, item identifi
 prompt, or model-response payload. The default `ai-launch` preflight requires a ready, enabled budget below
 its warning band with no pending requests. The explicit `internal-beta-ai-disabled` purpose accepts
 verified disabled styling only with an intact, below-warning, idle ledger and every other check
-passing; its result is beta-only. Configured-but-disabled v12 reports OPEN `styling-disabled`
+passing; its result is beta-only. The historical configured-but-disabled v12 review reported OPEN `styling-disabled`
 under the default `ai-launch` purpose. The 10 September combined beta-only review passed; each
 later operations review requires fresh same-session manual inputs. The local diagnostic connects as `wardrobe`,
 requires real/effective UID and GID 10001 before reading status, and uses `-B` to avoid bytecode
@@ -303,8 +302,8 @@ return were not proven; on 2026-09-11 the owner waived only that evidence sub-ga
 Singapore v1 and accepted the residual risk. App Privacy and other applicable public-release work
 retain their own status. The
 [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
-records completed build-7 handoff, clean installation and scoped local-beta QA; AI activation
-remains a separate milestone in the release plan. Real
+records completed build-7 handoff, clean installation and scoped local-beta QA. The separately
+approved v13 activation is complete; protected-device styling proof remains pending. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
@@ -321,17 +320,17 @@ signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed
 Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
 later 10 September validation/upload, processing, internal assignment and saved-note checks are
 complete; the 11 September checkpoint separately records completed handoff and scoped local-beta
-QA. AI-activation and public-release gates remain open.
+QA. Bounded activation is complete; protected-device styling proof and public-release gates remain open.
 
 ## TestFlight distribution
 
 Every internal beta is built as an App Store candidate. Build `1.0.0 (7)` is now **Complete /
 Ready to Submit**, assigned only to `Family` Internal Testing with one group tester and no
-individual testers; approved AI-disabled notes are saved and reload-verified. Build 7 is consumed
+individual testers; enabled-pilot notes are saved and reload-verified, replacing the initial disabled-beta notes. Build 7 is consumed
 and must never be reused. Follow the
 [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 for the completed handoff, clean installation and scoped local-beta QA. Do not repeat those
-steps. Keep AI disabled pending its separately approved pilot.
+steps. The separately approved bounded pilot is enabled; its first protected-device styling result is pending.
 
 The sequence below retains preparation requirements and dated predecessor evidence; do not
 repeat completed archive/upload steps for the delivered build 7:
@@ -481,7 +480,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the configured, AI-disabled v12 deployment recorded above. Protected
+Singapore Machine. Current production is the enabled bounded v13 pilot recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
