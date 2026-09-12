@@ -55,8 +55,8 @@ explicitly historical setup documents; it is not part of the active v1 architect
 The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
 installation for optional connected styling. When enabled, the developer backend proxies a
 minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
-processing. The budget database is provisioned and configured in v12; the diagram's provider-call
-path remains inactive because AI is disabled.
+processing. Fly v13 enables the provider-call path under the existing approved budget policy.
+The first protected TestFlight styling result remains pending.
 
 ```mermaid
 flowchart TB
@@ -202,8 +202,8 @@ owner qualitative acceptance with the numeric rubric explicitly left incomplete.
 caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
 IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
-The sequence below describes the enabled path after the remaining launch gates pass; current
-production admission stops before budget storage or a provider request because AI styling is disabled.
+The sequence below describes the enabled v13 pilot. Admission still fails closed if styling is
+disabled or the existing budget cannot safely admit the request.
 
 ```mermaid
 sequenceDiagram
@@ -254,7 +254,7 @@ retry, timeout refund, or fresh-database recreation can reopen the approved allo
 ledger persists its model, unit, rate, and token-bound policy; old Haiku or mismatched storage
 fails closed without an automatic upgrade. See
 [AI spend controls](ai-spend-controls.md) for private provisioning, alerts, disable/recovery, and
-the approved public-capacity review bounds and remaining enablement checks. The
+the approved public-capacity review bounds and ongoing pilot checks. The
 [release plan](release-plan.md) uses daily owner cost review for the small pilot and defers the
 external monitoring prototype.
 
@@ -303,7 +303,7 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI runtime | Configured on v12 with AI disabled; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
+| AI runtime | Enabled bounded pilot on v13; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
 | Budget controls | Provisioned and configured; separate durable SQLite ledger with verified private policy and atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
@@ -315,7 +315,7 @@ flowchart LR
     Dev["Developer Mac<br/>Xcode · uv"] -->|"TestFlight / device"| Phone["iPhone"]
     Dev -->|"fly deploy"| Fly["Fly.io<br/>FastAPI"]
     Phone <-->|"HTTPS short-lived session"| Fly
-    Fly -.->|"AI disabled"| Anthropic["Anthropic API"]
+    Fly -->|"Bounded, explicit styling request"| Anthropic["Anthropic API"]
     Phone <-->|"attest key / sign assertions"| Apple["Apple App Attest"]
     Fly <--> AuthDB[("Private durable auth volume")]
     Fly <--> BudgetDB[("Separate budget database<br/>provisioned and configured<br/>same durable volume")]
@@ -330,9 +330,9 @@ flowchart LR
   sessions, and coarse rate windows. It contains no wardrobe, prompt, or recommendation payload.
 - The provisioned `/data/ai-budget/budget.sqlite3` stores only aggregate
   counters and random reservation metadata. Its private limits must match the approved runtime configuration.
-  The v12 restart verified the existing ledger is readable without reset. Keep AI disabled until
-  the privacy/consent, existing budget and daily cost/response checks pass and separate
-  enablement is approved. Review residual Fly exposure; automated monitor delivery is deferred.
+  The v12 restart verified the existing ledger is readable without reset. The approved v13
+  activation and enabled review passed on 12 September, preserving that ledger and policy.
+  Continue the daily cost/response checks; residual Fly exposure remains and external monitoring is deferred.
   Every application process must use the same ledger on the verified single-Machine volume;
   independent per-replica budgets would not enforce a global ceiling.
 - Backend auth state, logs, snapshots, deletion, and manual operations follow the
@@ -348,7 +348,7 @@ flowchart LR
   warning band, and free of pending requests. The explicit `internal-beta-ai-disabled` purpose
   requires verified disabled styling with an intact, below-warning, idle ledger and every other
   check passing. It reports beta-only eligibility and does not authorize AI or public submission.
-  Configured-but-disabled v12 returns OPEN `styling-disabled` under the default `ai-launch`
+  The historical configured-but-disabled v12 review returned OPEN `styling-disabled` under the default `ai-launch`
   purpose. The 10 September combined beta-only review passed; each later operations review
   requires fresh same-session manual inputs. The 9 September diagnostic correction connects as `wardrobe`,
   requires real/effective UID and GID 10001 before status inspection, and suppresses bytecode writes

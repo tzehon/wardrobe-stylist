@@ -26,10 +26,10 @@ human review was accepted through the owner's explicit qualitative approval of a
 The partial numeric rubric remains unproven and no missing ratings were inferred. Warm-pair
 input savings of about 20.9% do not prove production reuse, so caching stays off. The owner
 expects up to 10 AI users in the first launch month. The approved private policy is retained in
-ignored `.fly/launch-policy-20260906.md`, with a disabled configuration prepared separately.
-The policy is recorded in the ledger and applied to the serving runtime through all six approved
-AI settings, including the existing budget path and explicit `AI_STYLING_ENABLED=false`.
-The existing first-provisioned directory/database must be preserved; no paid call ran.
+ignored `.fly/launch-policy-20260906.md`. The policy is recorded in the ledger and applied to the
+serving runtime through all six approved AI settings. The separately approved v13 activation
+sets `AI_STYLING_ENABLED=true` while preserving the existing budget path, directory and database.
+No paid agent call ran during activation; the first owner-triggered protected call remains pending.
 The runtime model, token rates, full-context reservation,
 and redacted preflight are aligned and have passed the full required regressions.
 The exact approved monthly amount and admission limits remain outside tracked source.
@@ -99,7 +99,7 @@ deployed. Saved email-notification settings are not delivery evidence.
 The owner's 8 September request adds a separate [Fly hosting policy](fly-spend-controls.md).
 Its private resource envelope and warning/hold thresholds are approved; monitoring is not installed,
 and service-hold execution requires separate approval.
-Neither the AI ledger nor the disabled AI switch caps hosting charges. The latest signed-in
+Neither the AI ledger nor disabling AI caps hosting charges. The latest signed-in
 8 September refresh shows divergent invoice-preview and Cost Explorer totals across five expected
 resource categories, with no linked organizations, active support package, Managed Postgres
 clusters or Upstash Redis databases in the reviewed organization. The snapshot does not establish
@@ -195,8 +195,8 @@ policy match. Update the production-operations lock's deployed revision/release 
 secret names from actual deployment evidence; do not fabricate a future release number or reuse
 the historical v10 source lock as proof. The v12 configuration-deployment evidence binds unchanged source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`. `production_styling_status()` emits fixed bands only
-and is read-only. The default `ai-launch` purpose requires a ready, enabled budget; configured-but-disabled
-v12 returns OPEN `styling-disabled`. For an intentionally AI-disabled internal beta, the explicit
+and is read-only. The default `ai-launch` purpose requires a ready, enabled budget; the historical
+configured-but-disabled v12 review returned OPEN `styling-disabled`. For an intentionally AI-disabled internal beta, the explicit
 `internal-beta-ai-disabled` purpose can accept that disabled evidence only after below-warning,
 no-pending-work checks pass and every other review check passes. Its output is beta-only, not
 AI-launch readiness. Complete disabled pre-enable checks first, then enable only under the
