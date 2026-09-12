@@ -432,7 +432,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   published through website PR #6. The four reviewed Apple privacy categories are published and
   reload-verified. The unchanged flow retains build 7/consent version 3; see
   `docs/app-store/ai-pilot-privacy-review-20260912.md`. Disabled pre-enable checks and separate AI
-  activation completed on 12 September; the physical protected call passed at 13:34 SGT; public submission remains open.
+  activation completed on 12 September; the physical protected call passed at 13:34 SGT; build `1.0.0 (7)` was submitted to Apple on 12 September and is Waiting for Review; manual public release remains unapproved.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;

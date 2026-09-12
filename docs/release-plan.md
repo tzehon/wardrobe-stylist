@@ -97,18 +97,20 @@ selected. Fly v14 now accepts categories `2,4`; independent configuration verifi
 `2026-09-12T06:36:24Z` with the exact original image/resources, secrets, policy and intact ledger.
 No paid call was made. The full post-change review at `2026-09-12T07:09:37Z` completed with the
 approved Cowork-only status exception; all other operational checks passed, including the recovery-image scan.
-Final Submit for Review awaits the owner's decision. Apple's Add for Review validation passed:
-version `1.0.0` with build 7 is **Ready for Review** in a draft
-submission. Submit for Review remains unclicked, and release stays manual. The corrected reviewer
+After separate owner approval, version `1.0.0` with build 7 was submitted to Apple on 12 September
+at 15:32 SGT (07:32 UTC). Apple confirmed one submitted item, now **Waiting for Review**. Release
+stays manual; Apple approval and public release have not occurred. The corrected reviewer
 notes are saved and reload-verified. No new TestFlight build is required.
 
 Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
 verified listing/media/availability, account agreements and scoped accepted recovery risk. The
-remaining immediate submission action is the owner's final decision, followed by Submit for Review
-if approved. Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains open,
+next step is Apple's review; respond to any review questions and obtain separate owner approval
+before manual public release. Do not resubmit the existing waiting submission. Retirement of the
+inventoried Wardrobe Google Cloud/OAuth projects remains open,
 unperformed and subject to separate owner confirmation. It is deferred legacy cleanup, not a
 submission prerequisite for the verified Gmail-free Free Singapore v1. APP-036 remains in progress
-for that cleanup and public submission; neither is claimed complete by this review.
+for that cleanup and final public release. The submission checkpoint completes sending the
+candidate to Apple; it does not complete those remaining items.
 Apple processing/review time is outside this project's control.
 
 On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-

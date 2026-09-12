@@ -1,10 +1,11 @@
-# App Store metadata — saved draft 12 September 2026
+# App Store metadata — submitted 12 September 2026
 
 The approved listing is saved to App Store Connect. The existing record is Apple ID
 `6789053566`, bundle ID and immutable SKU `com.tth.Wardrobe`, primary language English (U.K.).
-The public candidate remains **1.0.0 (7)**, selected on the store's **1.0.0** draft. Add for Review
-validation passed and the draft submission is **Ready for Review**; Submit for Review has not been
-clicked. The app has not been submitted to Apple or publicly released.
+The public candidate remains **1.0.0 (7)**. After Add for Review validation and separate owner
+approval, it was submitted on 12 September at 15:32 SGT (07:32 UTC). Apple confirmed one item
+submitted and shows **Waiting for Review** for version `1.0.0`/build 7. Manual release remains
+selected; the app is not Apple-approved or publicly released.
 
 ## Saved listing
 
