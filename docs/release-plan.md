@@ -16,7 +16,7 @@ See the [10 September distribution record](app-store/internal-testflight-runbook
 The owner-controlled handoff, clean installation and scoped local-beta QA passed on 11 September.
 The bounded AI pilot was separately approved and enabled as Fly v13 on 12 September. Cataloging
 clothing, photos, editing, wear history, reminders and Demo Mode remain local. The first protected
-TestFlight styling request is pending; the saved notes now explain the enabled pilot.
+TestFlight styling request passed on 12 September; the saved notes now explain the enabled pilot.
 This is a testing milestone, not a change to the approved Free, Singapore-only public launch.
 
 11 September partial physical evidence: the owner reports an in-place TestFlight update to build 7.
@@ -52,7 +52,7 @@ API contract, production resources or stored data and do not require build 8.
    another device action only for a concrete uncovered physical boundary; see
    [QA ownership](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
    AI stayed disabled through local QA. The separately approved 12 September activation is
-   complete; its protected-device styling proof remains open.
+   complete; its protected-device styling proof passed on 12 September.
 
 If this QA requires an iOS fix, determine the next unused build number and repeat the applicable
 review/distribution checks for that new candidate. Do not rebuild or re-upload because operator
@@ -62,7 +62,7 @@ Apple's App Store Connect tester requirements; a wider external beta is a separa
 choice, not a reason to grant account roles casually.
 [Apple internal testing](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers/).
 
-## Current: verify the approved small AI pilot
+## Current: operate the verified small AI pilot
 
 Keep the existing backend, anonymous App Attest access, server-held provider key and durable global
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another
@@ -78,7 +78,7 @@ model to finish this release.
   recorded 8 October expiry.
 - The enabled `ai-launch` checks passed at `2026-09-12T04:28:57Z`, with the approved Cowork-only
   status exception and fresh API/Console operational evidence. The owner's one protected-device
-  styling request remains pending. Use the simple cost routine below; residual Fly invoice
+  styling request passed on 12 September. Use the simple cost routine below; residual Fly invoice
   exposure is accepted, not capped. A failed protected call or enabled-state check closes AI again
   under the already-approved response procedure.
 

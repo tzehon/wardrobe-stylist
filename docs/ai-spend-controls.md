@@ -4,7 +4,7 @@ Status: **Fly v13 has AI enabled under the approved bounded pilot**, verified on
 The same image, Machine, volume, key and exact private policy remain in place; the ledger is ready,
 below warning and idle. Enabled operations passed with the owner-approved exception for the
 unrelated Cowork-on-Windows incident; the API and Console were operational. The first protected
-TestFlight styling request remains pending. See the
+TestFlight styling request passed on 12 September. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 
 Historical setup: first-ever provisioning
@@ -29,7 +29,7 @@ expects up to 10 AI users in the first launch month. The approved private policy
 ignored `.fly/launch-policy-20260906.md`. The policy is recorded in the ledger and applied to the
 serving runtime through all six approved AI settings. The separately approved v13 activation
 sets `AI_STYLING_ENABLED=true` while preserving the existing budget path, directory and database.
-No paid agent call ran during activation; the first owner-triggered protected call remains pending.
+No paid agent call ran during activation; the first owner-triggered protected call passed on 12 September.
 The runtime model, token rates, full-context reservation,
 and redacted preflight are aligned and have passed the full required regressions.
 The exact approved monthly amount and admission limits remain outside tracked source.
@@ -202,7 +202,7 @@ no-pending-work checks pass and every other review check passes. Its output is b
 AI-launch readiness. Complete disabled pre-enable checks first, then enable only under the
 separate approved change and verify enabled operation afterward; there is no circular prerequisite.
 The bounded launch policy and activation were separately approved; the v13 enabled review passed
-with the scoped Cowork-only exception. Physical protected-call proof is still required.
+with the scoped Cowork-only exception. Physical protected-call proof passed on 12 September.
 
 The unchanged immutable reference used by v11 and v12 is privately retained for **budget-aware redeployment** after
 verified source/architecture matching and zero-High/Critical scanning. Pre-budget v10 ignores the

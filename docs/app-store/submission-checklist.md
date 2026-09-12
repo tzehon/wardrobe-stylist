@@ -91,7 +91,7 @@ submission remain separate. Apple's **Ready to Submit** status is not public-rel
   and resources, with discrepancies and unknown coverage retained; new monitoring infrastructure
   is deferred. The later beta-only review and internal distribution are complete. Key rotation
   before 8 October and fresh checks for later changes remain required. Separately approved
-  v13 activation and enabled verification passed; protected-device styling proof remains pending.
+  v13 activation and enabled verification passed; protected-device styling proof passed on 12 September.
   The ordinary diagnostic correction passed live
   read-only verification on 9 September;
   that historical budget check returned OPEN `styling-disabled`. Earlier excluded
@@ -401,7 +401,7 @@ archive-era absence is not permission to reuse build 7.
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
   2026-08-29. The [current Fly v13 bounded pilot is enabled](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
-  distribution subsequently passed; bounded activation is complete; protected-device styling proof and public-submission gates remain open.
+  distribution subsequently passed; bounded activation is complete; protected-device styling proof passed on 12 September; public-submission gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -460,7 +460,7 @@ and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact
 and strict signed-archive verification passed at the archive checkpoint. The 10 September
 validation/upload, processing, `Family` assignment and saved-note loop are complete. The
 11 September handoff, clean installation and scoped local-beta QA have since passed. Snapshot
-lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; protected-device styling proof and public submission remain open; bounded AI activation is complete.
+lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; protected-device styling proof passed on 12 September; public submission remains open; bounded AI activation is complete.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

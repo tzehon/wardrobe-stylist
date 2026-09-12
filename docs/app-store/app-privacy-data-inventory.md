@@ -11,13 +11,12 @@ contain or invoke that capability.
 Build `1.0.0 (7)` has completed
 [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
-Privacy publication and the consent assessment passed on 12 September; bounded activation is complete; protected-device styling proof and public
-submission remain open. Do not repeat
+Privacy publication and the consent assessment passed on 12 September; bounded activation is complete; protected-device styling proof passed on 12 September; public submission remains open. Do not repeat
 the completed handoff or routine QA.
 
 The [current Fly v13 pilot](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
 has AI enabled under the existing private policy and separate aggregate ledger. The owner
-separately approved this activation; the first protected-device styling call remains pending.
+separately approved this activation; the first protected-device styling call passed on 12 September.
 Styling transmissions below describe the consented optional flow. The 12 September published policy now discloses this additional aggregate store;
 publication does not enable styling.
 
@@ -207,7 +206,7 @@ The exact approved developer-controlled schedule and its current compliance stat
   [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
-  Bounded activation is complete; protected-device styling proof and public-release gates remain open.
+  Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
 - [x] Verify the archive-era recovery reference. At `2026-08-29T03:31:57Z`, fresh private-registry
   authentication re-resolved the exact v10 immutable reference with the expected source identity
   and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former v6 reference's

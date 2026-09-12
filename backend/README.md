@@ -16,8 +16,7 @@ applied to the serving runtime with AI enabled under the separately approved pil
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
 The [12 September activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
-passed with the owner-approved Cowork-only exception. The first protected-device styling result
-remains pending. The following paragraphs retain the earlier disabled setup history. A subsequent
+passed with the owner-approved Cowork-only exception. The first protected-device styling result passed on 12 September. The following paragraphs retain the earlier disabled setup history. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
@@ -53,7 +52,7 @@ with saved/reloaded AI-disabled notes; it is consumed and must never be uploaded
 [distribution record](../docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](../docs/app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed owner-controlled deletion, clean installation and scoped local-beta QA.
-Bounded activation is complete; protected-device styling proof and public-release checks remain open.
+Bounded activation is complete; protected-device styling proof passed on 12 September; public-release checks remain open.
 Earlier setup evidence remains in the
 [diagnostic follow-up](../docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)

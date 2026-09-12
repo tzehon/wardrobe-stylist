@@ -58,12 +58,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **Complete** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. The 12 September provider/consent review and privacy policy/Apple-answer publication are complete; remaining store-submission checks stay separate |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; final store metadata and public submission remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; final store metadata and public submission remains open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; final Google retirement and public submission remain open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; final Google retirement and public submission remains open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -146,8 +146,7 @@ require build 8.
 
 The current production baseline is **Fly v13 with the bounded AI pilot enabled**. The
 12 September enabled review passed at `04:28:57Z` with the approved Cowork-only status exception,
-operational API/Console evidence, exact existing policy and intact idle ledger. Physical protected-
-call proof is pending; no runtime image or resource changed. See the
+operational API/Console evidence, exact existing policy and intact idle ledger. Physical protected-call proof passed on 12 September; no runtime image or resource changed. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 
 Historical disabled setup: Fly v12 served unchanged merged source
@@ -181,8 +180,7 @@ before its 8 October 2026 expiry is required. Actual provider alert delivery rem
 The 10 September plan uses daily owner cost review for the small pilot and defers external
 monitoring. The 10 September beta-only operations review and separately approved internal
 distribution passed; fresh checks remain required for later changes. Bounded v13 activation
-and enabled verification passed on 12 September; protected-device styling proof and public
-submission remain open. Handoff and scoped local-beta QA passed on 11 September. The earlier
+and enabled verification passed on 12 September; protected-device styling proof passed on 12 September; public submission remains open. Handoff and scoped local-beta QA passed on 11 September. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
@@ -531,7 +529,7 @@ remaining deterministic checks belong to the suite.
   does not require build 8, but it does require focused tests, the full backend/security regression,
   exact deployment/image verification and a fresh post-change operational review for an affected
   runtime change. Build-7 AI-disabled distribution and the separately approved v13 activation
-  checks are complete; physical protected-device styling proof remains pending.
+  checks are complete; physical protected-device styling proof passed on 12 September.
   Initial local work on 2026-09-06 prepared pinned `claude-haiku-4-5-20251001`, locked SDK 1.4.0
   (`httpx2` for SDK transport), strict forced tool output, thinking/cache off, and a default
   1,024-token output cap. The [fictional evaluation](model-evaluation.md) prepares 28 calls
@@ -605,8 +603,7 @@ remaining deterministic checks belong to the suite.
   observations. A whitespace-only public-page parser correction passes the live disclosures;
   the unrelated Cowork-on-Windows outage remains an explicit aggregate-status exception proposal.
   Separately approved activation completed as Fly v13 on 12 September. Enabled operations passed
-  at `04:28:57Z` with the owner-approved Cowork-only status exception; the protected-device call
-  remains pending. The same image, Machine, volume, key and approved policy are retained.
+  at `04:28:57Z` with the owner-approved Cowork-only status exception; the protected-device call passed on 12 September. The same image, Machine, volume, key and approved policy are retained.
   Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
@@ -622,7 +619,7 @@ remaining deterministic checks belong to the suite.
   the deferred external monitor is not an activation prerequisite. Prior excluded uncertain-call
   liability remains unresolved. The 10 September beta-only operations review and build-7 internal
   distribution passed; the 12 September activation and fresh enabled operations review have also
-  passed with the scoped Cowork-only exception. Protected-device styling proof remains open. The provider
+  passed with the scoped Cowork-only exception. Protected-device styling proof passed on 12 September. The provider
   workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The
   [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
@@ -691,7 +688,7 @@ remaining deterministic checks belong to the suite.
   checklist is needed. This follows the 11 September
   [QA ownership correction](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
   AI stayed disabled through local QA; separately approved v13 activation is now complete,
-  with protected-device styling proof pending.
+  with protected-device styling proof passed on 12 September.
 
 Do not archive early and plan to repair the same binary later. The checked sequence below records
 the historical build-4 path and does not close any replacement-candidate physical, deletion,
@@ -1032,7 +1029,7 @@ governed by APP-036's Gmail-free guards.
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Build-7 distribution, handoff/clean first launch and normal-state
   device appearance have passed. Deletion-specific recovery/non-return is owner-waived but unproved;
-  final Google retirement and public submission remain open.
+  final Google retirement and public submission remains open.
 
 ## P1 — core experience polish
 

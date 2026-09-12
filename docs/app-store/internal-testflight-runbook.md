@@ -13,7 +13,7 @@ The owner requested a reset of the overgrown monitoring/release workflow on 10 S
 
 The separately approved bounded AI pilot is now enabled as Fly v13. Its enabled review passed
 with the approved Cowork-only status exception; the first owner-controlled protected styling
-request remains pending. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
+request passed on 12 September. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -1171,12 +1171,29 @@ no retry after failure/timeout, local-feature availability and the existing cons
 Saving and reloading retained the text; Family remains the only group with one tester and there
 are no individual testers. No build, tester invitation or distribution group changed.
 
-**Pending:** the owner performs exactly one normal protected Style a look action in the existing
-TestFlight app. This is not replaced by simulator tests, direct backend calls or an authentication
-bypass. On a failed/uncertain call or failed enabled-state verification, use the already approved
-AI-disable response and preserve all charges/reservations. After success, retain the bounded pilot
-and daily owner review; the next daily cost review is due 13 September, sooner after any problem
-or configuration change. The global AI ceiling is not a Fly invoice cap. Public Singapore
+### First protected TestFlight call — 12 September 2026
+
+**Passed.** After the existing consent instruction, the owner supplied a screenshot showing an
+outfit displayed in Today at **13:34 SGT** on the installed TestFlight build `1.0.0 (7)`.
+The screenshot and wardrobe/output content are not copied into repository evidence.
+
+At `2026-09-12T05:36:01Z`, the approved read-only follow-up verified the exact v13 runtime on the
+same image and Machine, and the existing policy/ledger as service UID/GID 10001. The current-month
+ledger records exactly **one admission**, settled below its conservative reservation, with zero
+active or uncertain reservations, no halt and spend below warning. Anonymous security aggregates
+show one active installation, one active session, zero pending challenges and zero failed
+challenges. Exact cost and private values remain in the ignored evidence record.
+
+The owner-visible result plus settled server admission closes the first protected styling-call
+gate. This is physical TestFlight evidence, distinct from simulator coverage. No second request,
+Restyle, synthetic authentication bypass, paid agent call, ledger reconciliation, reset or runtime
+mutation occurred. It does not establish cold-session renewal, a new deletion/recovery test,
+iOS 27+ signed runtime-field enforcement or public-submission approval.
+
+Leave the bounded pilot enabled under the existing limits and daily owner review. The next daily
+cost review is due 13 September, sooner after a problem or configuration change. Use the already
+approved AI-disable response on failed verification, unexpected charge or uncertain work, preserving
+charges and reservations. The global AI ceiling does not cap the Fly invoice. Public Singapore
 submission remains separate. No new TestFlight build is required.
 
 ## Per-build release-candidate loop
@@ -1565,7 +1582,7 @@ identity or notification evidence.
   enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
   catalog or button-state phone checklist remains. The separately approved bounded v13 pilot
-  is enabled; its one protected-device verification call remains pending.
+  is enabled; its one protected-device verification call passed on 12 September.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
@@ -1577,8 +1594,7 @@ because of the delivered-reminder tap crash. Build 6 passed the affected identit
 routes but is non-promotable because it failed the styling-consent control presentation gate. The
 replacement `1.0.0 (7)` has completed distribution, owner-controlled handoff and clean first
 launch with AI disabled. The normal-state device screenshot passed; automation owns the remaining
-deterministic regression. Bounded activation is complete; protected-device styling proof and
-public-release work remain open. When that candidate
+deterministic regression. Bounded activation is complete; protected-device styling proof passed on 12 September; public-release work remains open. When that candidate
 is fully approved for public release, do not rebuild unless something changed:
 
 - Retain completed `APP-016` privacy evidence. Finish `APP-017`/`APP-018`, agreements, screenshots, review

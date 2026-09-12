@@ -13,7 +13,7 @@ references, not v1 setup steps.
 Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
 the owner-approved Cowork-only status exception and operational API/Console evidence. The same
 image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
-idle. The first protected TestFlight call remains pending. See the
+idle. The first protected TestFlight call passed on 12 September. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 
 Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
@@ -27,7 +27,7 @@ No paid AI call was made. Provider alert delivery remains unproven and billing-f
 remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
 for the small pilot and defers external monitoring. The beta-only review and build-7 internal
 distribution are complete. Handoff, clean installation and scoped local-beta QA passed on
-11 September; v13 activation is complete; protected-device styling proof and public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+11 September; v13 activation is complete; protected-device styling proof passed on 12 September; public submission remains open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 that historical budget check reported OPEN `styling-disabled`. Follow the
@@ -303,7 +303,7 @@ Singapore v1 and accepted the residual risk. App Privacy and other applicable pu
 retain their own status. The
 [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed build-7 handoff, clean installation and scoped local-beta QA. The separately
-approved v13 activation is complete; protected-device styling proof remains pending. Real
+approved v13 activation is complete; protected-device styling proof passed on 12 September. Real
 registration, assertion, and deletion success markers have now been observed;
 build 5 is non-promotable, while clean build 6 passed the fixed notification route and completed
 final deletion/reinstall/new enrollment. A 2026-08-28 Dark Mode screenshot separately confirmed the
@@ -320,7 +320,7 @@ signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed
 Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
 later 10 September validation/upload, processing, internal assignment and saved-note checks are
 complete; the 11 September checkpoint separately records completed handoff and scoped local-beta
-QA. Bounded activation is complete; protected-device styling proof and public-release gates remain open.
+QA. Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
 
 ## TestFlight distribution
 
@@ -330,7 +330,7 @@ individual testers; enabled-pilot notes are saved and reload-verified, replacing
 and must never be reused. Follow the
 [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 for the completed handoff, clean installation and scoped local-beta QA. Do not repeat those
-steps. The separately approved bounded pilot is enabled; its first protected-device styling result is pending.
+steps. The separately approved bounded pilot is enabled; its first protected-device styling result passed on 12 September.
 
 The sequence below retains preparation requirements and dated predecessor evidence; do not
 repeat completed archive/upload steps for the delivered build 7:

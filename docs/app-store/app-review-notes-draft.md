@@ -7,7 +7,7 @@
 > [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 > with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
 > Privacy publication, consent assessment and separately approved bounded v13 activation passed
-> on 12 September. Protected-device styling proof and public submission remain open; do not repeat
+> on 12 September. Protected-device styling proof passed on 12 September; public submission remains open; do not repeat
 > the completed handoff or routine QA.
 
 ## Product summary
@@ -49,7 +49,7 @@ session.
 ## Optional AI styling path
 
 Current pilot state: [Fly v13 is enabled within the approved global limits](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
-The first protected TestFlight call is pending. The connected App Review path below still requires
+The first protected TestFlight call passed on 12 September. The connected App Review path below still requires
 verification and completion of its placeholders before public submission.
 
 1. Add at least [MINIMUM ITEM COUNT] fictional items manually or from photos, or use the provided
@@ -157,7 +157,7 @@ notes with AI disabled. The 11 September checkpoint records completed handoff an
 local-beta QA. The 10 September snapshot-list/deletion-recovery evidence is unproved but owner-
 waived only for the Free Singapore v1. The [12 September privacy review](ai-pilot-privacy-review-20260912.md)
 completed consent reconciliation and policy/Apple publication. Separately approved bounded
-v13 activation is complete; protected-device styling proof and app submission remain open. Reviewed
+v13 activation is complete; protected-device styling proof passed on 12 September; app submission remains open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
@@ -275,7 +275,7 @@ backend/configuration change.
   [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
-  Bounded activation is complete; protected-device styling proof and public-release gates remain open.
+  Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
