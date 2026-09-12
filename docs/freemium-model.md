@@ -10,7 +10,7 @@ This document is the canonical product-model reference; the
 
 The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catalog browsing and
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
-Optional AI styling is implemented and enabled as the owner-approved bounded Fly v13 pilot.
+Optional AI styling is implemented and enabled as the owner-approved bounded Fly v14 pilot.
 The 12 September enabled operations review passed with the scoped Cowork-only exception;
 the first protected TestFlight styling result passed on 12 September. Styling requires in-app consent
 and remains subject to the global safety limits. Local features work independently of AI.

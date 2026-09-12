@@ -41,7 +41,7 @@ The current release work and remaining blockers are tracked in
 
 ## Deployed aggregate AI budget accounting
 
-The approved September 8 setup provisioned a separate durable budget database. Fly v13 now applies
+The approved September 8 setup provisioned a separate durable budget database. Fly v14 now applies
 that same approved private policy with AI enabled under the separately approved bounded pilot. It stores a month identifier, aggregate
 unit/admission totals, approved policy limits, a safety
 halt flag, and unresolved random reservation IDs with bounded token amounts and month. No
@@ -254,7 +254,7 @@ while keeping `MARKETING_VERSION = 1.0.0`.
   selection time.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [enabled bounded Fly v13 pilot](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
+  [enabled bounded Fly v14 pilot](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
   the verified auth/build allowlist. The beta-only review and internal distribution are complete;
   bounded activation is complete, while protected-device styling proof passed on 12 September; public-release checks remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main

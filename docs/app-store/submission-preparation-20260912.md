@@ -62,6 +62,10 @@ deployment completed as **Fly v14**. An independent postcheck passed at
 `2026-09-12T06:36:24Z`: exact original image, Machine, volume, keys, policy and intact ledger were
 preserved, with no paid call. The lock now records observed v14/categories `2,4` while retaining
 all image/archive bindings. The full post-change operations review remains pending.
+The complete regression was then rerun on the observed v14 lock: 870 backend tests and locked
+security/lint/type checks, 237 iOS tests (227 Swift/10 UI; completed `06:51:51Z`) and 44 release-script
+tests passed. Later operations-result documentation retains this exact tested lock/runtime/iOS
+state; it does not require another code-change regression or a new TestFlight build.
 
 `fly.toml` is deployment configuration and is not copied into the Docker image. The read-only
 operations verifier therefore excludes it from immutable-image source equivalence while keeping

@@ -51,7 +51,7 @@ session.
 
 ## Optional AI styling path
 
-Current pilot state: [Fly v13 is enabled within the approved global limits](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+Current pilot state: [Fly v14 retains the enabled pilot within the approved global limits](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 The first protected TestFlight call passed on 12 September. The connected App Review path below still requires
 verification and completion of its placeholders before public submission.
 

@@ -279,7 +279,7 @@ archive-era absence is not permission to reuse build 7.
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
   not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
   recorded in the build-7 section below. The current
-  [Fly v13 bounded pilot is enabled](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+  [Fly v14 bounded pilot is enabled](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
   Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed

@@ -1,11 +1,11 @@
 # Singapore launch AI spend controls
 
-Status: **Fly v13 has AI enabled under the approved bounded pilot**, verified on 12 September.
-The same image, Machine, volume, key and exact private policy remain in place; the ledger is ready,
-below warning and idle. Enabled operations passed with the owner-approved exception for the
-unrelated Cowork-on-Windows incident; the API and Console were operational. The first protected
-TestFlight styling request passed on 12 September. See the
-[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+Status: **Fly v14 retains AI enabled under the approved bounded pilot**. Its categories `2,4`
+configuration postcheck passed at `2026-09-12T06:36:24Z`, preserving the same image, resources,
+keys, exact private policy and intact below-warning ledger. Full v14 operations review remains
+pending. The earlier v13 activation review and first protected TestFlight call remain retained
+evidence. See the
+[compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 
 Historical setup: first-ever provisioning
 succeeded at `2026-09-08T08:56:32Z`; independent post-deployment review passed at

@@ -99,12 +99,14 @@ URL was saved, and exactly four categories above were configured, each linked an
 Only Other User Content additionally uses Product Personalization. After confirmation Apple showed
 **Published a few seconds ago by tan tze hon** at the `03:14–03:15Z` verification checkpoint;
 reload retained the publication, URL and four configured categories. This publishes privacy
-metadata; the app version remains **Prepare for Submission**, with no review submission or release.
+metadata; at that policy-publication checkpoint the app version was **Prepare for Submission**,
+with no review submission or release. The later Ready for Review draft is recorded in the
+[compatibility checkpoint](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 
 ## Remaining actions
 
 The disabled pre-enable review and separately approved activation completed on 12 September.
-Fly v13 is enabled within the existing policy and fixed resource envelope. The enabled review
+Fly v13 was enabled within the existing policy and fixed resource envelope. That activation review
 passed with the approved Cowork-only status exception; see the
 [activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 The first protected TestFlight styling request passed on 12 September. Preserve residual Fly invoice
