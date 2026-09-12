@@ -1,6 +1,6 @@
 # Singapore submission preparation — 12 September 2026
 
-Status: **Apple draft Ready for Review; v14 review completed with the approved Cowork-only exception; final submission awaits the owner's decision**. Build
+Status: **Submitted to Apple; Waiting for Review; manual public release remains unapproved**. Build
 `1.0.0 (7)` remains the existing processed candidate. The owner approved source publication,
 saving the prepared Apple draft and the minimal App Store compatibility deployment. The later
 contact correction retains that scope; private approval/amendment records bind the corrected
@@ -12,8 +12,10 @@ preflight correction need **no new TestFlight build**.
 App Store Connect inspection and approved draft saves confirmed:
 
 - Existing bundle ID and immutable SKU: `com.tth.Wardrobe`; Apple ID `6789053566`.
-- Primary language English (U.K.); version `1.0.0` passed Add for Review validation and is
-  **Ready for Review** in a draft submission. Submit for Review remains unclicked.
+- Primary language English (U.K.); version `1.0.0` with build 7 passed Add for Review validation,
+  then was submitted with separate owner approval on 12 September at 15:32 SGT (07:32 UTC).
+  Apple confirmed one submitted item and shows **Waiting for Review**. Manual release remains
+  selected; Apple approval and public release have not occurred.
 - Free/Paid agreements active; bank and tax records active/complete; DSA trader status active.
 - Singapore is the sole available territory; 174 territories are not available.
 - Tax category is App Store software; Apple Standard License Agreement is selected.
@@ -30,8 +32,9 @@ App Store Connect inspection and approved draft saves confirmed:
   and reload-verified, with Singapore available and 174 other territories unavailable.
 
 Personal contact/account information remains in ignored private evidence. Existing agreements
-were retained; no new agreement was accepted. Draft saves and asset uploads do not submit or
-publish the app.
+were retained; no new agreement was accepted. The later explicit Submit for Review action sent
+the candidate to Apple. Draft saves and asset uploads alone did not submit it; none of these
+actions publicly releases the app while manual release remains selected.
 
 ## Reviewable materials
 
@@ -88,13 +91,14 @@ revision unchanged when updating the post-deployment release/category review loc
    Fly has no hard invoice cap. A new failure or configuration change requires the applicable
    approved response. Preserve the exact image, resources, keys, policy and intact ledger;
    no iOS rebuild or additional paid test is proposed.
-3. Obtain the owner's final public-submission decision for the reviewed final package. If approved,
-   submit to App Review with **manual release** selected. Apple approval does not itself publish
-   the app under that setting.
+3. Await Apple's review of the existing submission and respond to any review questions. The
+   [verified submission](internal-testflight-runbook.md#apple-app-review-submission--12-september-2026)
+   completed with **manual release** selected. Obtain separate owner approval before public
+   release; Apple approval does not itself publish the app under that setting.
 
 Inventoried Wardrobe Google Cloud/OAuth project retirement remains open and unperformed, subject
 to separate owner confirmation. This deferred legacy cleanup does not block the verified Gmail-free
-Free Singapore v1. APP-036 remains in progress for cleanup and public submission; this record
+Free Singapore v1. APP-036 remains in progress for cleanup and final public release; this record
 does not claim either complete or authorize a Google mutation.
 
 The completed local QA, privacy publication, bounded AI activation and first protected call are

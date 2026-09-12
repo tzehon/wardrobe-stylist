@@ -52,11 +52,14 @@ The approved configuration deployment is complete: Fly v14 accepts App Store App
 ledger. Its independent configuration postcheck passed at `2026-09-12T06:36:24Z`; no paid call was
 made. The full post-change review completed at `2026-09-12T07:09:37Z` with the approved
 Cowork-only status exception; every other operational check passed, including the recovery scan.
-See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026). Apple's Add for Review validation
-passed and build 7 is **Ready for Review** in a draft submission; **Submit for Review** has not
-been clicked. Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains
+See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).
+After separate owner approval, version **1.0.0 (7)** was submitted to Apple on 12 September at
+15:32 SGT (07:32 UTC) and is **Waiting for Review**. Manual release remains selected; the app is
+not Apple-approved or publicly released. See the [submission checkpoint](docs/app-store/internal-testflight-runbook.md#apple-app-review-submission--12-september-2026).
+Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains
 unperformed, deferred legacy cleanup requiring separate owner confirmation. It does not block
-submission of the verified Gmail-free Free Singapore v1; the final submission decision remains open.
+submission of the verified Gmail-free Free Singapore v1. Manual public release still requires
+separate owner approval after Apple's review.
 The corrected reviewer notes have separate support/privacy links and were saved
 and reload-verified. These changes need no new TestFlight build.
 

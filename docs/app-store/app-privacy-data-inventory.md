@@ -11,7 +11,7 @@ contain or invoke that capability.
 Build `1.0.0 (7)` has completed
 [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
-Privacy publication and the consent assessment passed on 12 September; bounded activation is complete; protected-device styling proof passed on 12 September; public submission remains open. Do not repeat
+Privacy publication and the consent assessment passed on 12 September; bounded activation is complete; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved. Do not repeat
 the completed handoff or routine QA.
 
 The [current Fly v14 pilot](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)

@@ -34,12 +34,12 @@ fictional screenshots are uploaded, ordered and reload-verified. Free pricing, S
 availability and disabled Mac/Vision availability are also saved and reload-verified. Categories
 `2,4` are deployed as Fly v14, with independent configuration postcheck PASS at
 `2026-09-12T06:36:24Z`. Full post-change operations at `2026-09-12T07:09:37Z` completed with
-the approved Cowork-only status exception; every other operational check passed. Public submission
-awaits the owner's final submission decision. Inventoried Google project retirement remains
+the approved Cowork-only status exception; every other operational check passed. The owner approved submission;
+version `1.0.0` with build 7 was submitted on 12 September at 15:32 SGT (07:32 UTC). Inventoried Google project retirement remains
 open, unperformed and subject to separate owner confirmation; that deferred cleanup is not a
 public-v1 submission gate. Apple's
-version `1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review; Submit for
-Review has not been clicked. Older unchecked historical checklist
+version `1.0.0`/build-7 submission is **Waiting for Review**. Manual release remains selected;
+Apple approval and public release have not occurred. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
 
 ## 1. External decisions and account readiness
@@ -427,7 +427,7 @@ archive-era absence is not permission to reuse build 7.
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
   2026-08-29. The [current Fly v14 bounded pilot is enabled](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
-  distribution subsequently passed; bounded activation is complete; protected-device styling proof passed on 12 September; public-submission gates remain open.
+  distribution subsequently passed; bounded activation is complete; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -486,7 +486,7 @@ and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact
 and strict signed-archive verification passed at the archive checkpoint. The 10 September
 validation/upload, processing, `Family` assignment and saved-note loop are complete. The
 11 September handoff, clean installation and scoped local-beta QA have since passed. Snapshot
-lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; protected-device styling proof passed on 12 September; public submission remains open; bounded AI activation is complete.
+lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved; bounded AI activation is complete.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -531,14 +531,15 @@ lifecycle non-return evidence is unproved but owner-waived only for the Free Sin
   `Family`; its later clean physical evidence through the fixed notification route is retained in
   the runbook.
 - [x] Add version `1.0.0` with build 7 to a draft review submission. Add for Review validation
-  passed; Apple shows Ready for Review with manual release retained.
+  passed at the draft checkpoint, with manual release retained.
 - [x] Complete the full post-change operations review. The v14 review at `2026-09-12T07:09:37Z`
   completed with the approved Cowork-only exception; every other operational check passed.
   See the [final review record](internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).
-- [ ] Obtain the owner's final submission decision and retain the reviewed draft settings, then
-  choose **Submit for Review** if approved. It has not been clicked:
+- [x] Obtain the owner's final submission approval and choose **Submit for Review** once. Apple
+  confirmed one submitted item on 12 September at 15:32 SGT (07:32 UTC): version `1.0.0`/build 7
+  is **Waiting for Review**, with manual release retained. This is not Apple approval or public release:
   [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
 - [ ] Keep the production backend healthy and the review contact reachable during review; respond
   to App Review in the App Review section.
-- [ ] After approval, execute the chosen release method, verify the live product page/install, and
-  retain the final evidence and support handoff.
+- [ ] After Apple approval and separate owner approval for manual public release, execute the
+  chosen release method, verify the live product page/install, and retain the final evidence and support handoff.

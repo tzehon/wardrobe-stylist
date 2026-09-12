@@ -18,8 +18,10 @@ The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-septe
 the later approved categories `2,4` deployment and independent configuration postcheck. The full
 v14 review at `2026-09-12T07:09:37Z` subsequently completed with the approved Cowork-only status
 exception; every other operational check passed. See the [final review](#final-v14-operations-review--12-september-2026).
-Apple's version/build-7 draft is Ready for Review; the owner's final submission decision remains
-open. Inventoried Google project retirement remains unperformed, deferred legacy cleanup requiring
+The owner separately approved submission; Apple's version `1.0.0`/build-7 item was submitted at
+15:32 SGT (07:32 UTC) on 12 September and is **Waiting for Review**, with manual release retained.
+See the [submission checkpoint](#apple-app-review-submission--12-september-2026). Apple approval
+and manual public release remain open. Inventoried Google project retirement remains unperformed, deferred legacy cleanup requiring
 separate owner confirmation; it is not a public-v1 submission gate.
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
@@ -1236,7 +1238,9 @@ verified order, Free price, Singapore-only availability and disabled Mac/Vision 
 saved and reload-verified. The corrected owner contact remains private; the corrected 2,064-character
 reviewer notes have separate support/privacy links and a complete fictional top/trousers/shoes
 example. The exact text was saved and reload-verified after the review correction. Manual release
-is retained. **Submit for Review has not been clicked.** No new TestFlight build is required.
+was retained. **Submit for Review had not been clicked at this checkpoint.** The later
+[submission checkpoint](#apple-app-review-submission--12-september-2026) records that separately
+approved action. No new TestFlight build was required.
 
 ## Final v14 operations review — 12 September 2026
 
@@ -1267,14 +1271,37 @@ unchanged from the complete regression recorded above: 870 backend tests and all
 security/lint/type checks, 237 iOS tests and 44 release-script tests passed. This final evidence
 update changes documentation only; no repeated regression or new TestFlight build is needed.
 
-Apple's existing version `1.0.0`/build-7 draft remains **Ready for Review**, with the verified
+At this 07:09:37Z review checkpoint, Apple's version `1.0.0`/build-7 draft was **Ready for Review**, with the verified
 2,064-character reviewer notes, Free Singapore-only availability and manual release selected.
-**Submit for Review has not been clicked and awaits the owner's decision.** Retirement of the
+**Submit for Review had not been clicked; the owner's decision was still pending.** The later
+[submission checkpoint](#apple-app-review-submission--12-september-2026) records the approved action. Retirement of the
 inventoried Wardrobe Google Cloud/OAuth projects remains open, unperformed and subject to separate
 owner confirmation. That deferred legacy cleanup does not block the verified Gmail-free Free
 Singapore v1; APP-036 remains in progress for cleanup and submission. Keep ordinary daily
 pilot review and the accepted Fly cost/snapshot residual risks; this checkpoint adds no restore,
 all-copy-purge or deleted-identity recovery proof.
+
+## Apple App Review submission — 12 September 2026
+
+The owner explicitly approved submitting the existing reviewed **1.0.0 (7)** candidate to Apple
+with **Manually release this version** selected. At 15:32 SGT (07:32 UTC), the exact version/build
+and selected manual-release control were checked immediately before **Submit for Review** was
+clicked once. Apple confirmed **1 Item Submitted** and showed the iOS submission as **Waiting for
+Review**, with one submitted item: iOS App `1.0.0`, build `1.0.0 (7)`.
+
+This is verified submission, not Apple approval or public release. The owner approved this
+submission step only; manual public release requires separate owner approval after Apple's review.
+The submitted candidate retains the reviewed listing, screenshots, 2,064-character reviewer
+notes, Free Singapore-only availability and disabled Mac/Vision availability. No new archive,
+upload, runtime/configuration change or paid AI call was needed.
+
+Private confirmation evidence is retained separately from the frozen approval materials; the
+submission identifier and contact details are not reproduced here. PR #56 had already recorded
+the final v14 review with its approved Cowork-only exception. This update changes documentation
+only and retains the exact tested/runtime/lock/iOS/archive inputs and completed regression.
+No new TestFlight build is required. Continue ordinary pilot operations, respond to App Review
+if needed, and await the review outcome. Deferred Google project retirement remains open and
+unperformed, requires separate owner confirmation and is not a public-v1 submission prerequisite.
 
 ## Per-build release-candidate loop
 
