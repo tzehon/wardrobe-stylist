@@ -50,7 +50,8 @@ API contract, production resources or stored data and do not require build 8.
    237 iOS tests, 840 backend tests with all locked checks, and 44 release-script tests. Ask for
    another device action only for a concrete uncovered physical boundary; see
    [QA ownership](app-store/internal-testflight-runbook.md#qa-automation-ownership--2026-09-11).
-   Keep AI disabled; protected production styling proof belongs to separately approved activation.
+   AI stayed disabled through local QA. The separately approved 12 September activation is
+   complete; its protected-device styling proof remains open.
 
 If this QA requires an iOS fix, determine the next unused build number and repeat the applicable
 review/distribution checks for that new candidate. Do not rebuild or re-upload because operator
@@ -60,7 +61,7 @@ Apple's App Store Connect tester requirements; a wider external beta is a separa
 choice, not a reason to grant account roles casually.
 [Apple internal testing](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers/).
 
-## Next: prepare and separately approve the small AI pilot
+## Current: verify the approved small AI pilot
 
 Keep the existing backend, anonymous App Attest access, server-held provider key and durable global
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another
@@ -70,14 +71,15 @@ model to finish this release.
   standard provider retention. The approved policy and Apple privacy answers are published and
   verified. Retain build 7 and notice version 3 for the unchanged flow; no new iOS build is needed
   for this disclosure/documentation update.
-- Verify the existing approved limits, model/key/workspace, capacity and intact ledger while AI
-  is still disabled. The pre-enable review expects disabled AI; it must not demand the enabled
-  state that it is meant to precede. Retain the existing provider cap, credits and auto-reload-off
-  setting. Rotate the provider key before its recorded 8 October expiry.
-- Use the simple cost routine below and disclose residual Fly exposure in the enablement package.
-  Present one bounded approval covering the exact enablement and verification call. Enable only
-  after approval, then run the normal `ai-launch` review and protected-device styling proof.
-  An enabled-state failure closes AI again through the reviewed response procedure.
+- The disabled review and separate bounded activation approval completed on 12 September. Fly v13
+  enables styling on the same image, Machine and volume, with the exact approved policy and intact
+  ledger. Retain the provider cap, credits and auto-reload-off setting. Rotate the key before its
+  recorded 8 October expiry.
+- The enabled `ai-launch` checks passed at `2026-09-12T04:28:57Z`, with the approved Cowork-only
+  status exception and fresh API/Console operational evidence. The owner's one protected-device
+  styling request remains pending. Use the simple cost routine below; residual Fly invoice
+  exposure is accepted, not capped. A failed protected call or enabled-state check closes AI again
+  under the already-approved response procedure.
 
 The disabled pre-enable review and enabled post-change confirmation are distinct checkpoints.
 Neither an internal beta nor a passing simulator suite proves that remote AI is ready.

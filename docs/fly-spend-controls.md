@@ -1,6 +1,6 @@
 # Fly hosting spend controls
 
-Current approach, 10 September 2026: use the existing fixed resources and owner-run daily review
+Current approach, refreshed 12 September 2026: use the existing fixed resources and owner-run daily review
 for the small pilot. The unshipped hourly GitHub/Healthchecks prototype is deferred and preserved
 privately. No new monitoring account, token, schedule, service hold or Fly credit purchase has been
 performed. Follow [the release plan](release-plan.md) for which checks apply to beta, AI activation
@@ -8,7 +8,7 @@ and public submission.
 
 ## Existing safeguards
 
-The last verified September 8–9 inventory had one Singapore shared-CPU Machine with 512 MB RAM,
+The 12 September activation inventory retained one Singapore shared-CPU Machine with 512 MB RAM,
 one encrypted 1 GB volume with automatic 14-day snapshots, shared IPv4 and IPv6. The selected
 organization contained the original app and no builder app. This is dated evidence, not a current
 billing guarantee; refresh it for release/configuration decisions.
@@ -18,11 +18,18 @@ regions, paid IPs, builders, support packages or managed services. Do not delete
 snapshots to make a cost estimate look smaller. Keep current recovery data and approved limits.
 
 The separate AI ledger bounds the reviewed app's provider calls; it does not pay for or meter Fly.
-The last verified v12 setup had the approved private AI policy and provider key applied with AI
-disabled. The provider workspace limit and email settings were saved, approved credits purchased,
-and auto-reload remained off. Do not repeat provisioning, key staging or credit purchases to
+Fly v13 now has AI enabled under the separately approved bounded pilot, with the exact existing
+private policy, provider key and intact ledger. The production workspace limit/email settings,
+sufficient existing credits and auto-reload off were freshly verified. Do not repeat provisioning, key staging or credit purchases to
 reproduce those earlier setup steps. Provider-key rotation is due before its recorded 8 October
 expiry. See [AI spend controls](ai-spend-controls.md).
+
+The owner accepted the residual Fly invoice exposure in the 12 September activation package.
+The refreshed invoice and elapsed-period Cost Explorer differed slightly; no exact usage cutoff
+or final adjustment coverage was established. All five visible billed categories were expected,
+and observed amounts were below the private warning threshold. Keep that uncertainty and the
+daily review; the operating target is still not a monetary cap. No hosting expansion or service
+hold occurred. The next daily review is due 13 September, sooner after any problem or change.
 
 ## Daily pilot review
 

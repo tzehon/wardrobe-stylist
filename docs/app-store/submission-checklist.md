@@ -76,7 +76,7 @@ submission remain separate. Apple's **Ready to Submit** status is not public-rel
   remain recorded. After providing one complete numeric scorecard, the owner said "all are ok,
   proceed" and accepted all proposals qualitatively. Preserve that decision separately from
   the incomplete numeric rubric; no scores were inferred and no numeric pass is claimed.
-  The selected Sonnet runtime, now deployed with AI disabled, has aligned 2-input/10-output micro-USD pricing,
+  The selected Sonnet runtime, now enabled under the approved bounded pilot, has aligned 2-input/10-output micro-USD pricing,
   full-context reservations, and a v2 model/rate-bound ledger. All 28 request hashes match the
   accepted run; full migration regression passed (505 backend, 236 iOS, 44 release-script
   tests, security/type/lint checks, and Release simulator/artifact checks). No additional
@@ -257,7 +257,7 @@ archive-era absence is not permission to reuse build 7.
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
   not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
   recorded in the build-7 section below. The current
-  [Fly v12 runtime has AI disabled](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08).
+  [Fly v13 bounded pilot is enabled](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
   Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
@@ -398,9 +398,9 @@ archive-era absence is not permission to reuse build 7.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29. The [current Fly v12 runtime has AI disabled](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+  2026-08-29. The [current Fly v13 bounded pilot is enabled](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
-  distribution subsequently passed; separate AI activation and public-submission gates remain open.
+  distribution subsequently passed; bounded activation is complete; protected-device styling proof and public-submission gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -459,8 +459,7 @@ and its exact Fly v10 backend deployment, post-change/pre-archive reviews, exact
 and strict signed-archive verification passed at the archive checkpoint. The 10 September
 validation/upload, processing, `Family` assignment and saved-note loop are complete. The
 11 September handoff, clean installation and scoped local-beta QA have since passed. Snapshot
-lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; AI
-activation and public submission remain open.
+lifecycle non-return evidence is unproved but owner-waived only for the Free Singapore v1; protected-device styling proof and public submission remain open; bounded AI activation is complete.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.

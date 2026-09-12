@@ -25,19 +25,22 @@ the decisions required before the paid release.
 ## Current release
 
 **Build `1.0.0 (7)` is processed and assigned to the `Family` internal TestFlight group.** The
-approved AI-disabled tester notes are saved and reload-verified. The owner-controlled identity-safe
-handoff, clean installation and scoped local-beta QA passed on 11 September. The next stage is
-preparing the separately approved AI pilot. The local wardrobe,
+initial AI-disabled tester notes were saved and reload-verified; they now describe the enabled
+bounded pilot and have again been saved and reload-verified. The owner-controlled identity-safe
+handoff, clean installation and scoped local-beta QA passed on 11 September. The current stage is
+the owner-approved bounded AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
-Fly v12 configuration has AI styling disabled; the app shows temporary unavailability for
-remote styling requests.
+Fly v13 configuration has AI styling enabled within the existing approved global limits.
+The enabled operational review passed on 12 September with the approved exception for an unrelated
+Cowork-on-Windows incident; Claude API and Console were operational. The first protected styling
+request from the owner's TestFlight app is pending. No new build or installation is required.
 
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
 intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now
 normalizes HTML whitespace so a line-wrapped privacy paragraph does not falsely fail; missing
 disclosures and forbidden capability wording still fail. The aggregate Anthropic status check
 remains open for a Cowork-on-Windows incident, while the official API and Console components are
-operational. This is scoped evidence, not an all-green preflight or activation approval. See the
+operational. The owner separately approved activation and this narrowly scoped exception. See the
 [pre-enable checkpoint](docs/app-store/internal-testflight-runbook.md#ai-pilot-pre-enable-review--2026-09-12).
 
 On 11 September the owner confirmed that TestFlight updated the existing installation to build 7.
@@ -53,7 +56,7 @@ snapshot. After owner-approved in-app server deletion, live installation/session
 are zero and one bounded deletion-success marker was observed. The owner subsequently confirmed
 the **Local Data Deleted** result, app removal and a clean TestFlight installation of `1.0.0 (7)`.
 First launch with AI permission off shows an empty Wardrobe and History; a fresh server check
-remains at zero installations, sessions and challenges. The handoff is complete. AI remains disabled.
+remains at zero installations, sessions and challenges. The handoff is complete. AI was still disabled at that checkpoint.
 
 The owner waived the remaining snapshot-list-expiry and deletion-specific recovery/non-return
 evidence sub-gate for the Free Singapore v1 on 11 September. The earlier monitored 25/28 August
@@ -68,14 +71,14 @@ local data, the installed build, or TestFlight state.
 The [12 September AI privacy review](docs/app-store/ai-pilot-privacy-review-20260912.md)
 records the approved [published policy](https://blog.tth.dev/wardrobe/privacy/) and reload-verified
 Apple privacy answers. The existing build-7 consent covers the unchanged styling flow; this work
-needs no new TestFlight build. Next are the disabled budget/operations checks and separate AI
-activation approval.
+needs no new TestFlight build. The disabled checks and separately approved activation are complete;
+protected-device styling proof remains open.
 
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
-2. Privacy publication and consent assessment are complete; verify the existing budget/operations
-   while AI is disabled, then separately approve activation.
+2. Privacy publication, consent assessment and bounded AI activation are complete; verify one
+   protected styling request from the existing TestFlight app, then continue the daily cost review.
 3. Finish the remaining privacy and store-submission work for the Free Singapore launch; the
    snapshot/recovery evidence sub-gate is owner-waived, not proven.
 
@@ -181,9 +184,9 @@ tests remain historical evidence, not production features.
 monitoring-instruction correction, a clear current-head Codex review and both CI checks passed.
 The scoped review and approved build-7 upload are recorded in the
 [runbook](docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10), with
-truthful saved AI-disabled tester notes. No deployment or paid model call was performed; AI
-remains disabled. The next daily owner cost review is due 11 September, alongside the full
-review before any later upload or after a backend/configuration change.
+truthful AI-disabled tester notes at that checkpoint. AI activation subsequently completed on
+12 September as Fly v13; no paid call had been made at the enabled-review checkpoint. The next
+daily owner cost review is due 13 September, or sooner after a problem or configuration change.
 
 The current operations checker distinguishes an intentionally AI-disabled internal beta from
 AI-launch readiness. The default AI-launch purpose remains strict; a beta-only result does not

@@ -1,6 +1,13 @@
 # Singapore launch AI spend controls
 
-Status: **Fly v12 configured with the approved budget and AI disabled**. First-ever provisioning
+Status: **Fly v13 has AI enabled under the approved bounded pilot**, verified on 12 September.
+The same image, Machine, volume, key and exact private policy remain in place; the ledger is ready,
+below warning and idle. Enabled operations passed with the owner-approved exception for the
+unrelated Cowork-on-Windows incident; the API and Console were operational. The first protected
+TestFlight styling request remains pending. See the
+[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+
+Historical setup: first-ever provisioning
 succeeded at `2026-09-08T08:56:32Z`; independent post-deployment review passed at
 `2026-09-08T09:32:49Z`. The unchanged image reads the existing ledger as service UID/GID 10001,
 with approved policy, zero current-month state and no reservations; the disabled guard returns 503.
@@ -37,7 +44,7 @@ access; hidden owner input transferred and staged it without local secret persis
 deploys the new key and private policy while preserving the session secret, with all eight expected
 secrets deployed. Rotation before its 8 October 2026 expiry remains an operations gate.
 Actual alert delivery remains OPEN; no native test control was seen.
-AI enablement retains its separate approval gate. Build 7 completed its separately approved
+The owner separately approved and completed AI activation on 12 September. Build 7 completed its separately approved
 AI-disabled internal distribution; see the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary checker's earlier `styling-budget-evidence-open` result recorded its root-SSH
 ownership-context gap. The corrected local diagnostic connects as `wardrobe`, requires
@@ -194,8 +201,8 @@ v12 returns OPEN `styling-disabled`. For an intentionally AI-disabled internal b
 no-pending-work checks pass and every other review check passes. Its output is beta-only, not
 AI-launch readiness. Complete disabled pre-enable checks first, then enable only under the
 separate approved change and verify enabled operation afterward; there is no circular prerequisite.
-The bounded launch policy is approved, but the
-remaining operational gates and explicit AI-enable approval are still required.
+The bounded launch policy and activation were separately approved; the v13 enabled review passed
+with the scoped Cowork-only exception. Physical protected-call proof is still required.
 
 The unchanged immutable reference used by v11 and v12 is privately retained for **budget-aware redeployment** after
 verified source/architecture matching and zero-High/Critical scanning. Pre-budget v10 ignores the

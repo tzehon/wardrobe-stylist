@@ -585,9 +585,9 @@ remaining deterministic checks belong to the suite.
   Build 7 archive is unchanged; its earlier local strict signature/profile/privacy checks remain
   recorded. No public push, deployment, upload, or phone/snapshot mutation occurred.
 - [ ] **Complete the controlled Singapore AI pilot within the approved spend envelope.** Preserve
-  the approved private budget and capacity policy. Before AI activation, verify the fail-closed
-  global ceiling and bounded input, output, concurrency and retry exposure; refresh the existing
-  limits/key/ledger and daily cost-response checks while styling remains disabled. Retain the
+  the approved private budget and capacity policy. The disabled pre-enable check verified the
+  fail-closed global ceiling and bounded input, output, concurrency and retry exposure, and
+  refreshed the existing limits/key/ledger and daily cost-response checks. Retain the
   completed 12 September privacy/consent assessment and revisit it only if the data flow changes.
   Review residual Fly exposure, obtain the bounded activation/verification-call approval, then
   confirm enabled operation. This AI milestone does not block the explicitly AI-disabled internal
@@ -597,7 +597,9 @@ remaining deterministic checks belong to the suite.
   refreshes the disabled runtime, exact policy, idle ledger, recovery scan and signed-in cost
   observations. A whitespace-only public-page parser correction passes the live disclosures;
   the unrelated Cowork-on-Windows outage remains an explicit aggregate-status exception proposal.
-  Activation and the protected-device call remain unperformed.
+  Separately approved activation completed as Fly v13 on 12 September. Enabled operations passed
+  at `04:28:57Z` with the owner-approved Cowork-only status exception; the protected-device call
+  remains pending. The same image, Machine, volume, key and approved policy are retained.
   Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
@@ -611,7 +613,8 @@ remaining deterministic checks belong to the suite.
   remains unproven. Under the 10 September reset, the small pilot uses daily owner review;
   the deferred external monitor is not an activation prerequisite. Prior excluded uncertain-call
   liability remains unresolved. The 10 September beta-only operations review and build-7 internal
-  distribution passed; AI enablement and its fresh operations review remain open. The provider
+  distribution passed; the 12 September activation and fresh enabled operations review have also
+  passed with the scoped Cowork-only exception. Protected-device styling proof remains open. The provider
   workspace/cap/email settings are saved and verified; one approved
   credit purchase is paid with sufficient usable balance and auto-reload off. The
   [approved setup checkpoint](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)

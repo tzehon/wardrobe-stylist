@@ -6,7 +6,7 @@ schema_version = 1
 expected_deployed_revision = "d2866a2375dd4795f40a3ab13d273ed138cedd7e"
 expected_source_repository = "https://github.com/tzehon/wardrobe-stylist"
 expected_fly_app = "wardrobe-backend-faithful-silence-9494"
-expected_fly_release_version = 12
+expected_fly_release_version = 13
 expected_region = "sin"
 
 expected_archive_basename = "Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive"
