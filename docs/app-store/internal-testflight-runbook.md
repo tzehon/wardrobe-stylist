@@ -826,9 +826,9 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
   `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v12 runtime keeps AI paused. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
-  completed the build-7 upload path. Refresh the applicable operations review before AI activation
-  or any later candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
+  v13 bounded pilot is enabled, with its 12 September enabled review recorded above. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
+  completed the build-7 upload path. Refresh the applicable operations review before any later
+  candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
   Compliance page says the DPA is inactive until the customer signs it. Any future execution needs
   exact agreement review and owner approval; no optional DPA was signed by the 12 September
@@ -1564,8 +1564,8 @@ identity or notification evidence.
   passed; the device screenshot covers normal-state centering/legibility and automated tests own
   enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
-  catalog or button-state phone checklist remains. Keep AI unavailable; protected production
-  styling proof belongs to separately approved activation and its bounded verification call.
+  catalog or button-state phone checklist remains. The separately approved bounded v13 pilot
+  is enabled; its one protected-device verification call remains pending.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
   touch unrelated Google Cloud or Search Console resources.
@@ -1577,7 +1577,8 @@ because of the delivered-reminder tap crash. Build 6 passed the affected identit
 routes but is non-promotable because it failed the styling-consent control presentation gate. The
 replacement `1.0.0 (7)` has completed distribution, owner-controlled handoff and clean first
 launch with AI disabled. The normal-state device screenshot passed; automation owns the remaining
-deterministic regression. The separate AI/public-release work remains open. When that candidate
+deterministic regression. Bounded activation is complete; protected-device styling proof and
+public-release work remain open. When that candidate
 is fully approved for public release, do not rebuild unless something changed:
 
 - Retain completed `APP-016` privacy evidence. Finish `APP-017`/`APP-018`, agreements, screenshots, review
@@ -1647,6 +1648,10 @@ pre-install identity-safe handoff instruction; the later clean physical evidence
 and does not rewrite the historically saved note.
 
 ## Saved truthful What to Test wording for build 7
+
+Historical 10 September notes, superseded by the saved/reloaded enabled-pilot notes in the
+[12 September activation checkpoint](#bounded-ai-pilot-activation--2026-09-12). The handoff
+instructions below applied before the completed 11 September clean installation.
 
 > Wardrobe 1.0.0 (7) — internal beta
 >

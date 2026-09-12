@@ -5,17 +5,19 @@ payloads. It persists separate aggregate AI-budget/reservation metadata and narr
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
-Fly v12 selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+The enabled bounded Fly v13 pilot selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
 thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
 configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
 policy mismatch, or uncertain accounting. Styling defaults to disabled. The owner approved
 the private launch limits and daily monitoring policy on 2026-09-06; exact values are ignored
 private release records and must not be committed. They are recorded in the existing ledger and
-applied to the serving runtime with AI explicitly disabled. See
+applied to the serving runtime with AI enabled under the separately approved pilot. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
-AI enablement remains open. A subsequent
+The [12 September activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+passed with the owner-approved Cowork-only exception. The first protected-device styling result
+remains pending. The following paragraphs retain the earlier disabled setup history. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
@@ -32,7 +34,7 @@ setup phase. Fresh automated operational checks, including recovery-image verifi
 at `2026-09-08T08:56:32Z` with the approved policy, zero current-month state, no reservations and
 required ownership/permissions. Independent read-only verification passed at
 `2026-09-08T09:00:32Z`; the initializer was not repeated. The approved public-capacity review file is installed locally.
-The original source/image/Machine/volume are unchanged. Fly v12 applies all six private policy
+The original source/image/Machine/volume are unchanged. Fly v12 applied all six private policy
 settings with AI false and the new provider key; all eight expected secrets are deployed. The
 dedicated production workspace was created in the approved US
 geography; its monthly limit and two email-notification settings were verified after reload. One
@@ -44,14 +46,14 @@ passed at `2026-09-08T09:32:49Z`: the serving UID reads the intact zero-state le
 guard returns 503, and runtime/auth/public-capacity/storage/snapshot/log/archive/public-page checks
 pass. The 9 September diagnostic correction uses SSH account `wardrobe` and checks real/effective
 UID/GID 10001 before ledger access. Its targeted live check passed on unchanged v12 at
-`2026-09-09T00:05:29Z`; the ordinary budget gate remains OPEN `styling-disabled`. Storage guards
+`2026-09-09T00:05:29Z`; that historical budget check returned OPEN `styling-disabled`. Storage guards
 are unchanged. The finite disabled setup and 10 September beta-only pre-upload review are verified.
 Build `1.0.0 (7)` completed validation/upload, Apple processing and `Family` internal distribution
 with saved/reloaded AI-disabled notes; it is consumed and must never be uploaded again. See the
 [distribution record](../docs/app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](../docs/app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
-records completed owner-controlled deletion, clean installation and scoped local-beta QA. AI
-activation, broader public-release checks and public submission remain open.
+records completed owner-controlled deletion, clean installation and scoped local-beta QA.
+Bounded activation is complete; protected-device styling proof and public-release checks remain open.
 Earlier setup evidence remains in the
 [diagnostic follow-up](../docs/app-store/internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09),
 [approved setup checkpoint](../docs/app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
@@ -110,7 +112,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; production AI currently disabled) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; bounded production pilot enabled on v13) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
 endpoint. `/recommend` is a single non-streaming call.
@@ -163,7 +165,7 @@ Gmail-free public pages are live; snapshot-list expiry and deletion-specific rec
 gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v12 enables application `INFO` only for `app.auth.service`, routes it
+mechanism tuple. Live Fly v13 retains application `INFO` only for `app.auth.service`, routes it
 through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
 Uvicorn access logging off. Required production registration, assertion, and deletion success
 markers have been observed; the runbook retains only their bounded, payload-free evidence.
@@ -205,9 +207,9 @@ python3 backend/verify_production_operations.py --purpose ai-launch --refresh-re
 `ai-launch` is the default purpose and requires enabled styling. It is not a prerequisite that
 demands AI already be enabled before activation is approved.
 
-The lock identifies the verified v12 configuration deployment with unchanged merged source.
-The ledger and private policy are applied with AI disabled. The ordinary budget check remains
-OPEN `styling-disabled`. The repaired diagnostic runs as `wardrobe`, verifies real/effective
+The lock identifies the verified enabled v13 deployment with unchanged merged source.
+The existing ledger and private policy remain applied; the enabled budget check passed ready,
+below warning and idle at the 12 September activation checkpoint. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
 Both purposes currently use the locked final build-7 archive as a verification baseline; this is

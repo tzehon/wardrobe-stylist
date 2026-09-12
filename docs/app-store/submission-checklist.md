@@ -90,10 +90,11 @@ submission remain separate. Apple's **Ready to Submit** status is not public-rel
   10 September reset, the small pilot uses daily owner review of AI/provider spend, Fly billing
   and resources, with discrepancies and unknown coverage retained; new monitoring infrastructure
   is deferred. The later beta-only review and internal distribution are complete. Key rotation
-  before 8 October, separate AI enablement and fresh checks for later changes remain required.
+  before 8 October and fresh checks for later changes remain required. Separately approved
+  v13 activation and enabled verification passed; protected-device styling proof remains pending.
   The ordinary diagnostic correction passed live
   read-only verification on 9 September;
-  the normal budget gate now returns OPEN `styling-disabled`. Earlier excluded
+  that historical budget check returned OPEN `styling-disabled`. Earlier excluded
   evaluation uncertainty remains separate from the launch ledger. This disabled setup is not
   public-launch authorization; see the
   [launch-readiness follow-up](internal-testflight-runbook.md#launch-readiness-follow-up--2026-09-09).
