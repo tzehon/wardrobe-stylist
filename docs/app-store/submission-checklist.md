@@ -168,11 +168,14 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
   At `2026-08-21T01:49:21Z`, the signed-out in-app browser rendered the support, privacy, and Terms
   pages with the expected Gmail-free copy and reciprocal links. `ios/Distribution.xcconfig`
   contains the exact support and privacy URLs; the file remains gitignored.
-- [ ] Reconcile the policy, in-app disclosures, request captures, backend/host logs, provider
-  contract, and [`app-privacy-data-inventory.md`](app-privacy-data-inventory.md).
-- [ ] Complete and publish App Privacy answers for the app and all integrated third parties. Apple
-  requires an iOS privacy-policy URL and accurate app-level collection answers, including partner
-  practices: [Manage app privacy](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy).
+- [x] Reconcile the policy, in-app disclosures, request captures, backend/host logs, provider
+  terms and [`app-privacy-data-inventory.md`](app-privacy-data-inventory.md). The
+  [12 September review](ai-pilot-privacy-review-20260912.md) retains build 7/notice version 3,
+  records the provider terms and publishes the policy including aggregate accounting.
+- [x] Publish and reload-verify the policy URL and four App Privacy categories on 12 September.
+  All are linked and not tracking; all use App Functionality, with Product Personalization only
+  for Other User Content. Reassess these answers if a provider, purpose or data flow changes;
+  [Apple guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy).
 - [ ] Complete the age-rating questionnaire from observed final behavior; do not select Kids unless
   that permanent program commitment is intended.
 

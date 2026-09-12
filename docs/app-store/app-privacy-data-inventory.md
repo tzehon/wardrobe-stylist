@@ -2,8 +2,9 @@
 
 This inventory drives the in-app disclosure, public privacy policy, Apple App Privacy answers,
 deletion implementation, request-capture tests, and processor contracts for the approved
-Gmail-free public v1. “Collected” below uses Apple's App Privacy concept. Final App Store Connect
-publication and any later provider, purpose, or data-flow change still require review. Historical
+Gmail-free public v1. “Collected” below uses Apple's App Privacy concept. The approved App Store
+Connect answers were published and reload-verified on 12 September. Later provider, purpose or
+data-flow changes require reassessment. Historical
 Gmail/receipt-import data categories are intentionally excluded because the signed v1 must not
 contain or invoke that capability.
 

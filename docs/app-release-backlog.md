@@ -587,7 +587,8 @@ remaining deterministic checks belong to the suite.
 - [ ] **Complete the controlled Singapore AI pilot within the approved spend envelope.** Preserve
   the approved private budget and capacity policy. Before AI activation, verify the fail-closed
   global ceiling and bounded input, output, concurrency and retry exposure; refresh the existing
-  limits/key/ledger, privacy/consent and daily cost-response checks while styling remains disabled.
+  limits/key/ledger and daily cost-response checks while styling remains disabled. Retain the
+  completed 12 September privacy/consent assessment and revisit it only if the data flow changes.
   Review residual Fly exposure, obtain the bounded activation/verification-call approval, then
   confirm enabled operation. This AI milestone does not block the explicitly AI-disabled internal
   beta or close the public release's separate privacy, recovery and App Store requirements.

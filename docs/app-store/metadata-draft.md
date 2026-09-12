@@ -63,7 +63,9 @@ app name, category names, competitors, or other companies.
 
 ## Required questionnaires and declarations
 
-- [ ] App Privacy answers reconciled with `app-privacy-data-inventory.md`
+- [x] App Privacy answers reconciled with `app-privacy-data-inventory.md`, published and
+  reload-verified on 12 September; see the [publication record](ai-pilot-privacy-review-20260912.md).
+  Reassess if the provider, purpose or data flow changes.
 - [ ] Updated age-rating questionnaire
 - [ ] DSA trader/non-trader status; public trader contact if applicable in EU
 - [ ] Content rights
