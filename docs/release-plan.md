@@ -91,8 +91,8 @@ The [12 September package](app-store/submission-preparation-20260912.md) is appr
 publication, Apple draft completion and the bounded App Store compatibility deployment. Apple
 has saved the listing, Lifestyle category, age rating 9+, owner-confirmed content rights,
 reviewer instructions, no-sign-in/manual-release settings and existing build 7. Five fictional
-screenshots are uploaded, ordered and reload-verified; Free pricing and disabling Mac/Vision
-availability remain in progress. Agreements and bank/tax/DSA status are active; only Singapore is
+screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
+availability are also saved and reload-verified. Agreements and bank/tax/DSA status are active; only Singapore is
 selected. Categories `2,4` are prepared in source but the live backend remains category `2` until
 deployment and independent post-change verification. Final submission remains open. No new
 TestFlight build is required for these backend-compatible and store-draft changes.

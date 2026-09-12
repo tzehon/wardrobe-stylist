@@ -42,8 +42,9 @@ The [Singapore submission package](docs/app-store/submission-preparation-2026091
 for source publication, saving the Apple draft and the bounded compatibility deployment. Apple
 has saved the listing, Lifestyle category, age rating 9+, owner-confirmed content rights,
 reviewer instructions, no-sign-in setting, manual release and existing build 7. Five fictional
-screenshots are uploaded, ordered and reload-verified. Free pricing and disabling Mac/Vision
-availability remain in progress. Agreements, bank/tax and DSA status are active; Singapore is the sole territory.
+screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
+availability are saved and reload-verified. Agreements, bank/tax and DSA status are active;
+Singapore is the sole available territory.
 The source now configures App Store App Attest category `4` alongside TestFlight `2`, while
 the live backend still accepts only `2`. Deployment, post-change verification and final submission
 remain open. The source/configuration and store-draft work needs no new TestFlight build.

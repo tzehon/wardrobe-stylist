@@ -29,8 +29,9 @@ See the [prepared package](submission-preparation-20260912.md) for current accou
 listing and assets. Existing bundle/SKU, agreements and bank/tax/DSA status are verified. The
 bounded pilot and first protected call are complete. The approved listing, reviewer instructions,
 no-sign-in/manual-release settings, age/content-rights declarations and build 7 are saved. Five
-fictional screenshots are uploaded, ordered and reload-verified; Free pricing and Mac/Vision
-availability are still being completed. Categories `2,4` are source-prepared only; live compatibility deployment,
+fictional screenshots are uploaded, ordered and reload-verified. Free pricing, Singapore-only
+availability and disabled Mac/Vision availability are also saved and reload-verified. Categories
+`2,4` are source-prepared only; live compatibility deployment,
 post-change verification and public submission remain open. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
 
@@ -201,7 +202,10 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
   [`metadata-draft.md`](metadata-draft.md).
 - [ ] Complete content rights, export compliance, DSA, tax category, and region-specific
   declarations; verify App Store Connect shows price **Free**, only **Singapore** enabled, and no
-  in-app purchase or subscription offered with version 1.0.
+  in-app purchase or subscription offered with version 1.0. Content rights, DSA and tax category
+  are saved; Free price (Singapore base SGD 0.00), only Singapore/174 unavailable territories and
+  disabled Mac/Vision availability are reload-verified. Resolve any remaining Apple validation
+  or compliance prompt before submission.
 - [x] Upload and reload-verify the five fictional screenshots in Catalog/editor/detail/Today/History
   order using [`screenshot-plan.md`](screenshot-plan.md). The 6.5-inch slot automatically uses
   the 6.9-inch images.
