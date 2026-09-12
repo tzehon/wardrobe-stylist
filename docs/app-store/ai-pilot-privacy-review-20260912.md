@@ -100,10 +100,12 @@ metadata; the app version remains **Prepare for Submission**, with no review sub
 
 ## Remaining actions
 
-1. Run the existing disabled pre-enable review against the approved private budget, current
-   provider/workspace and fixed Fly resource envelope. Preserve residual Fly invoice exposure.
-2. Present the exact bounded activation and verification-call package, then enable only on its
-   approval. Keep real production styling proof separate from the automated local QA already passed.
+The disabled pre-enable review and separately approved activation completed on 12 September.
+Fly v13 is enabled within the existing policy and fixed resource envelope. The enabled review
+passed with the approved Cowork-only status exception; see the
+[activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+The first protected TestFlight styling request remains pending. Preserve residual Fly invoice
+exposure and keep physical proof separate from the automated local QA already passed.
 
 The independently approved snapshot/recovery waiver merged through PR #49 and remains unchanged.
 No additional monitoring service, model migration, storage reset, routine phone QA or replacement

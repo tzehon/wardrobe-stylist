@@ -48,10 +48,9 @@ session.
 
 ## Optional AI styling path
 
-Current internal-beta state: the [configured Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
-keeps remote AI disabled. The connected reviewer path below is prospective and must be verified
-only after the remaining launch gates and separate enablement approval; do not paste it as a
-currently available feature path.
+Current pilot state: [Fly v13 is enabled within the approved global limits](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+The first protected TestFlight call is pending. The connected App Review path below still requires
+verification and completion of its placeholders before public submission.
 
 1. Add at least [MINIMUM ITEM COUNT] fictional items manually or from photos, or use the provided
    App Review fixture [VERIFY EXACT SUBMITTED PATH].
@@ -224,7 +223,7 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The current [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08)
+  The current [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
   retains the verified targeted logger and `4,5,6,7` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
@@ -273,10 +272,10 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [AI-disabled Fly v12 runtime](internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08) retains
+  [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
-  AI activation and public-release gates remain open.
+  Bounded activation is complete; protected-device styling proof and public-release gates remain open.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the

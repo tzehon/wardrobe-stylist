@@ -1128,6 +1128,52 @@ call was made. This checker/documentation change needs no new TestFlight build. 
 review/publication and the bounded activation approval before enabling AI; the first protected
 styling call remains a physical-device boundary.
 
+## Bounded AI pilot activation — 2026-09-12
+
+The owner approved the exact five-file preflight PR, activation and single protected verification
+call package, including residual Fly invoice exposure, unchanged private limits, disable-on-failure
+response and the narrowly scoped Cowork-on-Windows status exception. PR #51 received a current-head
+Codex thumbs-up with no findings and green backend CI, then rebase-merged to main
+`a64a8332e33546f7cbfdf6d048cad8a2826ecfec`. The preceding regression passed 845 backend tests and
+all locked security gates, 227 Swift tests, 10 UI tests and 44 release-script tests.
+
+The fresh disabled review completed at `2026-09-12T04:25:10Z`. Exact policy, ready/idle ledger,
+original resources, App Attest, archive, public backend/pages and zero-High/Critical recovery scan
+passed. Same-session signed-in checks confirmed the production workspace cap/email thresholds,
+credits and auto-reload off, key expiry, no Sonnet quota saturation, Build 7 Complete in Family,
+and official two-day Fly HTTP series 200/204/404 with no visible 5xx series. Billing views retained
+a small discrepancy and no proven usage cutoff; amounts stay private. The public API and Console
+were operational, with only the specifically approved Cowork incident active.
+
+The approved command changed only `AI_STYLING_ENABLED=true`. Fly completed release **v13** on the
+original Machine and encrypted volume, retaining the same immutable image and source
+`d2866a2375dd4795f40a3ab13d273ed138cedd7e`. An independent read-only probe as service UID/GID 10001
+confirmed the exact approved policy, enabled state, pinned Sonnet, intact ready ledger, below-
+warning spend and no pending work. No credentials, limits, model settings, resources or data were
+replaced, and no paid call was made by the agent.
+
+The enabled `ai-launch` operational review completed at `2026-09-12T04:28:57Z` using the observed
+release number, unchanged source/archive identity and the repository's existing check functions.
+All checks passed except the preserved aggregate Anthropic `OPEN public-status-open` result.
+Fresh official summary evidence matched the owner's approved exception: API/Console operational,
+only the identified Cowork-on-Windows incident, no API incident or maintenance. The outcome is
+**PASS with the approved Cowork-only exception**, not an unqualified all-green preflight or public-
+submission approval. The operations lock now records the observed v13. Private full results,
+original nonzero reports, approval/proposal binding and resource identity comparisons are retained.
+
+Build 7's What to Test text now describes the enabled bounded pilot, one initial styling request,
+no retry after failure/timeout, local-feature availability and the existing consent disclosure.
+Saving and reloading retained the text; Family remains the only group with one tester and there
+are no individual testers. No build, tester invitation or distribution group changed.
+
+**Pending:** the owner performs exactly one normal protected Style a look action in the existing
+TestFlight app. This is not replaced by simulator tests, direct backend calls or an authentication
+bypass. On a failed/uncertain call or failed enabled-state verification, use the already approved
+AI-disable response and preserve all charges/reservations. After success, retain the bounded pilot
+and daily owner review; the next daily cost review is due 13 September, sooner after any problem
+or configuration change. The global AI ceiling is not a Fly invoice cap. Public Singapore
+submission remains separate. No new TestFlight build is required.
+
 ## Per-build release-candidate loop
 
 1. **Freeze the candidate.** Use a clean, reviewed commit. Record its hash, the backend image that

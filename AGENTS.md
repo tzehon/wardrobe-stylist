@@ -326,8 +326,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v12, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
-  selects pinned `claude-sonnet-5` with AI styling disabled. The owner-approved configuration
+- **Models in use:** Fly v13, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
+  selects pinned `claude-sonnet-5` with AI styling enabled under the separately approved bounded
+  pilot. The 12 September post-change review passed at `04:28:57Z`, with the owner-approved
+  Cowork-only aggregate-status exception and operational API/Console evidence. The same image,
+  Machine, volume, key and exact policy are preserved; the ledger is ready, below warning and idle.
+  One protected-device styling call remains pending. Disable AI under the approved response if
+  that call or enabled verification fails; never retry uncertain work or clear liability.
+  Historical v12 setup: the owner-approved configuration
   deployment retains the v11 immutable image and original Machine/volume. Independent review
   passed at `2026-09-08T09:32:49Z`: all six private policy settings and the new provider key are
   deployed, the serving UID/GID 10001 reads the existing intact zero-state v2 ledger after restart,
@@ -365,7 +371,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy is now applied to the disabled serving runtime; its original approval did not authorize source publication, provisioning,
+  again. The policy was applied to the disabled v12 runtime and is retained by enabled v13; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
@@ -392,7 +398,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   and independent post-review are complete.
   Provider alert delivery, separate AI enablement, full pre-upload review and distribution
   remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
-  distribution have since passed; AI activation and public release remain separate open work.
+  distribution have since passed. Separately approved AI activation completed on 12 September;
+  protected-device styling proof and public release remain open.
   The 10 September reset defers the external Fly monitor and uses the owner-run
   daily review in `docs/fly-spend-controls.md`; unproven alert delivery is not relied on.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
@@ -419,7 +426,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   published through website PR #6. The four reviewed Apple privacy categories are published and
   reload-verified. The unchanged flow retains build 7/consent version 3; see
   `docs/app-store/ai-pilot-privacy-review-20260912.md`. Disabled pre-enable checks and separate AI
-  activation approval remain open; publication is not AI activation or public app submission.
+  activation completed on 12 September; the physical protected call and public submission remain open.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
