@@ -1,11 +1,11 @@
-# App Store metadata — prepared 12 September 2026
+# App Store metadata — saved draft 12 September 2026
 
-Prepared for owner review; not saved to App Store Connect. The existing record is Apple ID
+The approved listing is saved to App Store Connect. The existing record is Apple ID
 `6789053566`, bundle ID and immutable SKU `com.tth.Wardrobe`, primary language English (U.K.).
-The public candidate remains **1.0.0 (7)**. App Store Connect currently labels the draft version
-**1.0**; align the editable store version to **1.0.0** when preparing the submission.
+The public candidate remains **1.0.0 (7)**, selected on the store's **1.0.0** draft. This is saved
+preparation, not an App Review submission or public release.
 
-## Proposed listing
+## Saved listing
 
 ### Name
 
@@ -15,7 +15,7 @@ Wardrobe Stylist
 
 Catalog. Style. Wear more.
 
-### Copyright (owner approval pending)
+### Copyright (owner approved)
 
 2026 Tan Tze Hon
 
@@ -57,20 +57,24 @@ Version 1.0 is free, with no subscriptions or in-app purchases. Initially availa
 - Privacy: https://blog.tth.dev/wardrobe/privacy/
 - Keep the existing Apple Standard License Agreement and account trader status.
 - No sign-in required. Review contact stays in the private prepared package.
-- Age/content-rights declarations require truthful completion; do not claim a rating before Apple
-  calculates it. Do not assert unverified accessibility support.
+- Apple calculated age rating **9+** from the completed lifestyle-content questionnaire, with
+  medical content set to None. Content rights is Yes on the owner's explicit rights assurance.
+  No unverified accessibility support was asserted.
 
 The existing account's Free/Paid agreements, bank/tax status and DSA status were active on
-12 September. Singapore was the sole selected territory, but the price schedule was unset.
-These observations are not proof that the proposed listing/settings have been saved.
+12 September. Singapore is the sole selected territory. Listing copy, Lifestyle category,
+no-sign-in setting, reviewer instructions, age/content-rights declarations and manual release
+are saved. Free pricing and disabling Mac/Vision availability remain to be applied and verified.
 
 The current launch is Free. Future paid names, prices and allowances remain undecided and are
 excluded from this listing. See [freemium model](../freemium-model.md).
 
 ## Screenshots and reviewer notes
 
-Five native fictional Demo Mode frames are prepared: Catalog, item editor, item detail, Today,
-and History. The original PNGs and opaque 1320 × 2868 JPEG upload assets are privately retained
+Five native fictional Demo Mode frames are uploaded, ordered and reload-verified: Catalog,
+item editor, item detail, Today and History. The smaller 6.5-inch slot uses the 6.9-inch images
+automatically. The original PNGs and opaque
+1320 × 2868 JPEG upload assets are privately retained
 with hashes. Demo Settings is omitted because “Unavailable in demo” would confuse the listing.
 No real wardrobe images, identity or backend details appear. See [capture plan](screenshot-plan.md)
 and [submission preparation](submission-preparation-20260912.md).

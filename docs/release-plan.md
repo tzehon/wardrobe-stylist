@@ -87,11 +87,15 @@ Neither an internal beta nor a passing simulator suite proves that remote AI is 
 
 ## Public Singapore release
 
-The [12 September prepared package](app-store/submission-preparation-20260912.md) contains the
-listing, five fictional screenshots and concise reviewer instructions. Account agreements and
-bank/tax/DSA status are active, and only Singapore is selected. Draft completion, the approved
-App Store category allowlist change, post-change verification and final submission remain open.
-No new TestFlight build is required for this documentation and store-configuration work.
+The [12 September package](app-store/submission-preparation-20260912.md) is approved for source
+publication, Apple draft completion and the bounded App Store compatibility deployment. Apple
+has saved the listing, Lifestyle category, age rating 9+, owner-confirmed content rights,
+reviewer instructions, no-sign-in/manual-release settings and existing build 7. Five fictional
+screenshots are uploaded, ordered and reload-verified; Free pricing and disabling Mac/Vision
+availability remain in progress. Agreements and bank/tax/DSA status are active; only Singapore is
+selected. Categories `2,4` are prepared in source but the live backend remains category `2` until
+deployment and independent post-change verification. Final submission remains open. No new
+TestFlight build is required for these backend-compatible and store-draft changes.
 
 Finish the candidate-specific physical QA, applicable privacy/deletion/recovery evidence,
 truthful privacy/support/Terms pages and App Privacy answers, screenshots/description, availability

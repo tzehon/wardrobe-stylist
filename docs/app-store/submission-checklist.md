@@ -27,8 +27,11 @@ submission remain separate. Apple's **Ready to Submit** status is not public-rel
 
 See the [prepared package](submission-preparation-20260912.md) for current account observations,
 listing and assets. Existing bundle/SKU, agreements and bank/tax/DSA status are verified. The
-bounded pilot and first protected call are complete. Final store drafts/declarations, the App Store
-category allowlist change and public submission remain open. Older unchecked historical checklist
+bounded pilot and first protected call are complete. The approved listing, reviewer instructions,
+no-sign-in/manual-release settings, age/content-rights declarations and build 7 are saved. Five
+fictional screenshots are uploaded, ordered and reload-verified; Free pricing and Mac/Vision
+availability are still being completed. Categories `2,4` are source-prepared only; live compatibility deployment,
+post-change verification and public submission remain open. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
 
 ## 1. External decisions and account readiness
@@ -38,8 +41,8 @@ rows do not require replaying the completed handoff, local QA or pilot.
 - [x] Decide the initial version, price, and territory: public `1.0.0`/build 7 is Free, has no in-app
   purchase or subscription, and is available only in Singapore. The sequenced follow-up is
   freemium in Singapore, then controlled country expansion.
-- [ ] Decide the tax category, automatic/manual/phased release method, and EU Digital Services Act
-  trader status.
+- [x] Retain App Store software as the tax category and the existing active DSA trader status;
+  manual release after Apple approval is saved for the 1.0.0 draft.
 - [x] Confirm current Apple agreements, tax, banking and DSA status: active/complete in the
   signed-in 12 September inspection; refresh any new Apple notice before submission.
 - [x] Confirm the existing bundle ID and immutable SKU: both `com.tth.Wardrobe`, inspected
@@ -188,21 +191,22 @@ The preserved Build 7 archive is unchanged; no new TestFlight build is required.
   All are linked and not tracking; all use App Functionality, with Product Personalization only
   for Other User Content. Reassess these answers if a provider, purpose or data flow changes;
   [Apple guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy).
-- [ ] Complete the age-rating questionnaire from observed final behavior; do not select Kids unless
-  that permanent program commitment is intended.
+- [x] Complete the age-rating questionnaire from observed final behavior. Apple calculated 9+
+  for the lifestyle-content answers, with medical content None; Kids was not selected.
 
 ## 3. Product-page record
 
-- [ ] Enter the final name, subtitle, primary language, categories, description, keywords,
+- [x] Enter the final name, subtitle, primary language, categories, description, keywords,
   promotional text, copyright, support URL, and optional marketing URL from
   [`metadata-draft.md`](metadata-draft.md).
 - [ ] Complete content rights, export compliance, DSA, tax category, and region-specific
   declarations; verify App Store Connect shows price **Free**, only **Singapore** enabled, and no
   in-app purchase or subscription offered with version 1.0.
-- [ ] Upload one to ten current screenshots per required device class and localization using
-  [`screenshot-plan.md`](screenshot-plan.md). Preview scaling and ordering.
-- [ ] Enter the review contact and exact no-login reviewer instructions from
-  [`app-review-notes-draft.md`](app-review-notes-draft.md). Confirm App Review needs no Google,
+- [x] Upload and reload-verify the five fictional screenshots in Catalog/editor/detail/Today/History
+  order using [`screenshot-plan.md`](screenshot-plan.md). The 6.5-inch slot automatically uses
+  the 6.9-inch images.
+- [x] Save the owner-confirmed private review contact and exact no-login reviewer instructions from
+  [`review-notes-1.0.0.txt`](review-notes-1.0.0.txt). Confirm App Review needs no Google,
   Wardrobe, or shared test account.
 
 Apple's current field matrix is the source of truth for which properties are required, localizable,
