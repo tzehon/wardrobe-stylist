@@ -87,6 +87,12 @@ Neither an internal beta nor a passing simulator suite proves that remote AI is 
 
 ## Public Singapore release
 
+The [12 September prepared package](app-store/submission-preparation-20260912.md) contains the
+listing, five fictional screenshots and concise reviewer instructions. Account agreements and
+bank/tax/DSA status are active, and only Singapore is selected. Draft completion, the approved
+App Store category allowlist change, post-change verification and final submission remain open.
+No new TestFlight build is required for this documentation and store-configuration work.
+
 Finish the candidate-specific physical QA, applicable privacy/deletion/recovery evidence,
 truthful privacy/support/Terms pages and App Privacy answers, screenshots/description, availability
 and actual account agreements. Submit the reviewed build when those items are complete.

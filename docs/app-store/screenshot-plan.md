@@ -9,7 +9,7 @@ the primary English set—for example `1320 × 2868`, `1290 × 2796`, or `1260 �
 Connect can scale it for smaller displays. Re-check the dimensions immediately before upload:
 [Apple screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
 
-## Primary six-frame narrative
+## Primary narrative (five prepared frames; optional sixth)
 
 | Order | Store message | Screen and required state | Safety / QA check |
 |---:|---|---|---|
@@ -38,5 +38,13 @@ features that are not in the submitted build.
 7. Upload in narrative order and preview the scaled product page before submission.
 
 App previews are optional; Apple currently allows up to three per supported device size and
-language. Do not create one until the six still frames are final, because an uploaded preview is
+language. Do not create one until the selected still frames are final, because an uploaded preview is
 displayed before screenshots. See [Apple's media upload guidance](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots).
+
+## 12 September capture
+
+Five frames (rows 1–5) are prepared and inspected at 1320 × 2868. Demo Settings is omitted because
+its unavailable connected-feature labels could confuse customers. Native PNG captures are retained;
+highest-quality JPEG copies remove alpha without cropping or compositing. The private manifest
+records hashes, source, environment and native scroll-edge truncation. See the
+[preparation record](submission-preparation-20260912.md). Upload and Apple preview remain open.

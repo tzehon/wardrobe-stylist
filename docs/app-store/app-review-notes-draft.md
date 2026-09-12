@@ -1,4 +1,7 @@
-# App Review notes — draft
+# App Review notes — historical operational draft
+
+For the prepared build-7 submission, use [the concise reviewer notes](review-notes-1.0.0.txt).
+The historical placeholders below are not paste-ready and must not be uploaded.
 
 > Reconcile these notes with the exact submitted Gmail-free build. Remove every TODO and
 > placeholder before submission.
