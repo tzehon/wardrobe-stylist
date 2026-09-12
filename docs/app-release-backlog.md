@@ -22,8 +22,8 @@ Statuses:
 ## Current work order — 12 September 2026
 
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
-approved bounded AI pilot, and finish public
-Singapore submission. Build `1.0.0 (7)` is **Complete / Ready to Submit**, assigned only to
+approved bounded AI pilot, and await Apple's review of submitted `1.0.0 (7)` before any separately
+approved manual public release. Its TestFlight upload is **Complete / Ready to Submit**, assigned only to
 `Family` Internal Testing with one group tester and no individual testers; approved enabled-pilot
 notes are saved and reload-verified. They replaced the initial 10 September AI-disabled notes on
 12 September. Build 7 is used and must never be reused. See the

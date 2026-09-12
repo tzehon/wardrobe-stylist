@@ -46,7 +46,8 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 ## Current work order
 
 Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
-operate the verified bounded AI pilot, then prepare public Singapore submission. Build `1.0.0 (7)` completed
+operate the verified bounded AI pilot, and await Apple's review of submitted `1.0.0 (7)`;
+manual public release requires separate owner approval. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
 saved/reload-verified AI-disabled tester notes, replaced by verified enabled-pilot notes on
 12 September. Build 7 is consumed and must never be reused;

@@ -107,8 +107,9 @@ Follow **[the release plan](docs/release-plan.md)** for the current work order:
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
 2. Privacy publication, consent assessment, bounded AI activation and the first protected
    TestFlight styling call are complete; continue the daily cost review.
-3. Finish the remaining privacy and store-submission work for the Free Singapore launch; the
-   snapshot/recovery evidence sub-gate is owner-waived, not proven.
+3. Await Apple's review of submitted `1.0.0 (7)` and respond to review questions if needed. Public
+   release stays manual and requires separate owner approval; do not repeat the completed submission.
+   The snapshot/recovery evidence sub-gate remains owner-waived, not proven.
 
 The preserved signed build-7 archive passed strict verification on 10 September. The combined
 operations review passed `PASS_INTERNAL_BETA_ONLY` at `2026-09-10T11:25:45Z`: AI remained disabled,
