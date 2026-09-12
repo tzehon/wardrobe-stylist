@@ -47,4 +47,7 @@ Five frames (rows 1–5) are prepared and inspected at 1320 × 2868. Demo Settin
 its unavailable connected-feature labels could confuse customers. Native PNG captures are retained;
 highest-quality JPEG copies remove alpha without cropping or compositing. The private manifest
 records hashes, source, environment and native scroll-edge truncation. See the
-[preparation record](submission-preparation-20260912.md). Upload and Apple preview remain open.
+[preparation record](submission-preparation-20260912.md). All five images are uploaded in
+Catalog/editor/detail/Today/History order and reload-verified in App Store Connect. The smaller
+6.5-inch slot automatically uses the 6.9-inch assets. Retain this completed upload gate during
+the final product-page/submission review.

@@ -23,7 +23,8 @@ App Store Connect inspection and approved draft saves confirmed:
 - The corrected owner-confirmed review contact is saved and reload-verified privately.
 - Five fictional screenshots are uploaded in Catalog/editor/detail/Today/History order and
   reload-verified. The smaller 6.5-inch slot automatically uses the 6.9-inch images.
-- Free pricing and disabling the default Mac/Vision availability remain to be applied/verified.
+- Free pricing (Singapore base price SGD 0.00) and disabled Mac/Vision availability are saved
+  and reload-verified, with Singapore available and 174 other territories unavailable.
 
 Personal contact/account information remains in ignored private evidence. Existing agreements
 were retained; no new agreement was accepted. Draft saves and asset uploads do not submit or
@@ -67,9 +68,9 @@ revision unchanged when updating the post-deployment release/category review loc
 
 ## Remaining execution
 
-1. Finish the already approved draft work: apply and verify Free pricing and iPhone-only
-   availability, then reload the final draft. Retain the verified screenshot order,
-   saved build 7, declarations, corrected review contact and manual release.
+1. Retain the verified Free/Singapore/iPhone-only draft, screenshot order, saved build 7,
+   declarations, corrected review contact and manual release. Apply the review-notes correction
+   that links the support and privacy pages separately, then verify the final saved draft.
 2. Add App Store category `4` alongside TestFlight category `2` in the production App Attest
    allowlist. The proposed value is `2,4`; accepted builds remain `4,5,6,7`. Preserve the exact
    runtime image, Machine, volume, key, approved policy and intact budget ledger. This is a

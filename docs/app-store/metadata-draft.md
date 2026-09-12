@@ -64,7 +64,8 @@ Version 1.0 is free, with no subscriptions or in-app purchases. Initially availa
 The existing account's Free/Paid agreements, bank/tax status and DSA status were active on
 12 September. Singapore is the sole selected territory. Listing copy, Lifestyle category,
 no-sign-in setting, reviewer instructions, age/content-rights declarations and manual release
-are saved. Free pricing and disabling Mac/Vision availability remain to be applied and verified.
+are saved. Free pricing (Singapore base price SGD 0.00), Singapore-only availability and disabled
+Mac/Vision availability are saved and reload-verified.
 
 The current launch is Free. Future paid names, prices and allowances remain undecided and are
 excluded from this listing. See [freemium model](../freemium-model.md).

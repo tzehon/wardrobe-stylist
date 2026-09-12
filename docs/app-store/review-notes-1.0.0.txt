@@ -13,4 +13,5 @@ Before a styling request, the consent screen identifies the developer backend an
 
 Settings → Privacy & Data offers separate local-data and server-security-data deletion controls. Local reminders are optional and off by default; tapping one opens Today and does not trigger background AI generation.
 
-Support and privacy policy: https://blog.tth.dev/wardrobe/
+Support: https://blog.tth.dev/wardrobe/
+Privacy: https://blog.tth.dev/wardrobe/privacy/
