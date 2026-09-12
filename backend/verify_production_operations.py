@@ -1846,7 +1846,7 @@ def check_public_pages(
             return _open("public_pages", "public-pages-open")
         parser = _PageParser()
         parser.feed(html)
-        text = " ".join(parser.text).lower()
+        text = " ".join(" ".join(parser.text).split()).lower()
         links = {
             target
             for href in parser.hrefs

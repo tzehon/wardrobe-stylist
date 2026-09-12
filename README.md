@@ -32,6 +32,14 @@ photos, history, reminders and Demo Mode are available without remote AI. The la
 Fly v12 configuration has AI styling disabled; the app shows temporary unavailability for
 remote styling requests.
 
+The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
+intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now
+normalizes HTML whitespace so a line-wrapped privacy paragraph does not falsely fail; missing
+disclosures and forbidden capability wording still fail. The aggregate Anthropic status check
+remains open for a Cowork-on-Windows incident, while the official API and Console components are
+operational. This is scoped evidence, not an all-green preflight or activation approval. See the
+[pre-enable checkpoint](docs/app-store/internal-testflight-runbook.md#ai-pilot-pre-enable-review--2026-09-12).
+
 On 11 September the owner confirmed that TestFlight updated the existing installation to build 7.
 A Dark Mode screenshot after withdrawing the saved styling permission shows the replacement
 button with centered, title-only white text and a solid blue fill. The owner also confirms existing

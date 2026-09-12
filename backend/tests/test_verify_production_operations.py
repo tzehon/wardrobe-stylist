@@ -1562,7 +1562,20 @@ def test_public_backend_checks_health_exact_routes_and_retired_route() -> None:
     assert not any(call.endswith("/recommend") for call in getter.calls)
 
 
-def test_public_pages_require_content_contact_and_reciprocal_links() -> None:
+@pytest.mark.parametrize(
+    ("snapshot_text", "expected"),
+    [
+        ("rolling 14-day snapshots", MODULE.Status.PASS),
+        ("rolling 14-day\nsnapshots", MODULE.Status.PASS),
+        ("rolling\t14-day <strong>snapshots</strong>", MODULE.Status.PASS),
+        ("rolling 14-day&nbsp;snapshots", MODULE.Status.PASS),
+        ("rolling snapshots", MODULE.Status.OPEN),
+        ("rolling 14-day snapshots sign in\nwith google", MODULE.Status.OPEN),
+    ],
+)
+def test_public_pages_require_content_contact_and_reciprocal_links(
+    snapshot_text: str, expected: object,
+) -> None:
     support = "https://blog.tth.dev/wardrobe/support/"
     privacy = "https://blog.tth.dev/wardrobe/privacy/"
     terms = "https://blog.tth.dev/wardrobe/terms/"
@@ -1586,7 +1599,7 @@ def test_public_pages_require_content_contact_and_reciprocal_links() -> None:
             ),
             privacy: page_response(
                 privacy,
-                "Wardrobe Stylist App Attest Anthropic Fly.io rolling 14-day snapshots "
+                "Wardrobe Stylist App Attest Anthropic Fly.io " + snapshot_text + " "
                 + nav,
             ),
             terms: page_response(terms, "Wardrobe Stylist Terms " + nav),
@@ -1597,7 +1610,7 @@ def test_public_pages_require_content_contact_and_reciprocal_links() -> None:
         getter, archive=archive, config=config()
     )
 
-    assert result.status is MODULE.Status.PASS
+    assert result.status is expected
 
 
 def test_manual_evidence_is_fresh_fixed_field_and_never_upload_approval() -> None:
