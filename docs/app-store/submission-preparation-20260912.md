@@ -92,6 +92,11 @@ revision unchanged when updating the post-deployment release/category review loc
    submit to App Review with **manual release** selected. Apple approval does not itself publish
    the app under that setting.
 
+Inventoried Wardrobe Google Cloud/OAuth project retirement remains open and unperformed, subject
+to separate owner confirmation. This deferred legacy cleanup does not block the verified Gmail-free
+Free Singapore v1. APP-036 remains in progress for cleanup and public submission; this record
+does not claim either complete or authorize a Google mutation.
+
 The completed local QA, privacy publication, bounded AI activation and first protected call are
 retained; do not repeat handoff/deletion or routine manual regression. The existing narrowly scoped
 snapshot/recovery waiver remains accepted risk, not new deletion/purge proof.

@@ -54,7 +54,10 @@ made. The full post-change review completed at `2026-09-12T07:09:37Z` with the a
 Cowork-only status exception; every other operational check passed, including the recovery scan.
 See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026). Apple's Add for Review validation
 passed and build 7 is **Ready for Review** in a draft submission; **Submit for Review** has not
-been clicked. The corrected reviewer notes have separate support/privacy links and were saved
+been clicked. Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains
+unperformed, deferred legacy cleanup requiring separate owner confirmation. It does not block
+submission of the verified Gmail-free Free Singapore v1; the final submission decision remains open.
+The corrected reviewer notes have separate support/privacy links and were saved
 and reload-verified. These changes need no new TestFlight build.
 
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,

@@ -473,7 +473,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 - Flag backend/iOS payload changes that are not reflected in the JSON Schemas, their Pydantic and Swift mirrors, golden fixtures, and contract tests.
 - Flag recommendation paths that accept item ids not present in the submitted catalog or otherwise weaken the server-side hallucination guard.
 - Review Swift 6 concurrency boundaries carefully, especially `@MainActor`, `@Sendable`, background-task callbacks, and non-Sendable system framework types.
-- Flag behavior changes without focused tests and any completed change that has not been followed by the full backend and iOS regression suites described above.
+- Flag behavior changes without focused tests. Require the full backend and iOS regression suites
+  described above after every code, runtime, configuration or test change. Documentation-only
+  evidence updates may retain the completed regression when all tested code/configuration inputs
+  are unchanged; require documentation consistency review for those updates. This does not exempt
+  executable, configuration or test changes from the full regression requirement in hard rule 5.
 
 ## Roadmap (phases)
 

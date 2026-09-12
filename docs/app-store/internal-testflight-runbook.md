@@ -18,7 +18,9 @@ The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-septe
 the later approved categories `2,4` deployment and independent configuration postcheck. The full
 v14 review at `2026-09-12T07:09:37Z` subsequently completed with the approved Cowork-only status
 exception; every other operational check passed. See the [final review](#final-v14-operations-review--12-september-2026).
-Apple's version/build-7 draft is Ready for Review; final submission awaits the owner's decision.
+Apple's version/build-7 draft is Ready for Review; the owner's final submission decision remains
+open. Inventoried Google project retirement remains unperformed, deferred legacy cleanup requiring
+separate owner confirmation; it is not a public-v1 submission gate.
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -180,7 +182,7 @@ use fresh auth state and re-enrollment while preserving the separate budget ledg
 disabled if accounting consistency cannot be established. No Fly resource, production or app/local
 data, installed app, or TestFlight state changed for this decision. The waiver removes only this
 evidence sub-gate as a Free Singapore v1 submission blocker; every other APP-009/APP-036, privacy,
-AI, Google-retirement and App Store gate retains its own status.
+AI and App Store gate retains its own status, as does the separate deferred Google-retirement work.
 
 ## QA automation ownership — 2026-09-11
 
@@ -1267,7 +1269,10 @@ update changes documentation only; no repeated regression or new TestFlight buil
 
 Apple's existing version `1.0.0`/build-7 draft remains **Ready for Review**, with the verified
 2,064-character reviewer notes, Free Singapore-only availability and manual release selected.
-**Submit for Review has not been clicked and awaits the owner's decision.** Keep ordinary daily
+**Submit for Review has not been clicked and awaits the owner's decision.** Retirement of the
+inventoried Wardrobe Google Cloud/OAuth projects remains open, unperformed and subject to separate
+owner confirmation. That deferred legacy cleanup does not block the verified Gmail-free Free
+Singapore v1; APP-036 remains in progress for cleanup and submission. Keep ordinary daily
 pilot review and the accepted Fly cost/snapshot residual risks; this checkpoint adds no restore,
 all-copy-purge or deleted-identity recovery proof.
 
@@ -1658,9 +1663,10 @@ identity or notification evidence.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
   catalog or button-state phone checklist remains. The separately approved bounded v14 pilot
   is enabled; its one protected-device verification call passed on 12 September.
-- [ ] After the processed replacement and its backend are proven, obtain a separate final
-  owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not
-  touch unrelated Google Cloud or Search Console resources.
+- [ ] **Deferred legacy cleanup, not a public-v1 submission gate:** after the processed replacement
+  and its backend are proven, obtain separate final owner confirmation and retire only the
+  inventoried Wardrobe Google Cloud/OAuth projects. This remains unperformed and does not affect
+  the verified Gmail-free candidate. Do not touch unrelated Google Cloud or Search Console resources.
 
 ## Promoting an internally tested build
 

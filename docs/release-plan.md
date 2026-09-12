@@ -104,7 +104,11 @@ notes are saved and reload-verified. No new TestFlight build is required.
 
 Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
 verified listing/media/availability, account agreements and scoped accepted recovery risk. The
-remaining action is the owner's final submission decision, followed by Submit for Review if approved.
+remaining immediate submission action is the owner's final decision, followed by Submit for Review
+if approved. Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains open,
+unperformed and subject to separate owner confirmation. It is deferred legacy cleanup, not a
+submission prerequisite for the verified Gmail-free Free Singapore v1. APP-036 remains in progress
+for that cleanup and public submission; neither is claimed complete by this review.
 Apple processing/review time is outside this project's control.
 
 On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-
