@@ -226,7 +226,7 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The current [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+  The current [enabled Fly v14 runtime](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
   retains the verified targeted logger and `4,5,6,7` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
@@ -275,7 +275,7 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [enabled Fly v13 runtime](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12) retains
+  [enabled Fly v14 runtime](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
   Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.

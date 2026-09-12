@@ -30,7 +30,7 @@ bounded pilot and have again been saved and reload-verified. The owner-controlle
 handoff, clean installation and scoped local-beta QA passed on 11 September. The current stage is
 the owner-approved bounded AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
-Fly v13 configuration has AI styling enabled within the existing approved global limits.
+Fly v14 configuration has AI styling enabled within the existing approved global limits.
 The enabled operational review passed on 12 September with the approved exception for an unrelated
 Cowork-on-Windows incident; Claude API and Console were operational. The owner's first protected
 TestFlight styling request displayed an outfit at 13:34 SGT. A read-only server check confirmed
@@ -45,9 +45,13 @@ reviewer instructions, no-sign-in setting, manual release and existing build 7. 
 screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
 availability are saved and reload-verified. Agreements, bank/tax and DSA status are active;
 Singapore is the sole available territory.
-The source now configures App Store App Attest category `4` alongside TestFlight `2`, while
-the live backend still accepts only `2`. Deployment, post-change verification and final submission
-remain open. The source/configuration and store-draft work needs no new TestFlight build.
+The approved configuration deployment is complete: Fly v14 accepts App Store App Attest category
+`4` alongside TestFlight `2`, retaining the exact image, Machine, volume, keys, policy and intact
+ledger. Its independent configuration postcheck passed at `2026-09-12T06:36:24Z`; no paid call was
+made. The full post-change operations review remains pending. Apple's Add for Review validation
+passed and build 7 is **Ready for Review** in a draft submission; **Submit for Review** has not
+been clicked. The corrected reviewer notes have separate support/privacy links and were saved
+and reload-verified. These changes need no new TestFlight build.
 
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
 intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now

@@ -19,10 +19,10 @@ Statuses:
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
 
-## Current work order — 10 September 2026
+## Current work order — 12 September 2026
 
-Follow [the release plan](release-plan.md): retain completed local-beta QA, prepare the separately
-approved AI pilot, and finish public
+Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
+approved bounded AI pilot, and finish public
 Singapore submission. Build `1.0.0 (7)` is **Complete / Ready to Submit**, assigned only to
 `Family` Internal Testing with one group tester and no individual testers; approved AI-disabled
 notes are saved and reload-verified. Build 7 is used and must never be reused. See the
@@ -35,7 +35,10 @@ suite passed; scoped local-beta QA is complete. Wider AI/public-release checks s
 [physical checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 to distinguish completed stages from the older status rows below.
 This backlog is a work inventory, not a
-single serial checklist. Previously verified work is retained; open AI/commerce/automation items
+single serial checklist. The later v14 compatibility deployment passed its independent configuration
+postcheck at `2026-09-12T06:36:24Z`; full post-change operations remain pending. Apple's version
+`1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review, with no submission
+sent and manual release retained. Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
 is deferred; existing budget controls and owner-run daily pilot checks remain.
 
@@ -58,12 +61,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **Complete** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. The 12 September provider/consent review and privacy policy/Apple-answer publication are complete; remaining store-submission checks stay separate |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; final store metadata and public submission remains open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; store metadata/media are saved and Add for Review validation passed; full v14 operations and final submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; final Google retirement and public submission remains open |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; final Google retirement and public submission remains open |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -144,7 +147,10 @@ transport are DEBUG-only; the Release-artifact guard proves their launch markers
 test-only change does not alter Release code paths or the preserved build-7 archive and does not
 require build 8.
 
-The current production baseline is **Fly v13 with the bounded AI pilot enabled**. The
+The current production baseline is **Fly v14 with the bounded AI pilot enabled**. Its categories
+`2,4` compatibility change passed independent configuration verification at `06:36:24Z`, retaining
+the exact original image/resources, keys, policy and intact ledger; full operations review remains
+pending. See the [compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). The earlier
 12 September enabled review passed at `04:28:57Z` with the approved Cowork-only status exception,
 operational API/Console evidence, exact existing policy and intact idle ledger. Physical protected-call proof passed on 12 September; no runtime image or resource changed. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
@@ -980,16 +986,14 @@ governed by APP-036's Gmail-free guards.
   published through website PR #6, and the four Apple privacy categories and policy URL are
   published and reload-verified. Retention exceptions and the aggregate budget store are disclosed.
   Remaining store fields are APP-017; AI activation is separately approved.
-- [ ] **APP-017 · Submission · Complete the App Store Connect record.** The launch decision is
-  `1.0.0`/build 7, price Free, no in-app purchase or subscription, and Singapore-only availability.
-  Complete and verify the remaining final name/bundle ID/SKU, category, content rights, age rating,
-  DSA status, privacy nutrition labels, support/privacy URLs, description, keywords, copyright,
-  review contact, review notes, exact build, tax category, export compliance, release method,
-  agreements, and any EU trader information.
-- [ ] **APP-018 · Submission · Produce final store media.** Supply 1–10 screenshots per required
-  device class using fictional/demo data, plus optional preview video. The narrative should show
-  manual/photo wardrobe building, editing/organization, Today, History, and privacy controls. It
-  must not show or imply Google, Gmail, receipt import, or a login.
+- [x] **APP-017 · Complete · Complete the App Store Connect draft record.** Version `1.0.0`/build 7
+  is Free, has no in-app purchase/subscription, and is Singapore only, with Mac/Vision availability
+  off and manual release saved. Listing, account/declarations, private owner-confirmed contact and
+  corrected 2,068-character no-login reviewer notes are saved/reload-verified. Add for Review
+  validation passed; the draft is Ready for Review. Submit for Review has not been clicked.
+- [x] **APP-018 · Complete · Produce final store media.** Five fictional Demo frames are uploaded
+  and reload-verified in Catalog/editor/detail/Today/History order; the smaller slot automatically
+  uses the 6.9-inch assets. The screenshots show no private data, login or removed capability.
 - [ ] **APP-019 · Submission · Final distribution verification.** The fresh archive-time and
   immediate pre-validation App Store Connect checks confirmed build 4 was unused. The exact
   `1.0.0 (4)` replacement archive used the required Xcode/iOS SDK, validated, uploaded through the
@@ -1025,7 +1029,7 @@ governed by APP-036's Gmail-free guards.
   physical evidence is retained. Build-4 and build-5 handoffs completed; clean build 5 provided
   broad Gmail-free proof and production markers before its notification-tap crash. The fix is
   merged, historical Fly v9 compatibility and archive-era Fly v10 deployment evidence are retained,
-  and the [current Fly v13 bounded pilot is enabled](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12). Clean build 6
+  and the [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). Clean build 6
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Build-7 distribution, handoff/clean first launch and normal-state
   device appearance have passed. Deletion-specific recovery/non-return is owner-waived but unproved;
