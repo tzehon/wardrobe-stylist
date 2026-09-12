@@ -14,6 +14,11 @@
 > [current data inventory](app-privacy-data-inventory.md) and [spend controls](../ai-spend-controls.md).
 > This notice does not change the hosted policy, its effective date or the app's consent copy.
 
+> **Superseded on 12 September 2026:** The reconciliation described above is now complete.
+> The [replacement policy](privacy-policy-proposed-20260909.md) and
+> [Apple answers](ai-pilot-privacy-review-20260912.md) are published and verified. The historical
+> policy body and 21 August effective date below remain unchanged.
+
 - **Effective date:** 21 August 2026
 - **Developer:** Tan Tze Hon
 - **Initial App Store availability:** Singapore

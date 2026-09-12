@@ -44,7 +44,7 @@ release. Proposed allowance examples and unresolved prices are not customer prom
 
 ## Progress snapshot
 
-Last updated: **2026-09-11**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-12**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -750,8 +750,9 @@ recovery, APP-019, APP-036, or public-submission gate.
   `2026-08-21T01:42:01Z`; the matching Pages deployment completed successfully at
   `2026-08-21T01:42:39Z`. Anonymous HTTPS requests at `2026-08-21T01:45:27Z` returned `200` for all
   three owned-domain routes, showed the 21 August 2026 policy/Terms date, linked the pages to each
-  other, and contained no Gmail/Google/OAuth/import capability claim. Provider-contract evidence,
-  App Privacy reconciliation, and final App Store Connect answers remain separate APP-016 work.
+  other, and contained no Gmail/Google/OAuth/import capability claim. Provider and Apple
+  reconciliation remained open at that checkpoint; the [12 September review](app-store/ai-pilot-privacy-review-20260912.md)
+  records their subsequent completion and publication. Remaining store fields are APP-017.
 - [x] **Retain the superseded APP-011 signed-archive history.** Live App Store Connect still showed build
   3 as the highest upload. After the v6 Gmail-free recovery digest resolved under fresh private-
   registry authentication and the payload-free manual review passed, clean source

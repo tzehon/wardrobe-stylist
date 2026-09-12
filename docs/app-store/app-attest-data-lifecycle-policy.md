@@ -73,8 +73,9 @@
 This is the approved production policy for Wardrobe Stylist's developer-controlled backend
 authentication store, separate aggregate AI budget/reservation store, application logs, manual
 operations, and Fly volume snapshots. It is the source of truth for the APP-009 retention,
-deletion, logging, and operations gate; final public disclosure and Apple classification of the
-aggregate store remain APP-016 verification.
+deletion, logging, and operations gate. The [12 September review](ai-pilot-privacy-review-20260912.md)
+records completed APP-016 provider/consent reconciliation and publication of the policy and Apple
+answers, including the aggregate store.
 
 The limits below are requirements, not claims that every control is already enforced. The
 [compliance checklist](#compliance-and-release-evidence) distinguishes verified behavior from
@@ -223,8 +224,8 @@ the hosting target is not an enforced invoice cap. See the
 
 Provider notifications remain useful supplements with delivery unproven. Hourly GitHub/Healthchecks
 automation and complete edge-counter coverage are deferred improvements, not automatic beta or AI
-activation gates. Before AI activation, resolve the applicable provider-terms/consent questions,
-verify the existing limits, key and ledger while AI remains disabled, and obtain the bounded
+activation gates. Provider-terms/consent review and privacy publication passed on 12 September.
+Before AI activation, verify the existing limits, key and ledger while AI remains disabled, and obtain the bounded
 enablement/verification-call approval. Then confirm the enabled state and protected-device flow.
 The AI-disabled beta and separate AI pilot do not close the public release's applicable privacy,
 deletion/recovery and App Store requirements. Historical single-user reviews do not replace fresh
@@ -235,8 +236,9 @@ This policy does not settle:
 - local iPhone data, which is covered by the app's Privacy & Data controls;
 - any separately approved future Google/Gmail access or retention; public v1 contains no such
   capability; or
-- Anthropic request retention, training, human-access, and deletion terms, which remain APP-016
-  provider-contract gates.
+- Anthropic request retention, training, human-access and deletion terms, which are documented
+  separately in the completed [12 September review](ai-pilot-privacy-review-20260912.md), not
+  governed by this developer-store policy.
 
 ## Scope and data minimization
 
@@ -261,13 +263,15 @@ installation or human-account identifier. Completed reservations are removed; un
 stays conservatively charged until separately reconciled. Individual server-security deletion does
 not reset this global accounting or restore an allowance. See the
 [spend-control rules](../ai-spend-controls.md) and
-[data inventory](app-privacy-data-inventory.md); final public declarations remain APP-016 review.
+[data inventory](app-privacy-data-inventory.md); the reconciled public declarations were published
+on 12 September.
 
 Neither database may contain Gmail message or purchase-receipt content, wardrobe data,
 photos, model prompts or responses, OAuth credentials, raw bearer tokens, App Attest private keys,
 or raw IP addresses. Wardrobe request payloads may exist in process memory only for the request
 being served and must not be written to application logs or durable application storage.
-Provider processing remains subject to the separate processor-contract gate.
+Provider processing follows the separately reviewed standard terms recorded in the
+[12 September privacy review](ai-pilot-privacy-review-20260912.md).
 
 ## Required retention schedule
 
@@ -279,7 +283,7 @@ snapshot when that snapshot leaves the customer-visible listing.
 | Data | Approved limit / accepted provider boundary | Current repository/production truth |
 |---|---|---|
 | Wardrobe request payloads | Request lifetime only; no application persistence | Current routes do not persist payloads. Review guardrails pin the exact auth schema, block common file/database persistence patterns and direct auth-store use from payload modules, and allowlist current application log calls. Anthropic/provider terms remain separate evidence |
-| Aggregate AI budget and unresolved reservations | Preserve the global accounting state and uncertain liability; individual security-data deletion does not reset it | Fly v12 uses a separate v2 ledger on the existing encrypted volume. Its singleton month/accounting row and random pending reservations contain no installation, wardrobe, prompt or response data. Rollover carries unresolved exposure conservatively; completed reservations are removed and uncertain work requires separate reconciliation. The store is subject to the volume’s unchanged 14-day snapshot policy; the policy check is not budget-specific snapshot or restore proof. Final public disclosure and Apple classification remain APP-016 review |
+| Aggregate AI budget and unresolved reservations | Preserve the global accounting state and uncertain liability; individual security-data deletion does not reset it | Fly v12 uses a separate v2 ledger on the existing encrypted volume. Its singleton month/accounting row and random pending reservations contain no installation, wardrobe, prompt or response data. Rollover carries unresolved exposure conservatively; completed reservations are removed and uncertain work requires separate reconciliation. The store is subject to the volume’s unchanged 14-day snapshot policy; the policy check is not budget-specific snapshot or restore proof. Public disclosure and Apple classification were reconciled and published on 12 September |
 | App Attest challenges | Valid for 5 minutes; purge no later than 70 minutes after issue | Fly v12 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
 | Session-token hashes | Valid for 15 minutes; purge no later than 20 minutes after issue | Fly v12 retains one-minute deadline maintenance on the original minimum-one-Machine topology, with cold-start lookahead and repeat-until-drained bounded transactions |
 | Rate-limit subject hashes | Challenge window plus 5 minutes; hourly windows no later than 65 minutes after window start | Only keyed HMAC subjects persist; expired windows are purged by request admission and Fly v12's retained one-minute maintenance loop |
@@ -680,11 +684,12 @@ item recorded below:
 - [x] Record Fly's provider-controlled fields/retention limits and the owner-approved risk
   revision; update the inventory and draft disclosures without claiming the former requirement
   passed.
-- [ ] Publish the final App Store Connect App Privacy answers from the accepted production facts:
-  Device ID, Other Diagnostic Data, and Product Interaction; App Functionality; linked; not
-  tracking. Reconcile the separate aggregate budget/reservation store and its retention/deletion
-  behavior under APP-016 before final classification or publication. Reassess before submission
-  if any processor, purpose, or data flow changes.
+- [x] Publish and reload-verify App Store Connect privacy answers on 12 September: Device ID,
+  Other Diagnostic Data and Product Interaction use App Functionality; Other User Content uses
+  App Functionality and Product Personalization. All four are linked and not tracking. The public
+  policy also discloses the separate aggregate ledger and its retention/deletion behavior.
+  See the [publication evidence](ai-pilot-privacy-review-20260912.md). Reassess if any processor,
+  purpose or data flow changes.
 - [x] Complete the first manual operations review against the pre-APP-036 policy-v5 image. The
   `2026-08-20T00:15:07Z` review reconfirmed the public production health response, passing Fly
   check, single running Machine, expected immutable image, encrypted-volume policy and

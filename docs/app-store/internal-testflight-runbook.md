@@ -247,11 +247,10 @@ is validated independently. A valid warning/hold survives an invalid or missing 
 wrong JSON numeric types through the CLI. Invalid-view fields are never reused; shared metadata
 or malformed whole-file failures remain closed. Reconciliation stays OPEN on a rejected peer.
 
-The [proposed privacy policy](privacy-policy-proposed-20260909.md) reconciles the separate aggregate
-budget store and its retention/deletion behavior. It is an unpublished draft with no effective
-date; the existing published policy remains retained evidence. APP-016 still requires provider
-terms, Apple classification, consent-materiality and public-page review. Any resulting bundled
-notice/version change would require a new signed candidate.
+At this 9 September checkpoint, the [privacy proposal](privacy-policy-proposed-20260909.md)
+was unpublished and provider/Apple/consent review remained open. The subsequent
+[12 September publication](#privacy-publication--2026-09-12) completed those checks and published
+both the reconciled policy and Apple answers, retaining build 7 and consent notice version 3.
 
 Fresh read-only Fly inventory confirmed the existing fixed resources. The September 9 invoice
 preview increased while same-period Cost Explorer was unchanged; neither view establishes a
@@ -827,8 +826,10 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   completed the build-7 upload path. Refresh the applicable operations review before AI activation
   or any later candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
-  Compliance page says the DPA is inactive until the customer signs it. Exact agreement review and
-  any execution remain an APP-016 processor-contract gate, not proof of active log/snapshot purge.
+  Compliance page says the DPA is inactive until the customer signs it. Any future execution needs
+  exact agreement review and owner approval; no optional DPA was signed by the 12 September
+  privacy publication. The public policy discloses the accepted existing provider boundary and
+  does not claim these optional termination periods as active log/snapshot purge guarantees.
 
 ## One-time gates before the next internal build
 
@@ -914,10 +915,11 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `https://blog.tth.dev/wardrobe/privacy/`, and `https://blog.tth.dev/wardrobe/terms/`. The rendered
   pages showed the 21 August 2026 effective date where applicable, linked to each other, and
   contained no Gmail/Google/OAuth/import capability claim. This closes the publication sub-gate;
-  provider terms, App Privacy, and final store answers remain separate APP-016 work.
+  provider terms and App Privacy were then open. They were reconciled and published on
+  [12 September](#privacy-publication--2026-09-12); remaining store fields are APP-017.
 - [x] Explicitly defer the remaining App Store Connect record/media work in `APP-016` through
-  `APP-018` for the internal TestFlight build only. Those items remain open and must be completed
-  before App Store submission; this sequencing decision permits no binary, signing,
+  `APP-018` for the internal TestFlight build only. APP-016 subsequently completed on 12 September;
+  APP-017/APP-018 still require completion before submission. This permits no binary, signing,
   configuration, privacy, or review-evidence shortcut.
 
 The following ordered gates record the completed build-4 replacement/upload path. They replaced the
@@ -1486,7 +1488,7 @@ launch with AI disabled. The normal-state device screenshot passed; automation o
 deterministic regression. The separate AI/public-release work remains open. When that candidate
 is fully approved for public release, do not rebuild unless something changed:
 
-- Finish `APP-016` through `APP-018`, agreements, Gmail-free privacy answers, screenshots, review
+- Retain completed `APP-016` privacy evidence. Finish `APP-017`/`APP-018`, agreements, screenshots, review
   contact, and review notes. Verify App Store Connect shows price **Free**, only **Singapore**
   enabled, and no in-app purchase/subscription offered with version 1.0. Google restricted-scope
   verification/CASA is not a public-v1 gate.

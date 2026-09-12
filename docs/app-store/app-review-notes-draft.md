@@ -6,7 +6,8 @@
 > Current release state: `1.0.0 (7)` has completed
 > [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 > with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
-> AI activation, consent/privacy reconciliation and public submission remain open; do not repeat
+> Privacy publication and consent assessment passed on 12 September. AI activation and public
+> submission remain open; do not repeat
 > the completed handoff or routine QA.
 
 ## Product summary
@@ -77,8 +78,10 @@ unresolved reservation metadata, with no installation or human-account identifie
 Retention, logging, deletion, snapshots, and manual production operations follow the
 [APP-009 lifecycle policy](app-attest-data-lifecycle-policy.md). [VERIFY THE SUBMITTED COMMIT AND
 EVERY UNCHECKED POLICY-COMPLIANCE ITEM BEFORE SUBMISSION.]
-Final public disclosures and App Privacy classification for the aggregate store remain APP-016
-verification before enabling launch styling or submitting these notes.
+The [12 September privacy review](ai-pilot-privacy-review-20260912.md) records the published policy
+and Apple declarations, including this aggregate store. Build 7 and notice version 3 cover the
+unchanged flow. Refresh submitted-build/runtime facts before using these notes; privacy
+publication does not enable AI or submit the app.
 
 The submitted build exposes **Settings → Privacy & Data → Delete Server Security Data**. It uses a
 fresh App Attest assertion to delete the current installation's live anonymous server record and
