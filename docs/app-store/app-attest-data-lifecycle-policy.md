@@ -4,7 +4,12 @@
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
 - **Snapshot/recovery evidence exception approved:** 2026-09-11
-- **Current disabled deployment:** Fly v12 retains source
+- **Current deployment:** Fly v13 has the bounded AI pilot enabled under the owner's separate
+  12 September approval. The enabled review at `04:28:57Z` passed with the approved Cowork-only
+  status exception and operational API/Console evidence. The same image, original resources,
+  exact private policy and ready/idle ledger are preserved. Physical protected-call proof remains
+  pending. See the [activation checkpoint](internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+- **Historical disabled setup:** Fly v12 retained source
   `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the same scanned Linux/AMD64 immutable image and the
   original Machine and durable volume. The owner-approved September 8 setup provisioned the
   separate budget ledger, applied the private policy and workspace-scoped key with AI false, and
@@ -18,10 +23,11 @@
   [release plan](../release-plan.md) uses daily owner cost review for the small pilot and defers
   new monitoring infrastructure. The later combined review passed `PASS_INTERNAL_BETA_ONLY` at
   `2026-09-10T11:25:45Z`, as recorded in the [manual review register](#manual-review-register).
-  AI remains disabled; separate AI enablement and public-release requirements remain open, and
+  AI remained disabled at that beta checkpoint; the separately approved v13 activation followed.
+  Physical protected-call proof and public-release requirements remain open, and
   operations evidence must be refreshed before upload or after a change. The ordinary diagnostic's
   service-identity correction passed
-  live read-only verification at `2026-09-09T00:05:29Z`; the unchanged v12 runtime now returns
+  live read-only verification at `2026-09-09T00:05:29Z`; the unchanged v12 runtime then returned
   OPEN `styling-disabled`.
   It connects as `wardrobe`, requires real/effective UID and GID 10001 and suppresses bytecode
   writes with `-B`. The earlier `styling-budget-evidence-open` result remains historical evidence.
@@ -225,8 +231,9 @@ the hosting target is not an enforced invoice cap. See the
 Provider notifications remain useful supplements with delivery unproven. Hourly GitHub/Healthchecks
 automation and complete edge-counter coverage are deferred improvements, not automatic beta or AI
 activation gates. Provider-terms/consent review and privacy publication passed on 12 September.
-Before AI activation, verify the existing limits, key and ledger while AI remains disabled, and obtain the bounded
-enablement/verification-call approval. Then confirm the enabled state and protected-device flow.
+The disabled limits/key/ledger checks, bounded activation approval and enabled-state verification
+completed on 12 September. The protected-device styling call remains pending; preserve the
+approved disable-on-failure response and daily review.
 The AI-disabled beta and separate AI pilot do not close the public release's applicable privacy,
 deletion/recovery and App Store requirements. Historical single-user reviews do not replace fresh
 evidence for the declared milestone.
@@ -458,6 +465,7 @@ Each row preserves its dated outcome and next actions as recorded then; use the
 | 2026-09-07T10:39:08Z | PASS · exact v11 source/image/platform · original healthy Machine/volume · zero High/Critical · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · single-user band only · official last-2-days metric: 200/404, no 5xx · bounded logs | OPEN · partial console check: active key, spend below warning, no last-24h saturation; low prepaid credit, no alert rows visible; delivery unverified | PASS · public pages verified | OPEN · disabled scope only | Historical checkpoint: budget unprovisioned and policy unapplied; later September 8 setup supersedes those states; no paid calls | historical checkpoint; superseded below |
 | 2026-09-08T09:32:49Z | PASS · v12 · same scanned image and original healthy Machine/volume · AI disabled | PASS · automatic · 14d · fresh | below-warning | PASS · schema v4/integrity · approved public-capacity band · bounded logs; fresh full manual metrics still required | OPEN · configured limits/notification settings and usable credit verified · auto-reload off · real delivery unverified | PASS · public pages verified | OPEN · configured-but-disabled setup passed; full pre-upload remains open | Preserve applied policy and existing zero ledger; correct ordinary diagnostic ownership context, prove monitoring/delivery and reconcile Fly billing feeds before enablement | before enablement or upload; full review remains open |
 | 2026-09-10T11:25:45Z | PASS · unchanged v12 runtime/source/configuration · recovery image/scan verified · AI disabled | PASS · automatic · 14d · latest created 2026-09-10T07:48:53Z | below-warning | PASS · auth/store and bounded logs · official 2d metric 200/404, no 5xx | PASS for disabled beta · public status operational · configured spend below warning · expected workspace/key unexpired · no observed production usage or saturation | PASS · public pages | PASS_INTERNAL_BETA_ONLY · intact, below-warning, idle ledger · styling-disabled expected | Same-session App Store Connect check passed with build 7 absent; refresh before upload/after change. Exact upload approval, processing/assignment, physical QA, AI activation and public release remain open; no deployment, paid call or upload | daily cost review 2026-09-11; full review before upload/after change |
+| 2026-09-12T04:28:57Z | PASS · v13 · same image and original resources · bounded AI enabled | PASS · automatic · 14d · fresh | below-warning | PASS · auth/store · approved capacity band · bounded events · official 2d HTTP has no visible 5xx | PASS with approved Cowork-only exception · API/Console operational · aggregate status remains OPEN · limits/credits/key/auto-reload verified · no saturation | PASS · public pages | PASS with scoped owner exception · enabled intact idle ledger | One owner-triggered protected TestFlight call pending; disable on failure, preserve liability; no paid agent call or public submission | daily review 2026-09-13; sooner after problem/change |
 
 Following the 10 September pre-upload review, the owner approved the exact package. Xcode
 validation passed and Content Delivery recorded normal-route build-7 upload success at
@@ -775,7 +783,7 @@ item recorded below:
   current backend behavior. No raw metric, identifier, exact billing amount, key name/value, log
   sample, screenshot, or provider response is retained. Repeat the review before every future
   archive/upload and after every backend/configuration change. The historical v10 review's next
-  due date was 2026-09-28; the current configured-but-disabled v12 review and open gates are recorded above.
+  due date was 2026-09-28; the current enabled v13 review and pending protected-call/public-release gates are recorded above.
 - [x] Publish monitored privacy/support contacts and the server-deletion procedure. Public Pages
   [`PR #3`](https://github.com/tzehon/tzehon.github.io/pull/3) merged as
   `7e919ef373782c22cc1500a31ed475ebfd75373c` at `2026-08-20T13:20:54Z`, and the matching GitHub

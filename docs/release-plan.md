@@ -8,14 +8,15 @@ procedures and dated evidence; neither is a list to replay from the beginning.
 
 Build **1.0.0 (7)** has completed validation/upload and Apple processing. App Store Connect shows
 it **Complete / Ready to Submit**, assigned only to `Family` Internal Testing with one group
-tester and no individual testers. The approved AI-disabled notes are saved and reload-verified.
+tester and no individual testers. The initial AI-disabled notes were saved and reload-verified;
+the saved notes now describe the separately approved enabled pilot.
 The existing **Automatic for Xcode Builds** setting was preserved; no manual assignment was needed.
 See the [10 September distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 
 The owner-controlled handoff, clean installation and scoped local-beta QA passed on 11 September.
-Preparing the separately approved AI pilot is the next work. Cataloging clothing,
-photos, editing, wear history, reminders and Demo Mode are the core of this beta. Remote AI is
-explicitly unavailable while its separate activation work remains open, as the saved notes explain.
+The bounded AI pilot was separately approved and enabled as Fly v13 on 12 September. Cataloging
+clothing, photos, editing, wear history, reminders and Demo Mode remain local. The first protected
+TestFlight styling request is pending; the saved notes now explain the enabled pilot.
 This is a testing milestone, not a change to the approved Free, Singapore-only public launch.
 
 11 September partial physical evidence: the owner reports an in-place TestFlight update to build 7.

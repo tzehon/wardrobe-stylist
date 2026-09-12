@@ -4,12 +4,16 @@ Use this runbook for every internal beta. The audience is internal, but the bina
 an App Store release candidate from the moment it is archived. This prevents a separate, weaker
 "beta build" configuration from drifting away from what will eventually be reviewed.
 
-## Current work order — 10 September 2026
+## Current work order — 12 September 2026
 
 Start with [the short release plan](../release-plan.md). This runbook retains operator procedures
 and historical evidence; it is not a request to repeat every completed row. Internal beta
 availability, optional AI activation and public App Store submission have separate requirements.
 The owner requested a reset of the overgrown monitoring/release workflow on 10 September.
+
+The separately approved bounded AI pilot is now enabled as Fly v13. Its enabled review passed
+with the approved Cowork-only status exception; the first owner-controlled protected styling
+request remains pending. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -42,7 +46,7 @@ completed handoff and normal-state visual check. AI activation remains separate.
 
 The combined read-only operations review completed at `2026-09-10T11:25:45Z` with exit 0 and
 `PASS_INTERNAL_BETA_ONLY`. Every required check passed except the intentionally OPEN
-`styling_budget: styling-disabled` result accepted only for this purpose. AI remains disabled;
+`styling_budget: styling-disabled` result accepted only for this purpose. AI remained disabled;
 the existing ledger is intact, below warning and idle. Archive, source/configuration, live
 runtime, auth/store, recovery image/scan, storage, snapshots, bounded logs and public-page checks
 passed. The newest automatic snapshot was `created` at `2026-09-10T07:48:53Z` with 14-day retention,
@@ -507,8 +511,8 @@ The [public-capacity preflight profile](../ai-spend-controls.md#public-launch-ob
 was prepared locally with independent private installation/session bounds and ownership checks;
 those bounds were not yet approved. The later v11 disabled rollout still had an unprovisioned
 budget and OPEN preflight. The [8 September setup](#approved-disabled-budget-setup--2026-09-08)
-supersedes those provisioning, credit and capacity-decision states; it records the current v12
-configuration and remaining launch gates. Snapshot expiry/deletion-specific recovery is separate.
+supersedes those provisioning, credit and capacity-decision states; it records the historical disabled v12
+configuration; the 12 September v13 activation checkpoint records the current pilot state. Snapshot expiry/deletion-specific recovery is separate.
 Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
 rollback target after the disabled cutover.
 
@@ -794,8 +798,8 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   the explicit Style action at `2026-08-28 17:17 SGT` created the new anonymous installation and
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
-  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current disabled
-  Fly v12 runtime retains its verified repository-owned enforcement; v10 is historical evidence.
+  [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current enabled
+  Fly v13 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
   On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -959,7 +963,8 @@ deletion snapshot's later disappearance and deletion-specific recovery/non-retur
 and were owner-waived only for the Free Singapore v1. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
-The current Fly v12 runtime has its private policy applied with AI disabled, as recorded above.
+The current Fly v13 runtime has the same private policy applied with the bounded pilot enabled;
+see the 12 September activation checkpoint.
 The build-7 exact-source regression, strict signed-archive verification and 10 September internal
 distribution have passed. The 11 September handoff, clean first launch and scoped local-beta QA
 are complete; use that checkpoint and its automation ownership record for current status.
