@@ -12,7 +12,8 @@ The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catal
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
 Optional AI styling is implemented and enabled as the owner-approved bounded Fly v14 pilot.
 The 12 September v13 activation review passed with the scoped Cowork-only exception. The v14
-configuration postcheck passed; its full operations review remains pending. The first protected
+configuration postcheck passed, followed by its full operations review at `2026-09-12T07:09:37Z`
+with the approved Cowork-only status exception. The first protected
 TestFlight styling result passed on 12 September. Styling requires in-app consent
 and remains subject to the global safety limits. Local features work independently of AI.
 Build 7 has completed [internal TestFlight distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).

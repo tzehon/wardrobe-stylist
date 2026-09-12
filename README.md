@@ -33,7 +33,8 @@ photos, history, reminders and Demo Mode are available without remote AI. The la
 Fly v14 configuration has AI styling enabled within the existing approved global limits.
 The historical v13 activation review passed on 12 September with the approved exception for an
 unrelated Cowork-on-Windows incident; Claude API and Console were operational. The full v14
-operations review remains pending after its passed configuration postcheck. The owner's first protected
+operations review completed at `2026-09-12T07:09:37Z` with the same approved Cowork-only exception.
+The owner's first protected
 TestFlight styling request displayed an outfit at 13:34 SGT. A read-only server check confirmed
 one settled admission, no pending or uncertain reservations, and spend below warning. See the
 [physical call checkpoint](docs/app-store/internal-testflight-runbook.md#first-protected-testflight-call--12-september-2026).
@@ -49,7 +50,9 @@ Singapore is the sole available territory.
 The approved configuration deployment is complete: Fly v14 accepts App Store App Attest category
 `4` alongside TestFlight `2`, retaining the exact image, Machine, volume, keys, policy and intact
 ledger. Its independent configuration postcheck passed at `2026-09-12T06:36:24Z`; no paid call was
-made. The full post-change operations review remains pending. Apple's Add for Review validation
+made. The full post-change review completed at `2026-09-12T07:09:37Z` with the approved
+Cowork-only status exception; every other operational check passed, including the recovery scan.
+See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026). Apple's Add for Review validation
 passed and build 7 is **Ready for Review** in a draft submission; **Submit for Review** has not
 been clicked. The corrected reviewer notes have separate support/privacy links and were saved
 and reload-verified. These changes need no new TestFlight build.

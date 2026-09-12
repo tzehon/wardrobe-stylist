@@ -33,7 +33,9 @@ no-sign-in/manual-release settings, age/content-rights declarations and build 7 
 fictional screenshots are uploaded, ordered and reload-verified. Free pricing, Singapore-only
 availability and disabled Mac/Vision availability are also saved and reload-verified. Categories
 `2,4` are deployed as Fly v14, with independent configuration postcheck PASS at
-`2026-09-12T06:36:24Z`. Full post-change operations and public submission remain open. Apple's
+`2026-09-12T06:36:24Z`. Full post-change operations at `2026-09-12T07:09:37Z` completed with
+the approved Cowork-only status exception; every other operational check passed. Public submission
+awaits the owner's decision. Apple's
 version `1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review; Submit for
 Review has not been clicked. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
@@ -528,8 +530,11 @@ lifecycle non-return evidence is unproved but owner-waived only for the Free Sin
   the runbook.
 - [x] Add version `1.0.0` with build 7 to a draft review submission. Add for Review validation
   passed; Apple shows Ready for Review with manual release retained.
-- [ ] Complete the full post-change operations review and final approved submission inspection,
-  then choose **Submit for Review**. It has not been clicked:
+- [x] Complete the full post-change operations review. The v14 review at `2026-09-12T07:09:37Z`
+  completed with the approved Cowork-only exception; every other operational check passed.
+  See the [final review record](internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).
+- [ ] Obtain the owner's final submission decision and retain the reviewed draft settings, then
+  choose **Submit for Review** if approved. It has not been clicked:
   [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
 - [ ] Keep the production backend healthy and the review contact reachable during review; respond
   to App Review in the App Review section.

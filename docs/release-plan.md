@@ -95,14 +95,16 @@ screenshots are uploaded, ordered and reload-verified. Free pricing and disabled
 availability are also saved and reload-verified. Agreements and bank/tax/DSA status are active; only Singapore is
 selected. Fly v14 now accepts categories `2,4`; independent configuration verification passed at
 `2026-09-12T06:36:24Z` with the exact original image/resources, secrets, policy and intact ledger.
-No paid call was made. The full post-change operations review remains pending. Apple's Add for
-Review validation passed: version `1.0.0` with build 7 is **Ready for Review** in a draft
+No paid call was made. The full post-change review at `2026-09-12T07:09:37Z` completed with the
+approved Cowork-only status exception; all other operational checks passed, including the recovery-image scan.
+Final Submit for Review awaits the owner's decision. Apple's Add for Review validation passed:
+version `1.0.0` with build 7 is **Ready for Review** in a draft
 submission. Submit for Review remains unclicked, and release stays manual. The corrected reviewer
 notes are saved and reload-verified. No new TestFlight build is required.
 
-Finish the candidate-specific physical QA, applicable privacy/deletion/recovery evidence,
-truthful privacy/support/Terms pages and App Privacy answers, screenshots/description, availability
-and actual account agreements. Submit the reviewed build when those items are complete.
+Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
+verified listing/media/availability, account agreements and scoped accepted recovery risk. The
+remaining action is the owner's final submission decision, followed by Submit for Review if approved.
 Apple processing/review time is outside this project's control.
 
 On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-

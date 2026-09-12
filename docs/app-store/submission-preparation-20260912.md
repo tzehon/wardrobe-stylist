@@ -1,6 +1,6 @@
 # Singapore submission preparation — 12 September 2026
 
-Status: **Apple draft Ready for Review; compatibility deployed; full operations review pending**. Build
+Status: **Apple draft Ready for Review; v14 review completed with the approved Cowork-only exception; final submission awaits the owner's decision**. Build
 `1.0.0 (7)` remains the existing processed candidate. The owner approved source publication,
 saving the prepared Apple draft and the minimal App Store compatibility deployment. The later
 contact correction retains that scope; private approval/amendment records bind the corrected
@@ -62,8 +62,10 @@ PR #54 merged the reviewed categories `2,4`, retaining builds `4,5,6,7`. The app
 deployment completed as **Fly v14**. An independent postcheck passed at
 `2026-09-12T06:36:24Z`: exact original image, Machine, volume, keys, policy and intact ledger were
 preserved, with no paid call. The lock now records observed v14/categories `2,4` while retaining
-all image/archive bindings. The full post-change operations review remains pending.
-The complete regression was then rerun on the observed v14 lock: 870 backend tests and locked
+all image/archive bindings. The full post-change review at `2026-09-12T07:09:37Z` completed with
+the approved Cowork-only status exception; every other operational check passed, including the
+exact recovery-image scan. No paid calls or provider/resource mutations were made.
+Before that full review, the complete regression was rerun on the observed v14 lock: 870 backend tests and locked
 security/lint/type checks, 237 iOS tests (227 Swift/10 UI; completed `06:51:51Z`) and 44 release-script
 tests passed. Later operations-result documentation retains this exact tested lock/runtime/iOS
 state; it does not require another code-change regression or a new TestFlight build.
@@ -81,14 +83,14 @@ revision unchanged when updating the post-deployment release/category review loc
 1. Retain the verified Free/Singapore/iPhone-only draft, screenshot order, saved build 7,
    declarations, corrected review contact/notes and manual release. Add for Review validation
    is complete; do not repeat the upload or draft-entry work.
-2. Complete the full post-change operations review from clean synchronized main using the observed
-   v14 lock. The configuration postcheck is not that full review. Keep the existing cost envelope
-   and daily review; Fly has no hard invoice cap. A failed check stops submission and uses the
-   applicable approved recovery procedure. Preserve the exact image, resources, keys, policy and
-   intact ledger; no iOS rebuild or additional paid test is proposed.
-3. Obtain the final public-submission approval
-   if not already explicitly granted for the reviewed final package. Submit to App Review with
-   **manual release** selected. Apple approval does not itself publish the app under that setting.
+2. Retain the [completed final v14 review](internal-testflight-runbook.md#final-v14-operations-review--12-september-2026)
+   and its explicit Cowork-only exception. Keep the existing cost envelope and daily review;
+   Fly has no hard invoice cap. A new failure or configuration change requires the applicable
+   approved response. Preserve the exact image, resources, keys, policy and intact ledger;
+   no iOS rebuild or additional paid test is proposed.
+3. Obtain the owner's final public-submission decision for the reviewed final package. If approved,
+   submit to App Review with **manual release** selected. Apple approval does not itself publish
+   the app under that setting.
 
 The completed local QA, privacy publication, bounded AI activation and first protected call are
 retained; do not repeat handoff/deletion or routine manual regression. The existing narrowly scoped

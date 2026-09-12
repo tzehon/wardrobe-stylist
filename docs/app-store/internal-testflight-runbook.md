@@ -16,8 +16,9 @@ with the approved Cowork-only status exception; the first owner-controlled prote
 request passed on 12 September. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
 The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-september-2026) records
 the later approved categories `2,4` deployment and independent configuration postcheck. The full
-v14 operations review remains pending; Apple's version/build-7 draft is Ready for Review but has
-not been submitted.
+v14 review at `2026-09-12T07:09:37Z` subsequently completed with the approved Cowork-only status
+exception; every other operational check passed. See the [final review](#final-v14-operations-review--12-september-2026).
+Apple's version/build-7 draft is Ready for Review; final submission awaits the owner's decision.
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -830,7 +831,8 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
   `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v14 bounded pilot is enabled; its configuration postcheck passed, while the full v14 operations review remains pending. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
+  v14 bounded pilot is enabled; its configuration postcheck passed and the full review at
+  `2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
   completed the build-7 upload path. Refresh the applicable operations review before any later
   candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
@@ -1222,8 +1224,9 @@ The complete regression was rerun after that lock update at source `2c0148c1dd45
 Subsequent edits in this evidence tranche change documentation only; the tested v14 lock, runtime
 source, shipped iOS source and archive bindings are unchanged. Recording the later operations
 result without changing those inputs does not introduce another code/configuration change.
-**The full post-change operations review is pending.** The configuration postcheck must not be
-reported as a completed public/manual/recovery operations review.
+**At this 06:36:24Z deployment checkpoint, the full operations review was still pending.**
+The configuration postcheck was not a completed public/manual/recovery review. The later
+[07:09:37Z final review](#final-v14-operations-review--12-september-2026) is recorded separately.
 
 Apple draft evidence: Add for Review validation passed; version `1.0.0` with build 7 is **Ready
 for Review** in a draft submission. Listing/declarations, the five fictional screenshots in the
@@ -1232,6 +1235,41 @@ saved and reload-verified. The corrected owner contact remains private; the corr
 reviewer notes have separate support/privacy links and a complete fictional top/trousers/shoes
 example. The exact text was saved and reload-verified after the review correction. Manual release
 is retained. **Submit for Review has not been clicked.** No new TestFlight build is required.
+
+## Final v14 operations review — 12 September 2026
+
+PR [#55](https://github.com/tzehon/wardrobe-stylist/pull/55) merged the observed v14 lock and
+corrected draft evidence after current-head Codex review and passing checks. The final strict
+`ai-launch` review ran from clean synchronized main
+`012e466369bfd0da59484076992fbcc8f376862a`. Its redacted baseline is timestamped
+`2026-09-12T07:09:37Z`; the separate exception result finalized at `07:09:41Z` was
+**PASS_WITH_APPROVED_COWORK_ONLY_EXCEPTION**.
+
+Source/archive identity, exact healthy Fly runtime/configuration, auth-store integrity and
+aggregate bands, enabled below-warning budget, volume/snapshot policy, bounded events, public
+backend/pages, fresh official Fly metrics, signed-in Anthropic Console and App Store Connect
+checks all passed. The exact Linux/AMD64 recovery image passed with zero High/Critical findings.
+The same image/source, Machine, volume, keys, policy and intact ledger were retained. This review
+made no paid test calls or provider/resource mutations.
+
+The baseline deliberately retains `anthropic_status=OPEN public-status-open`. Fresh verification
+matched the exact previously approved Cowork-only incident, with API, Console and every other
+component operational and no maintenance. The scoped exception accepts that one status result;
+it does not turn the baseline into an unconditional all-green report or waive another check.
+The original redacted baseline and separate exception record remain privately retained.
+`preupload_evidence=OPEN owner-upload-approval-not-requested` also remains truthful: this run
+requests no new archive/upload and cannot grant upload or public-submission approval.
+
+The tested v14 operations lock, backend runtime, iOS source and signed build-7 archive are
+unchanged from the complete regression recorded above: 870 backend tests and all locked
+security/lint/type checks, 237 iOS tests and 44 release-script tests passed. This final evidence
+update changes documentation only; no repeated regression or new TestFlight build is needed.
+
+Apple's existing version `1.0.0`/build-7 draft remains **Ready for Review**, with the verified
+2,064-character reviewer notes, Free Singapore-only availability and manual release selected.
+**Submit for Review has not been clicked and awaits the owner's decision.** Keep ordinary daily
+pilot review and the accepted Fly cost/snapshot residual risks; this checkpoint adds no restore,
+all-copy-purge or deleted-identity recovery proof.
 
 ## Per-build release-candidate loop
 
