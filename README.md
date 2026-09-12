@@ -57,6 +57,11 @@ emergency recovery uses fresh auth state and re-enrollment
 while preserving the separate budget ledger. The waiver did not change Fly, the app, production or
 local data, the installed build, or TestFlight state.
 
+The [12 September AI privacy review](docs/app-store/ai-pilot-privacy-review-20260912.md)
+confirms standard provider retention and prepares updated policy/Apple wording. The existing
+build-7 consent covers the unchanged styling flow; this documentation work needs no new TestFlight
+build. The replacement policy is still a proposal, and activation remains separately approved.
+
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.

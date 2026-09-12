@@ -1,6 +1,6 @@
 # Release plan
 
-Updated 10 September 2026 after the owner requested a reset and simplification.
+Updated 12 September 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
@@ -66,9 +66,10 @@ Keep the existing backend, anonymous App Attest access, server-held provider key
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another
 model to finish this release.
 
-- Resolve the actual privacy/provider-terms and consent questions for the AI flow. Update public
-  disclosures and Apple answers accurately. Make a new iOS build only if the bundled notice or
-  behavior needs to change; decide that before another archive/upload cycle.
+- The [12 September privacy review](app-store/ai-pilot-privacy-review-20260912.md) confirms
+  standard provider retention and prepares the public policy and Apple classifications. Retain
+  build 7 and notice version 3 for the unchanged flow; publish the approved policy and verify the
+  Apple answers. No new iOS build is needed solely for this disclosure/documentation update.
 - Verify the existing approved limits, model/key/workspace, capacity and intact ledger while AI
   is still disabled. The pre-enable review expects disabled AI; it must not demand the enabled
   state that it is meant to precede. Retain the existing provider cap, credits and auto-reload-off

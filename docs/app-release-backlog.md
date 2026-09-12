@@ -961,7 +961,9 @@ governed by APP-036's Gmail-free guards.
   privacy/support/Terms pages now describe the Gmail-free candidate and omit Google/Gmail/Limited
   Use/receipt-import claims. Finish reconciling current Anthropic, Apple, and Fly terms, purposes,
   retention, App Privacy answers, and final store fields. Do not publish unverified retention or
-  “no training” claims.
+  “no training” claims. The [12 September review](app-store/ai-pilot-privacy-review-20260912.md)
+  verifies the standard provider settings/terms and prepares policy and Apple answers. Its
+  assessment retains build 7/consent version 3; final publication and activation remain open.
 - [ ] **APP-017 · Submission · Complete the App Store Connect record.** The launch decision is
   `1.0.0`/build 7, price Free, no in-app purchase or subscription, and Singapore-only availability.
   Complete and verify the remaining final name/bundle ID/SKU, category, content rights, age rating,

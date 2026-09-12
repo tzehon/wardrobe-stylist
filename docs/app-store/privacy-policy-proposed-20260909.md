@@ -7,9 +7,10 @@
 > evidence. The [data inventory](app-privacy-data-inventory.md) and
 > [lifecycle policy](app-attest-data-lifecycle-policy.md) govern the underlying facts.
 >
-> Before publication, resolve the exact provider terms, Apple classification, consent/materiality
-> decision, and final live-page/build consistency checks. The optional AI path below describes the
-> proposed release behavior when available; current AI remains disabled. Snapshot-policy checks
+> The [12 September review](ai-pilot-privacy-review-20260912.md) records provider evidence, proposed
+> Apple classifications and the decision to retain the existing bundled consent notice. Final
+> owner approval, publication and live-page/App Store Connect verification remain open. The
+> optional AI path below describes the proposed release behavior when available; current AI remains disabled. Snapshot-policy checks
 > and the demonstrated restart with the existing ledger do not prove a budget-specific backup or
 > restore. Remove this internal block only from the separately approved public publication copy.
 
@@ -100,18 +101,36 @@ profiles, or tracking across other companies' apps and websites.
 - **[GitHub Pages](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement):** hosts the public support, privacy, and Terms pages and necessarily processes
   website-request network data when someone visits them.
 
-These providers may process information outside Singapore under their linked privacy policies and
-service terms. Do not infer stronger retention, model-improvement, human-access, subprocessor,
-regional, or deletion guarantees than those verified for the production configuration.
+Anthropic processes styling requests under its [Commercial Terms](https://www.anthropic.com/legal/commercial-terms)
+and incorporated [Data Processing Addendum](https://www.anthropic.com/legal/data-processing-addendum).
+Its commercial API data is [not used for model training by default](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training).
+Response feedback is disabled in the reviewed organization, which is not currently enrolled in
+the Development Partner Program. Wardrobe does not submit your styling requests to a provider feedback service.
+Your in-app outfit ratings are used only as the disclosed compact styling preference summaries.
+
+Providers may process information outside Singapore. Anthropic describes US data storage and
+[international processing](https://privacy.claude.com/en/articles/7996890-where-are-your-servers-located-do-you-host-your-models-on-eu-servers),
+including safety review, support and incident response. Authorized personnel may access data for
+these purposes; the developer does not promise that no human can see it. Anthropic uses
+[subprocessors](https://trust.anthropic.com/subprocessors) under its DPA. Other providers operate
+under their linked policies and service terms.
 
 ## Retention
 
 Local wardrobe data remains on the device until you delete it or remove the app, subject to Apple-
 managed backup settings. The developer application does not persist wardrobe, prompt, or model-
 response payloads after request processing. Its separate durable stores contain minimum
-authentication/security records and aggregate AI budget/reservation records. Anthropic's handling
-of information sent for styling is separate from these developer-operated stores and follows its
-applicable API terms and retention policy.
+authentication/security records and aggregate AI budget/reservation records.
+
+Anthropic's standard API retention applies to styling inputs and outputs: ordinarily they are
+deleted within 30 days. This is not zero data retention. Its
+[retention policy](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data)
+allows longer retention for legal obligations and usage-policy enforcement; flagged inputs and
+outputs may remain for up to two years and associated safety classification scores for up to seven
+years. The provider policy also covers longer retention for separately submitted feedback and
+where contractual anonymization for research or statistics is permitted. Withdrawing AI consent
+stops future styling requests. Deleting the live server security record does not erase Anthropic's
+already received inputs or outputs.
 
 The implemented live authentication-store limits are:
 
