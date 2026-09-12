@@ -41,8 +41,8 @@ The current release work and remaining blockers are tracked in
 
 ## Deployed aggregate AI budget accounting
 
-The approved September 8 setup provisioned a separate durable budget database, and Fly v12 applies
-its approved private policy while AI remains disabled. It stores a month identifier, aggregate
+The approved September 8 setup provisioned a separate durable budget database. Fly v13 now applies
+that same approved private policy with AI enabled under the separately approved bounded pilot. It stores a month identifier, aggregate
 unit/admission totals, approved policy limits, a safety
 halt flag, and unresolved random reservation IDs with bounded token amounts and month. No
 installation ID, wardrobe attribute, prompt, or model response enters that database. Completed

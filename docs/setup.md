@@ -10,8 +10,13 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-The pinned Sonnet 5 runtime and durable global AI-budget controls are deployed as **Fly v12 with
-AI styling disabled**. The configuration deployment retains source
+Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
+the owner-approved Cowork-only status exception and operational API/Console evidence. The same
+image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
+idle. The first protected TestFlight call remains pending. See the
+[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+
+Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
 encrypted volume. Independent post-deployment review passed at `2026-09-08T09:32:49Z`: the
 approved private policy and workspace-scoped provider key are applied, the serving UID reads the
@@ -22,7 +27,7 @@ No paid AI call was made. Provider alert delivery remains unproven and billing-f
 remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
 for the small pilot and defers external monitoring. The beta-only review and build-7 internal
 distribution are complete. Handoff, clean installation and scoped local-beta QA passed on
-11 September; separate AI enablement and public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+11 September; v13 activation is complete; protected-device styling proof and public submission remain open. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 the normal budget gate now reports OPEN `styling-disabled`. Follow the

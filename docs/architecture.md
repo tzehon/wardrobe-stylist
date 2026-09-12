@@ -5,8 +5,13 @@ manual entries and user-selected photos, keeps the catalog on the iPhone, and of
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-The Sonnet/SDK and budget controls described below are deployed as **Fly v12 with AI styling
-disabled**. The configuration deployment retains source
+Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
+the owner-approved Cowork-only status exception and operational API/Console evidence. The same
+image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
+idle. The first protected TestFlight call remains pending. See the
+[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+
+Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
 encrypted volume. Independent post-review passed at `2026-09-08T09:32:49Z`: the approved private
 policy and new provider key are applied, the serving UID reads the existing v2 ledger with zero
@@ -18,7 +23,7 @@ made during deployment or verification. Provider alert delivery remains unproven
 reconciliation remains unresolved. The [10 September release plan](release-plan.md) uses daily
 owner cost review for the small pilot and defers external monitoring. The
 [10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-are complete. Handoff and scoped local-beta QA passed on 11 September; AI activation and public
+are complete. Handoff and scoped local-beta QA passed on 11 September; v13 activation is complete; protected-device styling proof and public
 release remain open;
 refresh operations evidence for later changes and their declared milestone.
 The ordinary budget diagnostic now uses the service identity; live read-only verification on
@@ -188,7 +193,7 @@ See [`ios/Wardrobe/Capture/`](../ios/Wardrobe/Capture),
 ## Daily recommendation flow
 
 The stylist agent **Aria** proposes a wearable, non-repeating outfit from the user's own catalog.
-The deployed, currently disabled runtime uses pinned `claude-sonnet-5` through one synchronous
+The deployed bounded pilot uses pinned `claude-sonnet-5` through one synchronous
 Messages API call with Anthropic Python SDK `1.4.0`. Extended thinking is disabled, and strict forced
 `propose_outfit` output is pinned to the evaluated 1,024 tokens. The configuration parser and
 ledger retain broader safety bounds, but runtime admission and preflight reject any other
