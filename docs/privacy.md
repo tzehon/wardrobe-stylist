@@ -52,8 +52,9 @@ in-app server-security deletion does not reset this global aggregate ceiling.
 
 The database uses the existing encrypted volume and its unchanged snapshot policy. The independent
 configured-but-disabled review verified an intact, zero current-month ledger after restart. The
-hosted privacy copy has not been revised by this setup; reconcile the additional aggregate store,
-final public declarations and provider terms under APP-016 before enabling launch styling.
+12 September [privacy review and publication](app-store/ai-pilot-privacy-review-20260912.md)
+reconciled the aggregate store, provider terms, consent and Apple declarations. The hosted policy
+and Apple answers are published; disabled pre-enable checks and activation approval remain separate.
 The fictional evaluation uses no real wardrobes and never shadows production requests.
 See [spend controls and recovery](ai-spend-controls.md) for exact persistence and failure rules.
 
