@@ -58,14 +58,16 @@ while preserving the separate budget ledger. The waiver did not change Fly, the 
 local data, the installed build, or TestFlight state.
 
 The [12 September AI privacy review](docs/app-store/ai-pilot-privacy-review-20260912.md)
-confirms standard provider retention and prepares updated policy/Apple wording. The existing
-build-7 consent covers the unchanged styling flow; this documentation work needs no new TestFlight
-build. The replacement policy is still a proposal, and activation remains separately approved.
+records the approved [published policy](https://blog.tth.dev/wardrobe/privacy/) and reload-verified
+Apple privacy answers. The existing build-7 consent covers the unchanged styling flow; this work
+needs no new TestFlight build. Next are the disabled budget/operations checks and separate AI
+activation approval.
 
 Follow **[the release plan](docs/release-plan.md)** for the current work order:
 
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
-2. Complete privacy/consent and existing budget checks, then separately approve AI activation.
+2. Privacy publication and consent assessment are complete; verify the existing budget/operations
+   while AI is disabled, then separately approve activation.
 3. Finish the remaining privacy and store-submission work for the Free Singapore launch; the
    snapshot/recovery evidence sub-gate is owner-waived, not proven.
 

@@ -1,20 +1,14 @@
 # Wardrobe Stylist privacy policy — proposed replacement, 9 September 2026
 
-> **Local proposal; not published or approved as final APP-016 disclosure.** This draft reconciles
-> the separate aggregate budget/reservation ledger already configured in the AI-disabled backend.
-> It does not enable AI, change the iOS notice, update App Store Connect, or assign a new effective
-> date. The [21 August publication source](privacy-policy-draft.md) remains unchanged historical
-> evidence. The [data inventory](app-privacy-data-inventory.md) and
-> [lifecycle policy](app-attest-data-lifecycle-policy.md) govern the underlying facts.
->
-> The [12 September review](ai-pilot-privacy-review-20260912.md) records provider evidence, proposed
-> Apple classifications and the decision to retain the existing bundled consent notice. Final
-> owner approval, publication and live-page/App Store Connect verification remain open. The
-> optional AI path below describes the proposed release behavior when available; current AI remains disabled. Snapshot-policy checks
-> and the demonstrated restart with the existing ledger do not prove a budget-specific backup or
-> restore. Remove this internal block only from the separately approved public publication copy.
+> **Approved and published on 12 September 2026.** This file retains its original proposal name
+> for stable links. The public body was published through
+> [website PR #6](https://github.com/tzehon/tzehon.github.io/pull/6); its site header preserves the
+> existing support links and response target. The [review](ai-pilot-privacy-review-20260912.md)
+> records provider evidence, consent assessment, deployment and Apple publication verification.
+> The [21 August source](privacy-policy-draft.md) remains historical evidence. Publication does
+> not enable AI, change the iOS notice or prove a budget-specific backup/restore.
 
-- **Effective date:** Not assigned; set only when the approved revision is published.
+- **Effective date:** 12 September 2026
 - **Developer:** Tan Tze Hon
 - **Initial App Store availability:** Singapore
 - **Privacy contact:** `contact@tth.dev`

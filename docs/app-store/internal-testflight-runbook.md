@@ -1584,3 +1584,21 @@ styling call.
 - [Establishing your app's integrity with App Attest](https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity)
 - [Validating App Attest at your server](https://developer.apple.com/documentation/devicecheck/validating-apps-that-connect-to-your-server)
 - [Preparing App Attest environments and rollout](https://developer.apple.com/documentation/devicecheck/preparing-to-use-the-app-attest-service)
+
+
+## Privacy publication — 2026-09-12
+
+The owner approved publication of the reviewed policy update and Apple privacy answers. Website
+[PR #6](https://github.com/tzehon/tzehon.github.io/pull/6) received a clear current-head Codex review,
+merged and deployed successfully. Anonymous and rendered-page verification confirmed the
+12 September effective date, provider retention/exceptions, separate aggregate ledger and limited
+individual deletion scope. App Store Connect now has the policy URL and exactly four categories:
+Other User Content, Device ID, Product Interaction and Other Diagnostic Data. All are linked and
+not tracking; all use App Functionality, and Other User Content additionally uses Product
+Personalization. Publication and reload retained these answers. The app version is still Prepare
+for Submission; no app review submission, build upload, paid call or AI enablement occurred.
+
+The [review and exact publication evidence](ai-pilot-privacy-review-20260912.md) retain source/PR/
+deployment identifiers and the decision to keep build 7 and consent notice version 3. These are
+documentation/store-metadata changes and require no new TestFlight build. Next: existing disabled
+budget/operations review, then a bounded separately approved activation and protected-call check.
