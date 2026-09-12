@@ -4,7 +4,7 @@ OFFLINE REVIEW
 On first launch, choose “Try the offline demo”. The visible “Demo Mode · Fictional Data” banner identifies its disposable sample data. Browse and edit items in Wardrobe, view the bundled outfit in Today, and inspect the sample worn look in History. Demo Settings lets you reset or exit. This tour runs entirely offline and makes no AI request.
 
 OPTIONAL CONNECTED REVIEW
-Exit Demo Mode and choose “Start with my wardrobe”. Add at least two fictional items manually, for example a white cotton top and navy trousers. In Settings → Connected Features, read the disclosure and tap “Allow AI styling”. Then open Today and tap “Style a look”. An optional occasion can be entered for the next restyle. “Wear this” records the outfit locally in History.
+Exit Demo Mode and choose “Start with my wardrobe”. Add three fictional items manually: a white cotton top, navy trousers and white sneakers. In Settings → Connected Features, read the disclosure and tap “Allow AI styling”. Then open Today and tap “Style a look”. An optional occasion can be entered for the next restyle. “Wear this” records the outfit locally in History.
 
 The connected path requires internet and Apple App Attest support on a physical iPhone. App Attest verifies the installation; it is not a user login. No review credentials or shared API key are needed. If installation verification or the service is unavailable, local catalog and Demo Mode remain usable and the app displays a recovery message. Styling is subject to service usage limits.
 

@@ -16,8 +16,9 @@ review; its result does not authorize AI activation or public submission. Applic
 auth/storage, privacy and distribution checks remain required for each milestone.
 
 Build `1.0.0 (7)` has completed internal distribution: **Complete / Ready to Submit**, only
-`Family` Internal Testing with one group tester and no individual testers, and approved AI-disabled
-notes saved/reload-verified. It is consumed and must never be reused. The
+`Family` Internal Testing with one group tester and no individual testers. Approved enabled-pilot
+notes were saved/reload-verified on 12 September, replacing the initial AI-disabled notes.
+Build 7 is consumed and must never be reused. The
 [distribution record](internal-testflight-runbook.md#build-7-distribution--2026-09-10) retains proof;
 the [11 September checkpoint](internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records completed handoff, clean installation and scoped local-beta QA. AI activation and public

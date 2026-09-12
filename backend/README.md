@@ -15,8 +15,10 @@ private release records and must not be committed. They are recorded in the exis
 applied to the serving runtime with AI enabled under the separately approved pilot. See
 [`../docs/ai-spend-controls.md`](../docs/ai-spend-controls.md) for provisioning and recovery.
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
-The [12 September activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
-passed with the owner-approved Cowork-only exception. The first protected-device styling result passed on 12 September. The following paragraphs retain the earlier disabled setup history. A subsequent
+The [12 September v13 activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
+passed with the owner-approved Cowork-only exception. The later v14 configuration postcheck passed;
+its full operations review remains pending. The first protected-device styling result passed on
+12 September. The following paragraphs retain the earlier disabled setup history. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its

@@ -82,5 +82,5 @@ No real wardrobe images, identity or backend details appear. See [capture plan](
 and [submission preparation](submission-preparation-20260912.md).
 
 Use the concise [review notes](review-notes-1.0.0.txt), not the historical operational draft.
-The corrected 2,068-character notes, with separate support/privacy links, are saved and
-reload-verified in Apple.
+The corrected 2,064-character notes, with separate support/privacy links and a complete fictional
+top/trousers/shoes example, are saved and reload-verified in Apple.

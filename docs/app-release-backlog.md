@@ -152,7 +152,7 @@ The current production baseline is **Fly v14 with the bounded AI pilot enabled**
 `2,4` compatibility change passed independent configuration verification at `06:36:24Z`, retaining
 the exact original image/resources, keys, policy and intact ledger; full operations review remains
 pending. See the [compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). The earlier
-12 September enabled review passed at `04:28:57Z` with the approved Cowork-only status exception,
+12 September v13 enabled review passed at `04:28:57Z` with the approved Cowork-only status exception,
 operational API/Console evidence, exact existing policy and intact idle ledger. Physical protected-call proof passed on 12 September; no runtime image or resource changed. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 
@@ -990,7 +990,7 @@ governed by APP-036's Gmail-free guards.
 - [x] **APP-017 · Complete · Complete the App Store Connect draft record.** Version `1.0.0`/build 7
   is Free, has no in-app purchase/subscription, and is Singapore only, with Mac/Vision availability
   off and manual release saved. Listing, account/declarations, private owner-confirmed contact and
-  corrected 2,068-character no-login reviewer notes are saved/reload-verified. Add for Review
+  corrected 2,064-character no-login reviewer notes are saved/reload-verified. Add for Review
   validation passed; the draft is Ready for Review. Submit for Review has not been clicked.
 - [x] **APP-018 · Complete · Produce final store media.** Five fictional Demo frames are uploaded
   and reload-verified in Catalog/editor/detail/Today/History order; the smaller slot automatically

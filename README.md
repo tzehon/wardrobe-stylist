@@ -31,8 +31,9 @@ handoff, clean installation and scoped local-beta QA passed on 11 September. The
 the owner-approved bounded AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
 Fly v14 configuration has AI styling enabled within the existing approved global limits.
-The enabled operational review passed on 12 September with the approved exception for an unrelated
-Cowork-on-Windows incident; Claude API and Console were operational. The owner's first protected
+The historical v13 activation review passed on 12 September with the approved exception for an
+unrelated Cowork-on-Windows incident; Claude API and Console were operational. The full v14
+operations review remains pending after its passed configuration postcheck. The owner's first protected
 TestFlight styling request displayed an outfit at 13:34 SGT. A read-only server check confirmed
 one settled admission, no pending or uncertain reservations, and spend below warning. See the
 [physical call checkpoint](docs/app-store/internal-testflight-runbook.md#first-protected-testflight-call--12-september-2026).
