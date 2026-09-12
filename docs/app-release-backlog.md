@@ -24,8 +24,9 @@ Statuses:
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
 approved bounded AI pilot, and finish public
 Singapore submission. Build `1.0.0 (7)` is **Complete / Ready to Submit**, assigned only to
-`Family` Internal Testing with one group tester and no individual testers; approved AI-disabled
-notes are saved and reload-verified. Build 7 is used and must never be reused. See the
+`Family` Internal Testing with one group tester and no individual testers; approved enabled-pilot
+notes are saved and reload-verified. They replaced the initial 10 September AI-disabled notes on
+12 September. Build 7 is used and must never be reused. See the
 [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The 11 September owner-approved server/local deletion, removal and clean installation have since
 passed. The owner confirmed version 7, empty Wardrobe/History and AI permission off; a fresh
