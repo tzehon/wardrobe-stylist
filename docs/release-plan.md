@@ -67,9 +67,9 @@ AI budget. Do not redesign authentication, migrate storage, reset the ledger or 
 model to finish this release.
 
 - The [12 September privacy review](app-store/ai-pilot-privacy-review-20260912.md) confirms
-  standard provider retention and prepares the public policy and Apple classifications. Retain
-  build 7 and notice version 3 for the unchanged flow; publish the approved policy and verify the
-  Apple answers. No new iOS build is needed solely for this disclosure/documentation update.
+  standard provider retention. The approved policy and Apple privacy answers are published and
+  verified. Retain build 7 and notice version 3 for the unchanged flow; no new iOS build is needed
+  for this disclosure/documentation update.
 - Verify the existing approved limits, model/key/workspace, capacity and intact ledger while AI
   is still disabled. The pre-enable review expects disabled AI; it must not demand the enabled
   state that it is meant to precede. Retain the existing provider cap, credits and auto-reload-off

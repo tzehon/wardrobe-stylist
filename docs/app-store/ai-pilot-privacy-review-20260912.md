@@ -1,27 +1,27 @@
 # AI pilot privacy review — 12 September 2026
 
-Status: prepared for owner review; no policy publication, Apple declaration change, paid call or
-AI activation. Reviewed repository source: `3c58dce`, with the delivered build `1.0.0 (7)` notice.
+Status: owner-approved policy and Apple privacy answers published on 12 September. No paid call
+or AI activation. Reviewed repository source: `3c58dce`, with the delivered build `1.0.0 (7)` notice.
 The last verified Fly v12 runtime remains the disabled baseline; this review is not a fresh live
 operations check. Private limits, provider identifiers and credentials are excluded.
 
 ## Decision
 
-Retain build 7 and consent notice version 3 for the existing styling flow. Publish the updated
-[privacy proposal](privacy-policy-proposed-20260909.md) before enabling AI and reconcile the
-[Apple inventory](app-privacy-data-inventory.md). No new TestFlight build is required for these
-documentation changes. This is the implementation assessment, not an assertion of Apple approval.
+Retain build 7 and consent notice version 3 for the existing styling flow. The updated
+[policy](privacy-policy-proposed-20260909.md) and the Apple answers recorded in the
+[inventory](app-privacy-data-inventory.md) are now published. No new TestFlight build is required
+for these documentation changes. This is the implementation assessment, not an assertion of Apple approval.
 
 The bundled notice already names Anthropic, the requested styling purpose and all transmitted
 fields, and requires explicit permission before sending them. It makes no zero-retention promise.
-Settings exposes the public privacy-policy link. The proposed update explains existing provider
+Settings exposes the public privacy-policy link. The published update explains existing provider
 handling and service accounting without adding a recipient, device field or processing purpose.
 The separate budget ledger receives no installation ID, wardrobe, prompt or response payload.
 Its random reservation references and aggregate liability survive individual identity deletion;
 they are not a new personal profile. The in-app deletion control already limits its promise to
 the live anonymous security record.
 
-Retain the existing explicit opt-in. If the final proposal instead changes the payload, provider,
+Retain the existing explicit opt-in. If a later change alters the payload, provider,
 purpose or bundled promises, reassess consent/versioning before enabling that changed flow.
 [Apple 5.1.1–5.1.2](https://developer.apple.com/app-store/review/guidelines/#privacy)
 requires accessible privacy disclosures and permission before sharing personal data with third-party AI.
@@ -56,36 +56,55 @@ Wardrobe does not invoke provider web-search or voice tools. The
 describes US storage and international processing, including internal safety/support work.
 No Singapore-only processing or no-human-access claim is supported.
 
-An anonymous fetch of the [live privacy page](https://blog.tth.dev/wardrobe/privacy/) succeeded.
-It still has the 21 August effective date and describes only security/authentication records,
-omitting the newer budget ledger and explicit API retention. The proposed replacement has no
-effective date until publication. Historical publication evidence is preserved.
+Before publication, an anonymous fetch of the [live privacy page](https://blog.tth.dev/wardrobe/privacy/) succeeded.
+It had the 21 August effective date and described only security/authentication records,
+omitting the newer budget ledger and explicit API retention. The replacement was subsequently published with the actual 12 September effective date.
+Historical publication evidence is preserved.
 
-## Proposed Apple answers
+## Approved and published Apple answers
 
 Apple counts off-device information accessible beyond the immediate request, including partner
 retention. Optional styling is a primary feature, so its consent button alone does not exempt it.
 See [App Privacy details](https://developer.apple.com/app-store/app-privacy-details/).
 
-| Information | Proposed declaration | Reason |
+| Information | Published declaration | Reason |
 |---|---|---|
 | Compact wardrobe attributes, recent item IDs, average ratings/counts and occasion text | Other User Content; App Functionality and Product Personalization; linked; not tracking | Provider retention is confirmed; suggestions adapt to personal wardrobe/preferences. Anonymous access does not establish de-identification. |
-| App Attest/security identifiers and retained hosting metadata | Existing Device ID, Other Diagnostic Data and Product Interaction declarations; App Functionality; linked; not tracking | Preserve the existing security/hosting classification; do not infer advertising or analytics use. |
+| App Attest/security identifiers and retained hosting metadata | Device ID, Other Diagnostic Data and Product Interaction declarations; App Functionality; linked; not tracking | Use the reviewed security/hosting classification; do not infer advertising or analytics use. |
 | Local photos, purchase details, full history and local preferences | Not collected in the current v1 flow | These remain on device; only the specified summaries leave. |
 | Separate global budget/reservation ledger | No additional device-collected category solely for this store | Backend-generated aggregate accounting has no installation or user identifier; still disclose its purpose and retention publicly. |
 
 The personalization purpose applies to styling content, not automatically to security metadata.
-These are prepared answers, not saved or published App Store Connect state. Apple allows updating
-privacy answers without shipping a new app binary.
+These answers were entered, published and reload-verified in App Store Connect. Its initial form
+was empty; the previously prepared classifications were not previously saved Apple declarations.
+Apple allows updating privacy answers without shipping a new app binary.
+
+## Publication evidence
+
+The owner answered **Proceed** to the request to publish this policy update and apply these Apple
+answers. Website [PR #6](https://github.com/tzehon/tzehon.github.io/pull/6) received a clear Codex
+review on `66731f5` and rebase-merged at `2026-09-12T03:09:38Z` as `cdef8874e69706712163c1f8031e40eac3593811`.
+[GitHub Pages run 34669611500](https://github.com/tzehon/tzehon.github.io/actions/runs/34669611500)
+passed Jekyll build and deployment; deploy completed at `03:10:20Z`. Anonymous HTTPS retrieval,
+rendered browser text and visual inspection confirmed the new effective date, aggregate ledger,
+provider retention/exceptions and deletion limits. The public body exactly matches this approved
+source; existing support links and response target are preserved. Local Jekyll was unavailable
+because Bundler 2.5.11 was missing; the successful hosted Jekyll build supplies rendering validation.
+
+App Store Connect initially had no Privacy Policy URL or data declarations. The existing public
+URL was saved, and exactly four categories above were configured, each linked and not tracking.
+Only Other User Content additionally uses Product Personalization. After confirmation Apple showed
+**Published a few seconds ago by tan tze hon** at the `03:14–03:15Z` verification checkpoint;
+reload retained the publication, URL and four configured categories. This publishes privacy
+metadata; the app version remains **Prepare for Submission**, with no review submission or release.
 
 ## Remaining actions
 
-1. Approve and publish the proposed privacy wording, assign its actual effective date, and verify
-   the rendered page and existing in-app link. Review/save the corresponding Apple answers.
-2. Run the existing disabled pre-enable review against the approved private budget, current
+1. Run the existing disabled pre-enable review against the approved private budget, current
    provider/workspace and fixed Fly resource envelope. Preserve residual Fly invoice exposure.
-3. Present the exact bounded activation and verification-call package, then enable only on its
+2. Present the exact bounded activation and verification-call package, then enable only on its
    approval. Keep real production styling proof separate from the automated local QA already passed.
 
-Snapshot/recovery waiver work is tracked separately. No additional monitoring service, model
-migration, storage reset, routine phone QA or replacement archive is introduced by this review.
+The independently approved snapshot/recovery waiver merged through PR #49 and remains unchanged.
+No additional monitoring service, model migration, storage reset, routine phone QA or replacement
+archive is introduced by this review.

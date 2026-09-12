@@ -415,8 +415,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   remain OPEN even if the separately reported observed amount crosses a warning/hold threshold.
   The September 9 runner, delivery, missed-run and source-freshness proposal was superseded by
   the 10 September manual-review plan; these are deferred automation requirements, not active
-  launch gates. The proposed September 9 public
-  privacy revision is local only; APP-016, consent materiality and publication remain open.
+  launch gates. The September 9 privacy proposal, reconciled on 12 September, is approved and
+  published through website PR #6. The four reviewed Apple privacy categories are published and
+  reload-verified. The unchanged flow retains build 7/consent version 3; see
+  `docs/app-store/ai-pilot-privacy-review-20260912.md`. Disabled pre-enable checks and separate AI
+  activation approval remain open; publication is not AI activation or public app submission.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;

@@ -57,7 +57,7 @@ kept “In progress.”
 | APP-013 | **Done** | The deterministic offline tour now uses fictional manual/photo data, never opens the production store, and never calls connected AI; its Today/History/catalog flow passed UI automation |
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
-| APP-016 | **In progress** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. Current provider terms, App Privacy reconciliation, and final App Store Connect answers remain open |
+| APP-016 | **Complete** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. The 12 September provider/consent review and privacy policy/Apple-answer publication are complete; remaining store-submission checks stay separate |
 | APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v12 runtime has AI disabled](app-store/internal-testflight-runbook.md#approved-disabled-budget-setup--2026-09-08). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; final store metadata and public submission remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
@@ -957,13 +957,13 @@ governed by APP-036's Gmail-free guards.
   build-6 fix passed 17/17 focused tests; merged-source evidence retained 221 backend tests plus all
   mandatory audit/analysis/security/type gates, 231/231 iOS tests, and 43 release-script tests.
   Exact Fly v9, signed-archive, and processed-build checks passed separately.
-- [ ] **APP-016 · In progress · Prepare accurate public-facing documents.** The live
-  privacy/support/Terms pages now describe the Gmail-free candidate and omit Google/Gmail/Limited
-  Use/receipt-import claims. Finish reconciling current Anthropic, Apple, and Fly terms, purposes,
-  retention, App Privacy answers, and final store fields. Do not publish unverified retention or
-  “no training” claims. The [12 September review](app-store/ai-pilot-privacy-review-20260912.md)
-  verifies the standard provider settings/terms and prepares policy and Apple answers. Its
-  assessment retains build 7/consent version 3; final publication and activation remain open.
+- [x] **APP-016 · Complete · Publish accurate public-facing disclosures.** The live
+  privacy/support/Terms pages describe the Gmail-free candidate. The
+  [12 September review](app-store/ai-pilot-privacy-review-20260912.md) verifies the standard
+  provider settings/terms and retains build 7/consent version 3. The owner-approved policy
+  published through website PR #6, and the four Apple privacy categories and policy URL are
+  published and reload-verified. Retention exceptions and the aggregate budget store are disclosed.
+  Remaining store fields are APP-017; AI activation is separately approved.
 - [ ] **APP-017 · Submission · Complete the App Store Connect record.** The launch decision is
   `1.0.0`/build 7, price Free, no in-app purchase or subscription, and Singapore-only availability.
   Complete and verify the remaining final name/bundle ID/SKU, category, content rights, age rating,
