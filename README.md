@@ -38,14 +38,15 @@ one settled admission, no pending or uncertain reservations, and spend below war
 [physical call checkpoint](docs/app-store/internal-testflight-runbook.md#first-protected-testflight-call--12-september-2026).
 No new build or installation is required.
 
-The [Singapore submission package](docs/app-store/submission-preparation-20260912.md) now has
-prepared listing copy, reviewer instructions and five fictional screenshots. Apple agreements,
-bank/tax status and DSA status are active; Singapore is the sole selected territory. The store
-draft still needs the prepared metadata/assets, Free price, build selection and declarations.
-Before submission, approve/apply App Store App Attest category `4` alongside TestFlight `2`,
-verify the changed runtime, and approve the final submission. The proposed release is manual after
-Apple approval. This preparation has not changed production or submitted the app and needs no
-new TestFlight build.
+The [Singapore submission package](docs/app-store/submission-preparation-20260912.md) is approved
+for source publication, saving the Apple draft and the bounded compatibility deployment. Apple
+has saved the listing, Lifestyle category, age rating 9+, owner-confirmed content rights,
+reviewer instructions, no-sign-in setting, manual release and existing build 7. Five fictional
+screenshots are uploaded, ordered and reload-verified. Free pricing and disabling Mac/Vision
+availability remain in progress. Agreements, bank/tax and DSA status are active; Singapore is the sole territory.
+The source now configures App Store App Attest category `4` alongside TestFlight `2`, while
+the live backend still accepts only `2`. Deployment, post-change verification and final submission
+remain open. The source/configuration and store-draft work needs no new TestFlight build.
 
 The 12 September disabled-pilot review verified the live runtime, exact approved budget settings,
 intact idle ledger, fixed Machine size and recovery-image scan. The public-page checker now
