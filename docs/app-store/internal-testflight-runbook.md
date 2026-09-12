@@ -803,7 +803,7 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current enabled
-  Fly v13 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
+  Fly v14 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
   On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -830,7 +830,7 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
   `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v13 bounded pilot is enabled, with its 12 September enabled review recorded above. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
+  v14 bounded pilot is enabled; its configuration postcheck passed, while the full v14 operations review remains pending. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
   completed the build-7 upload path. Refresh the applicable operations review before any later
   candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
 - Fly Security summarized optional DPA termination periods of 30/90 days, but the account's
@@ -1216,6 +1216,12 @@ IDs, secret hashes and exact private policy/accounting values remain only in ign
 
 The operations lock records observed release 14/categories `2,4`, preserving every other binding,
 including source `d2866a2375dd4795f40a3ab13d273ed138cedd7e` and the signed build-7 archive.
+The complete regression was rerun after that lock update at source `2c0148c1dd451cf0a9e4ac63b4cb05fd690a714b`:
+870 backend tests plus locked pip-audit/Bandit/Ruff/mypy passed; XcodeGen and all 237 iOS tests
+(227 Swift and 10 UI) passed at `2026-09-12T06:51:51Z`, with all 44 release-script tests passing.
+Subsequent edits in this evidence tranche change documentation only; the tested v14 lock, runtime
+source, shipped iOS source and archive bindings are unchanged. Recording the later operations
+result without changing those inputs does not introduce another code/configuration change.
 **The full post-change operations review is pending.** The configuration postcheck must not be
 reported as a completed public/manual/recovery operations review.
 
@@ -1611,7 +1617,7 @@ identity or notification evidence.
   passed; the device screenshot covers normal-state centering/legibility and automated tests own
   enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
-  catalog or button-state phone checklist remains. The separately approved bounded v13 pilot
+  catalog or button-state phone checklist remains. The separately approved bounded v14 pilot
   is enabled; its one protected-device verification call passed on 12 September.
 - [ ] After the processed replacement and its backend are proven, obtain a separate final
   owner confirmation and retire only the inventoried Wardrobe Google Cloud/OAuth projects. Do not

@@ -5,11 +5,12 @@ manual entries and user-selected photos, keeps the catalog on the iPhone, and of
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
-the owner-approved Cowork-only status exception and operational API/Console evidence. The same
-image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
-idle. The first protected TestFlight call passed on 12 September. See the
-[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+Current runtime: **Fly v14 retains the enabled bounded AI pilot** and accepts App Attest
+categories `2,4`. Independent configuration verification passed at `2026-09-12T06:36:24Z`, with
+the exact image, original resources, keys, policy and intact below-warning ledger preserved.
+The full v14 operations review remains pending. The earlier v13 activation review and first
+protected TestFlight call remain retained evidence. See the
+[compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 
 Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
@@ -54,7 +55,7 @@ explicitly historical setup documents; it is not part of the active v1 architect
 The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
 installation for optional connected styling. When enabled, the developer backend proxies a
 minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
-processing. Fly v13 enables the provider-call path under the existing approved budget policy.
+processing. Fly v14 retains the enabled provider-call path under the existing approved budget policy.
 The first protected TestFlight styling result passed on 12 September.
 
 ```mermaid
@@ -201,7 +202,7 @@ owner qualitative acceptance with the numeric rubric explicitly left incomplete.
 caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
 IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
-The sequence below describes the enabled v13 pilot. Admission still fails closed if styling is
+The sequence below describes the enabled v14 pilot. Admission still fails closed if styling is
 disabled or the existing budget cannot safely admit the request.
 
 ```mermaid
@@ -302,7 +303,7 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI runtime | Enabled bounded pilot on v13; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
+| AI runtime | Enabled bounded pilot on v14; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
 | Budget controls | Provisioned and configured; separate durable SQLite ledger with verified private policy and atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |

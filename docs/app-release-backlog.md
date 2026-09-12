@@ -182,7 +182,7 @@ original source/image/Machine/volume are unchanged. The dedicated production wor
 geography; its monthly limit and two email settings were verified after reload. One approved
 credit purchase is paid, sufficient usable balance was verified, and auto-reload remains off.
 The workspace-scoped key was created without Admin API access and transferred through hidden owner
-input without local secret persistence; it and the private settings were deployed in v12 and retained by v13. Rotation
+input without local secret persistence; it and the private settings were deployed in v12 and retained by v14. Rotation
 before its 8 October 2026 expiry is required. Actual provider alert delivery remains unproven.
 The 10 September plan uses daily owner cost review for the small pilot and defers external
 monitoring. The 10 September beta-only operations review and separately approved internal
@@ -581,7 +581,7 @@ remaining deterministic checks belong to the suite.
   said "all are ok, proceed" and accepted all proposals qualitatively. Preserve the partial
   scorecard and record this owner exception separately; the numeric rubric is not claimed to
   have passed. No missing score was inferred and no automatic threshold changed.
-  The deployed, bounded v13 pilot selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
+  The deployed, bounded v14 pilot selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
   Runtime admission, spend bands, and preflight use Sonnet's full 1M context at 2 input / 10
   output micro-USD per token; the default reservation is $2.010240. The v2 ledger binds model,
   units, prices, and token bounds and rejects old/mismatched storage without upgrade or reset.

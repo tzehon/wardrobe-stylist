@@ -10,11 +10,12 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-Current runtime: **Fly v13 has the bounded AI pilot enabled**, verified on 12 September with
-the owner-approved Cowork-only status exception and operational API/Console evidence. The same
-image, original Machine/volume and exact policy remain; the ledger is ready, below warning and
-idle. The first protected TestFlight call passed on 12 September. See the
-[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+Current runtime: **Fly v14 retains the enabled bounded AI pilot** and accepts App Attest
+categories `2,4`. Independent configuration verification passed at `2026-09-12T06:36:24Z`, with
+the exact image, original resources, keys, policy and intact below-warning ledger preserved.
+The full v14 operations review remains pending. The earlier v13 activation review and first
+protected TestFlight call remain retained evidence. See the
+[compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 
 Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
@@ -211,7 +212,7 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
 on 2026-09-06 after measured Sonnet costs; those values remain private and are applied to the
-enabled v13 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
+enabled v14 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
 persistence. Rotate it before its 8 October 2026 expiry. Saved notifications do not prove actual
@@ -480,7 +481,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the enabled bounded v13 pilot recorded above. Protected
+Singapore Machine. Current production is the enabled bounded v14 pilot recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
