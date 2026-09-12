@@ -10,12 +10,16 @@ This document is the canonical product-model reference; the
 
 The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catalog browsing and
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
-Optional AI styling is implemented, but the last verified production configuration has it
-disabled. Remote requests currently receive temporary unavailability; local features still work.
+Optional AI styling is implemented and enabled as the owner-approved bounded Fly v13 pilot.
+The 12 September enabled operations review passed with the scoped Cowork-only exception;
+the first protected TestFlight styling result remains pending. Styling requires in-app consent
+and remains subject to the global safety limits. Local features work independently of AI.
 Build 7 has completed [internal TestFlight distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
-records the completed handoff, clean installation and scoped local-beta QA. AI activation and
-public release remain open; the planned freemium offering is unchanged.
+records the completed handoff, clean installation and scoped local-beta QA. Bounded activation
+is complete; protected-device styling proof and public release remain open. See the
+[activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
+The planned freemium offering is unchanged.
 
 There is no StoreKit purchase flow, subscription entitlement service, customer-level monthly
 allowance, Plan & Usage screen, Restore Purchases or Manage Subscription control in the current
@@ -33,7 +37,7 @@ anything; “Plus” is a working name.
 | --- | --- | --- | --- |
 | Availability | Singapore only | Singapore initially | Singapore initially |
 | Local wardrobe, photos, history, reminders and Demo Mode | Included without payment | Remain available without payment | Same local core |
-| Fresh AI styling | Optional; subject to activation and global safety controls | Smaller fixed allowance | Larger fixed allowance |
+| Fresh AI styling | Optional; bounded internal pilot enabled, subject to consent and global safety controls | Smaller fixed allowance | Larger fixed allowance |
 | Customer allowance | No per-person monthly product quota implemented | Number and final reset rule undecided | Number undecided; subscription-period reset is the design direction |
 | Price | Free; no IAP or subscription | Free | Localized monthly price undecided |
 | Purchase and account model | No purchase or Wardrobe login | Preserve no Wardrobe login | Apple purchase, verified by the backend; no Wardrobe login |
@@ -107,7 +111,7 @@ metadata, not a claim that the current app already stores Apple purchase identit
 
 ## The owner's budget remains independent
 
-**Implemented and configured while AI is disabled:** a durable global monthly AI ceiling,
+**Implemented and applied to the enabled bounded pilot:** a durable global monthly AI ceiling,
 request ceiling, bounded concurrency, conservative pre-call reservations and a fail-closed switch.
 The exact approved limits remain private. The provider workspace cap and credits with auto-reload
 off provide additional controls. See [AI spend controls](ai-spend-controls.md).
