@@ -17,7 +17,7 @@ applied to the serving runtime with AI enabled under the separately approved pil
 [PR #41](https://github.com/tzehon/wardrobe-stylist/pull/41) merged the model/budget source.
 The [12 September v13 activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
 passed with the owner-approved Cowork-only exception. The later v14 configuration postcheck passed;
-its full operations review remains pending. The first protected-device styling result passed on
+its full operations review completed at `2026-09-12T07:09:37Z` with the approved Cowork-only exception. The first protected-device styling result passed on
 12 September. The following paragraphs retain the earlier disabled setup history. A subsequent
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
 base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
@@ -210,7 +210,8 @@ demands AI already be enabled before activation is approved.
 
 The lock identifies the observed v14 configuration deployment with unchanged image source.
 Categories `2,4` and preserved resources/policy/ledger passed independent configuration verification
-at `2026-09-12T06:36:24Z`; the full v14 operations review remains pending.
+at `2026-09-12T06:36:24Z`. The full v14 review completed at `2026-09-12T07:09:37Z` with the
+approved Cowork-only status exception; every other operational check passed.
 The existing ledger and private policy remain applied; the enabled budget check passed ready,
 below warning and idle at the 12 September activation checkpoint. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.

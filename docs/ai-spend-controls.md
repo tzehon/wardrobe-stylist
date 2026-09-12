@@ -2,8 +2,9 @@
 
 Status: **Fly v14 retains AI enabled under the approved bounded pilot**. Its categories `2,4`
 configuration postcheck passed at `2026-09-12T06:36:24Z`, preserving the same image, resources,
-keys, exact private policy and intact below-warning ledger. Full v14 operations review remains
-pending. The earlier v13 activation review and first protected TestFlight call remain retained
+keys, exact private policy and intact below-warning ledger. The full v14 review at
+`2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception; every other
+operational check passed. The earlier v13 activation review and first protected TestFlight call remain retained
 evidence. See the
 [compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 

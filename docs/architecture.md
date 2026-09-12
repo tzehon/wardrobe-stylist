@@ -8,7 +8,8 @@ minimum App Attest authentication/security metadata and anonymous aggregate AI-b
 Current runtime: **Fly v14 retains the enabled bounded AI pilot** and accepts App Attest
 categories `2,4`. Independent configuration verification passed at `2026-09-12T06:36:24Z`, with
 the exact image, original resources, keys, policy and intact below-warning ledger preserved.
-The full v14 operations review remains pending. The earlier v13 activation review and first
+The full v14 review at `2026-09-12T07:09:37Z` completed with the approved Cowork-only status
+exception; every other operational check passed. The earlier v13 activation review and first
 protected TestFlight call remain retained evidence. See the
 [compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
 
