@@ -46,9 +46,10 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 ## Current work order
 
 Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
-prepare the separately approved AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
+verify the enabled bounded AI pilot, then public Singapore submission. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
-saved/reload-verified AI-disabled tester notes. Build 7 is consumed and must never be reused;
+saved/reload-verified AI-disabled tester notes, replaced by verified enabled-pilot notes on
+12 September. Build 7 is consumed and must never be reused;
 the owner-controlled identity-safe handoff and clean-install first launch passed on 11 September.
 The owner confirmed empty Wardrobe/History and version 7 with AI permission off; fresh server
 security aggregates remained zero. The normal-state device screenshot and automated regression
@@ -341,8 +342,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   approved public-capacity review, snapshots, bounded logs, archive and public pages pass.
   The 9 September ordinary diagnostic correction selects SSH user `wardrobe`, verifies
   real/effective UID/GID 10001 before ledger access and disables Python bytecode writes. A targeted
-  live read-only check passed on unchanged v12 at `2026-09-09T00:05:29Z`; the ordinary budget gate
-  remains OPEN `styling-disabled`. The earlier ownership-context failure is corrected without
+  live read-only check passed on unchanged v12 at `2026-09-09T00:05:29Z`; that historical budget check
+  returned OPEN `styling-disabled`. The earlier ownership-context failure is corrected without
   relaxing storage guards or enabling AI. No paid call was made.
   This does not close migration acceptance or the full pre-upload review. Retained Fly v10
   evidence describes the historical Opus 4.8 deployment and archive baseline. Verify SDK syntax and

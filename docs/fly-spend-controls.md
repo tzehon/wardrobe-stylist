@@ -54,8 +54,8 @@ amounts and account/resource identifiers in the existing ignored private records
 another reporting system merely to store those few fields. Native provider emails are useful
 supplements; they do not replace the owner's review or require a new monitoring vendor.
 
-If the owner cannot perform the checks, keep AI activation paused or arrange a separately reviewed
-operating alternative. Even an automated alert cannot guarantee reaction before charges accrue.
+If the owner cannot perform the checks, pause the enabled pilot under the approved disable
+response or arrange a separately reviewed operating alternative. Even an automated alert cannot guarantee reaction before charges accrue.
 
 ## Limits of this protection
 
