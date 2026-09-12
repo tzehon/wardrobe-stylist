@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 from collections.abc import Sequence
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -265,6 +266,7 @@ def valid_runtime() -> tuple[Any, FakeRunner]:
 
 def local_fly() -> dict[str, Any]:
     return {
+        "app": APP,
         "build": {},
         "env": reviewed_env(),
         "primary_region": "sin",
@@ -446,6 +448,45 @@ def test_source_requires_current_remote_main_not_only_tracking_ref() -> None:
     assert stale_revision is None
 
 
+@pytest.mark.parametrize(
+    ("changed_path", "expected_status"),
+    [
+        ("backend/fly.toml", MODULE.Status.PASS),
+        ("backend/.dockerignore", MODULE.Status.OPEN),
+        ("backend/Dockerfile", MODULE.Status.OPEN),
+        ("backend/app/routes/recommend.py", MODULE.Status.OPEN),
+        ("backend/container_entrypoint.py", MODULE.Status.OPEN),
+        ("backend/pyproject.toml", MODULE.Status.OPEN),
+        ("backend/uv.lock", MODULE.Status.OPEN),
+        ("backend/uvicorn-logging.json", MODULE.Status.OPEN),
+        ("shared/schemas/outfit.schema.json", MODULE.Status.OPEN),
+    ],
+)
+def test_source_separates_deployment_configuration_from_image_and_contract_inputs(
+    changed_path: str,
+    expected_status: Any,
+) -> None:
+    class ChangedPathRunner(FakeRunner):
+        def run(self, argv: Sequence[str], **kwargs: Any) -> Any:
+            if tuple(argv[:3]) == ("git", "diff", "--quiet"):
+                self.calls.append(tuple(argv))
+                checked_paths = argv[list(argv).index("--") + 1 :]
+                changed = any(
+                    Path(changed_path).is_relative_to(Path(path)) for path in checked_paths
+                )
+                return MODULE.CommandOutput(returncode=int(changed))
+            return super().run(argv, **kwargs)
+
+    result, revision = MODULE.check_source(
+        ChangedPathRunner(source_responses("2" * 40)),
+        repo_root=Path.cwd(),
+        config=config(),
+    )
+
+    assert result.status is expected_status
+    assert revision == ("2" * 40 if expected_status is MODULE.Status.PASS else None)
+
+
 def test_archive_identity_requires_pinned_cdhash_and_uuid() -> None:
     uuid_output = MODULE.CommandOutput(
         returncode=0,
@@ -603,6 +644,73 @@ def test_configuration_accepts_only_deployed_expected_secrets() -> None:
     )
 
     assert result.status is MODULE.Status.PASS
+
+
+@pytest.mark.parametrize("drift", [None, "local", "live", "machine", "review-lock"])
+def test_configuration_only_category_change_requires_exact_agreement(
+    drift: str | None,
+) -> None:
+    runtime, _ = valid_runtime()
+    local = local_fly()
+    live = live_config()
+    reviewed = replace(config(), validation_categories=("2", "4"))
+    environments = {
+        "local": local["env"],
+        "live": live["env"],
+        "machine": runtime.machine_config["env"],
+    }
+    for environment in environments.values():
+        environment["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"] = "2,4"
+    if drift == "review-lock":
+        reviewed = config()
+    elif drift is not None:
+        environments[drift]["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"] = "2"
+    runner = FakeRunner(
+        {
+            ("flyctl", "config", "show", "--app", APP): output(live),
+            ("flyctl", "secrets", "list", "--json", "--app", APP): output(
+                [
+                    {"name": "ANTHROPIC_API_KEY", "status": "Deployed"},
+                    {"name": "APP_ATTEST_SESSION_SECRET", "status": "Deployed"},
+                ]
+            ),
+        }
+    )
+
+    result = MODULE.check_configuration(
+        runner, app=APP, local_fly=local, runtime=runtime, config=reviewed
+    )
+
+    assert result.status is (MODULE.Status.PASS if drift is None else MODULE.Status.OPEN)
+
+
+@pytest.mark.parametrize("drift", ["deploy", "processes", "experimental", "app", "region"])
+def test_configuration_rejects_unreviewed_local_deployment_changes(drift: str) -> None:
+    runtime, _ = valid_runtime()
+    local = local_fly()
+    if drift == "app":
+        local["app"] = "unreviewed-app"
+    elif drift == "region":
+        local["primary_region"] = "iad"
+    else:
+        local[drift] = {"unreviewed": "setting"}
+    runner = FakeRunner(
+        {
+            ("flyctl", "config", "show", "--app", APP): output(live_config()),
+            ("flyctl", "secrets", "list", "--json", "--app", APP): output(
+                [
+                    {"name": "ANTHROPIC_API_KEY", "status": "Deployed"},
+                    {"name": "APP_ATTEST_SESSION_SECRET", "status": "Deployed"},
+                ]
+            ),
+        }
+    )
+
+    result = MODULE.check_configuration(
+        runner, app=APP, local_fly=local, runtime=runtime, config=config()
+    )
+
+    assert result.status is MODULE.Status.OPEN
 
 
 @pytest.mark.parametrize("status", ["Staged", "Partial", "Unknown"])

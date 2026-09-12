@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import io
+import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -270,6 +271,69 @@ def test_assertion_accepts_documented_and_apple_vector_uint32_forms(
     assert result.sign_count == 7
     assert result.validation_category == 2
     assert result.bundle_version == "7"
+
+
+@pytest.mark.parametrize(
+    ("category", "bundle_version", "error"),
+    [
+        (2, "7", None),
+        (4, "7", None),
+        (1, "7", "Disallowed validation category"),
+        (3, "7", "Disallowed validation category"),
+        (4, "3", "Disallowed bundle version"),
+        (4, "8", "Disallowed bundle version"),
+    ],
+)
+def test_fly_allowlists_accept_only_reviewed_distribution_categories_and_builds(
+    category: int,
+    bundle_version: str,
+    error: str | None,
+) -> None:
+    """Exercise the deployed configuration shape with cryptographically signed fields."""
+    env = tomllib.loads(
+        (Path(__file__).parents[1] / "fly.toml").read_text(encoding="utf-8")
+    )["env"]
+    app_id = f"{env['APP_ATTEST_APP_ID_PREFIX']}.{env['APP_ATTEST_BUNDLE_ID']}"
+    verifier = AppAttestVerifier(
+        app_id=app_id,
+        environment=env["APP_ATTEST_ENVIRONMENT"],
+        allowed_validation_categories=frozenset(
+            int(value) for value in env["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"].split(",")
+        ),
+        allowed_bundle_versions=frozenset(
+            env["APP_ATTEST_ALLOWED_BUNDLE_VERSIONS"].split(",")
+        ),
+    )
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key_der = private_key.public_key().public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    client_data = b"fictional-release-assertion"
+    auth_data = hashlib.sha256(app_id.encode()).digest() + _assertion_auth_data(
+        category=category, counter=1, bundle_version=bundle_version
+    )[32:]
+    nonce = hashlib.sha256(auth_data + hashlib.sha256(client_data).digest()).digest()
+    assertion = cbor2.dumps(
+        {
+            "signature": private_key.sign(nonce, ec.ECDSA(hashes.SHA256())),
+            "authenticatorData": auth_data,
+        },
+        canonical=True,
+    )
+    arguments = {
+        "assertion_object": assertion,
+        "client_data": client_data,
+        "public_key_der": public_key_der,
+        "previous_sign_count": 0,
+    }
+    if error is not None:
+        with pytest.raises(AppAttestValidationError, match=error):
+            verifier.verify_assertion(**arguments)
+    else:
+        result = verifier.verify_assertion(**arguments)
+        assert result.validation_category == category
+        assert result.bundle_version == bundle_version
 
 
 def test_assertion_rejects_signature_that_treats_nonce_as_prehashed() -> None:

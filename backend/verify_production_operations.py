@@ -49,12 +49,14 @@ EVENT_WINDOW = timedelta(minutes=10)
 # Parser safety bounds, not a launch-capacity recommendation or runtime quota.
 MAX_AUTH_CAPACITY_BOUND = 100_000
 MAX_AUTH_CAPACITY_POLICY_BYTES = 4096
+# Inputs that determine the immutable image or its runtime contracts. Fly's
+# deployment-only configuration is checked separately against the exact local,
+# live-app and Machine configuration; it is not copied into the Docker image.
 RUNTIME_INPUT_PATHS = (
     "backend/.dockerignore",
     "backend/Dockerfile",
     "backend/app",
     "backend/container_entrypoint.py",
-    "backend/fly.toml",
     "backend/pyproject.toml",
     "backend/uv.lock",
     "backend/uvicorn-logging.json",
@@ -1120,6 +1122,16 @@ def check_configuration(
     if not isinstance(live, dict) or secrets is None or runtime is None:
         return _open("fly_configuration", "configuration-evidence-open")
     try:
+        # Since fly.toml can change without rebuilding the image, reject new
+        # unreviewed configuration sections instead of silently ignoring them.
+        if (
+            set(local_fly)
+            != {"app", "primary_region", "build", "env", "mounts", "http_service", "vm"}
+            or local_fly["app"] != app
+            or app != config.fly_app
+            or local_fly["primary_region"] != config.region
+        ):
+            raise ValueError
         local_env = local_fly["env"]
         live_env = live["env"]
         machine_env = runtime.machine_config["env"]
