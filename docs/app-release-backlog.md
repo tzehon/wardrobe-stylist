@@ -40,7 +40,10 @@ single serial checklist. The later v14 compatibility deployment passed its indep
 postcheck at `2026-09-12T06:36:24Z`. Full post-change operations completed at
 `2026-09-12T07:09:37Z` with the approved Cowork-only status exception; all other checks passed. Apple's version
 `1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review, with no submission
-sent and manual release retained. Previously verified work is retained; open AI/commerce/automation items
+sent and manual release retained. Inventoried Google project retirement remains open and
+unperformed, requiring separate owner confirmation. It is deferred legacy cleanup, not a gate
+for the verified Gmail-free Free Singapore v1; APP-036 is not claimed complete.
+Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
 is deferred; existing budget controls and owner-run daily pilot checks remain.
 

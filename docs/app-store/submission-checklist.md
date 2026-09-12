@@ -35,7 +35,9 @@ availability and disabled Mac/Vision availability are also saved and reload-veri
 `2,4` are deployed as Fly v14, with independent configuration postcheck PASS at
 `2026-09-12T06:36:24Z`. Full post-change operations at `2026-09-12T07:09:37Z` completed with
 the approved Cowork-only status exception; every other operational check passed. Public submission
-awaits the owner's decision. Apple's
+awaits the owner's final submission decision. Inventoried Google project retirement remains
+open, unperformed and subject to separate owner confirmation; that deferred cleanup is not a
+public-v1 submission gate. Apple's
 version `1.0.0`/build-7 draft passed Add for Review validation and is Ready for Review; Submit for
 Review has not been clicked. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
