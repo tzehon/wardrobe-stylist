@@ -156,7 +156,8 @@ and **Ready to Submit**, with build 7 absent at that historical checkpoint. The 
 completed build-7 validation/upload, processing, internal assignment and saved/reloaded tester
 notes with AI disabled. The 11 September checkpoint records completed handoff and scoped
 local-beta QA. The 10 September snapshot-list/deletion-recovery evidence is unproved but owner-
-waived only for the Free Singapore v1. Consent/privacy reconciliation and public submission
+waived only for the Free Singapore v1. The [12 September privacy review](ai-pilot-privacy-review-20260912.md)
+completed consent reconciliation and policy/Apple publication; AI activation and app submission
 remain open. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
