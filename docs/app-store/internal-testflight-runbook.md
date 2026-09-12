@@ -1087,6 +1087,47 @@ identity later completed the same ordered deletion after an eligible snapshot, f
 deletion, uninstall, clean reinstall, and a new anonymous enrollment only when the owner explicitly
 styled a look. These are fresh-install and deletion proofs, not upgrade or migration support.
 
+## AI pilot pre-enable review — 2026-09-12
+
+The read-only review at `2026-09-12T03:39:31Z`, on clean synchronized main after PR #50,
+passed the locked archive, exact healthy Fly v12 runtime, App Attest configuration, durable
+auth-store integrity and approved capacity band, volume usage, fresh automatic 14-day snapshot,
+bounded events, public backend and exact Linux/AMD64 recovery image with zero High/Critical
+findings. The budget diagnostic confirmed disabled, below-warning and no pending work. A separate
+service-UID read-only comparison confirmed the exact already-approved private policy and ready
+ledger. The original one-Machine shared-CPU/512 MB resource envelope remains intact.
+
+Signed-in review confirmed the existing production workspace cap and warning emails, zero displayed
+workspace spend, prepaid credits, auto-reload off, the recorded 8 October key expiry and zero
+reported Sonnet quota utilization over the last 24 hours. Fly's September invoice subtotal and
+same-period Cost Explorer agreed, but displayed net due differed and no exact usage cutoff was
+shown. Exact amounts remain private. Five expected billed product categories were visible; this
+does not establish complete coverage of every possible account service or cap the final bill.
+Retain the approved daily owner review and warning/hold procedure, without resurrecting the
+deferred monitoring prototype.
+
+The public-page check exposed a parser defect: HTML whitespace wrapping inside the snapshot
+disclosure was treated as missing text. Normalizing whitespace fixes the live support/privacy/Terms
+check without weakening required content, reciprocal links, contact or removed-capability guards.
+Regression cases cover newlines, tabs, inline markup, nonbreaking spaces, missing disclosure and
+forbidden wording split across lines.
+
+The aggregate Anthropic status endpoint reported a minor outage. Its official summary identified
+only Claude Cowork on Windows; both Claude API and Console were operational. Preserve the aggregate
+checker as OPEN, with this component-level evidence separately recorded; do not silently label the
+whole preflight green. Recheck the actual incident scope at activation. A targeted exception for
+this unrelated incident must be part of the concrete enablement approval, not a general waiver for
+provider API degradation. [Official status summary](https://status.claude.com/api/v2/summary.json).
+
+Validation passed: 845 backend tests plus locked pip-audit, Bandit, Ruff and mypy; 227 Swift
+unit tests and 10 UI tests; 44 release-script tests; 67 local documentation links, the new
+runbook anchor and `git diff --check`.
+
+No production setting, provider setting, ledger, app data or signed archive changed, and no paid
+call was made. This checker/documentation change needs no new TestFlight build. Complete its
+review/publication and the bounded activation approval before enabling AI; the first protected
+styling call remains a physical-device boundary.
+
 ## Per-build release-candidate loop
 
 1. **Freeze the candidate.** Use a clean, reviewed commit. Record its hash, the backend image that

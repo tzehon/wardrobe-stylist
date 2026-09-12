@@ -593,6 +593,11 @@ remaining deterministic checks belong to the suite.
   confirm enabled operation. This AI milestone does not block the explicitly AI-disabled internal
   beta or close the public release's separate privacy, recovery and App Store requirements.
   Do not record exact billing or secret values in release evidence, or describe AI as unlimited.
+  The [12 September pre-enable checkpoint](app-store/internal-testflight-runbook.md#ai-pilot-pre-enable-review--2026-09-12)
+  refreshes the disabled runtime, exact policy, idle ledger, recovery scan and signed-in cost
+  observations. A whitespace-only public-page parser correction passes the live disclosures;
+  the unrelated Cowork-on-Windows outage remains an explicit aggregate-status exception proposal.
+  Activation and the protected-device call remain unperformed.
   Local [spend controls](ai-spend-controls.md) now provide a separate durable SQLite ledger,
   atomic full-context cost reservations, global monthly admissions/units/concurrency, strict
   input/output limits, zero retries, default-disabled server switch, redacted preflight, and
