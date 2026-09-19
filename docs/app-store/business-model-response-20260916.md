@@ -4,10 +4,11 @@ Historical correspondence checkpoint. Apple subsequently issued a new **Guidelin
 rejection on 19 September; see the [current assessment](spam-rejection-20260919.md).
 
 Status: **sent as reviewed on 16 September at 16:14 SGT**, after explicit owner approval.
-Apple shows **Messages (4)** with the sent reply. The submission remains **Rejected / Unresolved
-Issues** for **1.0.0 (7)**; no resubmission was performed in this step. Apple's latest message cites **Guideline 2.1(b) — Information Needed**
-and asks four questions about paid digital features. The review date is 15 September; the
-message appeared at 00:41 SGT on 16 September. No crash or other functional defect is identified.
+At that checkpoint, Apple showed **Messages (4)** with the sent reply and the submission remained
+**Rejected / Unresolved Issues** for **1.0.0 (7)**; no resubmission was performed in this step.
+The message addressed by this response cited **Guideline 2.1(b) — Information Needed** and asked
+four questions about paid digital features. Its review date was 15 September, and it appeared at
+00:41 SGT on 16 September. It identified no crash or other functional defect.
 
 ## Sent reply
 
@@ -49,12 +50,14 @@ blocking issues. The owner then approved sending the existing wording as-is; the
 wording suggestion was not applied. **Reply to App Review** sent the exact 2,327-character text
 at 16:14 SGT, and the sent-message entry and increased message count verified delivery.
 
-Await Apple's assessment of the information supplied. Retain the existing
-13 September walkthrough and saved reviewer instructions; no replacement video or new binary is
-indicated. Public release remains manual and needs separate owner approval.
+The next step at the 16 September checkpoint was to await Apple's assessment. The subsequent
+[19 September rejection and sent clarification](spam-rejection-20260919.md) now govern follow-up.
+Retain the existing 13 September walkthrough and saved reviewer instructions; this business-model
+response required no replacement video or new binary. Public release remains manual and needs
+separate owner approval.
 The earlier expired session was restored before this send. No App Review Notes, listing,
 build, pricing or release-setting change was made, and no new attachment was uploaded.
 
-The current request changes documentation and review correspondence only. **No new TestFlight
-build is required.** No code/configuration/test input changes are proposed; validate the response
-against source and current Apple settings without repeating the completed physical QA.
+This checkpoint changed documentation and review correspondence only. **No new TestFlight
+build was required.** No code, configuration or test input changed; the response was checked
+against source and Apple settings without repeating the completed physical QA.
