@@ -4,7 +4,7 @@ Use this runbook for every internal beta. The audience is internal, but the bina
 an App Store release candidate from the moment it is archived. This prevents a separate, weaker
 "beta build" configuration from drifting away from what will eventually be reviewed.
 
-## Current work order — 12 September 2026
+## Current work order — 19 September 2026
 
 Start with [the short release plan](../release-plan.md). This runbook retains operator procedures
 and historical evidence; it is not a request to repeat every completed row. Internal beta
@@ -19,10 +19,22 @@ the later approved categories `2,4` deployment and independent configuration pos
 v14 review at `2026-09-12T07:09:37Z` subsequently completed with the approved Cowork-only status
 exception; every other operational check passed. See the [final review](#final-v14-operations-review--12-september-2026).
 The owner separately approved submission; Apple's version `1.0.0`/build-7 item was submitted at
-15:32 SGT (07:32 UTC) on 12 September and is **Waiting for Review**, with manual release retained.
-See the [submission checkpoint](#apple-app-review-submission--12-september-2026). Apple approval
-and manual public release remain open. Inventoried Google project retirement remains unperformed, deferred legacy cleanup requiring
-separate owner confirmation; it is not a public-v1 submission gate.
+15:32 SGT (07:32 UTC) on 12 September. On 13 September Apple marked the item **Rejected /
+Unresolved Issues**, requesting additional information and a physical-device walkthrough.
+See the [review checkpoint](#apple-information-request--13-september-2026) and the subsequent
+[13 September resubmission](#apple-information-response-and-resubmission--13-september-2026).
+The owner-approved business-model reply was sent unchanged on 16 September at 16:14 SGT.
+The newest Apple message, **19 September at 07:18 SGT**, now cites **Guideline 4.3(a) — Design —
+Spam**. After the owner approved the visible draft and asked to reply, the exact **1,399-character**
+clarification was sent at **15:46 SGT on 19 September**. The desktop app verified **Messages (6)**
+and the sent owner message; **Rejected / Unresolved Issues** remains unchanged.
+Await Apple's clarification; see the [rejection and sent reply](spam-rejection-20260919.md).
+No appeal, resubmission, new build, Notes/listing/attachment change or production change was
+performed. Manual release remains selected;
+Apple approval and manual public release remain open. The owner-requested
+[Google project shutdowns](../gcp-retirement-20260919.md) were accepted on
+19 September; final provider deletion remains pending after the recovery period. The legacy
+shutdown action is complete and was not a public-v1 submission gate.
 
 The unshipped hourly monitor was archived and removed from the active checkout. Use existing
 budget/resource controls and daily owner pilot review; automated edge coverage and a new alerting
@@ -1275,10 +1287,11 @@ At this 07:09:37Z review checkpoint, Apple's version `1.0.0`/build-7 draft was *
 2,064-character reviewer notes, Free Singapore-only availability and manual release selected.
 **Submit for Review had not been clicked; the owner's decision was still pending.** The later
 [submission checkpoint](#apple-app-review-submission--12-september-2026) records the approved action. Retirement of the
-inventoried Wardrobe Google Cloud/OAuth projects remains open, unperformed and subject to separate
-owner confirmation. That deferred legacy cleanup does not block the verified Gmail-free Free
-Singapore v1; APP-036 remains in progress for cleanup and submission. Keep ordinary daily
-pilot review and the accepted Fly cost/snapshot residual risks; this checkpoint adds no restore,
+inventoried Wardrobe Google Cloud/OAuth projects remained unperformed at that checkpoint and
+required separate owner confirmation. The later [19 September retirement](../gcp-retirement-20260919.md)
+records the owner-requested shutdowns and pending final deletion. Legacy cleanup did not block the
+verified Gmail-free Free Singapore v1; APP-036 was still in progress for cleanup and submission.
+Keep ordinary daily pilot review and the accepted Fly cost/snapshot residual risks; this checkpoint adds no restore,
 all-copy-purge or deleted-identity recovery proof.
 
 ## Apple App Review submission — 12 September 2026
@@ -1300,8 +1313,188 @@ submission identifier and contact details are not reproduced here. PR #56 had al
 the final v14 review with its approved Cowork-only exception. This update changes documentation
 only and retains the exact tested/runtime/lock/iOS/archive inputs and completed regression.
 No new TestFlight build is required. Continue ordinary pilot operations, respond to App Review
-if needed, and await the review outcome. Deferred Google project retirement remains open and
-unperformed, requires separate owner confirmation and is not a public-v1 submission prerequisite.
+if needed, and await the review outcome. Google project retirement remained unperformed at that
+submission checkpoint and required separate owner confirmation; it was not a public-v1 submission prerequisite. The later
+[19 September retirement](../gcp-retirement-20260919.md) records the owner-requested shutdowns and
+pending final deletion.
+
+## Apple information request — 13 September 2026
+
+A signed-in read of the existing App Store Connect submission confirmed build **1.0.0 (7)**
+as **Rejected**, with one message dated **13 September, 09:15 SGT**. The cited issue is
+**Guideline 2.1 — Information Needed — New App Submission**: Apple requests more information
+because the developer account has limited App Review history. The message identifies no
+specific crash, failed feature or other product defect. Its separate common-issues section
+is general guidance, not additional findings against this build.
+
+Apple requests the following in both an App Review reply and the App Review Information Notes:
+
+1. A screen recording from a physical device running the latest operating system, beginning
+   with app launch and showing the typical user flow and any applicable account, shared-content
+   or paid-feature flows.
+2. The app's purpose, target audience, problem solved and value.
+3. Setup and access instructions for the main features, with credentials/sample files if needed.
+4. External services, tools and platforms used for core functionality.
+5. Regional feature/content differences, or confirmation of consistent behavior.
+6. Relevant authorization for regulated services or protected third-party material, if applicable.
+
+The existing v1 instructions provide much of the written information. The new substantive
+evidence is the physical-device recording; existing simulator tests and screenshots do not
+meet that explicit request. No code change or new TestFlight build is indicated by the message
+alone. This checkpoint records read-only assessment and local documentation updates only;
+no reply, upload, submission change or resubmission has occurred. Apple approval and separately
+approved manual public release remain pending.
+
+### Response preparation — 13 September 2026
+
+After the owner asked to proceed, the six-part response was prepared and independently checked
+against current app/backend behavior. App Store Connect saved it using **Save Draft**, and
+**Continue Draft / Delete Draft** remained visible after navigating away and back. The same
+**3,899-character** text was saved in App Review Notes and verified after reload; 101 characters
+remained. Build 7 and the selected manual-release setting were retained. Section 1 explicitly
+says the physical-device video is not yet attached. No reply or resubmission was sent.
+
+The paired physical iPhone reported iPhone 16 Pro / iOS **26.6.2**, matching Apple's published
+latest public release on this date. Mirroring required an owner unlock and was closed; Apple
+also documents that device screen recording cannot run together with screen mirroring. No
+device reset, deletion, installation, app launch or paid styling request was performed.
+
+The [recording guide](review-walkthrough-20260913.md) preserves the current installation and
+asks for one normal flow, not a repeat of completed QA. The pending-video response is retained
+privately in `.fly/app-review-response-20260913/` and was mirrored in the tracked reviewer notes
+at this preparation checkpoint. The remaining steps were to inspect the actual recording, replace
+the pending-video paragraph with verified video/device/build details, attach it and synchronize Notes. This documentation/preparation work
+changes no app/runtime/configuration/test input and requires no new TestFlight build.
+
+### Recording received and upload copy prepared — 13 September 2026
+
+The owner supplied an 89-second recording showing the physical app launch, a photo-based item
+save, enabled AI disclosure, a successful styling request, Wear/History, privacy controls and
+Settings **1.0.0 (7)**. The recording uses the owner's clothing photos, not bundled Demo data.
+Review found no visible app failure; deletion controls were displayed without being activated.
+
+A private H.264/30fps upload copy retains the full app sequence and masks unrelated photo-picker
+thumbnails. The original stays unchanged. The original audio is digitally silent; the derivative
+omits it and source metadata. Visual checks and a decoded-frame black-region check verified the
+mask. Private hashes and the 3,943-character final reply are retained under
+`.fly/app-review-response-20260913/`; no video/private thumbnail content is tracked in Git.
+
+The video and final reply await owner approval for private Apple transmission and resubmission
+of the same build with manual release retained. Apple still holds the earlier unsent draft and
+pending-video Notes. No file upload, reply, resubmission, backend change or new TestFlight build
+has occurred at this checkpoint.
+
+## Apple information response and resubmission — 13 September 2026
+
+The owner explicitly approved the reviewed redacted video, final reply, App Review Notes update
+and resubmission of existing **1.0.0 (7)**, retaining manual public release. The approval record
+binds the exact private video/reply hashes; the unredacted original was not uploaded.
+
+- App Store Connect accepted **`wardrobe-app-review-build7.mp4`** as the reply attachment. It
+  persisted with the saved draft and was visible on the sent message.
+- The final **3,943-character** six-part response was saved in App Review Notes and verified
+  after reload, with 57 characters remaining. The selected build stayed 7 and **Manually release
+  this version** remained selected; sign-in remained unnecessary.
+- **Reply** sent the response at **11:55 SGT**. Apple showed **Messages (2)** and the sent
+  message with its video attachment, replacing the unsent-draft controls.
+- **Update Review** changed the item to **Ready for Review**. **Resubmit to App Review** then
+  returned both the submission and its sole item **1.0.0 (7)** to **Waiting for Review**.
+  Apple displayed **Date Submitted: 13 September 2026, 11:56 SGT (03:56 UTC)**.
+
+The [canonical reviewer notes](review-notes-1.0.0.txt), README, release plan and backlog reflect
+this completion. Private execution evidence remains under `.fly/app-review-response-20260913/`;
+the video and personal-content inspection artifacts remain excluded from Git. Apple approval
+and manual public release have not occurred. Await Apple's response and continue the existing
+bounded-pilot cost routine; no new manual QA cycle is assigned.
+
+This work changes documentation and Apple review materials only. It changes no iOS bundle,
+API contract, backend configuration or test input, and requires **no new TestFlight build**.
+Documentation consistency and whitespace checks apply; the existing code-regression evidence
+is retained without rerunning unchanged suites.
+
+## Business model information request — 16 September 2026
+
+A fresh signed-in App Store Connect inspection found **Rejected / Unresolved Issues** for
+**1.0.0 (7)**. Apple's new **Guideline 2.1(b) — Information Needed** message appears at 00:41 SGT
+on 16 September, with review date **15 September** and review device **iPhone 17 Pro Max**.
+It asks who uses paid features, where they are purchased, which previous purchases can be
+accessed, and which paid features unlock without In-App Purchase. No crash, broken flow or
+new video request is identified in this message.
+
+Source inspection confirms that this build has no paid-feature, StoreKit, checkout or paid-
+entitlement implementation. The live listing still says Free/no-IAP/no-subscription, Singapore
+current price is **SGD 0.00**, build 7 remains selected, and manual release remains selected.
+Optional AI is developer-funded and provided without user payment. Clothing purchase metadata
+is an optional local record of an owned garment's price/date, not digital-feature commerce.
+Freemium remains an unimplemented future milestone.
+
+The [prepared four-part response](business-model-response-20260916.md) explains each distinction.
+It awaits owner approval to send and, if required by the Apple workflow, resubmit the same build.
+The 13 September video and reply remain completed evidence; no new upload, paid call, app
+change or production configuration change is proposed. Keep the existing saved App Review Notes
+and walkthrough unless a later approved update is needed. Manual public release is separate.
+
+This is a documentation/correspondence clarification requiring **no new TestFlight build**.
+Source and documentation consistency checks apply; unchanged full regression and physical QA
+are retained. No response or new resubmission has occurred at this preparation checkpoint.
+The Apple session expired on returning to the reply page, so the new response remains local;
+no Apple draft or Notes change was saved on 16 September.
+
+### Business-model reply sent — 16 September 2026
+
+After an independent simulated App Store reviewer found no blocking issue, the owner explicitly
+asked to send the existing reply as-is. The optional wording refinement was not applied. The
+restored signed-in session accepted the exact **2,327-character** response through **Reply**.
+Apple then showed **Messages (4)** and the sent message dated **16 September, 16:14 SGT**.
+The private source hash still matches the reviewed payload.
+
+The submission remained **Rejected / Unresolved Issues** after delivery. No new resubmission,
+App Review Notes change, replacement video, build upload, pricing change or production mutation
+was performed. Await Apple's assessment of the supplied information; delivery is not approval.
+The manual-public-release boundary and no-new-TestFlight-build assessment remain unchanged.
+
+## Similarity rejection — 19 September 2026
+
+A fresh signed-in inspection in the open App Store Connect desktop app verified **Messages (5)**.
+The newest Apple message is dated **19 September, 07:18 SGT** and cites **Guideline 4.3(a) —
+Design — Spam**. It alleges that the binary, metadata or concept is similar to other developers'
+apps with minor differences and asks for distinct content and functionality. Apple names no
+specific matching app, code path or feature, and identifies no particular crash or security defect.
+The extended-review warning concerns repeated problematic submissions, possible delays and risk
+to the developer account; it does not state that the account has been removed.
+
+Build **1.0.0 (7)** remains **Rejected / Unresolved Issues**. The owner-approved 16 September
+business-model reply is retained as sent at 16:14 SGT. The new message changes the current next
+step from waiting for that reply's assessment to addressing the similarity concern. See the
+[rejection and response plan](spam-rejection-20260919.md).
+
+Prepare a focused clarification using verifiable source provenance and implemented workflows,
+and confirm any template use or related submissions from other accounts with the owner before
+making assurances. If clarification does not resolve the concern, consider an evidence-backed
+appeal. Product changes depend on the evidence; this notice alone does not justify a broad refactor
+or repeated unchanged resubmissions.
+
+This initial checkpoint was read-only review and documentation preparation. No new message or appeal was
+sent, no build was resubmitted or uploaded, and no production change was made. The saved Notes
+and existing walkthrough remain retained evidence. Manual public release remains unapproved.
+Documentation and correspondence preparation require **no new TestFlight build**; unchanged
+regression and physical evidence are retained.
+
+### Similarity clarification reply sent — 19 September 2026
+
+After approving the visible draft, the owner asked to reply. The exact **1,399-character** message
+was sent through the open App Store Connect desktop app. Delivery was verified as **Messages (6)**
+and the owner's message dated **19 September, 15:46 SGT** (shown as **Today 3:46 PM**).
+The exact sent text is retained in the [canonical response record](spam-rejection-20260919.md).
+
+The submission remains **Rejected / Unresolved Issues** under Guideline 4.3(a). Await Apple's
+clarification. Facts about template use and related submissions from other accounts are still
+unconfirmed by the owner; the sent reply makes no assurances about them.
+
+This action sent a review-thread reply only. No appeal, resubmission, new build, App Review Notes
+or listing change, attachment upload, or production change was performed. The existing walkthrough
+and Notes remain intact. Manual public release remains unapproved. This correspondence requires
+**no new TestFlight build**; unchanged regression and physical evidence are retained.
 
 ## Per-build release-candidate loop
 
@@ -1690,10 +1883,11 @@ identity or notification evidence.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
   catalog or button-state phone checklist remains. The separately approved bounded v14 pilot
   is enabled; its one protected-device verification call passed on 12 September.
-- [ ] **Deferred legacy cleanup, not a public-v1 submission gate:** after the processed replacement
-  and its backend are proven, obtain separate final owner confirmation and retire only the
-  inventoried Wardrobe Google Cloud/OAuth projects. This remains unperformed and does not affect
-  the verified Gmail-free candidate. Do not touch unrelated Google Cloud or Search Console resources.
+- [x] **Legacy Google project shutdowns:** the owner explicitly requested deletion on 19 September.
+  Both inventoried Wardrobe projects were shut down; see the
+  [retirement evidence](../gcp-retirement-20260919.md). Final provider deletion remains pending after
+  the recovery period. This was not a public-v1 submission gate and does not change the verified
+  Gmail-free candidate. Unrelated Google Cloud and Search Console resources were untouched.
 
 ## Promoting an internally tested build
 

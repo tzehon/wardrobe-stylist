@@ -5,13 +5,19 @@
 > sequence is retained only for a possible later release, which would require a new product,
 > privacy, verification, security-assessment, and distribution decision before work resumes.
 
+**19 September 2026 retirement update:** Google accepted the owner-authorized shutdown requests
+for both legacy Wardrobe projects. Final deletion remains pending; shutdown is not proof of
+completed deletion or all-copy purge. See the [retirement record](gcp-retirement-20260919.md).
+Do not restore or reuse those projects as part of this sequence.
+
 The removed design used the restricted `gmail.readonly` scope and sent minimized receipt data
 through a developer-controlled backend. This sequence records the work a separately approved
 future reintroduction would require. Backend authorization remains anonymous, per-installation App
 Attest rather than Google identity.
 
-Do these steps in order. Do not flip the existing project to production first and try to make the
-code match afterward.
+If a future Gmail release is separately approved, revalidate this historical sequence against
+current provider requirements, then follow it in order with a fresh project inventory. Do not
+publish a newly configured OAuth project before the architecture and code are ready.
 
 Any future Gmail-capable TestFlight build would also follow the public-candidate standard in
 [`app-store/internal-testflight-runbook.md`](app-store/internal-testflight-runbook.md). Internal
@@ -42,8 +48,8 @@ Internal Only** artifact type.
 
 ## 2. Create a separate production Google Cloud project
 
-- [ ] Keep development/testing credentials isolated; create a production project owned by a
-  durable organization/account rather than repurposing the personal test project.
+- [ ] Create new development/testing and production projects with isolated credentials and
+  durable ownership. Do not restore or repurpose the retired Wardrobe projects.
 - [ ] Add at least two appropriate owners/admin recovery paths, current developer/security
   contacts, billing/budget alerts where needed, and least-privilege IAM.
 - [ ] Enable the Gmail API only; review all other enabled APIs and service accounts.
@@ -184,15 +190,16 @@ negative and physical-device tests; Google remains optional Gmail only.
 - [ ] Track annual OAuth reverification/CASA, dependency updates, incident exercises, and domain/
   contact ownership.
 
-## Current console observations to correct later
+## Historical console observations before retirement
 
 The inspected development project was External but still in Testing, with two test users and a
 100-user cap. It had no logo/homepage/privacy/terms URLs or authorized domain; the iOS client had
 the correct `com.tth.Wardrobe` bundle ID but no Team ID/App Store ID. Google App Check being off is
 not the Wardrobe backend-identity decision; Apple App Attest is configured independently in the
 Apple Developer account and backend. The project also showed no billing account, a stale contact
-warning, and weak ownership redundancy. These are observations from the development console, not
-instructions to mutate it in place.
+warning, and weak ownership redundancy. These are historical development-console observations,
+not current project state or instructions to restore or mutate the retired project. The
+[19 September retirement record](gcp-retirement-20260919.md) supersedes its operational status.
 
 ## Official Google references
 

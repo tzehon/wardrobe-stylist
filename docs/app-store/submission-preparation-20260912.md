@@ -1,11 +1,25 @@
 # Singapore submission preparation — 12 September 2026
 
-Status: **Submitted to Apple; Waiting for Review; manual public release remains unapproved**. Build
+Status: **19 September Guideline 4.3(a) rejection; Rejected / Unresolved Issues; clarification reply sent at 15:46 SGT; awaiting Apple; manual public release remains unapproved**. Build
 `1.0.0 (7)` remains the existing processed candidate. The owner approved source publication,
 saving the prepared Apple draft and the minimal App Store compatibility deployment. The later
 contact correction retains that scope; private approval/amendment records bind the corrected
 package. Documentation, store assets, backward-compatible backend configuration and the local
-preflight correction need **no new TestFlight build**.
+preflight correction need **no new TestFlight build**. The later owner-approved information
+response and video submission likewise retain the existing build.
+
+Apple's newest message, dated **19 September, 07:18 SGT**, cites **Guideline 4.3(a) — Design —
+Spam**. The signed-in desktop app initially showed **Messages (5)** and **Rejected / Unresolved Issues**.
+Apple alleges similarity to other developers' apps and requests distinct content and functionality,
+but does not identify a matching app, code path or feature. See the
+[rejection and response plan](spam-rejection-20260919.md).
+The [business-model response](business-model-response-20260916.md) was sent unchanged with owner
+approval at **16:14 SGT on 16 September**. On **19 September at 15:46 SGT**, the exact
+**1,399-character** clarification reply was sent after the owner approved the visible draft and
+asked to reply. The desktop app then confirmed **Messages (6)** and the sent owner message;
+**Rejected / Unresolved Issues** remains unchanged. No appeal, resubmission, new build,
+Notes/listing/attachment change or production change was performed. This correspondence
+requires no new TestFlight build.
 
 ## Confirmed account and draft state
 
@@ -14,14 +28,18 @@ App Store Connect inspection and approved draft saves confirmed:
 - Existing bundle ID and immutable SKU: `com.tth.Wardrobe`; Apple ID `6789053566`.
 - Primary language English (U.K.); version `1.0.0` with build 7 passed Add for Review validation,
   then was submitted with separate owner approval on 12 September at 15:32 SGT (07:32 UTC).
-  Apple confirmed one submitted item and shows **Waiting for Review**. Manual release remains
-  selected; Apple approval and public release have not occurred.
+  Apple initially confirmed **Waiting for Review**. The [13 September information request](internal-testflight-runbook.md#apple-information-request--13-september-2026)
+  changed the status to **Rejected / Unresolved Issues**. After the approved reply/video at
+  11:55 SGT and resubmission at 11:56 SGT, Apple then showed the submission and sole item as
+  **Waiting for Review**. See the [completed response](internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
+  Manual release was reverified; Apple approval and public release have not occurred.
 - Free/Paid agreements active; bank and tax records active/complete; DSA trader status active.
 - Singapore is the sole available territory; 174 territories are not available.
 - Tax category is App Store software; Apple Standard License Agreement is selected.
-- Listing text, subtitle, Lifestyle category, URLs and copyright are saved. Corrected reviewer
-  notes are saved and reload-verified at 2,064 characters, with separate support/privacy links
-  and a complete fictional top/trousers/shoes example.
+- Listing text, subtitle, Lifestyle category, URLs and copyright are saved. The 12 September
+  corrected reviewer notes were saved and reload-verified at 2,064 characters. They were replaced
+  on 13 September by the final 3,943-character six-part response, again saved and reload-verified.
+  Separate support/privacy links and the fictional top/trousers/shoes instructions remain.
 - Existing build 7 is selected. No sign-in is required; manual release is saved.
 - Age rating is 9+ from the lifestyle-content questionnaire, with medical content None. Content
   rights is Yes on the owner's explicit assurance. No accessibility capability was asserted.
@@ -91,15 +109,21 @@ revision unchanged when updating the post-deployment release/category review loc
    Fly has no hard invoice cap. A new failure or configuration change requires the applicable
    approved response. Preserve the exact image, resources, keys, policy and intact ledger;
    no iOS rebuild or additional paid test is proposed.
-3. Await Apple's review of the existing submission and respond to any review questions. The
-   [verified submission](internal-testflight-runbook.md#apple-app-review-submission--12-september-2026)
-   completed with **manual release** selected. Obtain separate owner approval before public
-   release; Apple approval does not itself publish the app under that setting.
+3. Await Apple's clarification in response to the [19 September reply](spam-rejection-20260919.md),
+   sent and verified at **15:46 SGT**. Owner facts about template use and related submissions
+   remain unconfirmed; the sent reply makes no assurances about them. Consider an appeal if the
+   concern remains unresolved; change the product only when the evidence warrants it.
+   No appeal or resubmission has been performed. The earlier
+   [walkthrough and six-part response](review-walkthrough-20260913.md), saved 13 September Notes
+   and video remain unchanged. Obtain owner approval for any further reply or appeal.
+   **Manual release** remains selected and needs separate owner approval; Apple approval does
+   not itself publish the app under that setting.
 
-Inventoried Wardrobe Google Cloud/OAuth project retirement remains open and unperformed, subject
-to separate owner confirmation. This deferred legacy cleanup does not block the verified Gmail-free
-Free Singapore v1. APP-036 remains in progress for cleanup and final public release; this record
-does not claim either complete or authorize a Google mutation.
+The owner separately requested [Google project retirement](../gcp-retirement-20260919.md) on
+19 September. Both Wardrobe project shutdowns were accepted; final provider deletion remains
+pending after the recovery period. The legacy shutdown action is complete and does not change
+the verified Gmail-free Free Singapore v1. APP-036 remains in progress for final public release;
+this cleanup does not grant release approval.
 
 The completed local QA, privacy publication, bounded AI activation and first protected call are
 retained; do not repeat handoff/deletion or routine manual regression. The existing narrowly scoped

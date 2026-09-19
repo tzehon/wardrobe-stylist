@@ -35,10 +35,12 @@ availability and disabled Mac/Vision availability are also saved and reload-veri
 `2,4` are deployed as Fly v14, with independent configuration postcheck PASS at
 `2026-09-12T06:36:24Z`. Full post-change operations at `2026-09-12T07:09:37Z` completed with
 the approved Cowork-only status exception; every other operational check passed. The owner approved submission;
-version `1.0.0` with build 7 was submitted on 12 September at 15:32 SGT (07:32 UTC). Inventoried Google project retirement remains
-open, unperformed and subject to separate owner confirmation; that deferred cleanup is not a
-public-v1 submission gate. Apple's
-version `1.0.0`/build-7 submission is **Waiting for Review**. Manual release remains selected;
+version `1.0.0` with build 7 was submitted on 12 September at 15:32 SGT (07:32 UTC). Google project retirement was still
+unperformed at that checkpoint and was not a public-v1 submission gate. The later
+[19 September retirement](../gcp-retirement-20260919.md) records both owner-requested shutdowns,
+with final provider deletion pending after the recovery period. Apple's
+version `1.0.0`/build-7 submission was **Waiting for Review** at the submission checkpoint; see the
+[current release plan](../release-plan.md) for subsequent review correspondence. Manual release remains selected;
 Apple approval and public release have not occurred. Older unchecked historical checklist
 rows do not require replaying the completed handoff, local QA or pilot.
 

@@ -54,12 +54,33 @@ made. The full post-change review completed at `2026-09-12T07:09:37Z` with the a
 Cowork-only status exception; every other operational check passed, including the recovery scan.
 See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).
 After separate owner approval, version **1.0.0 (7)** was submitted to Apple on 12 September at
-15:32 SGT (07:32 UTC) and is **Waiting for Review**. Manual release remains selected; the app is
-not Apple-approved or publicly released. See the [submission checkpoint](docs/app-store/internal-testflight-runbook.md#apple-app-review-submission--12-september-2026).
-Retirement of the inventoried Wardrobe Google Cloud/OAuth projects remains
-unperformed, deferred legacy cleanup requiring separate owner confirmation. It does not block
-submission of the verified Gmail-free Free Singapore v1. Manual public release still requires
-separate owner approval after Apple's review.
+15:32 SGT (07:32 UTC). On 13 September Apple marked it **Rejected / Unresolved Issues** under
+Guideline 2.1, requesting additional information for an account with limited review history.
+The request asked for a physical-device walkthrough video and written app details; it identified
+no specific app defect. The owner-approved reply and redacted 89-second video were sent on
+13 September, and the same build was resubmitted at **11:56 SGT (03:56 UTC)**. Apple showed
+**Waiting for Review** at that checkpoint. On 16 September Apple returned it to
+**Rejected / Unresolved Issues**, asking under Guideline 2.1(b) how paid features work. The
+current build has none: optional AI is free to users and funded by the developer. A
+[four-part business-model reply](docs/app-store/business-model-response-20260916.md) was sent
+as reviewed, with owner approval, at **16:14 SGT**.
+On **19 September at 07:18 SGT**, Apple issued a **Guideline 4.3(a) — Design — Spam** rejection,
+alleging similarity to other developers' binaries, metadata and/or concepts. The desktop App
+Store Connect app showed **Messages (5)** and **Rejected / Unresolved Issues**. The message
+includes an extended-review warning but identifies no particular matching app, code element or
+security defect. The owner-approved clarification was sent unchanged at **15:46 SGT** on
+19 September; Apple shows **Messages (6)** with the sent reply. It asks which elements caused
+the finding and describes the implemented workflow without unverified originality claims.
+Await Apple's clarification; no appeal or resubmission was performed, and the status remains
+**Rejected / Unresolved Issues**.
+See the [19 September assessment and sent reply](docs/app-store/spam-rejection-20260919.md).
+Do not resubmit unchanged or rebuild solely to change the binary. A clarification needs no new
+TestFlight build; substantive iOS changes would require a new unused build number.
+Manual release remains the selected release plan; the app is not Apple-approved or publicly released.
+The owner-requested [Google Cloud retirement](docs/gcp-retirement-20260919.md) was performed on
+19 September: both Wardrobe project shutdowns were accepted, with final provider deletion pending
+after the recovery period. This legacy cleanup does not change the verified Gmail-free candidate.
+Manual public release still requires separate owner approval after Apple's review.
 The corrected reviewer notes have separate support/privacy links and were saved
 and reload-verified. These changes need no new TestFlight build.
 
@@ -107,9 +128,19 @@ Follow **[the release plan](docs/release-plan.md)** for the current work order:
 1. Local-beta QA and the installation handoff are complete; retain that evidence without replaying it.
 2. Privacy publication, consent assessment, bounded AI activation and the first protected
    TestFlight styling call are complete; continue the daily cost review.
-3. Await Apple's review of submitted `1.0.0 (7)` and respond to review questions if needed. Public
-   release stays manual and requires separate owner approval; do not repeat the completed submission.
+3. Await Apple's answer to the [clarification sent on 19 September at 15:46 SGT](docs/app-store/spam-rejection-20260919.md)
+   concerning the Guideline 4.3(a) similarity rejection.
+   The earlier physical-device video and reviewer notes remain available to Apple.
+   Clarification needs no new build; any product changes require a separate release assessment. Public
+   release stays manual and requires separate owner approval.
    The snapshot/recovery evidence sub-gate remains owner-waived, not proven.
+
+The [reviewer answers](docs/app-store/review-notes-1.0.0.txt) and
+[short recording guide](docs/app-store/review-walkthrough-20260913.md) cover Apple's information
+request. The inspected 89-second physical-device video, with unrelated photo-picker thumbnails
+obscured, is attached to the sent response. The matching final 3,943-character App Review Notes
+were saved and reload-verified on 13 September. The README and release records track the
+resubmission; no new TestFlight build is required.
 
 The preserved signed build-7 archive passed strict verification on 10 September. The combined
 operations review passed `PASS_INTERNAL_BETA_ONLY` at `2026-09-10T11:25:45Z`: AI remained disabled,

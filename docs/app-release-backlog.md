@@ -19,11 +19,11 @@ Statuses:
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
 
-## Current work order — 12 September 2026
+## Current work order — 19 September 2026
 
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
-approved bounded AI pilot, and await Apple's review of submitted `1.0.0 (7)` before any separately
-approved manual public release. Its TestFlight upload is **Complete / Ready to Submit**, assigned only to
+approved bounded AI pilot, and await Apple's clarification after the [19 September reply](app-store/spam-rejection-20260919.md)
+was sent at **15:46 SGT** before any separately approved manual public release. Its TestFlight upload is **Complete / Ready to Submit**, assigned only to
 `Family` Internal Testing with one group tester and no individual testers; approved enabled-pilot
 notes are saved and reload-verified. They replaced the initial 10 September AI-disabled notes on
 12 September. Build 7 is used and must never be reused. See the
@@ -39,10 +39,28 @@ This backlog is a work inventory, not a
 single serial checklist. The later v14 compatibility deployment passed its independent configuration
 postcheck at `2026-09-12T06:36:24Z`. Full post-change operations completed at
 `2026-09-12T07:09:37Z` with the approved Cowork-only status exception; all other checks passed. Apple's version
-`1.0.0` with build 7 was submitted on 12 September at 15:32 SGT (07:32 UTC) and is **Waiting for
-Review**. Manual release is retained; Apple approval and public release remain open. Inventoried Google project retirement remains open and
-unperformed, requiring separate owner confirmation. It is deferred legacy cleanup, not a gate
-for the verified Gmail-free Free Singapore v1; APP-036 is not claimed complete.
+`1.0.0` with build 7 was submitted on 12 September at 15:32 SGT (07:32 UTC). Apple marked it
+**Rejected / Unresolved Issues** on 13 September, requesting a physical-device walkthrough and
+written app information. The owner-approved reply and redacted physical-device video were sent,
+and the same build was resubmitted on 13 September at **11:56 SGT (03:56 UTC)**. Apple showed
+**Waiting for Review** at that checkpoint; see the [resubmission checkpoint](app-store/internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
+On 16 September Apple returned build 7 to **Rejected / Unresolved Issues** under Guideline 2.1(b),
+asking about paid digital features. The build has none; the [business-model response](app-store/business-model-response-20260916.md)
+was sent unchanged with owner approval at **16:14 SGT**; no new resubmission followed.
+On **19 September at 07:18 SGT**, Apple's newest of **Messages (5)** cited **Guideline 4.3(a) —
+Design — Spam**, alleging similarity to other developers' apps and asking for distinct content
+and functionality without naming a matching app or feature. Build 7 remains **Rejected /
+Unresolved Issues**. The owner approved the visible clarification draft and asked to reply;
+the exact **1,399-character** message was sent at **15:46 SGT on 19 September**, verified in the
+desktop app as **Messages (6)** and the sent owner message. Await Apple's clarification.
+Owner facts about templates and related submissions remain unconfirmed; the reply makes no
+assurances about them. No appeal, resubmission, new build, Notes/listing/attachment change or
+production change was performed. Correspondence alone requires no new TestFlight build.
+Manual release is retained; Apple approval and public release remain open. The owner-requested
+[Google project shutdowns](gcp-retirement-20260919.md) were accepted on
+19 September; final provider deletion remains pending after the recovery period. This legacy
+cleanup does not change the verified Gmail-free candidate; APP-036 remains in progress for final
+public release.
 Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
 is deferred; existing budget controls and owner-run daily pilot checks remain.
@@ -52,7 +70,7 @@ release. Proposed allowance examples and unresolved prices are not customer prom
 
 ## Progress snapshot
 
-Last updated: **2026-09-12**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-19**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
@@ -66,12 +84,12 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **Complete** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. The 12 September provider/consent review and privacy policy/Apple-answer publication are complete; remaining store-submission checks stay separate |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; store metadata/media are saved and Add for Review validation passed; full v14 operations completed with the approved Cowork-only exception; build 7 is submitted and Waiting for Review; Apple approval and manual public release remain open |
+| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; store metadata/media are saved and Add for Review validation passed; full v14 operations completed with the approved Cowork-only exception; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); awaiting Apple, with Rejected / Unresolved Issues still displayed; Apple approval and manual public release remain open |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
 | APP-029–APP-035 | **Deferred / pending** | Receipt extraction and Gmail History work (APP-029/030) are deferred beyond public v1. Insights, backup, imagery, localization, and widgets remain independent future enhancements |
-| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; deferred Google retirement remains open; build 7 is submitted and Waiting for Review, with manual public release unapproved |
+| APP-036 | **In progress** | Gmail/Google/OAuth/receipt import remains removed from the repository and exact final signed build-7 archive. Build 5 was identity-safely retired, and clean build-6 QA retained broad Gmail-free physical proof through the delivered-reminder tap plus final deletion/reinstall/new enrollment. Build 6 is nevertheless non-promotable after the confirmed styling-consent control presentation failure; the replacement implementation, build `1.0.0 (7)` source, exact Fly v10 deployment, post-change/pre-archive reviews, and signed-archive verification passed at the archive-era checkpoint. The [current Fly v14 bounded pilot is enabled](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026). Build-7 internal distribution is complete. The 11 September handoff/clean install and normal-state visual check passed. The snapshot/deletion evidence sub-gate is owner-waived rather than proven; [owner-requested Google project shutdowns](gcp-retirement-20260919.md) were accepted on 19 September, with final provider deletion pending; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); awaiting Apple, with Rejected / Unresolved Issues still displayed; manual public release remains unapproved |
 
 Pre-APP-036 build-4 policy-enforcement baseline: **455 iOS tests** total (**443 Swift tests plus 12
 end-to-end UI tests**), **237 backend tests**, locked dependency audit with no known vulnerabilities,
@@ -192,7 +210,7 @@ before its 8 October 2026 expiry is required. Actual provider alert delivery rem
 The 10 September plan uses daily owner cost review for the small pilot and defers external
 monitoring. The 10 September beta-only operations review and separately approved internal
 distribution passed; fresh checks remain required for later changes. Bounded v13 activation
-and enabled verification passed on 12 September; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved. Handoff and scoped local-beta QA passed on 11 September. The earlier
+and enabled verification passed on 12 September; protected-device styling proof passed on 12 September; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); awaiting Apple, with Rejected / Unresolved Issues still displayed; manual public release remains unapproved. Handoff and scoped local-beta QA passed on 11 September. The earlier
 [budget preparation review](app-store/internal-testflight-runbook.md#budget-and-provider-preparation--2026-09-07)
 supports zero prior selected-model production liability, subject to a fresh pre-creation check;
 excluded evaluation uncertainty remains separately unresolved. The finite disabled setup is verified.
@@ -833,9 +851,12 @@ recovery, APP-019, APP-036, or public-submission gate.
   snapshot. The monitored 25/28 August snapshots were later observed absent. The 10 September
   Build-7 pre-deletion snapshot's later disappearance and deletion-specific non-return were not
   proven and are explicitly owner-waived for the Free Singapore v1. Other APP-009/APP-036 work
-  remains separate. With a separate
-  final owner confirmation, retire only the inventoried Wardrobe Google Cloud/OAuth projects; do
-  not touch unrelated projects.
+  remains separate. The owner-requested Google project shutdown action is now complete as
+  recorded below; final provider deletion remains pending.
+- [x] **Retire the two inventoried Wardrobe Google projects.** The owner explicitly requested
+  deletion on 19 September. Both project shutdowns were accepted; see the
+  [retirement record](gcp-retirement-20260919.md) for exact IDs and provider evidence. Final
+  deletion remains pending after the recovery period; unrelated projects were untouched.
 
 Using an internal tester group does not relax the binary standard. **TestFlight Internal Only** is
 not used because Apple prevents that artifact from being submitted to customers later.
@@ -997,7 +1018,10 @@ governed by APP-036's Gmail-free guards.
   off and manual release saved. Listing, account/declarations, private owner-confirmed contact and
   corrected 2,064-character no-login reviewer notes are saved/reload-verified. Add for Review
   validation passed; the separately approved submission completed on 12 September at 15:32 SGT
-  (07:32 UTC). Apple shows Waiting for Review, with manual release retained.
+  (07:32 UTC). Apple initially showed Waiting for Review. The 13 September information request
+  was answered with the approved physical-device recording and final 3,943-character reviewer
+  notes/reply. Resubmission on 13 September at 11:56 SGT reached Waiting for Review;
+  manual release is retained.
 - [x] **APP-018 · Complete · Produce final store media.** Five fictional Demo frames are uploaded
   and reload-verified in Catalog/editor/detail/Today/History order; the smaller slot automatically
   uses the 6.9-inch assets. The screenshots show no private data, login or removed capability.
@@ -1040,7 +1064,7 @@ governed by APP-036's Gmail-free guards.
   passed broad Gmail-free physical QA through the fixed notification tap and final identity-safe
   deletion/reinstall/new enrollment. Build-7 distribution, handoff/clean first launch and normal-state
   device appearance have passed. Deletion-specific recovery/non-return is owner-waived but unproved;
-  deferred Google retirement remains open; build 7 is submitted and Waiting for Review, with manual public release unapproved.
+  [owner-requested Google project shutdowns](gcp-retirement-20260919.md) were accepted on 19 September, with final provider deletion pending; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); awaiting Apple, with Rejected / Unresolved Issues still displayed; manual public release remains unapproved.
 
 ## P1 — core experience polish
 
