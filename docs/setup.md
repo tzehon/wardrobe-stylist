@@ -29,7 +29,11 @@ No paid AI call was made. Provider alert delivery remains unproven and billing-f
 remains unresolved. The [10 September release plan](release-plan.md) uses daily owner cost review
 for the small pilot and defers external monitoring. The beta-only review and build-7 internal
 distribution are complete. Handoff, clean installation and scoped local-beta QA passed on
-11 September; v13 activation is complete; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved. See the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
+11 September; v13 activation and protected-device styling proof passed on 12 September. As of
+19 September, build 7 is **Rejected / Unresolved Issues** under Guideline 4.3(a); the clarification
+was sent at 15:46 SGT and verified in Messages (6). Await Apple's reply; manual public release
+remains unapproved. See the [current assessment](app-store/spam-rejection-20260919.md) and retained
+[distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
 that historical budget check reported OPEN `styling-disabled`. Follow the

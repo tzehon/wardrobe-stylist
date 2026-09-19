@@ -11,8 +11,12 @@ contain or invoke that capability.
 Build `1.0.0 (7)` has completed
 [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
-Privacy publication and the consent assessment passed on 12 September; bounded activation is complete; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved. Do not repeat
-the completed handoff or routine QA.
+Privacy publication, the consent assessment, bounded activation and protected-device styling
+proof passed on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues**
+under Guideline 4.3(a). The [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and
+verified in Messages (6); await Apple's reply. Manual public release remains unapproved. This
+correspondence does not change the disclosed data flow; do not repeat the completed handoff or
+routine QA.
 
 The [current Fly v14 pilot](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
 has AI enabled under the existing private policy and separate aggregate ledger. The owner

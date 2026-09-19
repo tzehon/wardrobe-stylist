@@ -6,12 +6,14 @@ The historical placeholders below are not paste-ready and must not be uploaded.
 > Reconcile these notes with the exact submitted Gmail-free build. Remove every TODO and
 > placeholder before submission.
 >
-> Current release state: `1.0.0 (7)` has completed
+> Historical 12 September checkpoint: `1.0.0 (7)` had completed
 > [internal TestFlight distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
 > with AI disabled. Handoff, clean installation and scoped local-beta QA passed on 11 September.
 > Privacy publication, consent assessment and separately approved bounded v13 activation passed
-> on 12 September. Protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; do not repeat
-> the completed handoff or routine QA.
+> on 12 September. Protected-device styling proof passed and build 7 was submitted, reaching
+> **Waiting for Review** at that checkpoint. The [19 September assessment](spam-rejection-20260919.md)
+> records the subsequent rejection and sent clarification. Do not repeat the completed handoff
+> or routine QA.
 
 ## Product summary
 
@@ -160,7 +162,10 @@ notes with AI disabled. The 11 September checkpoint records completed handoff an
 local-beta QA. The 10 September snapshot-list/deletion-recovery evidence is unproved but owner-
 waived only for the Free Singapore v1. The [12 September privacy review](ai-pilot-privacy-review-20260912.md)
 completed consent reconciliation and policy/Apple publication. Separately approved bounded
-v13 activation is complete; protected-device styling proof passed on 12 September; build 7 is submitted and Waiting for Review; manual public release remains unapproved. Reviewed
+v13 activation and protected-device styling proof passed on 12 September. Build 7 was submitted
+and reached **Waiting for Review** at that checkpoint; see the
+[19 September assessment](spam-rejection-20260919.md) for the subsequent rejection and sent
+clarification. Manual public release remains unapproved. Reviewed
 PR #23 remains the historical build-5 source
 baseline. Historical build-5 pre-archive gates were green (221
 backend tests plus audit/Bandit/Ruff/mypy, 218 Swift unit tests, 9 UI flows, 43 release-script tests,
