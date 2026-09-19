@@ -28,6 +28,12 @@ allowance, Plan & Usage screen, Restore Purchases or Manage Subscription control
 source. The existing backend budget and hourly abuse limits do not constitute freemium metering.
 Free v1 does not promise unlimited AI or a particular number of generations per person.
 
+The developer pays the AI provider and hosting costs; users do not purchase credits, supply an
+API key or need a Claude subscription. The item editor's optional Purchase/Price/Currency/date
+fields record the cost of physical clothing already owned; they do not sell anything or unlock
+app features. These distinctions are covered in the
+[16 September App Review business-model response](app-store/business-model-response-20260916.md).
+
 ## Planned Free and paid offering
 
 The intended model keeps the local wardrobe useful for free and sells a larger, fixed allowance

@@ -5,6 +5,12 @@
 > read-only implementation. Do not create production credentials or treat any step below as an
 > App Store/TestFlight gate unless Gmail is separately approved for a later release.
 
+**19 September 2026 retirement update:** Google accepted the owner-authorized shutdown requests
+for both legacy Wardrobe projects. Final deletion remains pending; shutdown is not proof of
+completed deletion or all-copy purge. See the [retirement record](gcp-retirement-20260919.md).
+Do not restore or reuse those projects as part of this guide. Any separately approved future
+Gmail implementation requires a fresh project inventory and current setup/policy review.
+
 Earlier internal builds read Gmail **read-only** to find purchase receipts. This guide records the
 removed design's Google Cloud configuration; it is not a current setup instruction.
 

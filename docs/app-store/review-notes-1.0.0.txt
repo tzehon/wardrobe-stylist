@@ -1,17 +1,35 @@
-Wardrobe Stylist 1.0.0 (7) is a local-first iPhone wardrobe catalog with optional AI outfit styling. It is Free, Singapore only, with no in-app purchases, subscriptions or human account. Sign-in is not required.
+Wardrobe Stylist 1.0.0 (7) — Guideline 2.1 information
 
-OFFLINE REVIEW
-On first launch, choose “Try the offline demo”. The visible “Demo Mode · Fictional Data” banner identifies its disposable sample data. Browse and edit items in Wardrobe, view the bundled outfit in Today, and inspect the sample worn look in History. Demo Settings lets you reset or exit. This tour runs entirely offline and makes no AI request.
+1. PHYSICAL-DEVICE RECORDING
+Video: wardrobe-app-review-build7.mp4 (89 seconds), recorded on a physical iPhone 16 Pro / iOS 26.6.2; Settings shows 1.0.0 (7). It shows launch, photo-item creation, AI styling, Wear/History and privacy controls using the owner's clothing photos. Unrelated photo-picker thumbnails are masked; the app flow is retained.
 
-OPTIONAL CONNECTED REVIEW
-Exit Demo Mode and choose “Start with my wardrobe”. Add three fictional items manually: a white cotton top, navy trousers and white sneakers. In Settings → Connected Features, read the disclosure and tap “Allow AI styling”. Then open Today and tap “Style a look”. An optional occasion can be entered for the next restyle. “Wear this” records the outfit locally in History.
+2. PURPOSE AND AUDIENCE
+Wardrobe Stylist helps individuals organize their own clothes and choose outfits from items they already own. Users keep a private wardrobe catalog, optionally request an AI outfit suggestion, and record what they wear. It is a consumer lifestyle utility, not an enterprise-only app, marketplace or social network. Version 1.0.0 is Free, with no in-app purchases, subscriptions or paid features.
 
-The connected path requires internet and Apple App Attest support on a physical iPhone. App Attest verifies the installation; it is not a user login. No review credentials or shared API key are needed. If installation verification or the service is unavailable, local catalog and Demo Mode remain usable and the app displays a recovery message. Styling is subject to service usage limits.
+3. SETUP AND MAIN FEATURES
+No human account, registration, login, review credentials, API key or sample-file import is required.
 
-PRIVACY AND REMINDERS
-Before a styling request, the consent screen identifies the developer backend and Anthropic Claude and explains the compact text fields sent. Wardrobe photos are excluded. The developer backend does not persist wardrobe, prompt or model-response payloads. The linked privacy policy describes provider retention and separate anonymous security and aggregate budget records.
+Offline tour: On first launch, choose “Try the offline demo”. The “Demo Mode · Fictional Data” banner identifies disposable sample data. Browse/edit Wardrobe items, view the bundled Today outfit and sample History. Demo Settings allows reset or exit. This tour makes no network AI request.
 
-Settings → Privacy & Data offers separate local-data and server-security-data deletion controls. Local reminders are optional and off by default; tapping one opens Today and does not trigger background AI generation.
+Connected flow: Exit Demo Mode and choose “Start with my wardrobe”. Add a white cotton top, navy trousers and white sneakers manually in Wardrobe. Users may also add their own clothing photos through Camera or Photo Library. Open Settings → Connected Features, read the disclosure and tap “Allow AI styling”. In Today, tap “Style a look”. An optional occasion can be entered for a restyle. “Wear this” saves the look to local History.
+
+Optional AI requires internet and Apple App Attest on a physical iPhone. App Attest verifies this app installation, not a human account. Styling is subject to service usage limits. If verification or the service is unavailable, the app displays a recovery message; local catalog and Demo remain usable.
+
+Wardrobe entries/photos and History are stored locally; there is no user-to-user posting, messaging, public feed or user discovery. There are consequently no public-content reporting or user-blocking flows. Settings → Privacy & Data contains separate local-data and server-security-data deletion controls. No account-deletion flow applies because there is no human account. Optional local reminders open Today without generating an outfit in the background.
+
+4. SERVICES AND PLATFORMS
+- Fly.io hosts the developer-operated HTTPS backend.
+- Anthropic Claude supplies optional, explicitly requested AI outfit suggestions.
+- Apple App Attest provides anonymous installation verification for backend access.
+- Native iOS Camera/Photos and local notification APIs support optional photo capture/selection and reminders.
+
+Only disclosed compact wardrobe text, recent-wear/rating summaries and optional occasion/context text are sent for styling after consent and an explicit styling action. Wardrobe photos are excluded. The backend does not persist wardrobe, prompt or model-response payloads. The privacy policy explains provider retention and separate minimal security/aggregate budget records. No payment processor, social login or external retail catalog is used.
+
+5. REGIONAL BEHAVIOR
+This version is distributed only in Singapore. It has no country-specific feature or content variants; normal device locale/timezone formatting applies.
+
+6. REGULATED SERVICES AND CONTENT RIGHTS
+This is a lifestyle wardrobe organizer, not a regulated professional service. It does not distribute a third-party retail or media catalog. Bundled examples are fictional. The developer confirms the necessary rights for bundled artwork/text and permitted use of user-supplied photos. Users select their own clothing photos; those photos remain on device and are not sent for AI styling.
 
 Support: https://blog.tth.dev/wardrobe/
 Privacy: https://blog.tth.dev/wardrobe/privacy/

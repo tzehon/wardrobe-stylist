@@ -1,6 +1,6 @@
 # Release plan
 
-Updated 12 September 2026; retains the owner-requested 10 September simplification.
+Updated 19 September 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
@@ -87,6 +87,23 @@ Neither an internal beta nor a passing simulator suite proves that remote AI is 
 
 ## Public Singapore release
 
+**Current state — 19 September:** Apple shows **Rejected / Unresolved Issues** for `1.0.0 (7)`.
+Apple's newest message, dated **19 September, 07:18 SGT**, cites **Guideline 4.3(a) —
+Design — Spam**: similarity of the binary, metadata or concept to apps from other developers,
+with only minor differences. Apple requests distinct content and functionality, but identifies
+no particular matching app, code path or feature. Its extended-review warning concerns repeated
+problematic submissions; it is not evidence of a current account removal.
+See the [rejection and response plan](app-store/spam-rejection-20260919.md).
+
+The [business-model response](app-store/business-model-response-20260916.md) was sent unchanged
+with owner approval at **16:14 SGT on 16 September**. After the owner approved the visible
+clarification draft and asked to reply, the exact **1,399-character** response was sent through
+the desktop app on **19 September at 15:46 SGT**. Apple shows **Messages (6)** and the sent
+owner message; **Rejected / Unresolved Issues** remains unchanged. No appeal, resubmission,
+build upload, Notes/listing/attachment change or production change was performed.
+This correspondence requires no new TestFlight build; any later app change needs its own
+release-impact assessment.
+
 The [12 September package](app-store/submission-preparation-20260912.md) is approved for source
 publication, Apple draft completion and the bounded App Store compatibility deployment. Apple
 has saved the listing, Lifestyle category, age rating 9+, owner-confirmed content rights,
@@ -98,20 +115,37 @@ selected. Fly v14 now accepts categories `2,4`; independent configuration verifi
 No paid call was made. The full post-change review at `2026-09-12T07:09:37Z` completed with the
 approved Cowork-only status exception; all other operational checks passed, including the recovery-image scan.
 After separate owner approval, version `1.0.0` with build 7 was submitted to Apple on 12 September
-at 15:32 SGT (07:32 UTC). Apple confirmed one submitted item, now **Waiting for Review**. Release
-stays manual; Apple approval and public release have not occurred. The corrected reviewer
-notes are saved and reload-verified. No new TestFlight build is required.
+at 15:32 SGT (07:32 UTC). On 13 September Apple marked the item **Rejected / Unresolved Issues**
+under **Guideline 2.1 — Information Needed — New App Submission**, citing limited developer
+review history. The message asked for a physical-device walkthrough on the latest operating
+system and six-part supporting information; it identified no specific app defect.
+See the [review checkpoint](app-store/internal-testflight-runbook.md#apple-information-request--13-september-2026).
+After separate owner approval, the reviewed video and six-part reply were sent at 11:55 SGT on
+13 September. Matching final App Review Notes were saved and reload-verified. The existing
+`1.0.0 (7)` was resubmitted at 11:56 SGT; Apple then showed the submission and its sole item as
+**Waiting for Review**. Manual release was reverified; Apple approval and public release have
+not occurred. See the [response and resubmission checkpoint](app-store/internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
+This information response requires no new TestFlight build.
 
 Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
 verified listing/media/availability, account agreements and scoped accepted recovery risk. The
-next step is Apple's review; respond to any review questions and obtain separate owner approval
-before manual public release. Do not resubmit the existing waiting submission. Retirement of the
-inventoried Wardrobe Google Cloud/OAuth projects remains open,
-unperformed and subject to separate owner confirmation. It is deferred legacy cleanup, not a
-submission prerequisite for the verified Gmail-free Free Singapore v1. APP-036 remains in progress
-for that cleanup and final public release. The submission checkpoint completes sending the
-candidate to Apple; it does not complete those remaining items.
+next step is to await Apple's clarification in response to the sent 19 September reply. Owner
+facts about template use and related submissions from other accounts remain unconfirmed; the
+sent reply makes no assurances about them. If the concern remains unresolved, consider an
+evidence-backed appeal. Make product changes only when there is a substantiated difference to
+address; do not resubmit the same package repeatedly.
+The existing 13 September App Review Notes and walkthrough remain retained evidence. Obtain
+owner approval before sending a new reply or appeal, and separate approval before manual public
+release. The owner separately requested [Google Cloud retirement](gcp-retirement-20260919.md) on
+19 September. Both Wardrobe project shutdowns were accepted; final provider deletion remains
+pending after the recovery period. The shutdown action is complete and was not a submission
+prerequisite for the verified Gmail-free Free Singapore v1. APP-036 remains in progress for
+final public release; neither shutdown nor the submission checkpoint completes that milestone.
 Apple processing/review time is outside this project's control.
+
+The completed 89-second physical-device walkthrough shows launch, photo-item creation,
+successful styling, Wear/History, privacy controls and build 7. The reviewed recording and
+supporting evidence remain private. See the [completed walkthrough record](app-store/review-walkthrough-20260913.md).
 
 On 11 September the owner explicitly waived the remaining snapshot-list-expiry and deletion-
 specific recovery/non-return evidence sub-gate for the Free Singapore v1. A read-only check first

@@ -1,11 +1,28 @@
 # App Store metadata — submitted 12 September 2026
 
+**Current state — 19 September:** **Rejected / Unresolved Issues** under **Guideline 4.3(a) —
+Design — Spam**. Apple's newest message, dated **07:18 SGT**, alleges similarity to apps
+from other developers and asks for distinct content and functionality without identifying a
+specific matching app or feature. See the [rejection and response plan](spam-rejection-20260919.md).
+The [business-model response](business-model-response-20260916.md) was sent unchanged with owner
+approval at **16:14 SGT on 16 September**. The exact **1,399-character** owner-approved
+clarification reply was then sent on **19 September at 15:46 SGT**, verified in the desktop app
+as **Messages (6)** and the sent owner message. Await Apple's clarification; the status remains
+**Rejected / Unresolved Issues**. Owner facts about templates or related submissions remain
+unconfirmed, and the reply makes no assurances about them. No appeal, resubmission, new build,
+listing/Notes/attachment change or production change was performed. This correspondence
+requires no new TestFlight build.
+
 The approved listing is saved to App Store Connect. The existing record is Apple ID
 `6789053566`, bundle ID and immutable SKU `com.tth.Wardrobe`, primary language English (U.K.).
 The public candidate remains **1.0.0 (7)**. After Add for Review validation and separate owner
 approval, it was submitted on 12 September at 15:32 SGT (07:32 UTC). Apple confirmed one item
-submitted and shows **Waiting for Review** for version `1.0.0`/build 7. Manual release remains
-selected; the app is not Apple-approved or publicly released.
+submitted. On 13 September Apple requested additional information and a physical-device walkthrough.
+The owner-approved reply and reviewed video were sent at 11:55 SGT, then the existing build was
+resubmitted at 11:56 SGT. Apple then showed the submission and its sole item as **Waiting for Review**.
+See the [response and resubmission checkpoint](internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
+Manual release was reverified; the app is not Apple-approved or publicly released. No new TestFlight
+build is required for this information response.
 
 ## Saved listing
 
@@ -83,5 +100,11 @@ No real wardrobe images, identity or backend details appear. See [capture plan](
 and [submission preparation](submission-preparation-20260912.md).
 
 Use the concise [review notes](review-notes-1.0.0.txt), not the historical operational draft.
-The corrected 2,064-character notes, with separate support/privacy links and a complete fictional
-top/trousers/shoes example, are saved and reload-verified in Apple.
+The corrected 2,064-character notes were saved/reload-verified for the 12 September submission.
+The earlier 3,899-character pending-video revision was saved on 13 September and subsequently
+replaced by the final **3,943-character** six-part response. The final Notes were saved and
+reload-verified; the matching reply and reviewed video were sent before resubmission.
+See the [completed walkthrough record](review-walkthrough-20260913.md).
+The canonical Notes remain the saved 13 September response. The separate business-model reply
+was sent on 16 September, and the similarity clarification reply on 19 September, without
+replacing those Notes or the existing video.

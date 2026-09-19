@@ -45,9 +45,31 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
+The owner explicitly requested retirement of the two legacy Wardrobe Google Cloud projects on
+19 September. Both project shutdown requests were accepted; final provider deletion remains pending
+after the recovery period. See `docs/gcp-retirement-20260919.md` for exact scope and evidence.
+Do not repeat shutdown, restore these projects or recreate Google/OAuth credentials without a new
+owner instruction. This completes the legacy shutdown action, not permanent purge or public release.
+
 Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
-operate the verified bounded AI pilot, and await Apple's review of submitted `1.0.0 (7)`;
-manual public release requires separate owner approval. Build `1.0.0 (7)` completed
+operate the verified bounded AI pilot, and address the 19 September Guideline 4.3(a) rejection
+for `1.0.0 (7)` in `docs/app-store/spam-rejection-20260919.md`.
+The owner-approved physical-device video and complete reviewer reply were sent on 13 September;
+App Review Notes are saved and reload-verified, and resubmission at 11:56 SGT reached
+**Waiting for Review** at that checkpoint. The 16 September Guideline 2.1(b) information request returned
+the item to **Rejected / Unresolved Issues**; the owner-approved reply was sent unchanged at
+16:14 SGT and verified in Messages (4). That step did not resubmit the build. On 19 September
+at 07:18 SGT, Apple alleged binary/metadata/concept similarity under **4.3(a) — Design — Spam**,
+with an extended-review warning. The owner-approved 1,399-character clarification was sent
+unchanged at **15:46 SGT on 19 September**, verified in the desktop app as **Messages (6)**.
+It describes implemented behavior and asks for the specific overlap without asserting unverified
+provenance. Await Apple's clarification; the status remains **Rejected / Unresolved Issues**.
+No appeal or resubmission was performed. Do not
+assert independent authorship, asset originality or absence of other-account submissions without
+evidence, resubmit unchanged, or create another bundle ID to bypass the finding. A clarification
+alone needs no new build; decide substantive changes after the concern is understood. There are
+no paid features in this build. Manual public
+release requires separate owner approval. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
 saved/reload-verified AI-disabled tester notes, replaced by verified enabled-pilot notes on
 12 September. Build 7 is consumed and must never be reused;
@@ -433,7 +455,11 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   published through website PR #6. The four reviewed Apple privacy categories are published and
   reload-verified. The unchanged flow retains build 7/consent version 3; see
   `docs/app-store/ai-pilot-privacy-review-20260912.md`. Disabled pre-enable checks and separate AI
-  activation completed on 12 September; the physical protected call passed at 13:34 SGT; build `1.0.0 (7)` was submitted to Apple on 12 September and is Waiting for Review; manual public release remains unapproved.
+  activation completed on 12 September; the physical protected call passed at 13:34 SGT. Build
+  `1.0.0 (7)` was resubmitted on 13 September; the 16 September business-model reply was sent at
+  16:14 SGT. The later Guideline 4.3(a) clarification was sent at 15:46 SGT on 19 September and
+  verified in Messages (6). Await Apple's clarification; Rejected / Unresolved Issues remains
+  displayed and manual public release remains unapproved.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
