@@ -1,6 +1,6 @@
 # Singapore launch check — 23 September 2026
 
-Outcome: **HOLD public release**. Apple has approved `1.0.0 (7)`; the version is
+Initial outcome: **HOLD public release** (superseded by the verified remediation below). Apple has approved `1.0.0 (7)`; the version is
 **Pending Developer Release**. The initial owner request was refreshed launch checks only. The owner subsequently instructed
 remediation and public release after verification; this authorizes the necessary compatible backend
 deployment and manual release of approved build 7, without another approval request.
@@ -111,3 +111,29 @@ Review recorded at 2026-09-23T13:30:08Z UTC.
   evaluation was initiated. No new TestFlight build is required.
 
 Deployment, complete post-deployment review and public release remain pending.
+
+## Verified backend remediation
+
+PR [#59](https://github.com/tzehon/wardrobe-stylist/pull/59) received a clean Codex review on
+`7b2314b` and rebase-merged at 13:54:35 UTC to `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`.
+The tested and merged runtime/iOS/shared trees are identical. Full verification passed:
+
+- 879 backend tests; locked pip-audit, Bandit (including the standalone diagnostic), Ruff and mypy.
+- Xcode 27 full iOS regression: 227 Swift tests and 10 UI tests; 44 release-script tests.
+- Exact merged Linux/AMD64 image: zero High/Critical findings locally and in the private registry;
+  non-root/no-new-privileges, bounded logging, separate storage and restart-liability smokes passed.
+
+The owner-authorized in-place deployment completed as Fly v15. The immediate follow-up caught
+the Machine in `replacing` state; a subsequent independent read confirmed the exact healthy
+image/source and preserved Machine, volume and all policy configuration. No deployment retry,
+restore, ledger initialization, reset, limit change or new resource occurred. New diagnostics pass
+for schema/integrity/runtime guards, configured public-capacity bands and disk usage below 70%;
+AI remains enabled with a ready ledger, below-warning spend and no pending concurrency.
+
+Private records: `.fly/runtime-publication-msh54stt`, `.fly/runtime-deployment-7f1dtiiy`,
+`.fly/launch-live-runtime-20260923.json`, and the dated backend/iOS regression logs.
+The v15 exact image replaces v14 as the eligible recovery image after its successful identity/scan
+checks; v14 is historical and must not be restored while its Critical finding remains.
+
+The tracked operations baseline is being advanced to this observed v15/source. Full final
+operations review and manual public release remain pending. No new TestFlight build is required.

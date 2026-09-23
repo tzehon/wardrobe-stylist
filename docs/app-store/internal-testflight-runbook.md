@@ -1,13 +1,12 @@
 # Internal TestFlight, always App-Store-ready
 
 > **Current checkpoint — 23 September:** Apple approved `1.0.0 (7)`; it is **Pending
-> Developer Release**. Fresh launch checks hold public release for a Critical backend-image
-> finding and incomplete auth-store/capacity/volume diagnostics. Free Singapore-only availability
-> is verified. See the [launch-check evidence](launch-check-20260923.md). This supersedes the
-> earlier rejection/waiting instructions below; dated evidence remains historical. No public
-> release or production change occurred at that checkpoint. The owner has since authorized
-> remediation, deployment and public release after passing verification. No new TestFlight build
-> is required for the compatible backend repair; approved build 7 is retained.
+> Developer Release**. The owner authorized remediation, deployment and public release after
+> verification. The dependency fix deployed as Fly v15; exact runtime, unchanged storage/policy,
+> auth integrity, public-capacity and disk checks pass. Final operations preflight and manual
+> release remain pending. Free Singapore-only availability is verified. See the
+> [launch-check evidence](launch-check-20260923.md). Earlier rejection and initial launch-hold records are historical.
+> No new TestFlight build is required; approved build 7 is retained.
 
 Use this runbook for every internal beta. The audience is internal, but the binary is treated as
 an App Store release candidate from the moment it is archived. This prevents a separate, weaker
