@@ -205,8 +205,9 @@ separate approved change and verify enabled operation afterward; there is no cir
 The bounded launch policy and activation were separately approved; the v13 enabled review passed
 with the scoped Cowork-only exception. Physical protected-call proof passed on 12 September.
 
-The unchanged immutable reference used by v11 and v12 is privately retained for **budget-aware redeployment** after
-verified source/architecture matching and zero-High/Critical scanning. Pre-budget v10 ignores the
+The validated v15 image is the current **budget-aware recovery reference**, subject to fresh
+source/architecture matching, zero-High/Critical scanning and ledger-compatibility checks.
+The old v11–v14 image is historical and ineligible after its Critical AnyIO finding. Pre-budget v10 ignores the
 new switch and accounting, so it is not a normal rollback target after this disabled cutover.
 The v12 restart and independent configured probe verified that image reads the existing ledger
 without initialization or reset. Recovery must continue to preserve its model, policy, limits and

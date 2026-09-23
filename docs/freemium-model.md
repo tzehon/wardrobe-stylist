@@ -1,5 +1,9 @@
 # Free launch and future freemium model
 
+> **23 September status:** Apple approved build 7; public release is owner-authorized after final
+> verification. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> earlier rejection, wait-for-reply and unapproved-release statements below are historical.
+
 Status: **the approved public v1 is Free in Singapore, with no purchases or subscriptions.**
 Freemium is the next product milestone after that launch, not a feature of the current build.
 This document is the canonical product-model reference; the
@@ -10,7 +14,7 @@ This document is the canonical product-model reference; the
 
 The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catalog browsing and
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
-Optional AI styling is implemented and enabled as the owner-approved bounded Fly v14 pilot.
+Optional AI styling is implemented and enabled as the owner-approved bounded Fly v15 pilot.
 The 12 September v13 activation review passed with the scoped Cowork-only exception. The v14
 configuration postcheck passed, followed by its full operations review at `2026-09-12T07:09:37Z`
 with the approved Cowork-only status exception. The first protected

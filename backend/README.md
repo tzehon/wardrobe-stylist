@@ -145,9 +145,9 @@ source identity and architecture, and its zero-High/Critical scan passed. Former
 references are timestamped historical evidence only. The former v6 reference's current platform/
 source identity was not independently proven, so it is ineligible for rollback or recovery. Any
 identity or scan mismatch blocks archive, upload, distribution, and physical QA.
-The unchanged image used by v11 and v12 is verified for disabled redeployment and retained privately.
-The v12 restart and configured probe verified compatibility with the existing ledger and approved
-limits; preserve that storage and liability in future recovery. Pre-budget v10 is not a normal
+The current recovery reference is the validated v15 image, subject to fresh identity/security
+and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
+Critical AnyIO finding. Preserve the existing ledger, approved limits and liability in recovery. Pre-budget v10 is not a normal
 rollback target after this cutover. Cleanup repeats bounded transactions until drained,
 removes inactive installations after 90 days and revoked installations after 30 days, and securely
 checkpoints/truncates SQLite WAL state. A fresh App Attest deletion assertion
