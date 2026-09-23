@@ -1,5 +1,9 @@
 # Setup guide
 
+> **23 September status:** Apple approved build 7; public release is owner-authorized after final
+> verification. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> earlier rejection, wait-for-reply and unapproved-release statements below are historical.
+
 End-to-end setup for developing the approved Gmail-free Wardrobe Stylist v1 on a Mac. The
 monorepo contains an iOS app (`ios/`) and Python backend (`backend/`). Public v1 supports manual
 and photo cataloging, local history/reminders, offline Demo Mode, and optional AI styling protected
@@ -10,13 +14,13 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-Current runtime: **Fly v14 retains the enabled bounded AI pilot** and accepts App Attest
-categories `2,4`. Independent configuration verification passed at `2026-09-12T06:36:24Z`, with
-the exact image, original resources, keys, policy and intact below-warning ledger preserved.
-The full v14 review at `2026-09-12T07:09:37Z` completed with the approved Cowork-only status
-exception; every other operational check passed. The earlier v13 activation review and first
-protected TestFlight call remain retained evidence. See the
-[compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
+Current runtime: **Fly v15 retains the enabled bounded AI pilot**, with categories `2,4`,
+original resources, keys, private policy and intact ledger preserved. The 23 September
+AnyIO/diagnostic repair passed exact-image scans and live auth/capacity/disk/budget checks.
+The old v11–v14 image is ineligible for recovery while its Critical AnyIO finding remains.
+See the [launch record](app-store/launch-check-20260923.md) for final full-review/release state.
+The v13 activation, v14 compatibility review and physical protected-call proof on 12 September
+remain historical evidence.
 
 Historical 8 September setup: **Fly v12 had AI styling disabled**. The configuration deployment retains source
 `d2866a2375dd4795f40a3ab13d273ed138cedd7e`, the scanned immutable image, original Machine and
@@ -217,7 +221,7 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
 on 2026-09-06 after measured Sonnet costs; those values remain private and are applied to the
-enabled v14 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
+enabled v15 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
 persistence. Rotate it before its 8 October 2026 expiry. Saved notifications do not prove actual
@@ -275,8 +279,9 @@ writes. Its 9 September live read-only check passed without changing the runtime
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
 ownership-context defect. That 9 September diagnostic check was not a full pre-upload pass;
 the later 10 September combined beta-only review is recorded in the runbook.
-The unchanged immutable image used by v11/v12 is the disabled recovery reference; the v12 restart
-verified it reads the existing ledger without initialization or reset. Pre-budget v10 lacks these
+The validated v15 image is the current recovery reference, subject to fresh identity/security
+and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
+Critical AnyIO finding; its past v12 restart proof does not override that security failure. Pre-budget v10 lacks these
 controls and must not become a normal rollback target after cutover. Preserve the same ledger,
 policy and liability through future recovery. Updating the production source/configuration lock must follow an actual
 approved deployment and verification, never a planned one.
@@ -486,7 +491,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the enabled bounded v14 pilot recorded above. Protected
+Singapore Machine. Current production is the enabled bounded v15 pilot recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the

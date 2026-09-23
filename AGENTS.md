@@ -475,8 +475,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
   the later ignored approval record authorizes only the bound finite setup, not AI enablement.
-  The unchanged v11/v12 immutable image is retained privately for disabled redeployment; v12's
-  restart and configured probe verify it reads the existing ledger without initialization/reset.
+  The old v11–v14 image is historical and ineligible for recovery after the Critical AnyIO
+  finding. Only the validated v15 image is eligible, subject to fresh identity/security and
+  ledger-compatibility verification before recovery.
   Preserve that ledger, approved policy and liability across recovery. Pre-budget v10 ignores
   these controls and is not a normal rollback target after
   this cutover; its retained recovery evidence describes the earlier baseline.

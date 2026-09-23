@@ -1,5 +1,9 @@
 # App Review notes — historical operational draft
 
+> **23 September status:** Apple approved build 7; public release is owner-authorized after final
+> verification. Fly v15 is deployed. See the [launch record](launch-check-20260923.md) for current evidence;
+> earlier rejection, wait-for-reply and unapproved-release statements below are historical.
+
 For the prepared build-7 submission, use [the concise reviewer notes](review-notes-1.0.0.txt).
 The historical placeholders below are not paste-ready and must not be uploaded.
 
@@ -53,7 +57,7 @@ session.
 
 ## Optional AI styling path
 
-Current pilot state: [Fly v14 retains the enabled pilot within the approved global limits](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
+Current pilot state: [Fly v15 retains the enabled pilot within the approved global limits](launch-check-20260923.md).
 The first protected TestFlight call passed on 12 September. The connected App Review path below still requires
 verification and completion of its placeholders before public submission.
 
@@ -231,7 +235,7 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The current [enabled Fly v14 runtime](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
+  The current [enabled Fly v15 runtime](launch-check-20260923.md)
   retains the verified targeted logger and `4,5,6,7` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
@@ -280,7 +284,7 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [enabled Fly v14 runtime](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026) retains
+  [enabled Fly v15 runtime](launch-check-20260923.md) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
   Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
