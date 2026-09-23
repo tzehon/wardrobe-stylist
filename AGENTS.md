@@ -69,9 +69,14 @@ after the recovery period. See `docs/gcp-retirement-20260919.md` for exact scope
 Do not repeat shutdown, restore these projects or recreate Google/OAuth credentials without a new
 owner instruction. This completes the legacy shutdown action, not permanent purge or public release.
 
-Use `docs/release-plan.md` for the current sequence: retain the completed local-beta QA,
-operate the verified bounded AI pilot, and address the 19 September Guideline 4.3(a) rejection
-for `1.0.0 (7)` in `docs/app-store/spam-rejection-20260919.md`.
+Use `docs/release-plan.md` for the current sequence: complete the owner-controlled public
+App Store installation/launch and support handoff, retain completed QA, continue the existing
+daily cost review, and rotate the production provider key before 8 October. The 19 September
+rejection is resolved by Apple's approval; no new reply, appeal, resubmission or release action
+is currently needed.
+
+### Retained review and TestFlight history
+
 The owner-approved physical-device video and complete reviewer reply were sent on 13 September;
 App Review Notes are saved and reload-verified, and resubmission at 11:56 SGT reached
 **Waiting for Review** at that checkpoint. The 16 September Guideline 2.1(b) information request returned
