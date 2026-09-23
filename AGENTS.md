@@ -45,16 +45,20 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
-**23 September update:** App Store Connect shows `1.0.0 (7)` Approved / Review Completed
-and Pending Developer Release. The owner authorized remediation, deployment and public release
-after verification. PR #59 merged the AnyIO 4.14.2 fix and short read-only diagnostic command.
-Fly v15 now serves exact merged source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`;
-local and immutable registry scans found zero High/Critical findings. Live runtime/configuration,
-unchanged Machine/volume/policy, auth integrity/public-capacity, disk and enabled budget checks pass.
-Complete the fresh full operations preflight, then execute the authorized manual Free Singapore
-release. Retain approved build 7, completed QA and the intact ledger; no new TestFlight build is
-required. See `docs/app-store/launch-check-20260923.md`. Earlier rejection/wait and initial
-launch-hold records are historical. Public release has not yet been performed.
+**23 September public release:** The owner authorized remediation, deployment and public release.
+PR #59 merged the AnyIO 4.14.2 fix and short read-only diagnostic; Fly v15 serves exact runtime
+source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`. PR #60 synchronized the observed operations
+lock and recovery guidance. The full clean-main production preflight passed at `14:31:20Z` on
+`faea0c664569b3bba1e063083214f1fa5c2d69e9`: exact healthy runtime, auth integrity/capacity/disk,
+bounded enabled AI, snapshots/logs, public pages, archive, fresh consoles and zero-High/Critical
+recovery scan. The manual release of approved `1.0.0 (7)` was confirmed at approximately
+`14:33Z` (22:33 SGT); App Store Connect shows **Ready for Distribution**. Free Singapore-only
+scope is unchanged. The first anonymous storefront check did not yet resolve; propagation is
+pending, not independently confirmed public download availability. See `docs/app-store/launch-check-20260923.md`.
+No new iOS build, upload, paid call, ledger reset or resource expansion occurred. Keep daily owner
+cost review and rotate the existing production provider key before its 8 October expiry.
+Earlier dated rejection/wait-for-clarification and release-hold instructions are historical.
+
 
 The owner explicitly requested retirement of the two legacy Wardrobe Google Cloud projects on
 19 September. Both project shutdown requests were accepted; final provider deletion remains pending

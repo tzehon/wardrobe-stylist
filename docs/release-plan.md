@@ -1,14 +1,15 @@
 # Release plan
 
-> **Current checkpoint — 23 September:** Apple approved `1.0.0 (7)`; it is **Pending
-> Developer Release**. The owner authorized remediation, deployment and public release after
-> verification. The dependency fix deployed as Fly v15; exact runtime, unchanged storage/policy,
-> auth integrity, public-capacity and disk checks pass. Final operations preflight and manual
-> release remain pending. Free Singapore-only availability is verified. See the
-> [launch-check evidence](app-store/launch-check-20260923.md). Earlier rejection and initial launch-hold records are historical.
-> No new TestFlight build is required; approved build 7 is retained.
+> **Public release — 23 September:** After the complete production preflight passed at
+> `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
+> `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
+> Singapore-only distribution is retained. The first anonymous storefront check had not yet
+> resolved; public download availability is propagating, not yet independently confirmed.
+> Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
+> [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
+> No new TestFlight build was needed; approved build 7 was released.
 
-Updated 19 September 2026; retains the owner-requested 10 September simplification.
+Updated 23 September 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
