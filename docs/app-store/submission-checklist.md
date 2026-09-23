@@ -3,8 +3,8 @@
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
-> Singapore-only distribution is retained. The first anonymous storefront check had not yet
-> resolved; public download availability is propagating, not yet independently confirmed.
+> Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
+> listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
 > Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
@@ -442,7 +442,7 @@ archive-era absence is not permission to reuse build 7.
   on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues** under
   Guideline 4.3(a); the [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and verified
   in Messages (6). At that 19 September checkpoint, Apple's reply and release approval were pending.
-  Apple approval and owner-authorized release completed on 23 September; storefront propagation remains pending.
+  Apple approval and owner-authorized release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -506,7 +506,7 @@ Bounded AI activation and protected-device styling proof passed on 12 September.
 19 September, build 7 is **Rejected / Unresolved Issues** under Guideline 4.3(a); the
 [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6).
 At that 19 September checkpoint, Apple's reply and release approval were pending.
-  Apple approval and owner-authorized release completed on 23 September; storefront propagation remains pending.
+  Apple approval and owner-authorized release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -566,6 +566,7 @@ At that 19 September checkpoint, Apple's reply and release approval were pending
 - [x] Obtain Apple and owner approval, pass the full production preflight, and execute manual
   release of `1.0.0 (7)`. Completed 23 September at approximately 22:33 SGT; Apple shows
   Ready for Distribution. See the [launch evidence](launch-check-20260923.md).
-- [ ] Confirm the public Singapore product page after Apple processing completes. Singapore is
-  Processing and the first anonymous listing checks had not resolved. A public-store download
-  has not been observed; this is separate from the retained build-7 TestFlight/physical proof.
+- [x] Confirm the public Singapore product page after Apple processing completes. By 14:44Z
+  on 23 September the anonymous listing was live with the correct app/developer/Free details;
+  Singapore was Available and the other 174 territories were unavailable. No on-device
+  App Store download was performed; retained build-7 TestFlight/physical proof stays separate.

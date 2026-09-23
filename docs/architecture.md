@@ -25,7 +25,7 @@ made during deployment or verification. Provider alert delivery remains unproven
 reconciliation remains unresolved. The [10 September release plan](release-plan.md) uses daily
 owner cost review for the small pilot and defers external monitoring. The
 [10 September beta-only review and internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10)
-are complete. Handoff and scoped local-beta QA passed on 11 September; v13 activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending;
+are complete. Handoff and scoped local-beta QA passed on 11 September; v13 activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September;
 refresh operations evidence for later changes and their declared milestone.
 The ordinary budget diagnostic now uses the service identity; live read-only verification on
 9 September returned OPEN `styling-disabled` on the unchanged v12 runtime and existing ledger.

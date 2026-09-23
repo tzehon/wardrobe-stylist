@@ -3,8 +3,8 @@
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
-> Singapore-only distribution is retained. The first anonymous storefront check had not yet
-> resolved; public download availability is propagating, not yet independently confirmed.
+> Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
+> listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
 > Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
@@ -139,14 +139,14 @@ This information response requires no new TestFlight build.
 Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
 verified listing/media/availability, account agreements and scoped accepted recovery risk.
 Apple approval and owner-authorized manual release completed on 23 September after the full
-production preflight passed. The remaining delivery step is storefront propagation: App Store
-Connect shows Ready for Distribution with Singapore Processing. No clarification reply, appeal,
+production preflight passed. Storefront propagation completed by 14:44Z: the anonymous public
+listing is live, and App Store Connect shows Ready for Distribution with Singapore Available. No clarification reply, appeal,
 new build or further release approval is currently needed. The 19 September questions about
 provenance remain unverified historical context; this release makes no new authorship claims.
 Continue the approved daily cost review and rotate the production key before 8 October.
 The owner-requested Google shutdowns were accepted on 19 September; final provider deletion
 remains pending and is separate from the released Gmail-free app. APP-036 retains only the
-explicitly open residual evidence and storefront follow-up; completed release steps must not be replayed.
+explicitly open residual evidence; completed release steps must not be replayed.
 
 The completed 89-second physical-device walkthrough shows launch, photo-item creation,
 successful styling, Wear/History, privacy controls and build 7. The reviewed recording and
