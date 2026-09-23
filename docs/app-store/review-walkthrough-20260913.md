@@ -1,5 +1,12 @@
 # Apple review walkthrough — build 1.0.0 (7)
 
+> **23 September:** Apple approval and owner-authorized manual release of build 7 completed
+> after the full preflight passed. Singapore storefront propagation remains pending. See the
+> [current launch record](launch-check-20260923.md). Do not repeat the completed transmission,
+> submission or release actions below.
+
+## Historical preparation and correspondence — through 19 September
+
 **Current review state — 19 September:** Apple shows **Rejected / Unresolved Issues** under
 Guideline 4.3(a). The owner-approved [clarification](spam-rejection-20260919.md) was sent at
 15:46 SGT and verified in **Messages (6)**. Await Apple's clarification; no appeal or further

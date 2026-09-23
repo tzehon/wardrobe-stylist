@@ -96,7 +96,7 @@ Neither an internal beta nor a passing simulator suite proves that remote AI is 
 
 ## Public Singapore release
 
-**Current state — 19 September:** Apple shows **Rejected / Unresolved Issues** for `1.0.0 (7)`.
+**Historical state — 19 September (superseded by the release above):** Apple shows **Rejected / Unresolved Issues** for `1.0.0 (7)`.
 Apple's newest message, dated **19 September, 07:18 SGT**, cites **Guideline 4.3(a) —
 Design — Spam**: similarity of the binary, metadata or concept to apps from other developers,
 with only minor differences. Apple requests distinct content and functionality, but identifies
@@ -132,25 +132,21 @@ See the [review checkpoint](app-store/internal-testflight-runbook.md#apple-infor
 After separate owner approval, the reviewed video and six-part reply were sent at 11:55 SGT on
 13 September. Matching final App Review Notes were saved and reload-verified. The existing
 `1.0.0 (7)` was resubmitted at 11:56 SGT; Apple then showed the submission and its sole item as
-**Waiting for Review**. Manual release was reverified; Apple approval and public release have
-not occurred. See the [response and resubmission checkpoint](app-store/internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
+**Waiting for Review**. Manual release was reverified; Apple approval and public release had
+not occurred at that 13 September checkpoint. See the [response and resubmission checkpoint](app-store/internal-testflight-runbook.md#apple-information-response-and-resubmission--13-september-2026).
 This information response requires no new TestFlight build.
 
 Retain the completed candidate QA, published privacy/support/Terms pages and App Privacy answers,
-verified listing/media/availability, account agreements and scoped accepted recovery risk. The
-next step is to await Apple's clarification in response to the sent 19 September reply. Owner
-facts about template use and related submissions from other accounts remain unconfirmed; the
-sent reply makes no assurances about them. If the concern remains unresolved, consider an
-evidence-backed appeal. Make product changes only when there is a substantiated difference to
-address; do not resubmit the same package repeatedly.
-The existing 13 September App Review Notes and walkthrough remain retained evidence. Obtain
-owner approval before sending a new reply or appeal, and separate approval before manual public
-release. The owner separately requested [Google Cloud retirement](gcp-retirement-20260919.md) on
-19 September. Both Wardrobe project shutdowns were accepted; final provider deletion remains
-pending after the recovery period. The shutdown action is complete and was not a submission
-prerequisite for the verified Gmail-free Free Singapore v1. APP-036 remains in progress for
-final public release; neither shutdown nor the submission checkpoint completes that milestone.
-Apple processing/review time is outside this project's control.
+verified listing/media/availability, account agreements and scoped accepted recovery risk.
+Apple approval and owner-authorized manual release completed on 23 September after the full
+production preflight passed. The remaining delivery step is storefront propagation: App Store
+Connect shows Ready for Distribution with Singapore Processing. No clarification reply, appeal,
+new build or further release approval is currently needed. The 19 September questions about
+provenance remain unverified historical context; this release makes no new authorship claims.
+Continue the approved daily cost review and rotate the production key before 8 October.
+The owner-requested Google shutdowns were accepted on 19 September; final provider deletion
+remains pending and is separate from the released Gmail-free app. APP-036 retains only the
+explicitly open residual evidence and storefront follow-up; completed release steps must not be replayed.
 
 The completed 89-second physical-device walkthrough shows launch, photo-item creation,
 successful styling, Wear/History, privacy controls and build 7. The reviewed recording and

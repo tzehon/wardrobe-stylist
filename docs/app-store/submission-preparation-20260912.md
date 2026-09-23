@@ -1,5 +1,12 @@
 # Singapore submission preparation — 12 September 2026
 
+> **23 September:** Apple approval and owner-authorized manual release of build 7 completed
+> after the full preflight passed. Singapore storefront propagation remains pending. See the
+> [current launch record](launch-check-20260923.md). Do not repeat the completed transmission,
+> submission or release actions below.
+
+## Historical preparation and correspondence — through 19 September
+
 Status: **19 September Guideline 4.3(a) rejection; Rejected / Unresolved Issues; clarification reply sent at 15:46 SGT; awaiting Apple; manual public release remains unapproved**. Build
 `1.0.0 (7)` remains the existing processed candidate. The owner approved source publication,
 saving the prepared Apple draft and the minimal App Store compatibility deployment. The later

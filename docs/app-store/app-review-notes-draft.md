@@ -1,7 +1,7 @@
 # App Review notes — historical operational draft
 
-> **23 September status:** Apple approved build 7; public release is owner-authorized after final
-> verification. Fly v15 is deployed. See the [launch record](launch-check-20260923.md) for current evidence;
+> **23 September status:** Apple approved build 7 and the owner-authorized manual release
+> completed after the full preflight passed. Storefront propagation remains pending. Fly v15 is deployed. See the [launch record](launch-check-20260923.md) for current evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 For the prepared build-7 submission, use [the concise reviewer notes](review-notes-1.0.0.txt).
@@ -287,7 +287,7 @@ backend/configuration change.
   [enabled Fly v15 runtime](launch-check-20260923.md) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
-  Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
+  Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the

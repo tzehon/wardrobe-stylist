@@ -9,7 +9,9 @@
 > [launch evidence](launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
-Status: **Rejected / Unresolved Issues**, version **1.0.0 (7)**. Read directly from the owner's
+## Historical rejection and correspondence
+
+Status at 19 September: **Rejected / Unresolved Issues**, version **1.0.0 (7)**. Read directly from the owner's
 open App Store Connect desktop app on 19 September. Apple's rejection arrived at **07:18 SGT**.
 The owner-approved clarification was sent unchanged at **15:46 SGT** and verified in
 **Messages (6)**. Await Apple's reply; no appeal or resubmission was performed.

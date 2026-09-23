@@ -78,13 +78,14 @@ at 07:18 SGT, Apple alleged binary/metadata/concept similarity under **4.3(a) â€
 with an extended-review warning. The owner-approved 1,399-character clarification was sent
 unchanged at **15:46 SGT on 19 September**, verified in the desktop app as **Messages (6)**.
 It describes implemented behavior and asks for the specific overlap without asserting unverified
-provenance. Await Apple's clarification; the status remains **Rejected / Unresolved Issues**.
+provenance. At the 19 September checkpoint, Apple's clarification was awaited and the status was
+**Rejected / Unresolved Issues**; approval and release on 23 September supersede that state.
 No appeal or resubmission was performed. Do not
 assert independent authorship, asset originality or absence of other-account submissions without
 evidence, resubmit unchanged, or create another bundle ID to bypass the finding. A clarification
 alone needs no new build; decide substantive changes after the concern is understood. There are
-no paid features in this build. Manual public
-release requires separate owner approval. Build `1.0.0 (7)` completed
+no paid features in this build. The owner subsequently approved public release, completed on
+23 September; do not request that approval again or repeat the release action. Build `1.0.0 (7)` completed
 validation/upload, Apple processing and `Family` internal distribution on 10 September, with
 saved/reload-verified AI-disabled tester notes, replaced by verified enabled-pilot notes on
 12 September. Build 7 is consumed and must never be reused;
@@ -443,7 +444,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Provider alert delivery, separate AI enablement, full pre-upload review and distribution
   remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
   distribution have since passed. Separately approved AI activation completed on 12 September;
-  protected-device styling proof passed on 12 September; public release remains open.
+  protected-device styling proof passed on 12 September; manual public release completed on
+  23 September, with storefront propagation pending.
   The 10 September reset defers the external Fly monitor and uses the owner-run
   daily review in `docs/fly-spend-controls.md`; unproven alert delivery is not relied on.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised
@@ -473,8 +475,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   activation completed on 12 September; the physical protected call passed at 13:34 SGT. Build
   `1.0.0 (7)` was resubmitted on 13 September; the 16 September business-model reply was sent at
   16:14 SGT. The later Guideline 4.3(a) clarification was sent at 15:46 SGT on 19 September and
-  verified in Messages (6). Await Apple's clarification; Rejected / Unresolved Issues remains
-  displayed and manual public release remains unapproved.
+  verified in Messages (6). The 19 September checkpoint remained Rejected / Unresolved Issues with release unapproved;
+  Apple approval and owner-authorized release completed on 23 September as recorded above.
   Compare pre-tax service consumption
   before discretionary waivers and prepaid/promotional credits; show net payable separately.
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
