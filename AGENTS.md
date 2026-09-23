@@ -361,18 +361,18 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v14, source `d2866a2375dd4795f40a3ab13d273ed138cedd7e`,
-  selects pinned `claude-sonnet-5` with AI styling enabled under the separately approved bounded
-  pilot. The v14 App Store compatibility deployment accepts categories `2,4`, with builds
-  `4,5,6,7` and the exact image, Machine, volume, keys, policy and intact ledger retained.
-  Independent configuration verification passed at `2026-09-12T06:36:24Z`. The full v14 operations
-  review at `2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception; all
-  other operational checks passed, including the exact recovery-image scan. The earlier v13
-  activation review passed at `04:28:57Z`, with the owner-approved
-  Cowork-only aggregate-status exception and operational API/Console evidence. The same image,
-  Machine, volume, key and exact policy are preserved; the ledger is ready, below warning and idle.
-  One protected-device styling call passed on 12 September. Disable AI under the approved response if
-  that call or enabled verification fails; never retry uncertain work or clear liability.
+- **Models in use:** Fly v15, source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`,
+  selects pinned `claude-sonnet-5` with AI styling enabled under the approved bounded pilot.
+  The 23 September AnyIO repair preserves categories `2,4`, builds `4,5,6,7`, the original
+  Machine, volume, keys, private policy and intact ledger. Exact-image identity and zero-High/Critical
+  scans passed; independent live verification passed health, auth integrity/capacity/disk and
+  ready, below-warning, idle budget checks. See `docs/app-store/launch-check-20260923.md` for the
+  final full-review and release state. Only the validated v15 image is eligible for recovery;
+  the v11–v14 image has a Critical AnyIO finding and must not be restored.
+  Historical v13 activation and v14 compatibility reviews passed on 12 September with the
+  approved Cowork-only status exception. Physical protected-device styling passed that day.
+  Disable AI under the approved response if protected-call or enabled verification fails;
+  never retry uncertain work or clear liability.
   Historical v12 setup: the owner-approved configuration
   deployment retains the v11 immutable image and original Machine/volume. Independent review
   passed at `2026-09-08T09:32:49Z`: all six private policy settings and the new provider key are
@@ -411,7 +411,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy was applied to the disabled v12 runtime and is retained by enabled v14; its original approval did not authorize source publication, provisioning,
+  again. The policy was applied to the disabled v12 runtime and is retained by enabled v15; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability

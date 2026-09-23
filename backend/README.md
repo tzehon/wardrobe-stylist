@@ -5,7 +5,7 @@ payloads. It persists separate aggregate AI-budget/reservation metadata and narr
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
-The enabled bounded Fly v14 pilot selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+The enabled bounded Fly v15 pilot selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
 thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
 configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
@@ -18,9 +18,11 @@ applied to the serving runtime with AI enabled under the separately approved pil
 The [12 September v13 activation and enabled review](../docs/app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12)
 passed with the owner-approved Cowork-only exception. The later v14 configuration postcheck passed;
 its full operations review completed at `2026-09-12T07:09:37Z` with the approved Cowork-only exception. The first protected-device styling result passed on
-12 September. The following paragraphs retain the earlier disabled setup history. A subsequent
+12 September. The [23 September v15 remediation](../docs/app-store/launch-check-20260923.md) replaces that
+image with AnyIO 4.14.2 and the repaired operator diagnostic; exact identity and zero-High/Critical
+scans passed. The following paragraphs retain the earlier disabled setup history. A historical
 security fix adds `libuuid>=2.42.3-r1` to the final runtime stage, preserving the pinned
-base images and crypto updates. Its image passes the zero-High/Critical scan and isolated
+base images and crypto updates. Its image passed the then-current zero-High/Critical scan and isolated
 runtime/storage checks. [PR #42](https://github.com/tzehon/wardrobe-stylist/pull/42) records its
 owner-approved source publication, required checks, Codex review, and merge state. Its exact
 merged image, source `d2866a2`, deployed on 2026-09-07 with **AI disabled**. The disabled-only
@@ -113,7 +115,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; bounded production pilot enabled on v14) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; bounded production pilot enabled on v15) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
 endpoint. `/recommend` is a single non-streaming call.
@@ -166,7 +168,7 @@ Gmail-free public pages are live; snapshot-list expiry and deletion-specific rec
 gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v14 retains application `INFO` only for `app.auth.service`, routes it
+mechanism tuple. Live Fly v15 retains application `INFO` only for `app.auth.service`, routes it
 through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
 Uvicorn access logging off. Required production registration, assertion, and deletion success
 markers have been observed; the runbook retains only their bounded, payload-free evidence.
@@ -208,7 +210,12 @@ python3 backend/verify_production_operations.py --purpose ai-launch --refresh-re
 `ai-launch` is the default purpose and requires enabled styling. It is not a prerequisite that
 demands AI already be enabled before activation is approved.
 
-The lock identifies the observed v14 configuration deployment with unchanged image source.
+The lock identifies observed Fly v15 and merged runtime source
+`cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`. Its AnyIO repair and short read-only diagnostic
+passed exact-image scans and live runtime/auth/capacity/disk/budget verification; see the
+[23 September launch record](../docs/app-store/launch-check-20260923.md). The old v11–v14
+image is not an eligible recovery target while its Critical AnyIO finding remains.
+Historically, the v14 compatibility change retained the preceding image source.
 Categories `2,4` and preserved resources/policy/ledger passed independent configuration verification
 at `2026-09-12T06:36:24Z`. The full v14 review completed at `2026-09-12T07:09:37Z` with the
 approved Cowork-only status exception; every other operational check passed.

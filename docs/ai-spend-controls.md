@@ -1,12 +1,12 @@
 # Singapore launch AI spend controls
 
-Status: **Fly v14 retains AI enabled under the approved bounded pilot**. Its categories `2,4`
-configuration postcheck passed at `2026-09-12T06:36:24Z`, preserving the same image, resources,
-keys, exact private policy and intact below-warning ledger. The full v14 review at
-`2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception; every other
-operational check passed. The earlier v13 activation review and first protected TestFlight call remain retained
-evidence. See the
-[compatibility checkpoint](app-store/internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
+Status: **Fly v15 retains AI enabled under the approved bounded pilot**. The 23 September
+AnyIO/diagnostic repair preserves categories `2,4`, original resources, keys, exact private policy
+and intact ledger. Exact-image scans and independent live budget/auth/capacity/disk checks pass;
+see the [launch record](app-store/launch-check-20260923.md) for final full-review/release state.
+The old v11–v14 image is ineligible for recovery while its Critical AnyIO finding remains.
+Historical v13 activation, v14 compatibility review and first protected TestFlight call on
+12 September remain retained evidence in the runbook.
 
 Historical setup: first-ever provisioning
 succeeded at `2026-09-08T08:56:32Z`; independent post-deployment review passed at

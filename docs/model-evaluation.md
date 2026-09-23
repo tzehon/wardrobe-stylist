@@ -1,6 +1,6 @@
 # Fictional Wardrobe model acceptance
 
-The selected runtime is deployed as the enabled bounded Fly v14 pilot. It pins `claude-sonnet-5`, synchronous
+The selected runtime is deployed as the enabled bounded Fly v15 pilot. It pins `claude-sonnet-5`, synchronous
 Messages, thinking disabled, explicit standard service tier, forced strict `propose_outfit`, and
 1,024 output tokens.
 The evaluation

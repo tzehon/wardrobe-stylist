@@ -18,7 +18,7 @@ regions, paid IPs, builders, support packages or managed services. Do not delete
 snapshots to make a cost estimate look smaller. Keep current recovery data and approved limits.
 
 The separate AI ledger bounds the reviewed app's provider calls; it does not pay for or meter Fly.
-Fly v14 retains AI enabled under the separately approved bounded pilot, with the exact existing
+Fly v15 retains AI enabled under the separately approved bounded pilot, with the exact existing
 private policy, provider key and intact ledger. The production workspace limit/email settings,
 sufficient existing credits and auto-reload off were freshly verified. Do not repeat provisioning, key staging or credit purchases to
 reproduce those earlier setup steps. Provider-key rotation is due before its recorded 8 October
@@ -70,7 +70,7 @@ billing. A monthly operating target is not a maximum invoice.
 
 The September 9 billing views disagreed and did not provide a verified usage cutoff. The live
 resource probe passed; VM counters were fresh, but edge counters were stale/intermittent. Those
-unknowns remain recorded. The completed local-first beta distribution and bounded v14 pilot
+unknowns remain recorded. The completed local-first beta distribution and bounded v15 pilot
 do not require a custom collector. The 12 September activation approval accepted the residual
 Fly exposure and manual response plan. If an absolute bill ceiling is essential, it requires a different
 verified control; do not represent this plan as one.
