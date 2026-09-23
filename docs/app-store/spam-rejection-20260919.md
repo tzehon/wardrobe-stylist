@@ -3,8 +3,8 @@
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
-> Singapore-only distribution is retained. The first anonymous storefront check had not yet
-> resolved; public download availability is propagating, not yet independently confirmed.
+> Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
+> listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
 > Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.

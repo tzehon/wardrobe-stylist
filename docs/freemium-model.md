@@ -1,7 +1,7 @@
 # Free launch and future freemium model
 
 > **23 September status:** Apple approved build 7 and the owner-authorized manual release
-> completed after the full preflight passed. Storefront propagation remains pending. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> completed after the full preflight passed. The public Singapore listing is live and availability is verified. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 Status: **the approved public v1 is Free in Singapore, with no purchases or subscriptions.**
@@ -23,7 +23,7 @@ and remains subject to the global safety limits. Local features work independent
 Build 7 has completed [internal TestFlight distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The [11 September checkpoint](app-store/internal-testflight-runbook.md#build-7-physical-checkpoint--2026-09-11-partial)
 records the completed handoff, clean installation and scoped local-beta QA. Bounded activation
-is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending. See the
+is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September. See the
 [activation checkpoint](app-store/internal-testflight-runbook.md#bounded-ai-pilot-activation--2026-09-12).
 The planned freemium offering is unchanged.
 

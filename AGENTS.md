@@ -53,8 +53,9 @@ lock and recovery guidance. The full clean-main production preflight passed at `
 bounded enabled AI, snapshots/logs, public pages, archive, fresh consoles and zero-High/Critical
 recovery scan. The manual release of approved `1.0.0 (7)` was confirmed at approximately
 `14:33Z` (22:33 SGT); App Store Connect shows **Ready for Distribution**. Free Singapore-only
-scope is unchanged. The first anonymous storefront check did not yet resolve; propagation is
-pending, not independently confirmed public download availability. See `docs/app-store/launch-check-20260923.md`.
+scope is unchanged. By `14:44Z` (22:44 SGT), the anonymous public App Store listing was live
+with the correct Free app/developer details and Singapore was Available; 174 other territories
+remained unavailable. No on-device App Store download was performed. See `docs/app-store/launch-check-20260923.md`.
 No new iOS build, upload, paid call, ledger reset or resource expansion occurred. Keep daily owner
 cost review and rotate the existing production provider key before its 8 October expiry.
 Earlier dated rejection/wait-for-clarification and release-hold instructions are historical.
@@ -445,7 +446,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
   distribution have since passed. Separately approved AI activation completed on 12 September;
   protected-device styling proof passed on 12 September; manual public release completed on
-  23 September, with storefront propagation pending.
+  23 September, with public Singapore storefront availability confirmed by 14:44Z.
   The 10 September reset defers the external Fly monitor and uses the owner-run
   daily review in `docs/fly-spend-controls.md`; unproven alert delivery is not relied on.
   On 2026-09-08 the owner required Fly hosting cost protection in that pending plan. The revised

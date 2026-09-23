@@ -1,7 +1,7 @@
 # Setup guide
 
 > **23 September status:** Apple approved build 7 and the owner-authorized manual release
-> completed after the full preflight passed. Storefront propagation remains pending. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> completed after the full preflight passed. The public Singapore listing is live and availability is verified. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 End-to-end setup for developing the approved Gmail-free Wardrobe Stylist v1 on a Mac. The
@@ -331,7 +331,7 @@ signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed
 Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
 later 10 September validation/upload, processing, internal assignment and saved-note checks are
 complete; the 11 September checkpoint separately records completed handoff and scoped local-beta
-QA. Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending.
+QA. Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September.
 
 ## TestFlight distribution
 

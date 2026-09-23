@@ -1,7 +1,7 @@
 # App Store metadata — submitted 12 September 2026
 
 > **23 September:** Apple approval and owner-authorized manual release of build 7 completed
-> after the full preflight passed. Singapore storefront propagation remains pending. See the
+> after the full preflight passed. The public Singapore listing is live and availability is verified. See the
 > [current launch record](launch-check-20260923.md). Do not repeat the completed transmission,
 > submission or release actions below.
 

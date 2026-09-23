@@ -1,11 +1,12 @@
 # Singapore launch check — 23 September 2026
 
-**Current outcome:** backend remediation and complete final verification passed. The authorized
-manual release of `1.0.0 (7)` was accepted by Apple at approximately **14:33 UTC / 22:33 SGT**;
-App Store Connect shows **Ready for Distribution**. Its availability page shows **1 Processing**
-and **174 Not Available**. Free Singapore-only scope is unchanged.
-The first anonymous storefront check did not yet resolve; public download availability remains
-in propagation. The initial hold and incomplete-diagnostic sections below are historical.
+**Current outcome: publicly available in Singapore.** Backend remediation and complete final
+verification passed. The authorized manual release of `1.0.0 (7)` was accepted at approximately
+**14:33 UTC / 22:33 SGT**. By **14:44 UTC / 22:44 SGT**, the anonymous public listing was live,
+App Store Connect showed **Ready for Distribution**, and Singapore was **Available**, with
+174 other territories unavailable. The app remains Free, iPhone-only, without IAP/subscriptions.
+[Live App Store listing](https://apps.apple.com/sg/app/wardrobe-stylist/id6789053566).
+The earlier hold, diagnostic gap and initial propagation observations below are historical.
 
 Historical initial outcome: **HOLD public release** (superseded by the verified remediation and release below). Apple has approved `1.0.0 (7)`; the version is
 **Pending Developer Release**. The initial owner request was refreshed launch checks only. The owner subsequently instructed
@@ -181,3 +182,15 @@ only documentation and needs no new TestFlight build or repeat regression.
 Retain daily owner cost review, existing budgets/resources, the scoped snapshot-risk waiver,
 and production provider-key rotation before 8 October. Public release does not convert the
 waived snapshot/all-copy purge and recovery/non-return evidence into passed proof.
+
+## Public storefront confirmed
+
+By **2026-09-23 14:44 UTC (22:44 SGT)**, the anonymous Singapore App Store page resolved to
+**Wardrobe Stylist**, subtitle **Catalog. Style. Wear more.**, **Free**, **Only for iPhone**,
+developer **Tan Tze Hon**, Lifestyle category, age rating 9+, the five intended screenshots and
+the approved local-first/optional-AI description. Canonical URL:
+[Wardrobe Stylist](https://apps.apple.com/sg/app/wardrobe-stylist/id6789053566).
+A separate signed-in App Store Connect refresh showed **Ready for Distribution**, **1 Available**
+and **174 Not Available**; Singapore is the sole selected territory. This completes public-listing
+and territory verification after the initial Processing/page-not-found checkpoint. No on-device
+App Store installation was performed; the retained build-7 TestFlight/device evidence is distinct.

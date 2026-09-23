@@ -3,8 +3,8 @@
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
-> Singapore-only distribution is retained. The first anonymous storefront check had not yet
-> resolved; public download availability is propagating, not yet independently confirmed.
+> Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
+> listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
 > Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](docs/app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
@@ -35,11 +35,11 @@ the decisions required before the paid release.
 
 Version **1.0.0 (7)** was manually released on **23 September at approximately 22:33 SGT**,
 after Apple approval, explicit owner authorization and a complete passing production preflight.
-App Store Connect shows **Ready for Distribution**; Singapore is **Processing**, with the other
-174 territories unavailable. The first anonymous storefront checks had not yet resolved, so
-public download availability remains unconfirmed until propagation completes.
+App Store Connect shows **Ready for Distribution**; Singapore is **Available**, with the other
+174 territories unavailable. By **22:44 SGT**, the anonymous public App Store listing was live
+with the correct app name, developer, Free price and iPhone-only availability.
 The release is Free, with no in-app purchases or subscriptions and no Mac/Vision distribution.
-[App Store destination](https://apps.apple.com/sg/app/id6789053566).
+[App Store destination](https://apps.apple.com/sg/app/wardrobe-stylist/id6789053566).
 
 Fly **v15**, runtime source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`, contains the AnyIO
 security fix and repaired read-only diagnostic. Exact image scans have zero High/Critical
@@ -48,7 +48,7 @@ public routes/pages and fresh console checks pass. Original resources, keys, pri
 auth storage and aggregate budget liability were preserved. The old v11–v14 image is not an
 eligible recovery target. No new iOS build or upload was needed; approved build 7 was released.
 
-The current work order is to verify storefront propagation, continue the daily owner cost
+The current work order is to continue the daily owner cost
 review, and rotate the production provider key before its **8 October** expiry. Retain completed
 physical QA without replaying it. The snapshot/deletion recovery evidence waiver remains accepted
 residual risk, not proof of all-copy purge or deleted-identity non-return. The two legacy Google
