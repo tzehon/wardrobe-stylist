@@ -1,5 +1,14 @@
 # App distribution, polish, and feature backlog
 
+> **Current checkpoint — 23 September:** Apple approved `1.0.0 (7)`; it is **Pending
+> Developer Release**. Fresh launch checks hold public release for a Critical backend-image
+> finding and incomplete auth-store/capacity/volume diagnostics. Free Singapore-only availability
+> is verified. See the [launch-check evidence](app-store/launch-check-20260923.md). This supersedes the
+> earlier rejection/waiting instructions below; dated evidence remains historical. No public
+> release or production change occurred at that checkpoint. The owner has since authorized
+> remediation, deployment and public release after passing verification. No new TestFlight build
+> is required for the compatible backend repair; approved build 7 is retained.
+
 This is the implementation source of truth for turning the current personal TestFlight build
 into a public App Store product. It deliberately separates work we can complete in this
 repository from Apple Developer, Fly.io, and App Store Connect work that needs an external account
@@ -19,7 +28,7 @@ Statuses:
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
 
-## Current work order — 19 September 2026
+## Historical work order — 19 September 2026
 
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
 approved bounded AI pilot, and await Apple's clarification after the [19 September reply](app-store/spam-rejection-20260919.md)

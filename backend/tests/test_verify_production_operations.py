@@ -15,6 +15,8 @@ from typing import Any
 
 import pytest
 
+from app.operations_diagnostic import _ACTIVE_SESSION_MEMBERSHIP_QUERY
+
 SCRIPT = Path(__file__).parents[1] / "verify_production_operations.py"
 SPEC = importlib.util.spec_from_file_location("verify_production_operations", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
@@ -341,13 +343,7 @@ def diagnostic_runner(value: dict[str, object]) -> FakeRunner:
 
     runner = FakeRunner()
     runtime, _ = valid_runtime()
-    encoded = MODULE.base64.b64encode(
-        MODULE._REMOTE_DIAGNOSTIC.encode("utf-8")
-    ).decode("ascii")
-    command = (
-        "/app/.venv/bin/python -c \"import base64;"
-        f"exec(base64.b64decode('{encoded}'))\""
-    )
+    command = "/app/.venv/bin/python -B -m app.operations_diagnostic"
     runner.responses[
         (
             "flyctl",
@@ -357,6 +353,8 @@ def diagnostic_runner(value: dict[str, object]) -> FakeRunner:
             APP,
             "--machine",
             runtime.machine_id,
+            "--user",
+            "wardrobe",
             "--quiet",
             "--command",
             command,
@@ -1305,11 +1303,11 @@ def test_active_session_membership_query_detects_orphans_and_revoked_installatio
             "('missing', 99, NULL), ('missing', 200, 1);"
         )
         assert connection.execute(
-            MODULE._ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
+            _ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
         ).fetchone() == (2,)
         connection.execute("DELETE FROM sessions WHERE installation_id IN ('revoked', 'missing')")
         assert connection.execute(
-            MODULE._ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
+            _ACTIVE_SESSION_MEMBERSHIP_QUERY, (100,)
         ).fetchone() == (0,)
     finally:
         connection.close()

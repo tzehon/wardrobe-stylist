@@ -45,6 +45,16 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
+**23 September update:** App Store Connect now shows `1.0.0 (7)` Approved / Review Completed
+and Pending Developer Release. The owner subsequently authorized remediation, deployment and public release after verification.
+Public release is held until the following blockers are resolved:
+Docker Scout found Critical CVE-2026-63374 in the exact backend/recovery image's anyio 4.13.0
+(fix reported as 4.14.2), and fresh auth-store/capacity/volume diagnostics timed out. See
+`docs/app-store/launch-check-20260923.md`. Resolve those backend checks before executing the authorized manual
+release; retain build 7, completed QA and the existing limits/ledger. No deployment or
+public release was performed. The dated 19 September wait-for-clarification instructions below
+are superseded by this live approval and launch hold, not a new appeal or resubmission.
+
 The owner explicitly requested retirement of the two legacy Wardrobe Google Cloud projects on
 19 September. Both project shutdown requests were accepted; final provider deletion remains pending
 after the recovery period. See `docs/gcp-retirement-20260919.md` for exact scope and evidence.

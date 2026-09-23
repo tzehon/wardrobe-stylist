@@ -1,5 +1,14 @@
 # Wardrobe Stylist
 
+> **Current checkpoint — 23 September:** Apple approved `1.0.0 (7)`; it is **Pending
+> Developer Release**. Fresh launch checks hold public release for a Critical backend-image
+> finding and incomplete auth-store/capacity/volume diagnostics. Free Singapore-only availability
+> is verified. See the [launch-check evidence](docs/app-store/launch-check-20260923.md). This supersedes the
+> earlier rejection/waiting instructions below; dated evidence remains historical. No public
+> release or production change occurred at that checkpoint. The owner has since authorized
+> remediation, deployment and public release after passing verification. No new TestFlight build
+> is required for the compatible backend repair; approved build 7 is retained.
+
 A **personal, privacy-first** iOS app for cataloging clothing manually or from photos, browsing a
 local wardrobe, and optionally asking **Aria** for a non-repeating daily outfit. Public v1 does not
 connect to Google, read Gmail, import receipts, or require an account.
