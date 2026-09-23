@@ -55,9 +55,10 @@ recovery scan. The manual release of approved `1.0.0 (7)` was confirmed at appro
 `14:33Z` (22:33 SGT); App Store Connect shows **Ready for Distribution**. Free Singapore-only
 scope is unchanged. By `14:44Z` (22:44 SGT), the anonymous public App Store listing was live
 with the correct Free app/developer details and Singapore was Available; 174 other territories
-remained unavailable. No on-device App Store download was performed; retain the owner-controlled public-store
-installation/launch and support handoff as an open follow-up, without repeating routine QA or
-deleting the existing installation. See `docs/app-store/launch-check-20260923.md`.
+remained unavailable. By `15:02Z` (23:02 SGT), the owner confirmed successful public App Store
+download and launch; the public support link and existing daily-review/key-rotation routine
+were handed off in this task. Record this as owner-reported delivery proof, not agent-observed
+installation, another functional matrix or a new production AI call. See `docs/app-store/launch-check-20260923.md`.
 No new iOS build, upload, paid call, ledger reset or resource expansion occurred. Keep daily owner
 cost review and rotate the existing production provider key before its 8 October expiry.
 Earlier dated rejection/wait-for-clarification and release-hold instructions are historical.
@@ -69,9 +70,9 @@ after the recovery period. See `docs/gcp-retirement-20260919.md` for exact scope
 Do not repeat shutdown, restore these projects or recreate Google/OAuth credentials without a new
 owner instruction. This completes the legacy shutdown action, not permanent purge or public release.
 
-Use `docs/release-plan.md` for the current sequence: complete the owner-controlled public
-App Store installation/launch and support handoff, retain completed QA, continue the existing
-daily cost review, and rotate the production provider key before 8 October. The 19 September
+Use `docs/release-plan.md` for the current sequence: retain the completed public App Store
+installation/launch confirmation, support handoff and QA; continue the existing daily cost
+review and rotate the production provider key before 8 October. The 19 September
 rejection is resolved by Apple's approval; no new reply, appeal, resubmission or release action
 is currently needed.
 

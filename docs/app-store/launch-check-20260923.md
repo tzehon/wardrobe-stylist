@@ -195,8 +195,22 @@ and **174 Not Available**; Singapore is the sole selected territory. This comple
 and territory verification after the initial Processing/page-not-found checkpoint. No on-device
 App Store installation was performed; the retained build-7 TestFlight/device evidence is distinct.
 
-The public App Store installation/launch and support-handoff follow-up remains unchecked in the
-submission checklist. Live listing/territory verification completes the publication action but
+At the initial public-page checkpoint, the App Store installation/launch and support-handoff
+follow-up remained unchecked in the submission checklist; the owner confirmation below closes it. Live listing/territory verification completes the publication action but
 cannot prove the public-store delivery path on an iPhone. Preserve existing identity/data;
 no repeat functional matrix, deletion or uninstall is requested. The owner-controlled physical
 check is distinct from the completed automated and TestFlight evidence.
+
+## Owner-confirmed public App Store delivery and support handoff
+
+By **2026-09-23 15:02 UTC (23:02 SGT)**, the owner replied **“Downloaded and opened successfully”**
+to the explicit question about downloading and opening Wardrobe Stylist from the Singapore App
+Store on their iPhone. This closes the remaining public-store physical delivery check using
+owner-reported evidence. It is not an agent-observed installation, another functional matrix,
+upgrade/migration proof or a new protected AI call.
+
+The [public support page](https://blog.tth.dev/wardrobe/) was handed off in the same task,
+together with the existing daily cost-review routine and production AI-key rotation before
+8 October. Publication, storefront availability, public-store download/launch confirmation
+and support handoff are complete. Retained lifecycle/provider residual evidence remains
+separate; this confirmation does not prove the owner-waived snapshot/recovery properties.

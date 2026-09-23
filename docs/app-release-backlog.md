@@ -30,9 +30,9 @@ Statuses:
 
 ## Current follow-ups — 23 September 2026
 
-Publication and live Singapore storefront verification are complete. The owner-controlled public
-App Store installation/launch and support handoff remain open; preserve existing data/identity
-and do not repeat completed functional QA. Continue the daily cost review and rotate the
+Publication and live Singapore storefront verification are complete. By 15:02Z on 23 September,
+the owner confirmed successful App Store download and launch; the support link and operating
+routine were handed off. Preserve existing data/identity and do not repeat completed QA. Continue the daily cost review and rotate the
 production provider key before 8 October. Legacy Google project final deletion and the accepted
 snapshot/recovery evidence limitations remain separate. Do not repeat Apple's resolved review,
 the manual release action, or the completed Google shutdown requests.
@@ -79,9 +79,9 @@ At that 19 September checkpoint, manual release was retained and Apple approval/
 were open. They completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September. The owner-requested
 [Google project shutdowns](gcp-retirement-20260919.md) were accepted on
 19 September; final provider deletion remains pending after the recovery period. This legacy
-cleanup does not change the verified Gmail-free app. APP-036 retains the owner-controlled
-public App Store installation/launch and support-handoff follow-up, plus explicitly documented
-residual evidence; publication and live storefront verification are complete.
+cleanup does not change the verified Gmail-free app. APP-036 retains only explicitly documented
+residual lifecycle/provider evidence; publication, storefront verification, owner-reported
+App Store installation/launch and support handoff are complete.
 Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
 is deferred; existing budget controls and owner-run daily pilot checks remain.
@@ -105,7 +105,7 @@ kept “In progress.”
 | APP-014 | **Done** | Clean build-6 QA retains the physical-device evidence. A deterministic DEBUG-only UI journey now closes the remaining repeatable gap with fictional data and the shipped Today/History views: online styling, real process termination, an offline idle relaunch with zero requests, explicit cache restoration with zero requests, failed-Restyle preservation, Wear, and History all pass automatically |
 | APP-015 | **Done** | CI/release gates remain implemented. The notification fix merged through PR #27; focused tests passed 17/17, merged-source verification retained 221 backend tests plus locked audit/Bandit/Ruff/mypy, 231/231 iOS tests, and 43 release-script tests. Fly v9, the strict build-6 archive, and Apple distribution were separately verified |
 | APP-016 | **Complete** | The owned-domain Gmail-free privacy/support/Terms pages are published and anonymously verified. The 12 September provider/consent review and privacy policy/Apple-answer publication are complete; remaining store-submission checks stay separate |
-| APP-017–APP-019 | **Submission / later milestone** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v15 bounded pilot is enabled](app-store/launch-check-20260923.md). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; store metadata/media are saved and Add for Review validation passed; full v14 operations completed with the approved Cowork-only exception; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); Apple approved build 7 on 23 September; full preflight passed and owner-authorized manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September |
+| APP-017–APP-019 | **Done — Free Singapore launch** | Historical `1.0.0 (4)` and consumed `1.0.0 (5)` are non-promotable. Processed `1.0.0 (6)` is strictly verified, assigned only to `Family`, and clean-tested through the fixed reminder tap plus final deletion/reinstall/new enrollment, but the confirmed styling-consent control presentation failure makes build 6 non-promotable. PR #31 merged the replacement control implementation. The 2026-08-29 signed-in Build Uploads checks selected and reconfirmed unused `1.0.0 (7)`; source preparation, runtime remediation, exact Fly v10 deployment, required reviews, exact-source regression, and strict signed-archive verification passed at that archive-era checkpoint. The [current Fly v15 bounded pilot is enabled](app-store/launch-check-20260923.md). The [10 September internal distribution](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10) completed validation/upload, processing, Family assignment and saved/reloaded notes. The 11 September handoff/clean install and normal-state visual check passed; store metadata/media are saved and Add for Review validation passed; full v14 operations completed with the approved Cowork-only exception; build 7 was resubmitted on 13 September; the 16 September business-model reply was sent at 16:14 SGT; the [19 September clarification reply](app-store/spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6); Apple approved build 7 on 23 September; full preflight passed and owner-authorized manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September |
 | APP-020–APP-022 | **Historical / partial carry-forward** | Manual add/edit, favorites, archive, filters, and catalog polish carry forward. Imported-item/review/account-scope behavior is historical and is removed through APP-036's owner-approved clean reset |
 | APP-023 | **Done** | Clean build 6 physically verified explicit-action styling, cached-look restoration after an offline process relaunch, and preservation through a failed offline Restyle. The intended intermediate **Style a look** state and explicit no-network cache restoration are now pinned by deterministic process-relaunch UI automation |
 | APP-024–APP-028 | **In progress / pending** | Outfit History, local insights, 1–5 feedback, preference-aware styling, accessibility-size layouts, friendly bounded states, and branded launch/first-run are implemented. APP-025 remains open after the build-6 visual failure; PR #31 merged the title-only centered full-width opaque replacement and its contrast/UI coverage, while build-7 distribution, handoff/clean install and normal-state physical appearance have passed. Automated tests own button-state contrast; broader accessibility review remains tracked. Broader localization remains APP-028 |
@@ -1049,10 +1049,11 @@ governed by APP-036's Gmail-free guards.
 - [x] **APP-018 · Complete · Produce final store media.** Five fictional Demo frames are uploaded
   and reload-verified in Catalog/editor/detail/Today/History order; the smaller slot automatically
   uses the 6.9-inch assets. The screenshots show no private data, login or removed capability.
-- [ ] **APP-019 · Delivery follow-up · Public App Store installation/launch and support handoff.**
-  Publication and public Singapore listing/availability are complete. Only the owner-controlled
-  public-store download/open and support handoff remain for this item. Do not repeat review,
-  submission, release or functional QA; preserve the existing installation identity/data.
+- [x] **APP-019 · Done · Public App Store distribution and support handoff.** Publication and
+  public Singapore listing/availability are complete. By 15:02Z on 23 September, the owner
+  confirmed successful App Store download and launch; the support link and daily operations/
+  key-rotation routine were handed off. No new AI call or repeated functional QA is claimed.
+  Do not repeat review, submission, release or QA; preserve the existing identity/data.
   Historical distribution evidence follows: the fresh archive-time and
   immediate pre-validation App Store Connect checks confirmed build 4 was unused. The exact
   `1.0.0 (4)` replacement archive used the required Xcode/iOS SDK, validated, uploaded through the
@@ -1075,8 +1076,8 @@ governed by APP-036's Gmail-free guards.
   Retain the owner-waived, unproved snapshot/recovery exception and continue the existing
   backend operating routine; neither is a request to replay completed submission work.
 - [ ] **APP-036 · Residual follow-up · Retain Gmail-free public v1 evidence.** The release and
-  public storefront are complete; remaining scope is the public-store installation/support
-  follow-up and explicitly retained lifecycle/provider evidence. Do not replay the completed
+  public storefront, owner-reported App Store installation/launch and support handoff are
+  complete; remaining scope is explicitly retained lifecycle/provider evidence. Do not replay the completed
   implementation, submission or release. Historical implementation scope: remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
