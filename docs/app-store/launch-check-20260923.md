@@ -101,7 +101,7 @@ Review recorded at 2026-09-23T13:30:08Z UTC.
   three cases fail; all five pass with 4.14.2.
 - Smaller live read-only probes passed schema, integrity and volume access. The full remote command
   stalled before its first marker, including a compressed attempt. The diagnostic now lives in
-  `app.operations_diagnostic`, invoked using a short command under the existing service UID, with
+  `production_auth_diagnostic`, invoked using a short command under the existing service UID, with
   bytecode writes disabled. It retains all original schema/runtime/aggregate/disk checks and adds
   tests for valid state, runtime/schema drift, missing-database noncreation and service identity.
 - Initial local iOS regression was blocked by Xcode 27 versus an older installed CoreSimulator.

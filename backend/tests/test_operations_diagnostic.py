@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from app import operations_diagnostic as diagnostic
+import production_auth_diagnostic as diagnostic
 from app.auth.store import AuthStore
 
 
