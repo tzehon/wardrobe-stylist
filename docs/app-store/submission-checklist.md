@@ -552,17 +552,20 @@ At that 19 September checkpoint, Apple's reply and release approval were pending
   the runbook.
 - [x] Add version `1.0.0` with build 7 to a draft review submission. Add for Review validation
   passed at the draft checkpoint, with manual release retained.
-- [x] Complete the full post-change operations review. The v14 review at `2026-09-12T07:09:37Z`
-  completed with the approved Cowork-only exception; every other operational check passed.
-  See the [final review record](internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).
+- [x] Complete the full post-change operations review. The exact v15 clean-main preflight
+  passed every category at `2026-09-23T14:31:20Z` before public release, including the fresh
+  zero-High/Critical recovery scan and manual console inputs. See the [launch record](launch-check-20260923.md).
+  The dated v14 review remains historical evidence in the runbook.
 - [x] Obtain the owner's final submission approval and choose **Submit for Review** once. Apple
   confirmed one submitted item on 12 September at 15:32 SGT (07:32 UTC): version `1.0.0`/build 7
   was **Waiting for Review** at that checkpoint, with manual release retained. Subsequent
   correspondence and the historical rejection are recorded in the [release plan](../release-plan.md).
   Submission does not establish Apple approval or public release:
   [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
-- [ ] Keep the production backend healthy and the review contact reachable during review; respond
-  to App Review in the App Review section.
+- [x] Complete the review-window response work. The owner-approved replies and walkthrough
+  were sent, Apple approved build 7, and the final production preflight passed before release
+  on 23 September. No App Review response is currently pending. Ongoing backend health and
+  support availability belong to the existing operating routine, not an open submission task.
 - [x] Obtain Apple and owner approval, pass the full production preflight, and execute manual
   release of `1.0.0 (7)`. Completed 23 September at approximately 22:33 SGT; Apple shows
   Ready for Distribution. See the [launch evidence](launch-check-20260923.md).

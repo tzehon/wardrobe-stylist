@@ -1049,7 +1049,11 @@ governed by APP-036's Gmail-free guards.
 - [x] **APP-018 · Complete · Produce final store media.** Five fictional Demo frames are uploaded
   and reload-verified in Catalog/editor/detail/Today/History order; the smaller slot automatically
   uses the 6.9-inch assets. The screenshots show no private data, login or removed capability.
-- [ ] **APP-019 · Submission · Final distribution verification.** The fresh archive-time and
+- [ ] **APP-019 · Delivery follow-up · Public App Store installation/launch and support handoff.**
+  Publication and public Singapore listing/availability are complete. Only the owner-controlled
+  public-store download/open and support handoff remain for this item. Do not repeat review,
+  submission, release or functional QA; preserve the existing installation identity/data.
+  Historical distribution evidence follows: the fresh archive-time and
   immediate pre-validation App Store Connect checks confirmed build 4 was unused. The exact
   `1.0.0 (4)` replacement archive used the required Xcode/iOS SDK, validated, uploaded through the
   normal **TestFlight & App Store**-eligible route rather than **TestFlight Internal Only**,
@@ -1066,10 +1070,14 @@ governed by APP-036's Gmail-free guards.
   deployment, post-change/pre-archive reviews, exact-source regression, and signed-archive
   verification passed at the archive checkpoint. The 10 September beta-only review and separately
   approved validation/upload, Apple processing, `Family` assignment and saved/reloaded AI-disabled
-  notes are complete. The later handoff/clean install and normal-state visual check passed. Finish
-  the applicable public-submission work and retain the owner-waived, unproved snapshot/recovery
-  exception; keep backend health available through review.
-- [ ] **APP-036 · In progress · Cut Gmail-free public v1.** Remove Google Sign-In, Google client/callback
+  notes are complete. The later handoff/clean install and normal-state visual check passed.
+  Apple approval, manual release and public Singapore availability completed on 23 September.
+  Retain the owner-waived, unproved snapshot/recovery exception and continue the existing
+  backend operating routine; neither is a request to replay completed submission work.
+- [ ] **APP-036 · Residual follow-up · Retain Gmail-free public v1 evidence.** The release and
+  public storefront are complete; remaining scope is the public-store installation/support
+  follow-up and explicitly retained lifecycle/provider evidence. Do not replay the completed
+  implementation, submission or release. Historical implementation scope: remove Google Sign-In, Google client/callback
   configuration, Gmail scope/network code, receipt-import UI/pipeline/background scheduling, and
   the `/extract` client from the shipped app. Build 4 used a fresh local-only schema and was never
   installed over builds 1–3. The user accepted losing the old local wardrobe and re-adding items.
