@@ -143,13 +143,14 @@ production preflight passed. Storefront propagation completed by 14:44Z: the ano
 listing is live, and App Store Connect shows Ready for Distribution with Singapore Available. No clarification reply, appeal,
 new build or further release approval is currently needed. The 19 September questions about
 provenance remain unverified historical context; this release makes no new authorship claims.
-The owner-controlled public App Store download/open check and support handoff remain open;
-this physical delivery boundary is not covered by simulator tests or retained TestFlight proof.
-Preserve the existing installation identity/data and do not replay completed functional QA.
+By 15:02Z on 23 September, the owner confirmed successful App Store download and launch.
+The public support link and existing operating routine were handed off in the same task.
+This closes the physical delivery follow-up with owner-reported evidence, not an agent-observed
+installation or additional AI call. Preserve identity/data and do not replay completed QA.
 Continue the approved daily cost review and rotate the production key before 8 October.
 The owner-requested Google shutdowns were accepted on 19 September; final provider deletion
 remains pending and is separate from the released Gmail-free app. APP-036 retains only the
-explicitly open residual evidence; completed release steps must not be replayed.
+explicitly open residual lifecycle/provider evidence; completed release and delivery steps must not be replayed.
 
 The completed 89-second physical-device walkthrough shows launch, photo-item creation,
 successful styling, Wear/History, privacy controls and build 7. The reviewed recording and

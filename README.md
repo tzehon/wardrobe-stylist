@@ -48,10 +48,10 @@ public routes/pages and fresh console checks pass. Original resources, keys, pri
 auth storage and aggregate budget liability were preserved. The old v11–v14 image is not an
 eligible recovery target. No new iOS build or upload was needed; approved build 7 was released.
 
-One physical delivery follow-up remains: the owner should download/open the public App Store
-edition and complete the support handoff. The live page and Apple availability are verified;
-no on-device App Store installation is claimed. Preserve existing data/identity and do not
-repeat completed functional QA. Continue the daily owner cost
+The owner confirmed successful App Store download and launch by **23:02 SGT**. The public
+support link and existing operating routine were handed off in the same task. This is owner-
+reported delivery proof; it does not claim another functional matrix or production AI call.
+Retain completed QA and preserve existing data/identity. Continue the daily owner cost
 review and rotate the production provider key before its **8 October** expiry. Retain completed
 physical QA without replaying it. The snapshot/deletion recovery evidence waiver remains accepted
 residual risk, not proof of all-copy purge or deleted-identity non-return. The two legacy Google

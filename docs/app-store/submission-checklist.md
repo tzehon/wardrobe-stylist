@@ -574,11 +574,10 @@ At that 19 September checkpoint, Apple's reply and release approval were pending
   Singapore was Available and the other 174 territories were unavailable. No on-device
   App Store download was performed; retained build-7 TestFlight/physical proof stays separate.
 
-- [ ] Complete the owner-controlled public App Store installation/launch and support handoff.
-  Verify the Singapore storefront actually downloads and opens released `1.0.0 (7)` on an iPhone,
-  then confirm the owner has the public support link and existing daily cost/incident procedure.
-  The anonymous page and Apple Available status are proven; actual on-device public-store
-  delivery is not. Simulator automation and retained TestFlight proof cannot establish this
-  distribution boundary. Do not repeat routine catalog/photo/Demo/reminder QA or initiate
-  deletion/uninstall; preserve the existing installation identity and data, following the
-  identity-safe handoff rules if a destructive transition becomes necessary.
+- [x] Complete the owner-controlled public App Store installation/launch and support handoff.
+  By **15:02Z on 23 September**, the owner answered **“Downloaded and opened successfully”**
+  to the explicit Singapore App Store download/open question. The public support link and
+  existing daily cost/incident routine plus key rotation before 8 October were handed off in
+  this task. This is owner-reported physical delivery evidence; the agent did not observe
+  installation or perform another functional matrix or production AI call. Preserve the
+  existing data/identity; no deletion or uninstall is requested.
