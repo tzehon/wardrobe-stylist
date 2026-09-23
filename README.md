@@ -38,7 +38,7 @@ bounded pilot and have again been saved and reload-verified. The owner-controlle
 handoff, clean installation and scoped local-beta QA passed on 11 September. The current stage is
 the owner-approved bounded AI pilot. The local wardrobe,
 photos, history, reminders and Demo Mode are available without remote AI. The last verified
-Fly v14 configuration has AI styling enabled within the existing approved global limits.
+Fly v15 configuration has AI styling enabled within the existing approved global limits.
 The historical v13 activation review passed on 12 September with the approved exception for an
 unrelated Cowork-on-Windows incident; Claude API and Console were operational. The full v14
 operations review completed at `2026-09-12T07:09:37Z` with the same approved Cowork-only exception.
@@ -55,9 +55,10 @@ reviewer instructions, no-sign-in setting, manual release and existing build 7. 
 screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
 availability are saved and reload-verified. Agreements, bank/tax and DSA status are active;
 Singapore is the sole available territory.
-The approved configuration deployment is complete: Fly v14 accepts App Store App Attest category
-`4` alongside TestFlight `2`, retaining the exact image, Machine, volume, keys, policy and intact
-ledger. Its independent configuration postcheck passed at `2026-09-12T06:36:24Z`; no paid call was
+Current Fly v15 retains App Store App Attest category
+`4` alongside TestFlight `2`, preserving the Machine, volume, keys, policy and intact ledger.
+Its repaired image is recorded in the [23 September launch check](docs/app-store/launch-check-20260923.md).
+Historically, the v14 independent configuration postcheck passed at `2026-09-12T06:36:24Z`; no paid call was
 made. The full post-change review completed at `2026-09-12T07:09:37Z` with the approved
 Cowork-only status exception; every other operational check passed, including the recovery scan.
 See the [final review record](docs/app-store/internal-testflight-runbook.md#final-v14-operations-review--12-september-2026).

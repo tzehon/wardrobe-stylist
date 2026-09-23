@@ -19,7 +19,7 @@ and historical evidence; it is not a request to repeat every completed row. Inte
 availability, optional AI activation and public App Store submission have separate requirements.
 The owner requested a reset of the overgrown monitoring/release workflow on 10 September.
 
-The separately approved bounded AI pilot remains enabled on Fly v14. Its v13 activation review passed
+The separately approved bounded AI pilot remains enabled on Fly v15. Its v13 activation review passed
 with the approved Cowork-only status exception; the first owner-controlled protected styling
 request passed on 12 September. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
 The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-september-2026) records
@@ -541,7 +541,8 @@ was prepared locally with independent private installation/session bounds and ow
 those bounds were not yet approved. The later v11 disabled rollout still had an unprovisioned
 budget and OPEN preflight. The [8 September setup](#approved-disabled-budget-setup--2026-09-08)
 supersedes those provisioning, credit and capacity-decision states; it records the historical disabled v12
-configuration; the 12 September v14 compatibility checkpoint records the current pilot state. Snapshot expiry/deletion-specific recovery is separate.
+configuration; the 12 September v14 compatibility checkpoint records historical pilot state.
+The [23 September launch record](launch-check-20260923.md) records current v15 state. Snapshot expiry/deletion-specific recovery is separate.
 Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
 rollback target after the disabled cutover.
 
@@ -828,7 +829,7 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current enabled
-  Fly v14 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
+  Fly v15 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
   On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -854,8 +855,8 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The late v9 review passed at
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
-  `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current
-  v14 bounded pilot is enabled; its configuration postcheck passed and the full review at
+  `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current v15 bounded pilot is enabled; see the [launch record](launch-check-20260923.md).
+  Historically, the v14 configuration postcheck passed and the full review at
   `2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
   completed the build-7 upload path. Refresh the applicable operations review before any later
   candidate upload, and after every backend/production-configuration change; do not re-upload build 7.
@@ -993,7 +994,7 @@ deletion snapshot's later disappearance and deletion-specific recovery/non-retur
 and were owner-waived only for the Free Singapore v1. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
-The current Fly v14 runtime has the same private policy applied with the bounded pilot enabled;
+The current Fly v15 runtime has the same private policy applied with the bounded pilot enabled;
 see the 12 September activation checkpoint.
 The build-7 exact-source regression, strict signed-archive verification and 10 September internal
 distribution have passed. The 11 September handoff, clean first launch and scoped local-beta QA
@@ -1698,9 +1699,10 @@ and Notes remain intact. Manual public release remains unapproved. This correspo
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
    the candidate still succeeds. Recovery must use the exact current
    validated Gmail-free App-Attest-only, budget-aware image while preserving the auth store and
-   the initialized budget ledger, limits, and charges. The privately retained unchanged v11/v12
-   image is the current disabled-redeployment baseline; the v12 restart verified it reads the
-   existing ledger without reset. Recheck that compatibility before recovery. Pre-budget v10 is
+   the initialized budget ledger, limits, and charges. The validated v15 image is the current
+   recovery baseline, subject to fresh identity/security and ledger-compatibility checks before use.
+   The old v11–v14 image has a Critical AnyIO finding and is ineligible for recovery. No recovery
+   or AI switch change is authorized by this record. Pre-budget v10 is
    not a normal rollback target. The former v6 reference's
    current identity is not independently proven and it is ineligible; the former v5 image is a pre-build-4 abort only,
    re-exposes `/extract`, and must halt the release. Rolling back to the shared bearer is never
@@ -1889,7 +1891,7 @@ identity or notification evidence.
   passed; the device screenshot covers normal-state centering/legibility and automated tests own
   enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
-  catalog or button-state phone checklist remains. The separately approved bounded v14 pilot
+  catalog or button-state phone checklist remains. The separately approved bounded v15 pilot
   is enabled; its one protected-device verification call passed on 12 September.
 - [x] **Legacy Google project shutdowns:** the owner explicitly requested deletion on 19 September.
   Both inventoried Wardrobe projects were shut down; see the

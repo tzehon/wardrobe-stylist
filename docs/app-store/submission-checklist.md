@@ -294,7 +294,7 @@ archive-era absence is not permission to reuse build 7.
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
   not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
   recorded in the build-7 section below. The current
-  [Fly v14 bounded pilot is enabled](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026).
+  [Fly v15 bounded pilot is enabled](launch-check-20260923.md).
   Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
@@ -435,7 +435,7 @@ archive-era absence is not permission to reuse build 7.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29. The [current Fly v14 bounded pilot is enabled](internal-testflight-runbook.md#app-store-compatibility-deployment--12-september-2026)
+  2026-08-29. The [current Fly v15 bounded pilot is enabled](launch-check-20260923.md)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
   distribution subsequently passed; bounded activation and protected-device styling proof passed
   on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues** under
