@@ -28,6 +28,15 @@ Statuses:
   App Store Connect.
 - **Enhancement** — product improvement that is valuable but does not by itself unblock review.
 
+## Current follow-ups — 23 September 2026
+
+Publication and live Singapore storefront verification are complete. The owner-controlled public
+App Store installation/launch and support handoff remain open; preserve existing data/identity
+and do not repeat completed functional QA. Continue the daily cost review and rotate the
+production provider key before 8 October. Legacy Google project final deletion and the accepted
+snapshot/recovery evidence limitations remain separate. Do not repeat Apple's resolved review,
+the manual release action, or the completed Google shutdown requests.
+
 ## Historical work order — 19 September 2026
 
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
@@ -70,8 +79,9 @@ At that 19 September checkpoint, manual release was retained and Apple approval/
 were open. They completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September. The owner-requested
 [Google project shutdowns](gcp-retirement-20260919.md) were accepted on
 19 September; final provider deletion remains pending after the recovery period. This legacy
-cleanup does not change the verified Gmail-free candidate; APP-036 remains in progress for final
-public release.
+cleanup does not change the verified Gmail-free app. APP-036 retains the owner-controlled
+public App Store installation/launch and support-handoff follow-up, plus explicitly documented
+residual evidence; publication and live storefront verification are complete.
 Previously verified work is retained; open AI/commerce/automation items
 do not automatically block a local-only internal beta. The unshipped hourly monitoring prototype
 is deferred; existing budget controls and owner-run daily pilot checks remain.
@@ -81,7 +91,7 @@ release. Proposed allowance examples and unresolved prices are not customer prom
 
 ## Progress snapshot
 
-Last updated: **2026-09-19**. This table is authoritative when an item's original scope label
+Last updated: **2026-09-23**. This table is authoritative when an item's original scope label
 below still says “Now.” “Done” means the whole item is complete; partial work is deliberately
 kept “In progress.”
 
