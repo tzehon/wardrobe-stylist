@@ -58,6 +58,7 @@ RUNTIME_INPUT_PATHS = (
     "backend/app",
     "backend/container_entrypoint.py",
     "backend/pyproject.toml",
+    "backend/production_auth_diagnostic.py",
     "backend/uv.lock",
     "backend/uvicorn-logging.json",
     "shared/schemas",
@@ -1419,7 +1420,7 @@ def collect_diagnostics(
     )
     if runtime is None:
         return fallback
-    remote_command = "/app/.venv/bin/python -B -m app.operations_diagnostic"
+    remote_command = "/app/.venv/bin/python -B -m production_auth_diagnostic"
     output = runner.run(
         [
             "flyctl",

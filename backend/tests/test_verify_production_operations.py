@@ -15,7 +15,7 @@ from typing import Any
 
 import pytest
 
-from app.operations_diagnostic import _ACTIVE_SESSION_MEMBERSHIP_QUERY
+from production_auth_diagnostic import _ACTIVE_SESSION_MEMBERSHIP_QUERY
 
 SCRIPT = Path(__file__).parents[1] / "verify_production_operations.py"
 SPEC = importlib.util.spec_from_file_location("verify_production_operations", SCRIPT)
@@ -343,7 +343,7 @@ def diagnostic_runner(value: dict[str, object]) -> FakeRunner:
 
     runner = FakeRunner()
     runtime, _ = valid_runtime()
-    command = "/app/.venv/bin/python -B -m app.operations_diagnostic"
+    command = "/app/.venv/bin/python -B -m production_auth_diagnostic"
     runner.responses[
         (
             "flyctl",

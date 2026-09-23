@@ -40,6 +40,7 @@ COPY --from=builder /app/.venv /app/.venv
 # Application code. Tests and secrets are excluded via .dockerignore.
 COPY app ./app
 COPY container_entrypoint.py ./container_entrypoint.py
+COPY production_auth_diagnostic.py ./production_auth_diagnostic.py
 COPY uvicorn-logging.json ./uvicorn-logging.json
 
 # Fly routes public HTTPS (443) to this internal port (see fly.toml).
