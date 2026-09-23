@@ -48,8 +48,11 @@ public routes/pages and fresh console checks pass. Original resources, keys, pri
 auth storage and aggregate budget liability were preserved. The old v11–v14 image is not an
 eligible recovery target. No new iOS build or upload was needed; approved build 7 was released.
 
-The current work order is to continue the daily owner cost
-review, and rotate the production provider key before its **8 October** expiry. Retain completed
+One physical delivery follow-up remains: the owner should download/open the public App Store
+edition and complete the support handoff. The live page and Apple availability are verified;
+no on-device App Store installation is claimed. Preserve existing data/identity and do not
+repeat completed functional QA. Continue the daily owner cost
+review and rotate the production provider key before its **8 October** expiry. Retain completed
 physical QA without replaying it. The snapshot/deletion recovery evidence waiver remains accepted
 residual risk, not proof of all-copy purge or deleted-identity non-return. The two legacy Google
 project shutdowns were accepted on 19 September; final provider deletion remains pending.

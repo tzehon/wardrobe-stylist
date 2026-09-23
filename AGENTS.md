@@ -55,7 +55,9 @@ recovery scan. The manual release of approved `1.0.0 (7)` was confirmed at appro
 `14:33Z` (22:33 SGT); App Store Connect shows **Ready for Distribution**. Free Singapore-only
 scope is unchanged. By `14:44Z` (22:44 SGT), the anonymous public App Store listing was live
 with the correct Free app/developer details and Singapore was Available; 174 other territories
-remained unavailable. No on-device App Store download was performed. See `docs/app-store/launch-check-20260923.md`.
+remained unavailable. No on-device App Store download was performed; retain the owner-controlled public-store
+installation/launch and support handoff as an open follow-up, without repeating routine QA or
+deleting the existing installation. See `docs/app-store/launch-check-20260923.md`.
 No new iOS build, upload, paid call, ledger reset or resource expansion occurred. Keep daily owner
 cost review and rotate the existing production provider key before its 8 October expiry.
 Earlier dated rejection/wait-for-clarification and release-hold instructions are historical.

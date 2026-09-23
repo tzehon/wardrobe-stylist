@@ -194,3 +194,9 @@ A separate signed-in App Store Connect refresh showed **Ready for Distribution**
 and **174 Not Available**; Singapore is the sole selected territory. This completes public-listing
 and territory verification after the initial Processing/page-not-found checkpoint. No on-device
 App Store installation was performed; the retained build-7 TestFlight/device evidence is distinct.
+
+The public App Store installation/launch and support-handoff follow-up remains unchecked in the
+submission checklist. Live listing/territory verification completes the publication action but
+cannot prove the public-store delivery path on an iPhone. Preserve existing identity/data;
+no repeat functional matrix, deletion or uninstall is requested. The owner-controlled physical
+check is distinct from the completed automated and TestFlight evidence.
