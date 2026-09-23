@@ -1,6 +1,13 @@
 # Singapore launch check — 23 September 2026
 
-Initial outcome: **HOLD public release** (superseded by the verified remediation below). Apple has approved `1.0.0 (7)`; the version is
+**Current outcome:** backend remediation and complete final verification passed. The authorized
+manual release of `1.0.0 (7)` was accepted by Apple at approximately **14:33 UTC / 22:33 SGT**;
+App Store Connect shows **Ready for Distribution**. Its availability page shows **1 Processing**
+and **174 Not Available**. Free Singapore-only scope is unchanged.
+The first anonymous storefront check did not yet resolve; public download availability remains
+in propagation. The initial hold and incomplete-diagnostic sections below are historical.
+
+Historical initial outcome: **HOLD public release** (superseded by the verified remediation and release below). Apple has approved `1.0.0 (7)`; the version is
 **Pending Developer Release**. The initial owner request was refreshed launch checks only. The owner subsequently instructed
 remediation and public release after verification; this authorizes the necessary compatible backend
 deployment and manual release of approved build 7, without another approval request.
@@ -137,3 +144,39 @@ checks; v14 is historical and must not be restored while its Critical finding re
 
 The tracked operations baseline is being advanced to this observed v15/source. Full final
 operations review and manual public release remain pending. No new TestFlight build is required.
+
+## Final preflight and manual release
+
+PR [#60](https://github.com/tzehon/wardrobe-stylist/pull/60) received a clean current-head Codex
+review on `9f78e5b`, with both prior documentation findings resolved and both CI checks green.
+It rebase-merged to clean synchronized main `faea0c664569b3bba1e063083214f1fa5c2d69e9`.
+The full preflight at **2026-09-23T14:31:20Z** passed every category: source/archive,
+exact healthy Fly v15 runtime and App-Attest-only configuration, auth integrity/capacity,
+enabled below-warning budget, volume below 70%, fresh automatic 14-day snapshot policy,
+bounded events, public health/routes/pages, Claude public status, fresh signed-in console
+inputs and exact Linux/AMD64 recovery-image scan with zero High/Critical findings.
+Private report: `.fly/launch-final-preflight-20260923.log`.
+
+During the console refresh the HTTP dashboard briefly showed no data and Grafana showed zero
+responses in its one-hour window. After the preflight’s public checks, the official one-hour
+chart populated with 200 and 404 only, with no 5xx series. This confirms that displayed window,
+not an unobserved two-day history. The approved provider controls remained below warning,
+credits available, auto-reload off, production key unexpired, and Sonnet 5 without saturation.
+
+At approximately **14:33Z / 22:33 SGT**, selected **Release This Version** and confirmed the
+Apple dialog explicitly listing **Singapore** as its sole download/purchase territory.
+Apple then changed `1.0.0 (7)` to **Ready for Distribution**. The availability page shows
+**1 Processing** and **174 Not Available**, matching the sole Singapore release destination.
+No additional build, upload,
+resubmission, app metadata edit or country/price expansion occurred.
+The first anonymous check of `https://apps.apple.com/sg/app/id6789053566` returned Apple’s
+page-not-found screen; this is a propagation boundary, not proof of download availability.
+[Apple’s release guidance](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/select-an-app-store-version-release-option)
+allows up to 24 hours for the version to appear publicly after manual release.
+
+Full validated regression remains 879 backend tests with locked audit/Bandit/Ruff/mypy,
+227 Swift tests plus 10 UI tests, and 44 release-script tests. This final record changes
+only documentation and needs no new TestFlight build or repeat regression.
+Retain daily owner cost review, existing budgets/resources, the scoped snapshot-risk waiver,
+and production provider-key rotation before 8 October. Public release does not convert the
+waived snapshot/all-copy purge and recovery/non-return evidence into passed proof.
