@@ -1,7 +1,7 @@
 # App Privacy data inventory
 
-> **23 September status:** Apple approved build 7; public release is owner-authorized after final
-> verification. Fly v15 is deployed. See the [launch record](launch-check-20260923.md) for current evidence;
+> **23 September status:** Apple approved build 7 and the owner-authorized manual release
+> completed after the full preflight passed. Storefront propagation remains pending. Fly v15 is deployed. See the [launch record](launch-check-20260923.md) for current evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 This inventory drives the in-app disclosure, public privacy policy, Apple App Privacy answers,
@@ -18,7 +18,7 @@ with AI disabled. Handoff, clean installation and scoped local-beta QA passed on
 Privacy publication, the consent assessment, bounded activation and protected-device styling
 proof passed on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues**
 under Guideline 4.3(a). The [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and
-verified in Messages (6); await Apple's reply. Manual public release remains unapproved. This
+verified in Messages (6). Apple approval and owner-authorized release followed on 23 September. This
 correspondence does not change the disclosed data flow; do not repeat the completed handoff or
 routine QA.
 
@@ -214,7 +214,7 @@ The exact approved developer-controlled schedule and its current compliance stat
   [enabled Fly v15 runtime](launch-check-20260923.md) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
-  Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
+  Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending.
 - [x] Verify the archive-era recovery reference. At `2026-08-29T03:31:57Z`, fresh private-registry
   authentication re-resolved the exact v10 immutable reference with the expected source identity
   and Linux/AMD64 architecture, and its zero-High/Critical scan passed. The former v6 reference's

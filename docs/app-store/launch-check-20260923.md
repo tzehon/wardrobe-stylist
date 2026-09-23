@@ -97,7 +97,7 @@ answer that earlier rejection.
 
 Review recorded at 2026-09-23T13:30:08Z UTC.
 
-## Authorized remediation in progress
+## Historical remediation checkpoint
 
 - Added an explicit AnyIO security floor and narrowly updated the lock from 4.13.0 to 4.14.2.
   The [upstream advisory](https://github.com/agronholm/anyio/security/advisories/GHSA-82r6-8w77-94w6)
@@ -117,7 +117,8 @@ Review recorded at 2026-09-23T13:30:08Z UTC.
   repair changes neither model, prompt, generation parameters nor the API contract; no new paid
   evaluation was initiated. No new TestFlight build is required.
 
-Deployment, complete post-deployment review and public release remain pending.
+Deployment, complete post-deployment review and public release were pending at this checkpoint;
+the completed actions are recorded below.
 
 ## Verified backend remediation
 
@@ -142,8 +143,8 @@ Private records: `.fly/runtime-publication-msh54stt`, `.fly/runtime-deployment-7
 The v15 exact image replaces v14 as the eligible recovery image after its successful identity/scan
 checks; v14 is historical and must not be restored while its Critical finding remains.
 
-The tracked operations baseline is being advanced to this observed v15/source. Full final
-operations review and manual public release remain pending. No new TestFlight build is required.
+At this deployment checkpoint, the tracked baseline update, final operations review and manual
+release were pending; the completed actions are recorded below. No new TestFlight build is required.
 
 ## Final preflight and manual release
 

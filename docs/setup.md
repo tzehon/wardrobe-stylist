@@ -1,7 +1,7 @@
 # Setup guide
 
-> **23 September status:** Apple approved build 7; public release is owner-authorized after final
-> verification. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> **23 September status:** Apple approved build 7 and the owner-authorized manual release
+> completed after the full preflight passed. Storefront propagation remains pending. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 End-to-end setup for developing the approved Gmail-free Wardrobe Stylist v1 on a Mac. The
@@ -35,8 +35,8 @@ for the small pilot and defers external monitoring. The beta-only review and bui
 distribution are complete. Handoff, clean installation and scoped local-beta QA passed on
 11 September; v13 activation and protected-device styling proof passed on 12 September. As of
 19 September, build 7 is **Rejected / Unresolved Issues** under Guideline 4.3(a); the clarification
-was sent at 15:46 SGT and verified in Messages (6). Await Apple's reply; manual public release
-remains unapproved. See the [current assessment](app-store/spam-rejection-20260919.md) and retained
+was sent at 15:46 SGT and verified in Messages (6). That historical wait ended with Apple
+approval and the owner-authorized release on 23 September. See the [current assessment](app-store/spam-rejection-20260919.md) and retained
 [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).
 The ordinary budget
 diagnostic's service-identity correction passed live read-only verification on 9 September;
@@ -331,7 +331,7 @@ signed archive at `11:03:10Z` and strict verification at `11:04:02Z`. The signed
 Build Uploads refresh showed build 6 highest and **Ready to Submit**, with build 7 absent. The
 later 10 September validation/upload, processing, internal assignment and saved-note checks are
 complete; the 11 September checkpoint separately records completed handoff and scoped local-beta
-QA. Bounded activation is complete; protected-device styling proof passed on 12 September; public-release gates remain open.
+QA. Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; storefront propagation remains pending.
 
 ## TestFlight distribution
 

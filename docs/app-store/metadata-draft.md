@@ -1,6 +1,13 @@
 # App Store metadata — submitted 12 September 2026
 
-**Current state — 19 September:** **Rejected / Unresolved Issues** under **Guideline 4.3(a) —
+> **23 September:** Apple approval and owner-authorized manual release of build 7 completed
+> after the full preflight passed. Singapore storefront propagation remains pending. See the
+> [current launch record](launch-check-20260923.md). Do not repeat the completed transmission,
+> submission or release actions below.
+
+## Historical preparation and correspondence — through 19 September
+
+**Historical state — 19 September:** **Rejected / Unresolved Issues** under **Guideline 4.3(a) —
 Design — Spam**. Apple's newest message, dated **07:18 SGT**, alleges similarity to apps
 from other developers and asks for distinct content and functionality without identifying a
 specific matching app or feature. See the [rejection and response plan](spam-rejection-20260919.md).

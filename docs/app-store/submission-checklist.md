@@ -441,7 +441,8 @@ archive-era absence is not permission to reuse build 7.
   distribution subsequently passed; bounded activation and protected-device styling proof passed
   on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues** under
   Guideline 4.3(a); the [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and verified
-  in Messages (6). Await Apple's reply; manual public release remains unapproved.
+  in Messages (6). At that 19 September checkpoint, Apple's reply and release approval were pending.
+  Apple approval and owner-authorized release completed on 23 September; storefront propagation remains pending.
 - [x] Complete the build-7 exact-source regression. Clean synchronized main
   `f183f074d1a63a4ec46d6d34fa13979a2c8b1fdd` passed 222 backend tests plus
   audit/Bandit/Ruff/mypy, 226 Swift unit tests, all 9 UI tests, 43 release-script tests, and the
@@ -504,7 +505,8 @@ lifecycle non-return evidence is unproved but owner-waived only for the Free Sin
 Bounded AI activation and protected-device styling proof passed on 12 September. As of
 19 September, build 7 is **Rejected / Unresolved Issues** under Guideline 4.3(a); the
 [clarification](spam-rejection-20260919.md) was sent at 15:46 SGT and verified in Messages (6).
-Await Apple's reply; manual public release remains unapproved.
+At that 19 September checkpoint, Apple's reply and release approval were pending.
+  Apple approval and owner-authorized release completed on 23 September; storefront propagation remains pending.
 
 - [x] Validate, upload, process, and internally assign only the verified build-5 archive using the
   normal **TestFlight & App Store**-eligible route, then save truthful build-5 What to Test wording.
@@ -556,10 +558,14 @@ Await Apple's reply; manual public release remains unapproved.
 - [x] Obtain the owner's final submission approval and choose **Submit for Review** once. Apple
   confirmed one submitted item on 12 September at 15:32 SGT (07:32 UTC): version `1.0.0`/build 7
   was **Waiting for Review** at that checkpoint, with manual release retained. Subsequent
-  correspondence and the current rejection are recorded in the [release plan](../release-plan.md).
+  correspondence and the historical rejection are recorded in the [release plan](../release-plan.md).
   Submission does not establish Apple approval or public release:
   [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
 - [ ] Keep the production backend healthy and the review contact reachable during review; respond
   to App Review in the App Review section.
-- [ ] After Apple approval and separate owner approval for manual public release, execute the
-  chosen release method, verify the live product page/install, and retain the final evidence and support handoff.
+- [x] Obtain Apple and owner approval, pass the full production preflight, and execute manual
+  release of `1.0.0 (7)`. Completed 23 September at approximately 22:33 SGT; Apple shows
+  Ready for Distribution. See the [launch evidence](launch-check-20260923.md).
+- [ ] Confirm the public Singapore product page after Apple processing completes. Singapore is
+  Processing and the first anonymous listing checks had not resolved. A public-store download
+  has not been observed; this is separate from the retained build-7 TestFlight/physical proof.

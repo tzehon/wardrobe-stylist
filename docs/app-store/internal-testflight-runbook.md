@@ -37,10 +37,11 @@ The newest Apple message, **19 September at 07:18 SGT**, now cites **Guideline 4
 Spam**. After the owner approved the visible draft and asked to reply, the exact **1,399-character**
 clarification was sent at **15:46 SGT on 19 September**. The desktop app verified **Messages (6)**
 and the sent owner message; **Rejected / Unresolved Issues** remains unchanged.
-Await Apple's clarification; see the [rejection and sent reply](spam-rejection-20260919.md).
+That historical checkpoint awaited Apple's clarification; see the [rejection and sent reply](spam-rejection-20260919.md).
 No appeal, resubmission, new build, Notes/listing/attachment change or production change was
 performed. Manual release remains selected;
-Apple approval and manual public release remain open. The owner-requested
+Apple approval and manual public release were open at that checkpoint; both completed on
+23 September, with storefront propagation pending. The owner-requested
 [Google project shutdowns](../gcp-retirement-20260919.md) were accepted on
 19 September; final provider deletion remains pending after the recovery period. The legacy
 shutdown action is complete and was not a public-v1 submission gate.

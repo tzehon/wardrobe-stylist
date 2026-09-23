@@ -31,7 +31,7 @@ Statuses:
 ## Historical work order — 19 September 2026
 
 Follow [the release plan](release-plan.md): retain completed local-beta QA, operate the separately
-approved bounded AI pilot, and await Apple's clarification after the [19 September reply](app-store/spam-rejection-20260919.md)
+approved bounded AI pilot, and, at that historical checkpoint, await Apple's clarification after the [19 September reply](app-store/spam-rejection-20260919.md)
 was sent at **15:46 SGT** before any separately approved manual public release. Its TestFlight upload is **Complete / Ready to Submit**, assigned only to
 `Family` Internal Testing with one group tester and no individual testers; approved enabled-pilot
 notes are saved and reload-verified. They replaced the initial 10 September AI-disabled notes on
@@ -61,11 +61,13 @@ Design — Spam**, alleging similarity to other developers' apps and asking for 
 and functionality without naming a matching app or feature. Build 7 remains **Rejected /
 Unresolved Issues**. The owner approved the visible clarification draft and asked to reply;
 the exact **1,399-character** message was sent at **15:46 SGT on 19 September**, verified in the
-desktop app as **Messages (6)** and the sent owner message. Await Apple's clarification.
+desktop app as **Messages (6)** and the sent owner message. Apple's clarification was awaited
+at that checkpoint; the 23 September approval and release supersede it.
 Owner facts about templates and related submissions remain unconfirmed; the reply makes no
 assurances about them. No appeal, resubmission, new build, Notes/listing/attachment change or
 production change was performed. Correspondence alone requires no new TestFlight build.
-Manual release is retained; Apple approval and public release remain open. The owner-requested
+At that 19 September checkpoint, manual release was retained and Apple approval/public release
+were open. They completed on 23 September; storefront propagation remains pending. The owner-requested
 [Google project shutdowns](gcp-retirement-20260919.md) were accepted on
 19 September; final provider deletion remains pending after the recovery period. This legacy
 cleanup does not change the verified Gmail-free candidate; APP-036 remains in progress for final
