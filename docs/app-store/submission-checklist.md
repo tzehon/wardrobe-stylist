@@ -122,8 +122,8 @@ rows do not require replaying the completed handoff, local QA or pilot.
   do not repeat provisioning. Actual provider alert delivery remains unproven. Under the
   10 September reset, the small pilot uses daily owner review of AI/provider spend, Fly billing
   and resources, with discrepancies and unknown coverage retained; new monitoring infrastructure
-  is deferred. The later beta-only review and internal distribution are complete. Key rotation
-  before 8 October and fresh checks for later changes remain required. Separately approved
+  is deferred. The later beta-only review and internal distribution are complete. The 29 September key rotation is complete; the replacement expires on 30 November 2026.
+  Fresh checks for later changes remain required. Separately approved
   v13 activation and enabled verification passed; protected-device styling proof passed on 12 September.
   The ordinary diagnostic correction passed live
   read-only verification on 9 September;
@@ -295,7 +295,7 @@ archive-era absence is not permission to reuse build 7.
   image/SBOM scan was run. The required post-deploy/pre-upload operational review was missed and is
   not backdated; the late full review passed at `2026-08-23T02:13:12Z`. Historical Fly v10 state is
   recorded in the build-7 section below. The current
-  [Fly v15 bounded pilot is enabled](launch-check-20260923.md).
+  [Fly v16 bounded pilot is enabled](key-rotation-20260929.md).
   Repeat the full review before any future archive/upload and after every backend/configuration change.
 - [x] After the live build-list refresh and exact backend review, create and strictly verify a new
   production-signed `1.0.0 (5)` archive. Fresh authenticated v6 recovery resolution/scan completed
@@ -436,7 +436,7 @@ archive-era absence is not permission to reuse build 7.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend candidate. Fly v10 accepted
   `4,5,6,7`; exact image, health/configuration/storage/snapshot, and payload-free review passed on
-  2026-08-29. The [current Fly v15 bounded pilot is enabled](launch-check-20260923.md)
+  2026-08-29. The [current Fly v16 bounded pilot is enabled](key-rotation-20260929.md)
   and retains the verified auth/build allowlist. The 10 September beta-only review and internal
   distribution subsequently passed; bounded activation and protected-device styling proof passed
   on 12 September. As of 19 September, build 7 is **Rejected / Unresolved Issues** under

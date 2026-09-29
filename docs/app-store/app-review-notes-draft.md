@@ -57,7 +57,7 @@ session.
 
 ## Optional AI styling path
 
-Current pilot state: [Fly v15 retains the enabled pilot within the approved global limits](launch-check-20260923.md).
+Current pilot state: [Fly v16 retains the enabled pilot within the approved global limits](key-rotation-20260929.md).
 The first protected TestFlight call passed on 12 September. The connected App Review path below still requires
 verification and completion of its placeholders before public submission.
 
@@ -235,7 +235,7 @@ backend/configuration change.
   enforcement.
 - [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
-  The current [enabled Fly v15 runtime](launch-check-20260923.md)
+  The current [enabled Fly v16 runtime](key-rotation-20260929.md)
   retains the verified targeted logger and `4,5,6,7` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
@@ -284,7 +284,7 @@ backend/configuration change.
   configuration for accepted builds `4,5,6,7`. At selection time, Fly v9 still accepted `4,5,6`.
 - [x] Deploy and review the archive-era build-7 backend. Fly v10 accepted `4,5,6,7`; exact image,
   health/configuration/storage/snapshot, and payload-free review passed on 2026-08-29. The current
-  [enabled Fly v15 runtime](launch-check-20260923.md) retains
+  [enabled Fly v16 runtime](key-rotation-20260929.md) retains
   the verified auth/build allowlist. The later beta-only review and
   [build-7 distribution](internal-testflight-runbook.md#build-7-distribution--2026-09-10) passed;
   Bounded activation is complete; protected-device styling proof passed on 12 September; manual release completed on 23 September; public Singapore storefront availability was confirmed by 14:44Z on 23 September.
