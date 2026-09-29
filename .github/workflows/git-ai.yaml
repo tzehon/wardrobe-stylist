@@ -1,0 +1,38 @@
+name: Git AI
+
+on:
+  pull_request:
+    types: [closed, synchronize]
+
+permissions: {}
+
+jobs:
+  git-ai:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.pull_request.merged == true || github.event.action == 'synchronize')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Install git-ai
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/git-ai-bin"
+          curl --fail --silent --show-error --location \
+            https://github.com/git-ai-project/git-ai/releases/download/v1.7.5/git-ai-linux-x64 \
+            --output "$RUNNER_TEMP/git-ai-bin/git-ai"
+          echo "6cf68a83cc948fbd4675e46bc5e3c50973c04257bb43a954a6712a2107206695  $RUNNER_TEMP/git-ai-bin/git-ai" | sha256sum --check
+          chmod +x "$RUNNER_TEMP/git-ai-bin/git-ai"
+          echo "$RUNNER_TEMP/git-ai-bin" >> "$GITHUB_PATH"
+      - name: Run git-ai
+        id: run-git-ai
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git-ai ci github run
