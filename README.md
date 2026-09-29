@@ -5,7 +5,7 @@
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
 > Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
 > listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
-> Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
+> At the 23 September release checkpoint, Fly v15 was healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](docs/app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 

@@ -1,7 +1,7 @@
 # Privacy architecture for the Gmail-free v1 candidate
 
 > **23 September status:** Apple approved build 7 and the owner-authorized manual release
-> completed after the full preflight passed. The public Singapore listing is live and availability is verified. Fly v15 is deployed. See the [launch record](app-store/launch-check-20260923.md) for current evidence;
+> completed after the full preflight passed. The public Singapore listing is live and availability was verified. Fly v15 was deployed at that checkpoint. See the [launch record](app-store/launch-check-20260923.md) for that dated evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
 
 This document describes the approved public-v1 architecture. It is not the hosted public privacy
