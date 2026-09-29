@@ -1,0 +1,49 @@
+docs/app-release-backlog.md
+  s_af583e59789daf::t_3e8076e31ad71b 94-98
+  s_af583e59789daf::t_fcfc6b7c3c2214 99,113,118
+docs/ai-spend-controls.md
+  s_af583e59789daf::t_3e8076e31ad71b 46-47
+docs/architecture.md
+  s_af583e59789daf::t_3e8076e31ad71b 327-328
+backend/production-operations.toml
+  s_af583e59789daf::t_9f7d9636a4447e 9
+docs/setup.md
+  s_af583e59789daf::t_3e8076e31ad71b 227-228
+README.md
+  s_af583e59789daf::t_3e8076e31ad71b 44,47-48,55-57,151
+  s_af583e59789daf::t_408ab6eac26ce6 154-155
+  s_af583e59789daf::t_fcfc6b7c3c2214 119
+  s_af583e59789daf::t_84c44e4378351d 135-139
+AGENTS.md
+  s_af583e59789daf::t_3e8076e31ad71b 63-66,78,381,454-455
+docs/app-store/key-rotation-20260929.md
+  s_af583e59789daf::t_84c44e4378351d 61-65
+  s_af583e59789daf::t_9cda8d7d58a2cb 55-60
+  s_af583e59789daf::t_3e8076e31ad71b 1-47,66-71
+  s_af583e59789daf::t_88361e2017dbd5 48-54
+docs/fly-spend-controls.md
+  s_af583e59789daf::t_3e8076e31ad71b 21-22,24-25
+docs/release-plan.md
+  s_af583e59789daf::t_3e8076e31ad71b 12,76-79,91,154
+docs/app-store/internal-testflight-runbook.md
+  s_af583e59789daf::t_9cda8d7d58a2cb 16-24
+docs/freemium-model.md
+  s_af583e59789daf::t_3e8076e31ad71b 17,101-102
+  s_af583e59789daf::t_43922c85d17d41 97-100,103-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "de2257a247840343026edbbd3b23dddbdf184c73",
+  "prompts": {},
+  "sessions": {
+    "s_af583e59789daf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0eadb-bfaa-7802-83cd-115255da6730",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
