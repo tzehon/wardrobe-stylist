@@ -5,7 +5,7 @@
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,
 > Singapore-only distribution is retained. By `14:44Z` (22:44 SGT), the anonymous public
 > listing was live and Apple showed Singapore **Available**, with 174 territories unavailable.
-> Fly v15 is healthy with the repaired dependency and intact storage/limits. See the
+> At the 23 September release checkpoint, Fly v15 was healthy with the repaired dependency and intact storage/limits. See the
 > [launch evidence](launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
@@ -29,7 +29,7 @@ and historical evidence; it is not a request to repeat every completed row. Inte
 availability, optional AI activation and public App Store submission have separate requirements.
 The owner requested a reset of the overgrown monitoring/release workflow on 10 September.
 
-The separately approved bounded AI pilot remains enabled on Fly v15. Its v13 activation review passed
+At the 23 September release checkpoint, the separately approved bounded AI pilot was enabled on Fly v15. Its v13 activation review passed
 with the approved Cowork-only status exception; the first owner-controlled protected styling
 request passed on 12 September. See the [activation checkpoint](#bounded-ai-pilot-activation--2026-09-12).
 The [v14 compatibility checkpoint](#app-store-compatibility-deployment--12-september-2026) records

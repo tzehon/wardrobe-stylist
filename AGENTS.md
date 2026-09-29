@@ -46,7 +46,7 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 ## Current work order
 
 **23 September public release:** The owner authorized remediation, deployment and public release.
-PR #59 merged the AnyIO 4.14.2 fix and short read-only diagnostic; Fly v15 serves exact runtime
+PR #59 merged the AnyIO 4.14.2 fix and short read-only diagnostic; Fly v15 served exact runtime
 source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`. PR #60 synchronized the observed operations
 lock and recovery guidance. The full clean-main production preflight passed at `14:31:20Z` on
 `faea0c664569b3bba1e063083214f1fa5c2d69e9`: exact healthy runtime, auth integrity/capacity/disk,
