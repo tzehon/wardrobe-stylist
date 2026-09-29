@@ -1,0 +1,45 @@
+docs/ai-spend-controls.md
+  s_af583e59789daf::t_2bd940aa766f0f 3-6,212
+docs/fly-spend-controls.md
+  s_af583e59789daf::t_2bd940aa766f0f 73
+docs/privacy.md
+  s_af583e59789daf::t_2bd940aa766f0f 48,261
+docs/app-store/app-attest-data-lifecycle-policy.md
+  s_af583e59789daf::t_2bd940aa766f0f 7-10,297-302,304,306-307
+docs/app-store/internal-testflight-runbook.md
+  s_af583e59789daf::t_2bd940aa766f0f 556,843,869,1008,1713,1905
+docs/setup.md
+  s_af583e59789daf::t_2bd940aa766f0f 17-20,226,285,497
+docs/architecture.md
+  s_af583e59789daf::t_2bd940aa766f0f 8-11,61,208,309,365
+docs/release-plan.md
+  s_af583e59789daf::t_2bd940aa766f0f 126
+docs/app-store/app-privacy-data-inventory.md
+  s_af583e59789daf::t_2bd940aa766f0f 25,43,214
+AGENTS.md
+  s_af583e59789daf::t_2bd940aa766f0f 387,431,498
+docs/app-release-backlog.md
+  s_af583e59789daf::t_2bd940aa766f0f 31,36,113,118,199-200,238-239,637,1102
+docs/app-store/app-review-notes-draft.md
+  s_af583e59789daf::t_2bd940aa766f0f 60,238,287
+docs/app-store/submission-checklist.md
+  s_af583e59789daf::t_2bd940aa766f0f 125-126,298,439
+backend/README.md
+  s_af583e59789daf::t_2bd940aa766f0f 8,47-48,119,149,172,214,216-218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e8481627665ea336f8a55ca33c6753c96ca52367",
+  "prompts": {},
+  "sessions": {
+    "s_af583e59789daf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0eadb-bfaa-7802-83cd-115255da6730",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
