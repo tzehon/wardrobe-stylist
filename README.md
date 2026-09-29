@@ -112,6 +112,17 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
   -destination 'platform=iOS Simulator,name=iPhone 17'   # or any installed iPhone sim
 ```
 
+## AI authorship in Git
+
+Git AI records Codex edits in `refs/notes/ai`. The [Git AI workflow](.github/workflows/git-ai.yaml)
+preserves those notes when same-repository pull requests are rebased or merged on GitHub.
+It uses checksum-pinned Git AI 1.7.5 and the repository's temporary `GITHUB_TOKEN`, without
+a Git AI account or telemetry key. Fork pull requests are outside this workflow's scope.
+Local Git AI must capture edits and push their notes before merging. After a merge, wait for
+the **Git AI** workflow, then run `git ai fetch-notes origin` to refresh local attribution.
+Use `git ai stats` for the latest commit or `git ai blame <file>` for line attribution.
+Existing history without recorded attribution remains untracked.
+
 ## Documentation
 
 | Doc | What |
