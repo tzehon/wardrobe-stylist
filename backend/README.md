@@ -5,7 +5,7 @@ payloads. It persists separate aggregate AI-budget/reservation metadata and narr
 metadata (public keys, opaque Apple receipts, assertion counters, session hashes, challenges,
 and rate windows). See [`../docs/architecture.md`](../docs/architecture.md).
 
-The enabled bounded Fly v15 pilot selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
+The enabled bounded Fly v16 pilot selects pinned Sonnet 5 with SDK 1.4.0, strict forced tool output,
 thinking/cache/retries off, and a pinned 1,024-token response cap. Admission and preflight reject
 configuration or source drift from that evaluated cap. A separate durable v2
 ledger reserves worst-case cost before each provider call and fails closed on missing storage,
@@ -44,7 +44,8 @@ geography; its monthly limit and two email-notification settings were verified a
 approved credit purchase is paid, usable balance is sufficient, and auto-reload remains off. Actual
 alert delivery is still unverified, with no native test control observed. The workspace-scoped key
 was created with no Admin API access and transferred through hidden owner input without local
-secret persistence. Rotate it before its 8 October 2026 expiry. Independent post-deployment review
+secret persistence. That key was replaced and disabled on 29 September; rotate the replacement
+before 30 November 2026. Independent post-deployment review
 passed at `2026-09-08T09:32:49Z`: the serving UID reads the intact zero-state ledger, the disabled
 guard returns 503, and runtime/auth/public-capacity/storage/snapshot/log/archive/public-page checks
 pass. The 9 September diagnostic correction uses SSH account `wardrobe` and checks real/effective
@@ -115,7 +116,7 @@ uv run --locked mypy app
 | `POST /auth/app-attest/register` | APP-009 | verify one installation and issue a short-lived session |
 | `POST /auth/app-attest/session` | APP-009 | verify a fresh assertion and rotate the session |
 | `POST /auth/app-attest/delete` | APP-009 | verify a fresh deletion assertion and remove that installation's server identity |
-| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; bounded production pilot enabled on v15) |
+| `POST /recommend` | 5 | "Aria" stylist → one daily outfit from a compact catalog + recent-worn ids (Sonnet 5, strict forced tool use; bounded production pilot enabled on v16) |
 
 Phase 3 (dynamic categories) is done **on-device** — there is no `/categorize`
 endpoint. `/recommend` is a single non-streaming call.
@@ -145,7 +146,7 @@ source identity and architecture, and its zero-High/Critical scan passed. Former
 references are timestamped historical evidence only. The former v6 reference's current platform/
 source identity was not independently proven, so it is ineligible for rollback or recovery. Any
 identity or scan mismatch blocks archive, upload, distribution, and physical QA.
-The current recovery reference is the validated v15 image, subject to fresh identity/security
+The current recovery reference is the validated image shared by v15 and v16, subject to fresh identity/security
 and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
 Critical AnyIO finding. Preserve the existing ledger, approved limits and liability in recovery. Pre-budget v10 is not a normal
 rollback target after this cutover. Cleanup repeats bounded transactions until drained,
@@ -168,7 +169,7 @@ Gmail-free public pages are live; snapshot-list expiry and deletion-specific rec
 gates.
 
 The auth service defines bounded security events containing only an event/code/scope/path/
-mechanism tuple. Live Fly v15 retains application `INFO` only for `app.auth.service`, routes it
+mechanism tuple. Live Fly v16 retains application `INFO` only for `app.auth.service`, routes it
 through one non-propagating handler, leaves other application `INFO` logs disabled, and keeps
 Uvicorn access logging off. Required production registration, assertion, and deletion success
 markers have been observed; the runbook retains only their bounded, payload-free evidence.
@@ -210,9 +211,11 @@ python3 backend/verify_production_operations.py --purpose ai-launch --refresh-re
 `ai-launch` is the default purpose and requires enabled styling. It is not a prerequisite that
 demands AI already be enabled before activation is approved.
 
-The lock identifies observed Fly v15 and merged runtime source
+The lock identifies observed Fly v16 and merged runtime source
 `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`. Its AnyIO repair and short read-only diagnostic
-passed exact-image scans and live runtime/auth/capacity/disk/budget verification; see the
+passed exact-image scans and live runtime/auth/capacity/disk/budget verification. The
+[29 September key rotation](../docs/app-store/key-rotation-20260929.md) preserved that image
+and changed only the provider key; it records current v16 checks and evidence limitations. See the
 [23 September launch record](../docs/app-store/launch-check-20260923.md). The old v11–v14
 image is not an eligible recovery target while its Critical AnyIO finding remains.
 Historically, the v14 compatibility change retained the preceding image source.

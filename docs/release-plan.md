@@ -123,7 +123,7 @@ has saved the listing, Lifestyle category, age rating 9+, owner-confirmed conten
 reviewer instructions, no-sign-in/manual-release settings and existing build 7. Five fictional
 screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
 availability are also saved and reload-verified. Agreements and bank/tax/DSA status are active; only Singapore is
-selected. Fly v15 retains categories `2,4`; the historical v14 independent configuration verification passed at
+selected. Fly v16 retains categories `2,4`; the historical v14 independent configuration verification passed at
 `2026-09-12T06:36:24Z` with the exact original image/resources, secrets, policy and intact ledger.
 No paid call was made. The full post-change review at `2026-09-12T07:09:37Z` completed with the
 approved Cowork-only status exception; all other operational checks passed, including the recovery-image scan.

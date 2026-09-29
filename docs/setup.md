@@ -14,8 +14,10 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-Current runtime: **Fly v15 retains the enabled bounded AI pilot**, with categories `2,4`,
-original resources, keys, private policy and intact ledger preserved. The 23 September
+Current runtime: **Fly v16 retains the enabled bounded AI pilot**, with categories `2,4`,
+original resources, App Attest signing, private policy and intact ledger preserved. The
+[29 September rotation](app-store/key-rotation-20260929.md) changed only the provider key;
+the old key is disabled and the replacement expires on 30 November 2026. The 23 September
 AnyIO/diagnostic repair passed exact-image scans and live auth/capacity/disk/budget checks.
 The old v11–v14 image is ineligible for recovery while its Critical AnyIO finding remains.
 See the [launch record](app-store/launch-check-20260923.md) for final full-review/release state.
@@ -221,7 +223,7 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
 on 2026-09-06 after measured Sonnet costs; those values remain private and are applied to the
-enabled v15 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
+enabled v16 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
 persistence. The [29 September rotation](app-store/key-rotation-20260929.md) deployed a replacement
@@ -280,7 +282,7 @@ writes. Its 9 September live read-only check passed without changing the runtime
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
 ownership-context defect. That 9 September diagnostic check was not a full pre-upload pass;
 the later 10 September combined beta-only review is recorded in the runbook.
-The validated v15 image is the current recovery reference, subject to fresh identity/security
+The validated image shared by v15 and v16 is the current recovery reference, subject to fresh identity/security
 and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
 Critical AnyIO finding; its past v12 restart proof does not override that security failure. Pre-budget v10 lacks these
 controls and must not become a normal rollback target after cutover. Preserve the same ledger,
@@ -492,7 +494,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the enabled bounded v15 pilot recorded above. Protected
+Singapore Machine. Current production is the enabled bounded v16 pilot recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the

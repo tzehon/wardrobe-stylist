@@ -384,7 +384,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   Machine, volume, keys, private policy and intact ledger. Exact-image identity and zero-High/Critical
   scans passed; independent live verification passed health, auth integrity/capacity/disk and
   ready, below-warning, idle budget checks. See `docs/app-store/launch-check-20260923.md` for the
-  final full-review and release state. Only the validated v15 image is eligible for recovery;
+  final full-review and release state. Only the validated image shared by v15 and v16 is eligible for recovery;
   the v11–v14 image has a Critical AnyIO finding and must not be restored.
   Historical v13 activation and v14 compatibility reviews passed on 12 September with the
   approved Cowork-only status exception. Physical protected-device styling passed that day.
@@ -428,7 +428,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy was applied to the disabled v12 runtime and is retained by enabled v15; its original approval did not authorize source publication, provisioning,
+  again. The policy was applied to the disabled v12 runtime and is retained by enabled v16; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
@@ -495,7 +495,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
   the later ignored approval record authorizes only the bound finite setup, not AI enablement.
   The old v11–v14 image is historical and ineligible for recovery after the Critical AnyIO
-  finding. Only the validated v15 image is eligible, subject to fresh identity/security and
+  finding. Only the validated image shared by v15 and v16 is eligible, subject to fresh identity/security and
   ledger-compatibility verification before recovery.
   Preserve that ledger, approved policy and liability across recovery. Pre-budget v10 ignores
   these controls and is not a normal rollback target after
