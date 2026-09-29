@@ -60,7 +60,10 @@ download and launch; the public support link and existing daily-review/key-rotat
 were handed off in this task. Record this as owner-reported delivery proof, not agent-observed
 installation, another functional matrix or a new production AI call. See `docs/app-store/launch-check-20260923.md`.
 No new iOS build, upload, paid call, ledger reset or resource expansion occurred. Keep daily owner
-cost review and rotate the existing production provider key before its 8 October expiry.
+cost review. The 29 September owner-authorized key rotation deployed Fly v16 on the same v15
+image/source and original Machine/storage, preserving every other secret and budget accounting.
+The superseded key is disabled; the replacement expires on 30 November 2026. Rotate before then.
+See `docs/app-store/key-rotation-20260929.md` for checks and the initial postcheck limitation.
 Earlier dated rejection/wait-for-clarification and release-hold instructions are historical.
 
 
@@ -72,7 +75,7 @@ owner instruction. This completes the legacy shutdown action, not permanent purg
 
 Use `docs/release-plan.md` for the current sequence: retain the completed public App Store
 installation/launch confirmation, support handoff and QA; continue the existing daily cost
-review and rotate the production provider key before 8 October. The 19 September
+review and rotate the replacement production provider key before 30 November 2026. The 19 September
 rejection is resolved by Apple's approval; no new reply, appeal, resubmission or release action
 is currently needed.
 
@@ -375,7 +378,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v15, source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`,
+- **Models in use:** Fly v16 (29 September credential rotation on the unchanged v15 image), source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`,
   selects pinned `claude-sonnet-5` with AI styling enabled under the approved bounded pilot.
   The 23 September AnyIO repair preserves categories `2,4`, builds `4,5,6,7`, the original
   Machine, volume, keys, private policy and intact ledger. Exact-image identity and zero-High/Critical
@@ -448,7 +451,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   identifiers remain private. Actual alert delivery remains OPEN; no native test control was seen.
   The workspace-scoped key was created with no Admin API access, transferred through hidden owner
   input and staged at `2026-09-08T09:19:59Z` without local secret persistence, then deployed in v12.
-  It expires at `2026-10-08T09:13Z`; rotation before expiry is required. The finite disabled setup
+  That historical key was scheduled to expire at `2026-10-08T09:13Z`; it was disabled
+  early after the verified 29 September rotation. The replacement expires on 30 November 2026. The finite disabled setup
   and independent post-review are complete.
   Provider alert delivery, separate AI enablement, full pre-upload review and distribution
   remained open at that setup checkpoint. The 10 September beta-only review and build-7 internal
