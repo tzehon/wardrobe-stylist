@@ -41,18 +41,20 @@ with the correct app name, developer, Free price and iPhone-only availability.
 The release is Free, with no in-app purchases or subscriptions and no Mac/Vision distribution.
 [App Store destination](https://apps.apple.com/sg/app/wardrobe-stylist/id6789053566).
 
-Fly **v15**, runtime source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`, contains the AnyIO
+Fly **v16** (provider key rotated on 29 September), runtime source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`, contains the AnyIO
 security fix and repaired read-only diagnostic. Exact image scans have zero High/Critical
 findings. Auth integrity/capacity, disk, enabled AI budget, snapshot policy, bounded logs,
-public routes/pages and fresh console checks pass. Original resources, keys, private limits,
-auth storage and aggregate budget liability were preserved. The old v11–v14 image is not an
+public routes/pages and fresh console checks pass. Original resources, App Attest signing, private
+limits, auth storage and aggregate budget liability were preserved; only the provider key changed. The old v11–v14 image is not an
 eligible recovery target. No new iOS build or upload was needed; approved build 7 was released.
 
 The owner confirmed successful App Store download and launch by **23:02 SGT**. The public
 support link and existing operating routine were handed off in the same task. This is owner-
 reported delivery proof; it does not claim another functional matrix or production AI call.
 Retain completed QA and preserve existing data/identity. Continue the daily owner cost
-review and rotate the production provider key before its **8 October** expiry. Retain completed
+review and rotate the replacement provider key before its **30 November 2026** expiry. The
+[29 September rotation](docs/app-store/key-rotation-20260929.md) preserved the runtime and
+accounting; the superseded key is disabled. Retain completed
 physical QA without replaying it. The snapshot/deletion recovery evidence waiver remains accepted
 residual risk, not proof of all-copy purge or deleted-identity non-return. The two legacy Google
 project shutdowns were accepted on 19 September; final provider deletion remains pending.
@@ -114,7 +116,7 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 
 | Doc | What |
 |---|---|
-| [`docs/release-plan.md`](docs/release-plan.md) | Current short path to TestFlight, AI activation and public release |
+| [`docs/release-plan.md`](docs/release-plan.md) | Completed public release/delivery and current operating routine |
 | [`docs/freemium-model.md`](docs/freemium-model.md) | Free launch, planned paid offering, usage/reset behavior and undecided prices/limits |
 | [`docs/setup.md`](docs/setup.md) | End-to-end dev setup (Xcode, uv, App Attest, Anthropic key, Fly.io) |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture with diagrams (components, data flow, sequences) |
@@ -130,6 +132,11 @@ xcodebuild test -project Wardrobe.xcodeproj -scheme Wardrobe \
 
 ## Verification and open work
 
+The [29 September key rotation](docs/app-store/key-rotation-20260929.md) passed 879 backend
+tests plus the locked security/type/lint gates, 237 iOS tests and 44 release-script tests.
+The replacement is verified on Fly v16 and the old key is disabled. Fly aggregate HTTP metrics
+returned no data; direct health/authentication and bounded-event checks passed separately.
+
 The September 23 remediation passed **879 backend tests** plus locked pip-audit, Bandit, Ruff
 and mypy, **237 iOS tests** (227 Swift and 10 UI), and **44 release-script tests**.
 The complete clean-main production preflight passed at **14:31:20 UTC** before the manual release.
@@ -141,8 +148,10 @@ AI-launch readiness. The default AI-launch purpose remains strict; a beta-only r
 authorize AI, App Store submission or an upload. No iOS bundle/API-contract change is part of
 this refactor, so it does not itself require a new TestFlight build.
 
-Provider-key rotation before the recorded 8 October expiry, truthful AI disclosures/consent,
+The completed provider-key rotation and next expiry on 30 November 2026, truthful AI disclosures/consent,
 the accepted snapshot/recovery residual risk and App Store metadata remain tracked in the
 [release plan](docs/release-plan.md) and [TestFlight runbook](docs/app-store/internal-testflight-runbook.md).
+The [29 September freemium decision packet](docs/freemium-model.md#next-decision-packet--29-september)
+prepares the next Singapore milestone; price and allowances remain unapproved.
 Detailed historical model evaluations, releases and test counts remain in those linked records
 and Git history; they are not additional tasks to repeat.

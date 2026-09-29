@@ -43,7 +43,8 @@ settings were verified after reload. One approved credit purchase is paid and su
 balance was verified, with auto-reload off. The workspace-scoped key is created without Admin API
 access; hidden owner input transferred and staged it without local secret persistence. Fly v12
 deploys the new key and private policy while preserving the session secret, with all eight expected
-secrets deployed. Rotation before its 8 October 2026 expiry remains an operations gate.
+secrets deployed. The [29 September rotation](app-store/key-rotation-20260929.md) replaced that key on Fly v16
+and disabled it. The next rotation is due before 30 November 2026.
 Actual alert delivery remains OPEN; no native test control was seen.
 The owner separately approved and completed AI activation on 12 September. Build 7 completed its separately approved
 AI-disabled internal distribution; see the [distribution record](app-store/internal-testflight-runbook.md#build-7-distribution--2026-09-10).

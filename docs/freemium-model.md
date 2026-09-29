@@ -14,7 +14,7 @@ This document is the canonical product-model reference; the
 
 The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catalog browsing and
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
-Optional AI styling is implemented and enabled as the owner-approved bounded Fly v15 pilot.
+Optional AI styling is implemented and enabled as the owner-approved bounded Fly v16 pilot (unchanged runtime image after key rotation).
 The 12 September v13 activation review passed with the scoped Cowork-only exception. The v14
 configuration postcheck passed, followed by its full operations review at `2026-09-12T07:09:37Z`
 with the approved Cowork-only status exception. The first protected
@@ -93,6 +93,40 @@ verified Apple information. The following product decisions remain open:
 - Customer communication and support response when the global safety budget pauses paid AI.
 
 Do not turn these undecided behaviors into marketing promises or current-app instructions.
+
+## Next decision packet — 29 September
+
+The owner authorized proceeding with production-key rotation and preparation for the next
+milestone. That instruction does not select a paid price or approve the proposed numeric
+allowances. The [rotation and verification](app-store/key-rotation-20260929.md) are complete;
+the public app remains Free. Product decisions below remain pending.
+
+| Decision | Review starting point | Evidence or choice still needed |
+| --- | --- | --- |
+| Plan name and allowance | Working name Plus; earlier proposal of 5 Free generations per UTC month and 60 paid generations per verified subscription period | Owner selection of the name, numbers and Free reset boundary |
+| Monthly price | No price selected | Current Apple commerce terms and Singapore price options, measured cost per successful generation, hosting/support allocation and margin under the existing global budget |
+| Rollover and plan changes | Proposed: no rollover; cancellation retains paid access until the verified period ends | Owner decision; specify upgrade allocation so switching plans cannot grant duplicate allowances |
+| Billing interruptions | Keep local features available; derive paid AI access from verified Apple subscription state | Decide grace/retry policy and refund/revocation treatment before implementation |
+| Family Sharing | No offering selected | Explicit inclusion/exclusion and, if included, ownership and shared-allowance rules |
+| Global safety pause | Preserve the independent owner-approved spend ceiling | Agree on customer wording and support response when paid AI is temporarily unavailable |
+
+Once those decisions are approved, deliver APP-037 in this order:
+
+1. Specify the commerce/usage contract, ownership, idempotency and interrupted-request behavior.
+   Keep commerce records separate from installation security metadata and the global AI ledger;
+   wardrobe, prompt and response payloads remain unpersisted on the backend.
+2. Implement server-verified entitlements and atomic customer metering, with lifecycle and
+   duplicate-request regressions, while preserving the current client's compatible API behavior.
+3. Implement the iOS Plan & Usage, purchase, restore and manage controls with exact inclusions,
+   localized price, remaining allowance/reset time and distinct exhaustion/safety-pause states.
+4. Run the full repository regressions and targeted Apple sandbox/TestFlight commerce checks.
+   Verify the latest uploaded build before assigning the next unused build number. A new
+   TestFlight build is required for the shipped purchase/usage UI; build 7 must not be reused.
+5. Review the complete Singapore offer and operating evidence before enabling paid distribution.
+   Country expansion remains a later milestone.
+
+This packet prepares decisions and delivery order only; it creates no StoreKit product,
+subscription, entitlement, customer quota or new spending allowance.
 
 ## Ownership, verification and privacy
 

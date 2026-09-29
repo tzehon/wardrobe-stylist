@@ -9,7 +9,7 @@
 > [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
-Updated 23 September 2026; retains the owner-requested 10 September simplification.
+Updated 29 September 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
@@ -73,6 +73,10 @@ choice, not a reason to grant account roles casually.
 
 ## Current: operate the verified small AI pilot
 
+The [29 September provider-key rotation](app-store/key-rotation-20260929.md) is complete on
+Fly v16, with the unchanged runtime image/source and preserved storage, other secrets and budget
+accounting. The old key is disabled; rotate the replacement before **30 November 2026**.
+
 Keep the existing backend, anonymous App Attest access, server-held provider key and durable global
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another
 model to finish this release.
@@ -84,7 +88,7 @@ model to finish this release.
 - The disabled review and separate bounded activation approval completed on 12 September. Fly v13
   enabled styling on the same image, Machine and volume, with the exact approved policy and intact
   ledger. Retain the provider cap, credits and auto-reload-off setting. Rotate the key before its
-  recorded 8 October expiry.
+  recorded 8 October expiry; the 29 September rotation completed that action, as recorded above.
 - The v13 enabled `ai-launch` checks passed at `2026-09-12T04:28:57Z`, with the approved Cowork-only
   status exception and fresh API/Console operational evidence. The owner's one protected-device
   styling request passed on 12 September. Use the simple cost routine below; residual Fly invoice
@@ -147,7 +151,7 @@ By 15:02Z on 23 September, the owner confirmed successful App Store download and
 The public support link and existing operating routine were handed off in the same task.
 This closes the physical delivery follow-up with owner-reported evidence, not an agent-observed
 installation or additional AI call. Preserve identity/data and do not replay completed QA.
-Continue the approved daily cost review and rotate the production key before 8 October.
+Continue the approved daily cost review and rotate the replacement production key before 30 November 2026.
 The owner-requested Google shutdowns were accepted on 19 September; final provider deletion
 remains pending and is separate from the released Gmail-free app. APP-036 retains only the
 explicitly open residual lifecycle/provider evidence; completed release and delivery steps must not be replayed.

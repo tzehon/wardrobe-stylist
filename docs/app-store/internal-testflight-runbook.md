@@ -13,6 +13,15 @@ Use this runbook for every internal beta. The audience is internal, but the bina
 an App Store release candidate from the moment it is archived. This prevents a separate, weaker
 "beta build" configuration from drifting away from what will eventually be reviewed.
 
+## Provider-key rotation — 29 September 2026
+
+The owner-authorized replacement is deployed on Fly v16 using the unchanged v15 image/source,
+Machine and durable storage. Other secrets and budget accounting were preserved. The old key
+is disabled, and backend authentication with the replacement passed again after that action.
+The replacement expires on **30 November 2026**. No paid generation or new TestFlight build was
+needed. See the [rotation record](key-rotation-20260929.md) for ordered evidence, validation and
+the initial postcheck/aggregate-metrics limitations. This does not reopen completed release QA.
+
 ## Historical work order — 19 September 2026
 
 Start with [the short release plan](../release-plan.md). This runbook retains operator procedures

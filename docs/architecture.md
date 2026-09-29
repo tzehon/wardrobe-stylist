@@ -324,7 +324,8 @@ flowchart LR
 
 - Fly secrets hold the workspace-scoped `ANTHROPIC_API_KEY`, all six approved private AI settings
   and the preserved App Attest session-signing secret. The key was transferred through hidden owner
-  input without local secret persistence; rotation before its 8 October 2026 expiry is required. A shared
+  input without local secret persistence. The 29 September rotation replaced the original key
+  on Fly v16 and disabled it; rotate the replacement before 30 November 2026. A shared
   `DEVICE_TOKEN` is not an acceptable public-client credential or rollback mechanism.
 - The durable auth store contains Apple-certified public keys, opaque Apple attestation receipts,
   anonymous installation IDs, assertion counters, one-time challenges, hashed short-lived

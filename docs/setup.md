@@ -224,7 +224,8 @@ on 2026-09-06 after measured Sonnet costs; those values remain private and are a
 enabled v15 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
-persistence. Rotate it before its 8 October 2026 expiry. Saved notifications do not prove actual
+persistence. The [29 September rotation](app-store/key-rotation-20260929.md) deployed a replacement
+on Fly v16 and disabled the old key. Rotate the replacement before 30 November 2026. Saved notifications do not prove actual
 delivery. Console warnings and existing hourly abuse limits do not replace the ledger. The finite
 approved setup is complete; further provider changes, rotation and paid calls retain their
 respective approval boundaries.
