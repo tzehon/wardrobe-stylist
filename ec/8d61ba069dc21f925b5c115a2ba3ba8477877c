@@ -1,0 +1,23 @@
+.github/workflows/git-ai.yaml
+  s_533c2aded046cd::t_e49d0a6fcf8d75 7-8,11-13,15,22-29,35
+  s_533c2aded046cd::t_b424245fd34fb0 1-6,9-10,14,16-21,30-34,36-38
+README.md
+  s_533c2aded046cd::t_707f308eb5b189 115,125
+  s_533c2aded046cd::t_e49d0a6fcf8d75 116-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ec8d61ba069dc21f925b5c115a2ba3ba8477877c",
+  "prompts": {},
+  "sessions": {
+    "s_533c2aded046cd": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0eafc-ae70-74d1-b9e9-50246b70d1af",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
