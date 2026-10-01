@@ -1,0 +1,494 @@
+{
+  "valid": [
+    {
+      "name": "free_empty",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "free_pending",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 1,
+        "remaining": 4,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 1,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "plus_credited_full",
+      "value": {
+        "plan": "plus",
+        "allowance": 30,
+        "successful_generations": 31,
+        "delivery_credits_used": 1,
+        "consumed": 30,
+        "reserved": 0,
+        "remaining": 0,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 64,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "expired",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1793491200,
+        "entitlement_status": "expired",
+        "ai_availability": "service_paused"
+      }
+    },
+    {
+      "name": "plus_grace",
+      "value": {
+        "plan": "plus",
+        "allowance": 30,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 30,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "grace",
+        "ai_availability": "available"
+      }
+    }
+  ],
+  "invalid_structure": [
+    {
+      "name": "unknown_field",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available",
+        "private_payload": "forbidden"
+      }
+    },
+    {
+      "name": "boolean_count",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": true,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "string_count",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": "0",
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "negative",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": -1,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "fraction",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0.5,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "large_revision",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 9007199254740992,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "unknown_plan",
+      "value": {
+        "plan": "unlimited",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "unknown_status",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "trial",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "extra_credit",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 2,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "multiple_pending",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 2,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "null_time",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": null,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "missing_field",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    }
+  ],
+  "invalid_semantics": [
+    {
+      "name": "wrong_allowance",
+      "value": {
+        "plan": "free",
+        "allowance": 30,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "wrong_balance",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 4,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "credit_without_success",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 1,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "wrong_consumed",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 1,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "invalid_period",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1790812800,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "clock_before_period",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812799,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "active_after_expiry",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1793491200,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "free_grace",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "grace",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "revoked_available",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 0,
+        "delivery_credits_used": 0,
+        "consumed": 0,
+        "reserved": 0,
+        "remaining": 5,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "revoked",
+        "ai_availability": "available"
+      }
+    },
+    {
+      "name": "free_over_quota",
+      "value": {
+        "plan": "free",
+        "allowance": 5,
+        "successful_generations": 6,
+        "delivery_credits_used": 0,
+        "consumed": 6,
+        "reserved": 0,
+        "remaining": 0,
+        "period_start": 1790812800,
+        "period_end": 1793491200,
+        "revision": 0,
+        "server_time": 1790812800,
+        "entitlement_status": "active",
+        "ai_availability": "available"
+      }
+    }
+  ]
+}

@@ -9,9 +9,25 @@
 > [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
-Updated 29 September 2026; retains the owner-requested 10 September simplification.
+Updated 1 October 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
+
+The next product step is to review the [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)
+for APP-037: assess S$4.98/month for 30 paid generations, with 5 Free generations per UTC month.
+The owner requested profitability validation; actual costs remain unavailable in this workspace.
+The illustrative planning case breaks even at 21 paid subscribers with 20 Free users, or 23 with
+full use of the initial one-delivery-credit-per-period design; the stress
+case loses money per subscriber after assumed support. These are not approved paid-launch terms.
+Verify current commerce terms, production economics
+and capacity under the existing private budget before selecting the offer and implementing
+commerce/metering. The [commerce contract draft](freemium-contract.md) defines the next implementation
+slices and the owner's selected bounded automatic-credit policy. The initial design cap is one
+delivery credit per owner per allowance period; ownership/retention/cutover work remains open.
+Cost verification remains deferred at the owner's request. The inactive quota policy, usage schema,
+Swift/Pydantic mirrors and shared fixtures are implemented locally; verification and the remaining
+Apple/store/API/UI integration are incomplete. The public app remains Free; daily operating review
+continues below.
 
 ## Completed: verify the delivered local-first TestFlight beta
 

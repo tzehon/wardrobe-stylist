@@ -162,7 +162,37 @@ this refactor, so it does not itself require a new TestFlight build.
 The completed provider-key rotation and next expiry on 30 November 2026, truthful AI disclosures/consent,
 the accepted snapshot/recovery residual risk and App Store metadata remain tracked in the
 [release plan](docs/release-plan.md) and [TestFlight runbook](docs/app-store/internal-testflight-runbook.md).
-The [29 September freemium decision packet](docs/freemium-model.md#next-decision-packet--29-september)
-prepares the next Singapore milestone; price and allowances remain unapproved.
+The [1 October pricing proposal](docs/freemium-model.md#pricing-and-allowance-proposal--1-october-2026)
+now assesses S$4.98/month for 30 paid generations and 5 Free generations per UTC month, following
+the owner's request to validate profitability. Paid launch remains unapproved. The planning example
+breaks even at 21 paid subscribers with 20 Free users, or 23 if everyone uses the proposed single
+delivery credit; the stress case loses money per subscriber
+after assumed support. Actual billing/success-count evidence and Apple account terms are unavailable
+here, so profitability and capacity under the existing budget remain unverified.
+The [commerce contract draft](docs/freemium-contract.md) specifies ownership, quota periods,
+operation recovery and implementation slices. The owner selected bounded automatic delivery credits;
+the initial design cap is one per allowance period. Legacy-route cutover remains open; no purchase
+flow or live customer metering is enabled yet.
 Detailed historical model evaluations, releases and test counts remain in those linked records
 and Git history; they are not additional tasks to repeat.
+
+### Freemium foundation — 1 October, local and inactive
+
+The first source slice adds a pure backend quota policy, a shared usage-snapshot schema/corpus,
+Pydantic and Swift mirrors, and regression coverage. It implements 5/30 allowances, UTC Free
+periods, supplied paid periods, idempotent outcomes, one delivery credit and late-settlement rules.
+It does not verify Apple purchases, persist commerce records, expose commerce routes or activate
+paid plans. Transactional concurrency, actual restore/renewal integration and cross-store recovery
+remain future work; the pure policy's caller must provide verified ownership and period evidence.
+
+Local verification passed **930 backend tests** (including 51 new policy/contract tests), locked
+pip-audit, Bandit, Ruff and mypy. The existing development dependency `urllib3` was updated from
+2.7.0 to 2.8.0 to clear three advisories found by the required audit; the new audit is clean.
+The full backend suite needed socket access for its in-process test-client communication.
+
+**Validation remains incomplete:** this Linux workspace has no Swift, Xcode or XcodeGen, so the
+Swift decoder and its two shared-corpus tests have not compiled or run. Of 44 release-script tests,
+39 passed and five errored because Clang is unavailable. Re-run the complete iOS and release-script
+suites on the repository's supported Xcode environment before considering this slice complete.
+The added Swift source requires a new TestFlight build before distribution; no build number,
+upload, production runtime, credentials or spending limits were changed.

@@ -15,6 +15,14 @@ Planned schemas (added with their phase):
 | `category.schema.json` | 3 | the dynamic browsable taxonomy |
 | `outfit.schema.json` | 5 | the complete `/recommend` response (outfit plus token usage) — **added** |
 | `recommend-request.schema.json` | 5+ | the compact catalog, wear IDs, rating aggregates, and optional occasion sent to `/recommend` |
+| `commerce-usage.schema.json` | APP-037, inactive | usage snapshot shape; no commerce endpoint is enabled |
+
+The commerce snapshot has a shared positive/negative corpus in
+[`../fixtures/commerce-usage.json`](../fixtures/commerce-usage.json). JSON Schema validates its
+structure; Pydantic and the Swift decoder additionally validate counter arithmetic, plan allowance,
+period ordering and entitlement/availability consistency. UTC timestamps are integer Unix seconds.
+This display contract cannot authorize a purchase or generation. Operation, Apple proof and
+versioned recommendation schemas will be added with their implementation slices.
 
 Keep field names and constraints identical to the Swift wire models in
 [`ios/Wardrobe/Backend/RecommendAPI.swift`](../../ios/Wardrobe/Backend/RecommendAPI.swift) and the
