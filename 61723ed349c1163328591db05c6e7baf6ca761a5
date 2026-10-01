@@ -1,0 +1,43 @@
+AGENTS.md
+  s_af583e59789daf::t_c2d53b194b4bb1 49
+docs/app-store/internal-testflight-runbook.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8,32
+docs/app-store/app-privacy-data-inventory.md
+  s_af583e59789daf::t_c2d53b194b4bb1 4
+docs/app-store/spam-rejection-20260919.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8
+docs/freemium-model.md
+  s_af583e59789daf::t_c2d53b194b4bb1 4
+README.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8
+docs/release-plan.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8
+docs/setup.md
+  s_af583e59789daf::t_c2d53b194b4bb1 4
+docs/privacy.md
+  s_af583e59789daf::t_c2d53b194b4bb1 4
+docs/app-release-backlog.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8
+docs/app-store/submission-checklist.md
+  s_af583e59789daf::t_c2d53b194b4bb1 8
+docs/model-evaluation.md
+  s_af583e59789daf::t_c2d53b194b4bb1 3-4
+docs/app-store/app-review-notes-draft.md
+  s_af583e59789daf::t_c2d53b194b4bb1 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a479088bd57c9c9034d1aa3898d979526ebbe886",
+  "prompts": {},
+  "sessions": {
+    "s_af583e59789daf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0eadb-bfaa-7802-83cd-115255da6730",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
