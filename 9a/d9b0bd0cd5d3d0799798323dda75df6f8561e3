@@ -1,0 +1,48 @@
+backend/tests/test_commerce_usage.py
+  s_5651627e151868::t_ab2f3542f7d9bf 1-209
+ios/Wardrobe/Backend/CommerceUsage.swift
+  s_5651627e151868::t_ab2f3542f7d9bf 1-102
+backend/app/commerce/__init__.py
+  s_5651627e151868::t_ab2f3542f7d9bf 1
+docs/freemium-contract.md
+  s_5651627e151868::t_ab2f3542f7d9bf 1-287
+shared/schemas/commerce-usage.schema.json
+  s_5651627e151868::t_ab2f3542f7d9bf 1-124
+shared/schemas/README.md
+  s_5651627e151868::t_ab2f3542f7d9bf 18-25
+ios/WardrobeTests/Backend/CommerceUsageTests.swift
+  s_5651627e151868::t_ab2f3542f7d9bf 1-39
+docs/release-plan.md
+  s_5651627e151868::t_ab2f3542f7d9bf 12,16-30
+  s_5651627e151868::t_555179c579aaa1 31
+backend/app/commerce/usage.py
+  s_5651627e151868::t_ab2f3542f7d9bf 1-243
+docs/app-release-backlog.md
+  s_5651627e151868::t_ab2f3542f7d9bf 1180-1185
+README.md
+  s_5651627e151868::t_ab2f3542f7d9bf 165-175,178-198
+backend/app/schemas/commerce.py
+  s_5651627e151868::t_ab2f3542f7d9bf 1-76
+backend/tests/test_commerce_schema.py
+  s_5651627e151868::t_ab2f3542f7d9bf 1-45
+docs/freemium-model.md
+  s_5651627e151868::t_ab2f3542f7d9bf 75-76,114-119,138-351,404-405
+shared/fixtures/commerce-usage.json
+  s_5651627e151868::t_ab2f3542f7d9bf 1-494
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ad9b0bd0cd5d3d0799798323dda75df6f8561e3",
+  "prompts": {},
+  "sessions": {
+    "s_5651627e151868": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "pr64-attribution-reconstruction-20261001",
+        "model": "unknown"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
