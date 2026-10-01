@@ -176,7 +176,7 @@ flow or live customer metering is enabled yet.
 Detailed historical model evaluations, releases and test counts remain in those linked records
 and Git history; they are not additional tasks to repeat.
 
-### Freemium foundation — 1 October, local and inactive
+### Freemium foundation — 1 October, inactive and cloud-verified
 
 The first source slice adds a pure backend quota policy, a shared usage-snapshot schema/corpus,
 Pydantic and Swift mirrors, and regression coverage. It implements 5/30 allowances, UTC Free
@@ -190,9 +190,12 @@ pip-audit, Bandit, Ruff and mypy. The existing development dependency `urllib3` 
 2.7.0 to 2.8.0 to clear three advisories found by the required audit; the new audit is clean.
 The full backend suite needed socket access for its in-process test-client communication.
 
-**Validation remains incomplete:** this Linux workspace has no Swift, Xcode or XcodeGen, so the
-Swift decoder and its two shared-corpus tests have not compiled or run. Of 44 release-script tests,
-39 passed and five errored because Clang is unavailable. Re-run the complete iOS and release-script
-suites on the repository's supported Xcode environment before considering this slice complete.
+**Cloud validation passed** on source `9ad9b0b` in [PR #64](https://github.com/tzehon/wardrobe-stylist/pull/64):
+[backend CI](https://github.com/tzehon/wardrobe-stylist/actions/runs/36841367340) passed all 930 tests,
+locked checks and the unprivileged container check. [macOS CI](https://github.com/tzehon/wardrobe-stylist/actions/runs/36841367193)
+passed **239 iOS tests** (229 Swift unit, including both shared-corpus tests, plus 10 UI), all
+**44 release-script tests**, and the Release simulator build/artifact/privacy-manifest checks.
+This closes the earlier Linux toolchain gap (39 script passes / five missing-Clang errors and no
+Apple toolchain). It does not prove signed-device behavior or the future commerce integration.
 The added Swift source requires a new TestFlight build before distribution; no build number,
 upload, production runtime, credentials or spending limits were changed.
