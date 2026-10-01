@@ -4,7 +4,7 @@ Draft, 1 October 2026. This is the next design step for the owner-selected valid
 **S$4.98/month, 30 Plus generations per verified subscription period, 5 Free generations per UTC
 calendar month**. See [the product and cost proposal](freemium-model.md). Actual-cost verification
 was deferred at the owner's request; profitability, Apple price availability and paid launch remain
-unverified. The inactive policy and usage-snapshot foundation below is implemented locally; Apple
+unverified. The inactive policy and usage-snapshot foundation below is implemented and cloud-tested; Apple
 verification, persistence, commerce routes and purchase UI remain planned. Existing build 7 and
 production remain unchanged.
 
@@ -28,11 +28,15 @@ production remain unchanged.
   dispatch-once behavior or cross-store recovery. No route imports this policy.
 - Regression checks also required a lockfile-only update of the existing development dependency
   `urllib3` from 2.7.0 to 2.8.0 after pip-audit reported three advisories. No production deployment
-  or budget mutation occurred. Validation results and remaining toolchain limits are in the README.
+  or budget mutation occurred. Validation results are in the README.
 
-Backend validation passed 930 tests plus locked audit/Bandit/Ruff/mypy. The Swift decoder/tests
-remain uncompiled because this environment has no Apple toolchain. Release-script validation is
-39 passed / 5 environment errors (missing Clang). The foundation is not fully verified or releasable.
+Backend validation passed 930 tests plus locked audit/Bandit/Ruff/mypy locally and in
+[cloud CI](https://github.com/tzehon/wardrobe-stylist/actions/runs/36841367340).
+[macOS CI](https://github.com/tzehon/wardrobe-stylist/actions/runs/36841367193) on source `9ad9b0b`
+passed 239 iOS tests (229 Swift unit plus 10 UI), including both shared-corpus decoder tests,
+all 44 release-script tests, and Release simulator build/artifact/privacy-manifest checks.
+This closes the earlier Linux toolchain limits; signed-device validation and the unimplemented
+commerce integration remain separate release gates. No paid feature is ready for activation.
 
 The next implementation work is verified Apple ownership and durable commerce storage, including
 the remaining privacy/retention decisions. Purchase UI and live activation are later steps.
