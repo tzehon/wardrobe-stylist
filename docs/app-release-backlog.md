@@ -1177,7 +1177,12 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   duplicate-photo detection, and a consistent thumbnail pipeline with full accessibility.
 - [ ] **APP-035 · Enhancement · Widgets/Shortcuts.** A privacy-safe Today widget and App Intent
   for “What should I wear?” only after cached recommendations work reliably offline.
-- [ ] **APP-037 · Post-v1 · Introduce transparent, budget-safe freemium in Singapore.** Preserve the
+- [ ] **APP-037 · Post-v1 · Introduce transparent, budget-safe freemium in Singapore.** The
+  [1 October commerce contract draft](freemium-contract.md) describes the S$4.98/30 validation candidate;
+  cost verification is deferred, and the contract's ownership/retention/cutover prerequisites
+  remain open. Bounded automatic delivery credits are selected, initially capped at one per owner
+  per allowance period. The inactive pure policy and usage snapshot mirrors now exist; full
+  verification and the Apple/storage/API/UI integration remain open. Paid launch is not complete. Preserve the
   no-login product by using server-verified Apple purchase identity and StoreKit 2 lifecycle state,
   not client assertions or reinstallable App Attest installation identity, for paid ownership.
   Finalize names, localized price, numeric Free and paid allowances, and reset rules only after

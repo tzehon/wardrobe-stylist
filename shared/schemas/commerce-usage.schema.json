@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "AIAvailability": {
+      "enum": [
+        "available",
+        "service_paused",
+        "verification_required"
+      ],
+      "title": "AIAvailability",
+      "type": "string"
+    },
+    "EntitlementStatus": {
+      "enum": [
+        "active",
+        "grace",
+        "expired",
+        "revoked",
+        "verification_required"
+      ],
+      "title": "EntitlementStatus",
+      "type": "string"
+    },
+    "Plan": {
+      "enum": [
+        "free",
+        "plus"
+      ],
+      "title": "Plan",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "plan": {
+      "$ref": "#/$defs/Plan"
+    },
+    "allowance": {
+      "maximum": 30,
+      "minimum": 5,
+      "title": "Allowance",
+      "type": "integer"
+    },
+    "successful_generations": {
+      "maximum": 31,
+      "minimum": 0,
+      "title": "Successful Generations",
+      "type": "integer"
+    },
+    "delivery_credits_used": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Delivery Credits Used",
+      "type": "integer"
+    },
+    "consumed": {
+      "maximum": 31,
+      "minimum": 0,
+      "title": "Consumed",
+      "type": "integer"
+    },
+    "reserved": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Reserved",
+      "type": "integer"
+    },
+    "remaining": {
+      "maximum": 31,
+      "minimum": 0,
+      "title": "Remaining",
+      "type": "integer"
+    },
+    "period_start": {
+      "maximum": 253402300799,
+      "minimum": 0,
+      "title": "Period Start",
+      "type": "integer"
+    },
+    "period_end": {
+      "maximum": 253402300799,
+      "minimum": 0,
+      "title": "Period End",
+      "type": "integer"
+    },
+    "revision": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "server_time": {
+      "maximum": 253402300799,
+      "minimum": 0,
+      "title": "Server Time",
+      "type": "integer"
+    },
+    "entitlement_status": {
+      "$ref": "#/$defs/EntitlementStatus"
+    },
+    "ai_availability": {
+      "$ref": "#/$defs/AIAvailability"
+    }
+  },
+  "required": [
+    "plan",
+    "allowance",
+    "successful_generations",
+    "delivery_credits_used",
+    "consumed",
+    "reserved",
+    "remaining",
+    "period_start",
+    "period_end",
+    "revision",
+    "server_time",
+    "entitlement_status",
+    "ai_availability"
+  ],
+  "title": "CommerceUsage",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wardrobe-stylist/schemas/commerce-usage.schema.json",
+  "description": "Inactive commerce usage snapshot. Structural validation only; both clients additionally enforce counter arithmetic, plan allowance and usable period invariants. Timestamps are UTC Unix seconds. No owner identity or wardrobe payload is exposed."
+}
