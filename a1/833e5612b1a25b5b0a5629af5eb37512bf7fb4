@@ -1,0 +1,21 @@
+README.md
+  s_fe30ee0095c916::t_340c34eacd83fb 179,193-199
+docs/freemium-contract.md
+  s_fe30ee0095c916::t_340c34eacd83fb 7,31-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a1833e5612b1a25b5b0a5629af5eb37512bf7fb4",
+  "prompts": {},
+  "sessions": {
+    "s_fe30ee0095c916": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "pr64-cloud-validation-20261001",
+        "model": "unknown"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
