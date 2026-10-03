@@ -179,6 +179,37 @@ class AppleEvidenceVerifier:
             raise AppleEvidenceError("evidence_not_fresh")
         return signed_at
 
+    def _app_evidence(self, claims: dict[str, object], now: int) -> AppEvidence:
+        if _integer(claims.get("appAppleId")) != self.policy.app_apple_id:
+            raise AppleEvidenceError("identity_mismatch")
+        app_id = _text(claims.get("appTransactionId"))
+        signed_at = self._fresh(claims.get("receiptCreationDate"), now)
+        try:
+            nonce = _text(claims.get("deviceVerificationNonce"))
+            UUID(nonce)
+            encoded = claims.get("deviceVerification")
+            if not isinstance(encoded, str) or not 1 <= len(encoded) <= 1024:
+                raise ValueError
+            device = base64.b64decode(encoded, validate=True)
+            if not 1 <= len(device) <= 512:
+                raise ValueError
+        except (ValueError, binascii.Error):
+            raise AppleEvidenceError("invalid_device_claims") from None
+        return AppEvidence(app_id, signed_at, device, nonce)
+
+    def verify_app(self, app_jws: str) -> AppEvidence:
+        """Inspect an app download without requiring an in-app purchase.
+
+        Free users also have an AppTransaction. This verifies signed evidence,
+        not device ownership, an installation binding or a Free allowance.
+        """
+        started = _integer(self.clock_ms())
+        claims = self._verified_claims(app_jws, app=True)
+        now = _integer(self.clock_ms())
+        if now < started:
+            raise AppleEvidenceError("invalid_clock")
+        return self._app_evidence(claims, now)
+
     def verify_pair(self, app_jws: str, purchase_jws: str) -> SignedEvidencePair:
         """Authenticate matching standard-purchase evidence, without persisting it.
 
@@ -194,10 +225,8 @@ class AppleEvidenceVerifier:
         now = _integer(self.clock_ms())
         if now < started:
             raise AppleEvidenceError("invalid_clock")
-        if _integer(app_claims.get("appAppleId")) != self.policy.app_apple_id:
-            raise AppleEvidenceError("identity_mismatch")
-        app_id = _text(app_claims.get("appTransactionId"))
-        if _text(purchase.get("appTransactionId")) != app_id:
+        app_evidence = self._app_evidence(app_claims, now)
+        if _text(purchase.get("appTransactionId")) != app_evidence.app_transaction_id:
             raise AppleEvidenceError("transaction_mismatch")
         if (purchase.get("productId") != self.policy.product_id
                 or purchase.get("subscriptionGroupIdentifier") != self.policy.subscription_group
@@ -221,25 +250,13 @@ class AppleEvidenceVerifier:
             raise AppleEvidenceError("reconciliation_required")
         if purchase.get("price") is not None and _integer(purchase["price"]) == 0:
             raise AppleEvidenceError("unsupported_purchase")
-        app_signed = self._fresh(app_claims.get("receiptCreationDate"), now)
         signed_at = self._fresh(purchase.get("signedDate"), now)
         start, end = _integer(purchase.get("purchaseDate")), _integer(purchase.get("expiresDate"))
         original = _integer(purchase.get("originalPurchaseDate"))
         if not original <= start < end or start > signed_at:
             raise AppleEvidenceError("invalid_period")
-        try:
-            nonce = _text(app_claims.get("deviceVerificationNonce"))
-            UUID(nonce)
-            encoded = app_claims.get("deviceVerification")
-            if not isinstance(encoded, str) or not 1 <= len(encoded) <= 1024:
-                raise ValueError
-            device = base64.b64decode(encoded, validate=True)
-            if not 1 <= len(device) <= 512:
-                raise ValueError
-        except (ValueError, binascii.Error):
-            raise AppleEvidenceError("invalid_device_claims") from None
         return SignedEvidencePair(
-            AppEvidence(app_id, app_signed, device, nonce),
-            PurchaseEvidence(app_id, _text(purchase.get("transactionId")),
+            app_evidence,
+            PurchaseEvidence(app_evidence.app_transaction_id, _text(purchase.get("transactionId")),
                              _text(purchase.get("originalTransactionId")), start, end, signed_at),
         )

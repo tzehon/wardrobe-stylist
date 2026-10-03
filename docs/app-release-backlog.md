@@ -1185,6 +1185,10 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   durable metadata-only usage storage and concurrency/replay coverage are now implemented but inactive.
   The inactive signed-evidence adapter uses Apple's pinned library and strict claim validation;
   synthetic signature tests do not establish device ownership or current entitlement.
+  The [ownership evidence slice](apple-ownership-binding.md) adds inactive local StoreKit collection
+  and challenge-bound inspection, with a regression showing that a borrowed matching JWS/device
+  UUID plus another valid key is not ownership proof. Durable binding and its trust/cutover
+  boundary remain open; the new unshipped Swift source needs a build before distribution.
   Apple ownership verification, lifecycle reconciliation, retention/provisioning, cross-store
   admission and API/UI integration remain open. Paid launch is not complete. Preserve the
   no-login product by using server-verified Apple purchase identity and StoreKit 2 lifecycle state,

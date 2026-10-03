@@ -1,0 +1,16 @@
+{
+  "description": "Synthetic protocol golden vector, NOT an Apple receipt or device proof.",
+  "challenge_id": "c2e8c04a-1e6f-4551-9e46-ebd46be9fa31",
+  "nonce_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "installation_id": "9d9443c8-8be9-4415-b864-3b1a38f2521c",
+  "key_id_base64": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+  "binding_revision": 7,
+  "issued_at_ms": 1791014400000,
+  "expires_at_ms": 1791014460000,
+  "app_jws": "synthetic.header.payload.signature",
+  "device_id": "8BB12C22-C7C4-4B2A-AF07-95CB3382D5A1",
+  "device_nonce": "d10436b4-03a9-4c83-9d98-5eea0c4a317b",
+  "device_digest_hex": "69a1fe7e71d5e78c35b2bf5db54a69ca81f8eb890b56f40f2bcc2253b5688807a2a6b4ca2d1fdeeb77cdbd68f7e072ab",
+  "transcript": "wardrobe-commerce-app-proof-v1\nc2e8c04a-1e6f-4551-9e46-ebd46be9fa31\n000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\n9d9443c8-8be9-4415-b864-3b1a38f2521c\n202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f\n7\n1791014400000\n1791014460000\n73e3e2aed504734ac9c3c28ac69651fa9f95595fa8a23015b68280b68f6bd72c\n8bb12c22-c7c4-4b2a-af07-95cb3382d5a1\n",
+  "transcript_sha256": "7e473c6ee0a27903fdfd0d676f7b20af81f2872ee668edf06618bbcfa8cd10f7"
+}

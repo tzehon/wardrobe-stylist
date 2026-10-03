@@ -42,7 +42,8 @@ returned only as signed opaque bytes/nonce; no device-proof computation or bindi
 
 Returned records are volatile evidence, with identifiers excluded from their representations.
 An expired purchase can remain valid historical evidence. Nothing returns a current entitlement,
-owner key, allowance grant or API response. No runtime imports this module. Tests generate ephemeral
+owner key, allowance grant or API response. Only the separately guarded inactive request inspector
+imports this module; no live path reaches it. Tests generate ephemeral
 synthetic certificate chains and exercise actual ES256/chain verification, stubbing only OCSP;
 these are not official Apple fixtures or live purchase/device proof.
 
@@ -86,16 +87,19 @@ DocC JSON:
 
 ## Remaining integration gates
 
-Documentation access and the documented local computation are now established. The adapter still
-returns opaque device claims and performs no device check. Before `/commerce/bind`, implement and
-validate a protocol that binds the verified App Store owner to the requesting installation,
+The [ownership evidence slice](apple-ownership-binding.md) implements local StoreKit collection,
+the device-hash comparison and challenge-bound request inspection, including app-only evidence for
+Free users. It deliberately returns no ownership verdict: a matching borrowed JWS/device UUID
+signed by another installation is still not independent device-origin proof. Before `/commerce/bind`,
+resolve that trust/cutover boundary and implement durable binding to the requesting installation,
 including freshness, replay protection, account changes and missing-device-ID behavior. Never
 substitute a client-supplied device ID, signed JWS possession alone, `appAccountToken`, or App Attest
 installation identity for that proof. Keep the iOS 18 target and local features; unsupported
 ownership verification must close remote commerce rather than invent a fallback.
 
-Official trust roots and signed fixtures, actual supported-OS JWS compatibility and physical-device
-proof remain open. No production roots were installed. Additional live verification endpoints
+Official roots are now fingerprint-pinned test fixtures; the public SDK mock is correctly rejected
+by them and is not positive live-Apple evidence. Actual supported-OS JWS compatibility and
+physical-device proof remain open. No production roots were installed. Additional live verification endpoints
 must be derived from reviewed Apple material before activation, not guessed or blanket-allowed.
 
 The new commerce store accepts trusted internal owner/grant inputs solely to test durable

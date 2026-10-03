@@ -420,6 +420,8 @@ def test_commerce_activation_guard_resolves_absolute_and_relative_imports() -> N
 
 def test_apple_evidence_has_no_runtime_caller() -> None:
     for source in _app_sources():
+        if _relative(source) == "commerce/ownership_evidence.py":
+            continue  # The inactive inspector is itself guarded below.
         assert not _imports_commerce_store(
             _relative(source), source.read_text(encoding="utf-8"), "apple_evidence",
         )
@@ -429,6 +431,21 @@ def test_apple_evidence_has_no_runtime_caller() -> None:
         ("commerce/__init__.py", "from . import apple_evidence"),
     ]:
         assert _imports_commerce_store(path, source, "apple_evidence")
+
+
+def test_ownership_evidence_stays_disconnected_from_runtime_and_ios_flows() -> None:
+    for source in _app_sources():
+        assert not _imports_commerce_store(
+            _relative(source), source.read_text(encoding="utf-8"), "ownership_evidence",
+        )
+    ios_root = REPOSITORY_ROOT / "ios" / "Wardrobe"
+    for source in ios_root.rglob("*.swift"):
+        if source.name == "CommerceOwnershipEvidence.swift":
+            continue
+        contents = source.read_text(encoding="utf-8")
+        for symbol in ("CommerceOwnershipCollector", "SystemStoreKitAppEvidenceSource",
+                       "CommerceProofTranscript", "AppTransaction.shared"):
+            assert symbol not in contents
 
 
 def test_retired_extraction_files_remain_absent() -> None:
