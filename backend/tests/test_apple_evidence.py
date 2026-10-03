@@ -413,6 +413,19 @@ def test_challenge_rechecked_after_online_verification(app_request, offset):
         inspect_app_request(**request)
 
 
+@pytest.mark.parametrize("offsets", [
+    [0, 100, 200, 50],  # Regression after the verifier's completion sample.
+    [100, 0, 50, 200],  # Regression between inspector and verifier entry.
+    [0, 100, 70_000, 50],  # Expired challenge must not become fresh again.
+])
+def test_clock_cannot_regress_between_inspector_and_verifier_samples(app_request, offsets):
+    request, _, now, _, _ = app_request
+    clock = iter(now + offset for offset in offsets)
+    request["apple"].clock_ms = lambda: next(clock)
+    with pytest.raises(OwnershipEvidenceError, match="invalid_clock|verification_failed"):
+        inspect_app_request(**request)
+
+
 @pytest.mark.parametrize("field,value", [
     ("nonce", b"x" * 31), ("binding_revision", True), ("binding_revision", -1),
     ("binding_revision", 2**53), ("key_id", "a" * 44),
