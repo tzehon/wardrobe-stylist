@@ -4,8 +4,9 @@ Draft, 1 October 2026. This is the next design step for the owner-selected valid
 **S$4.98/month, 30 Plus generations per verified subscription period, 5 Free generations per UTC
 calendar month**. See [the product and cost proposal](freemium-model.md). Actual-cost verification
 was deferred at the owner's request; profitability, Apple price availability and paid launch remain
-unverified. The inactive policy and usage-snapshot foundation below is implemented and cloud-tested; Apple
-verification, persistence, commerce routes and purchase UI remain planned. Existing build 7 and
+unverified. The inactive policy and usage-snapshot foundation below is implemented and cloud-tested;
+the 3 October slice adds inactive durable accounting. Apple verification, production provisioning,
+commerce routes and purchase UI remain planned. Existing build 7 and
 production remain unchanged.
 
 ## Foundation implementation — 1 October
@@ -38,8 +39,37 @@ all 44 release-script tests, and Release simulator build/artifact/privacy-manife
 This closes the earlier Linux toolchain limits; signed-device validation and the unimplemented
 commerce integration remain separate release gates. No paid feature is ready for activation.
 
-The next implementation work is verified Apple ownership and durable commerce storage, including
-the remaining privacy/retention decisions. Purchase UI and live activation are later steps.
+## Durable store implementation — 3 October
+
+[`CommerceStore`](../backend/app/commerce/store.py) now persists the pure policy's metadata in a
+separate SQLite database. `BEGIN IMMEDIATE`, unique constraints and owner-wide revisions protect
+concurrent admissions and credits. Issued opaque handles expire, duplicate reservations retain
+their original outcome, and only one worker can win the durable dispatch fence. Pending work
+blocks new admissions across periods and survives restart; late settlement stays in its original
+bucket. Restoring a period does not reset usage or its one-credit cap. Revocation is sticky;
+overlapping/aliased/changed paid periods fail closed pending reconciliation.
+
+The store uses WAL/FULL durability, validates its exact schema and private file/directory, and
+opens existing storage with `mode=rw`. Missing, empty, incompatible or damaged storage is never
+automatically initialized or repaired. Provisioning is explicit and currently used only for
+temporary test fixtures. Capacity defaults (1,000 owners, 128 periods per owner, 256 operations
+per period) stop new allocation without deleting unresolved or terminal records. These are
+inactive implementation bounds, not approved production capacity or retention terms. No cleanup
+or customer metadata provisioning is enabled; retention/deletion policy must precede activation.
+
+The store does not verify ownership, notifications or provider outcomes. Its trusted caller must
+derive the opaque owner, verified grant and freshness boundary. Grace extensions, period changes,
+notification ordering/deduplication, installation bindings and cross-store crash reconciliation
+remain unimplemented. A dispatch-fence win alone never authorizes a provider call. Privacy tests
+pin the metadata schema and require the module to remain unreferenced by live application code.
+See [Apple verification evidence and open gates](apple-commerce-verification.md): signed data
+verification alone is insufficient to bind ownership, and device-proof/OS requirements remain
+unverified. Purchase UI and live activation are later steps.
+
+This backend-only slice adds no iOS bundle change and requires no additional TestFlight build
+by itself. The earlier unshipped Swift foundation still requires a new build before distribution.
+Local validation passed 965 backend tests plus locked audit/Bandit/Ruff/mypy. Cloud regression
+and review results are recorded on the implementation PR before merging.
 
 ## Scope and invariants
 

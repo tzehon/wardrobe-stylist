@@ -242,7 +242,7 @@ def _persistence_violations(relative_path: str, source: str) -> list[str]:
     violations: list[str] = []
     tree = ast.parse(source, filename=relative_path)
     aliases = _import_aliases(tree)
-    is_store = relative_path in {"auth/store.py", "styling_budget.py"}
+    is_store = relative_path in {"auth/store.py", "styling_budget.py", "commerce/store.py"}
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -351,7 +351,7 @@ def test_auth_store_schema_is_exactly_reviewed_security_metadata(tmp_path: Path)
     assert actual_schema == EXPECTED_AUTH_SCHEMA
 
 
-def test_only_reviewed_security_and_budget_stores_are_persistence_sinks() -> None:
+def test_only_reviewed_metadata_stores_are_persistence_sinks() -> None:
     violations: list[str] = []
     for path in _app_sources():
         relative_path = _relative(path)
@@ -363,6 +363,35 @@ def test_only_reviewed_security_and_budget_stores_are_persistence_sinks() -> Non
         )
 
     assert violations == []
+
+
+def test_inactive_commerce_store_schema_is_only_usage_metadata(tmp_path: Path) -> None:
+    from app.commerce.store import initialize_commerce_database
+
+    directory = tmp_path / "commerce"
+    directory.mkdir(mode=0o700)
+    path = directory / "commerce.sqlite3"
+    initialize_commerce_database(path)
+    with sqlite3.connect(path) as db:
+        names = [row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+        actual = {name: tuple(row[1] for row in db.execute(f'PRAGMA table_info("{name}")'))
+                  for name in names}
+    assert actual == {
+        "owners": ("owner", "active_period", "observed_at", "revision"),
+        "periods": ("owner", "period", "plan", "start", "end", "verified_until", "revoked"),
+        "operations": ("id", "owner", "period", "expires_at", "state", "credited"),
+    }
+    # Adding an import from a live application module must be reviewed before
+    # this metadata-only fixture store can become reachable in production.
+    for source in _app_sources():
+        tree = ast.parse(source.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                assert all(item.name != "app.commerce.store" for item in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                assert node.module != "app.commerce.store"
+                if node.module in ("app.commerce", "commerce"):
+                    assert all(item.name != "store" for item in node.names)
 
 
 def test_retired_extraction_files_remain_absent() -> None:

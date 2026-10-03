@@ -1181,8 +1181,10 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   [1 October commerce contract draft](freemium-contract.md) describes the S$4.98/30 validation candidate;
   cost verification is deferred, and the contract's ownership/retention/cutover prerequisites
   remain open. Bounded automatic delivery credits are selected, initially capped at one per owner
-  per allowance period. The inactive pure policy and usage snapshot mirrors now exist; full
-  verification and the Apple/storage/API/UI integration remain open. Paid launch is not complete. Preserve the
+  per allowance period. The inactive pure policy and usage snapshot mirrors passed cloud regression;
+  the next slice adds durable metadata-only usage storage and concurrency/replay coverage.
+  Apple ownership verification, lifecycle reconciliation, retention/provisioning, cross-store
+  admission and API/UI integration remain open. Paid launch is not complete. Preserve the
   no-login product by using server-verified Apple purchase identity and StoreKit 2 lifecycle state,
   not client assertions or reinstallable App Attest installation identity, for paid ownership.
   Finalize names, localized price, numeric Free and paid allowances, and reset rules only after

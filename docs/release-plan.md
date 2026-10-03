@@ -9,7 +9,7 @@
 > [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
-Updated 1 October 2026; retains the owner-requested 10 September simplification.
+Updated 3 October 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
@@ -25,8 +25,10 @@ commerce/metering. The [commerce contract draft](freemium-contract.md) defines t
 slices and the owner's selected bounded automatic-credit policy. The initial design cap is one
 delivery credit per owner per allowance period; ownership/retention/cutover work remains open.
 Cost verification remains deferred at the owner's request. The inactive quota policy, usage schema,
-Swift/Pydantic mirrors and shared fixtures are implemented locally; verification and the remaining
-Apple/store/API/UI integration are incomplete. The public app remains Free; daily operating review
+Swift/Pydantic mirrors and shared fixtures passed cloud regression in PR #64. The next inactive
+slice adds transactional commerce storage with concurrency/replay coverage; production provisioning
+and retention remain gated. [Apple ownership verification](apple-commerce-verification.md), lifecycle
+reconciliation, cross-store admission and API/UI integration remain incomplete. The public app remains Free; daily operating review
 continues below.
 
 ## Completed: verify the delivered local-first TestFlight beta

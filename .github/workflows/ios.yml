@@ -8,6 +8,8 @@ on:
       - ".github/workflows/ios.yml"
   pull_request:
     paths:
+      # AGENTS.md requires the full iOS regression for backend changes too.
+      - "backend/**"
       - "ios/**"
       - "shared/**"
       - ".github/workflows/ios.yml"
