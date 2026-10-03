@@ -150,12 +150,12 @@ def inspect_app_request(
             previous_sign_count=installation.sign_count,
         )
         # Only pay the SDK's online-verification cost after installation proof.
-        app = apple.verify_app(app_jws)
+        app = apple.verify_app(app_jws, clock_floor_ms=started)
         expected = device_digest(app.device_verification_nonce, device_id)
         if not hmac.compare_digest(expected, app.device_verification):
             raise OwnershipEvidenceError("device_mismatch")
         finished = _integer(apple.clock_ms())
-        if finished < started:
+        if finished < app.verified_at_ms:
             raise OwnershipEvidenceError("invalid_clock")
         challenge.require_fresh(finished)
         return InspectedAppRequest(app, assertion)

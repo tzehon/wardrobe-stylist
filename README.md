@@ -247,5 +247,5 @@ This adds unshipped Swift source and requires a new TestFlight build **before di
 No build number, upload, production deployment or paid activation is included. Physical StoreKit
 compatibility and the eventual attested collection path remain separate evidence gates.
 
-Local regression passed 1,090 backend tests, the locked dependency audit, Bandit, Ruff and mypy.
+Local regression passed 1,093 backend tests, the locked dependency audit, Bandit, Ruff and mypy.
 The implementation PR records macOS/iOS regression and review results.

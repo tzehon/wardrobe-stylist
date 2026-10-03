@@ -101,6 +101,8 @@ class AppleEvidencePolicy:
 class AppEvidence:
     app_transaction_id: str
     signed_at_ms: int
+    # Trusted server time at completion, not an Apple-signed claim.
+    verified_at_ms: int
     # Signed opaque claims, NOT a validated device-proof result. Exact proof
     # computation is documented but not implemented or bound to an installation.
     device_verification: bytes = field(repr=False)
@@ -195,15 +197,17 @@ class AppleEvidenceVerifier:
                 raise ValueError
         except (ValueError, binascii.Error):
             raise AppleEvidenceError("invalid_device_claims") from None
-        return AppEvidence(app_id, signed_at, device, nonce)
+        return AppEvidence(app_id, signed_at, now, device, nonce)
 
-    def verify_app(self, app_jws: str) -> AppEvidence:
+    def verify_app(self, app_jws: str, *, clock_floor_ms: int | None = None) -> AppEvidence:
         """Inspect an app download without requiring an in-app purchase.
 
         Free users also have an AppTransaction. This verifies signed evidence,
         not device ownership, an installation binding or a Free allowance.
         """
         started = _integer(self.clock_ms())
+        if clock_floor_ms is not None and started < _integer(clock_floor_ms):
+            raise AppleEvidenceError("invalid_clock")
         claims = self._verified_claims(app_jws, app=True)
         now = _integer(self.clock_ms())
         if now < started:
