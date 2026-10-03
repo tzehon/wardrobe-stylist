@@ -230,3 +230,22 @@ is installed. Signed evidence alone is not device ownership or current entitleme
 are explicit. No additional iOS build or production deployment is part of this backend slice.
 Local validation passed 1,054 backend tests (86 added), locked dependency audit, Bandit,
 Ruff and mypy. The implementation PR records cloud regression and review results.
+
+### Ownership request evidence — 3 October, inactive
+
+The [binding protocol and trust boundary](docs/apple-ownership-binding.md) now distinguish
+StoreKit's local device comparison from App Attest's request integrity. An inactive Swift
+collector reads verified StoreKit evidence locally; Python and Swift share an exact challenge-bound
+transcript. The backend can inspect its App Attest signature, signed AppTransaction and device-hash
+consistency without requiring an in-app purchase. Nothing consumes a challenge, updates a counter,
+binds an owner or grants usage. A retained counterexample shows why a matching borrowed JWS/device
+UUID signed by another key is not ownership proof. Durable binding and the collection/cutover
+trust boundary remain open. Official Apple roots are test fixtures only; upstream mock evidence
+is correctly rejected by them. No product flow calls these helpers.
+
+This adds unshipped Swift source and requires a new TestFlight build **before distribution**.
+No build number, upload, production deployment or paid activation is included. Physical StoreKit
+compatibility and the eventual attested collection path remain separate evidence gates.
+
+Local regression passed 1,090 backend tests, the locked dependency audit, Bandit, Ruff and mypy.
+The implementation PR records macOS/iOS regression and review results.

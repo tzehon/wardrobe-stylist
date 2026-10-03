@@ -82,6 +82,9 @@ Python verifier and checks strict app/product/environment/period/freshness claim
 are volatile signed evidence only; device proof, owner binding and current entitlement
 reconciliation remain unimplemented. It has no live caller and does not grant usage. Synthetic
 signature/chain tests do not replace official Apple fixtures or physical-device evidence.
+The [ownership request protocol](apple-ownership-binding.md) adds inactive local collection and
+assertion/transcript inspection. It documents the unresolved device-origin/cutover boundary and
+durable replay/binding requirements; no inspected request becomes an owner or grant.
 
 Local wardrobe, photos, history, reminders, cached looks and Demo remain free. A successful fresh
 generation, including Restyle and its returned alternates, consumes one unit. No rollover, extra
