@@ -1,0 +1,32 @@
+docs/freemium-contract.md
+  s_813b76bf6e5e9b::t_b2a861136796a2 47-49,73
+backend/tests/test_privacy_boundaries.py
+  s_813b76bf6e5e9b::t_050deb1b766d48 7,383,388-418
+docs/release-plan.md
+  s_813b76bf6e5e9b::t_050deb1b766d48 28-29
+docs/app-release-backlog.md
+  s_813b76bf6e5e9b::t_050deb1b766d48 1185
+backend/app/commerce/store.py
+  s_813b76bf6e5e9b::t_b2a861136796a2 10-11,19,55,123-130,324,329,334,345-347,349-352,354-355,365-368
+  s_813b76bf6e5e9b::t_2d0f4f25af1e53 369
+backend/tests/test_commerce_store.py
+  s_813b76bf6e5e9b::t_b2a861136796a2 12-17,40-41,86-87,109-111,113-114,116,124-149,166-167,172,204-205,257,260,263,275-278,293,295-296
+README.md
+  s_813b76bf6e5e9b::t_b2a861136796a2 218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f1fb23c7f1c8ec64455710f2a50bac2f715eec61",
+  "prompts": {},
+  "sessions": {
+    "s_813b76bf6e5e9b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "commerce-store-20261003",
+        "model": "unknown"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}

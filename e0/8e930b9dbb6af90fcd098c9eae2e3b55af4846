@@ -1,0 +1,36 @@
+README.md
+  s_813b76bf6e5e9b::t_a091645d6fdb57 202-219
+docs/apple-commerce-verification.md
+  s_813b76bf6e5e9b::t_a091645d6fdb57 1-42
+backend/tests/test_commerce_store.py
+  s_813b76bf6e5e9b::t_a091645d6fdb57 1-334
+docs/freemium-contract.md
+  s_813b76bf6e5e9b::t_a091645d6fdb57 7-9,42-72
+backend/app/commerce/store.py
+  s_813b76bf6e5e9b::t_a091645d6fdb57 1-386
+docs/release-plan.md
+  s_813b76bf6e5e9b::t_f9d89b472a2364 12,28-31
+docs/app-release-backlog.md
+  s_813b76bf6e5e9b::t_f9d89b472a2364 1184-1187
+.github/workflows/ios.yml
+  s_813b76bf6e5e9b::t_f9d89b472a2364 11-12
+backend/tests/test_privacy_boundaries.py
+  s_813b76bf6e5e9b::t_f9d89b472a2364 245,354,368-394
+  s_813b76bf6e5e9b::t_4f0a7be02f22c3 395-396
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e08e930b9dbb6af90fcd098c9eae2e3b55af4846",
+  "prompts": {},
+  "sessions": {
+    "s_813b76bf6e5e9b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "commerce-store-20261003",
+        "model": "unknown"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
