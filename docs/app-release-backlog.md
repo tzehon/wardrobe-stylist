@@ -1183,6 +1183,8 @@ APP-036 removes receipt-import-specific states through the approved clean reset.
   remain open. Bounded automatic delivery credits are selected, initially capped at one per owner
   per allowance period. The inactive pure policy and usage snapshot mirrors passed cloud regression;
   durable metadata-only usage storage and concurrency/replay coverage are now implemented but inactive.
+  The inactive signed-evidence adapter uses Apple's pinned library and strict claim validation;
+  synthetic signature tests do not establish device ownership or current entitlement.
   Apple ownership verification, lifecycle reconciliation, retention/provisioning, cross-store
   admission and API/UI integration remain open. Paid launch is not complete. Preserve the
   no-login product by using server-verified Apple purchase identity and StoreKit 2 lifecycle state,

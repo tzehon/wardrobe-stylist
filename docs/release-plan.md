@@ -27,7 +27,9 @@ delivery credit per owner per allowance period; ownership/retention/cutover work
 Cost verification remains deferred at the owner's request. The inactive quota policy, usage schema,
 Swift/Pydantic mirrors and shared fixtures passed cloud regression in PR #64. Inactive
 transactional commerce storage with concurrency/replay coverage is now implemented; production provisioning
-and retention remain gated. [Apple ownership verification](apple-commerce-verification.md), lifecycle
+and retention remain gated. A separate inactive signed-evidence adapter now checks signatures
+through Apple's pinned library and strict claims using synthetic tests; it cannot bind owners or
+grant usage. [Apple ownership verification](apple-commerce-verification.md), lifecycle
 reconciliation, cross-store admission and API/UI integration remain incomplete. The public app remains Free; daily operating review
 continues below.
 

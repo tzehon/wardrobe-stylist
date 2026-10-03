@@ -5,7 +5,8 @@ Draft, 1 October 2026. This is the next design step for the owner-selected valid
 calendar month**. See [the product and cost proposal](freemium-model.md). Actual-cost verification
 was deferred at the owner's request; profitability, Apple price availability and paid launch remain
 unverified. The inactive policy and usage-snapshot foundation below is implemented and cloud-tested;
-the 3 October slice adds inactive durable accounting. Apple verification, production provisioning,
+the 3 October slices add inactive durable accounting and signed-evidence inspection. Apple
+ownership verification, production provisioning,
 commerce routes and purchase UI remain planned. Existing build 7 and
 production remain unchanged.
 
@@ -74,6 +75,12 @@ Local validation passed 968 backend tests plus locked audit/Bandit/Ruff/mypy. Cl
 and review results are recorded on the implementation PR before merging.
 
 ## Scope and invariants
+
+The separate [signed-evidence adapter](apple-commerce-verification.md) pins Apple's maintained
+Python verifier and checks strict app/product/environment/period/freshness claims. Its outputs
+are volatile signed evidence only; device proof, owner binding and current entitlement
+reconciliation remain unimplemented. It has no live caller and does not grant usage. Synthetic
+signature/chain tests do not replace official Apple fixtures or physical-device evidence.
 
 Local wardrobe, photos, history, reminders, cached looks and Demo remain free. A successful fresh
 generation, including Restyle and its returned alternates, consumes one unit. No rollover, extra
