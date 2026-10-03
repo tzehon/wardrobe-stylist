@@ -210,9 +210,10 @@ checks and allocation caps fail closed; no runtime imports the store or creates 
 
 [Apple ownership verification](docs/apple-commerce-verification.md) remains a prerequisite:
 the official library verifies signed data but does not bind it to the submitting installation.
-The precise device-proof/OS rules could not be verified from Apple's inaccessible documentation
-host. Retention/privacy approval, Apple lifecycle reconciliation, installation binding and global
-ledger integration remain open. See the [contract](docs/freemium-contract.md) for scope and bounds.
+Apple's documented device computation and iOS API availability are now verified; supported-OS
+JWS compatibility and authenticated installation binding still need implementation and evidence.
+Retention/privacy approval, Apple lifecycle reconciliation, installation binding and global ledger
+integration remain open. See the [contract](docs/freemium-contract.md) for scope and bounds.
 Backend PRs now trigger the required macOS iOS regression as well as backend CI. This storage
 slice adds no iOS bundle change; the earlier Swift foundation still needs TestFlight before release.
 Local validation passed 968 backend tests (38 added), locked dependency audit, Bandit, Ruff and
@@ -225,7 +226,7 @@ library, requires online chain/revocation verification, and checks strict app, p
 ownership-type, period and freshness claims. Synthetic certificates exercise actual signatures
 and trust-chain rejection. No live route, production trust roots, owner binding or allowance grant
 is installed. Signed evidence alone is not device ownership or current entitlement; those
-[remaining gates and the required cloud network change](docs/apple-commerce-verification.md)
+[official Apple evidence and remaining gates](docs/apple-commerce-verification.md)
 are explicit. No additional iOS build or production deployment is part of this backend slice.
-Local validation passed 1,042 backend tests (74 added), locked dependency audit, Bandit,
+Local validation passed 1,047 backend tests (79 added), locked dependency audit, Bandit,
 Ruff and mypy. The implementation PR records cloud regression and review results.

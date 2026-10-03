@@ -66,8 +66,9 @@ notification ordering/deduplication, installation bindings and cross-store crash
 remain unimplemented. A dispatch-fence win alone never authorizes a provider call. Privacy tests
 pin the metadata schema and require the module to remain unreferenced by live application code.
 See [Apple verification evidence and open gates](apple-commerce-verification.md): signed data
-verification alone is insufficient to bind ownership, and device-proof/OS requirements remain
-unverified. Purchase UI and live activation are later steps.
+verification alone is insufficient to bind ownership. Apple documents the local device check and
+iOS API availability; installation binding and supported-OS JWS compatibility remain unproved.
+Purchase UI and live activation are later steps.
 
 This backend-only slice adds no iOS bundle change and requires no additional TestFlight build
 by itself. The earlier unshipped Swift foundation still requires a new build before distribution.
