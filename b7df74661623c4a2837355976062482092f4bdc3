@@ -1,0 +1,25 @@
+README.md
+  s_5aaa4f3cd88c6e::t_36962c833b5bec 250
+backend/app/commerce/apple_evidence.py
+  s_5aaa4f3cd88c6e::t_36962c833b5bec 104-105,200,202,209-210
+backend/app/commerce/ownership_evidence.py
+  s_5aaa4f3cd88c6e::t_36962c833b5bec 153,158
+backend/tests/test_apple_evidence.py
+  s_5aaa4f3cd88c6e::t_36962c833b5bec 416-428
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": null,
+  "base_commit_sha": "b7df74661623c4a2837355976062482092f4bdc3",
+  "prompts": {},
+  "sessions": {
+    "s_5aaa4f3cd88c6e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "commerce-owner-binding-20261003",
+        "model": "gpt-6"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
