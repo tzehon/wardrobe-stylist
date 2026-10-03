@@ -102,7 +102,7 @@ class AppEvidence:
     app_transaction_id: str
     signed_at_ms: int
     # Signed opaque claims, NOT a validated device-proof result. Exact proof
-    # computation and iOS availability remain blocked on Apple documentation.
+    # computation is documented but not implemented or bound to an installation.
     device_verification: bytes = field(repr=False)
     device_verification_nonce: str = field(repr=False)
 
@@ -206,7 +206,9 @@ class AppleEvidenceVerifier:
             raise AppleEvidenceError("unsupported_purchase")
         if _integer(purchase.get("quantity"), 1) != 1:
             raise AppleEvidenceError("unsupported_purchase")
-        if type(purchase.get("isUpgraded")) is not bool or purchase["isUpgraded"]:
+        # Apple omits this claim for ordinary purchases; a present value must
+        # still be exactly false, never a coerced false-like value or null.
+        if "isUpgraded" in purchase and purchase["isUpgraded"] is not False:
             raise AppleEvidenceError("unsupported_purchase")
         unsupported = (
             "offerType", "offerIdentifier", "offerDiscountType", "offerPeriod",

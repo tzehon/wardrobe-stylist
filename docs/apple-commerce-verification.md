@@ -46,24 +46,48 @@ owner key, allowance grant or API response. No runtime imports this module. Test
 synthetic certificate chains and exercise actual ES256/chain verification, stubbing only OCSP;
 these are not official Apple fixtures or live purchase/device proof.
 
-## Remaining gates and environment access
+## Official documentation verified on continuation — 3 October
 
-Requests to Apple's official StoreKit documentation host returned HTTP 403 in this cloud
-environment. The precise iOS availability and documented device-proof computation/binding
-therefore remain unverified. Before implementing `/commerce/bind`, read the official
-[AppTransaction ID](https://developer.apple.com/documentation/storekit/apptransaction/apptransactionid),
-[device verification](https://developer.apple.com/documentation/storekit/apptransaction/deviceverification)
-and nonce documentation from an authorized environment. Establish what evidence binds the
-App Store owner to the requesting installation, including freshness, replay and account changes.
-Never substitute a client-supplied device ID, signed JWS possession alone, `appAccountToken`, or
-App Attest installation identity for that proof. Keep the iOS 18 target and local features;
-unsupported ownership verification must close remote commerce rather than invent a fallback.
+The newly published cloud environment reports enforced restricted networking with Apple hosts
+allowed. HTTPS reads of `apple.com` (redirecting to `www.apple.com`), `www.apple.com` and
+`developer.apple.com` returned HTTP 200. The earlier proxy 403 is resolved; no further publication
+of that same environment change is needed. The following official documentation was read directly through its Apple-hosted
+DocC JSON:
 
-The cloud session exposes runtime status but no configuration-editing tool. The owner can keep
-restricted networking and the existing package-manager preset, add `developer.apple.com` for
-documentation and `www.apple.com` for certificate downloads, then publish the environment change.
-No credential is needed for those public reads. Confirm the new policy is enforced before retrying;
-do not edit the local policy snapshot or bypass the proxy. Additional live verification endpoints
+- [isUpgraded](https://developer.apple.com/documentation/appstoreserverapi/isupgraded):
+  “This value appears in the transaction only when it’s true.” The adapter now accepts omission
+  or explicit Boolean false, while rejecting true and all malformed present values, including
+  null, numeric zero and strings. Synthetic signed fixtures normally omit the claim; regression
+  coverage also accepts explicit false and rejects malformed values.
+- [receiptCreationDate](https://developer.apple.com/documentation/appstoreserverapi/receiptcreationdate):
+  “The date that the App Store signs a JSON Web Signature (JWS) app transaction.” This confirms
+  the pinned SDK model: AppTransaction freshness uses `receiptCreationDate`; purchase-transaction
+  freshness uses `signedDate`. Do not require an unsupported AppTransaction `signedDate` field.
+- [AppTransaction ID](https://developer.apple.com/documentation/storekit/apptransaction/apptransactionid):
+  the identifier is stable for the same Apple Account and app across redownloads, refunds,
+  repurchases and storefront changes, and exists without an in-app purchase. Apple documents
+  iOS 16 availability with `@backDeployed(before: iOS 18.4, ...)`. This establishes documented
+  API availability for the iOS 18 target, not tested JWS field presence across every supported OS.
+- [Device verification](https://developer.apple.com/documentation/storekit/apptransaction/deviceverification)
+  and [nonce](https://developer.apple.com/documentation/storekit/apptransaction/deviceverificationnonce)
+  are documented from iOS 16. [AppStore.deviceVerificationID](https://developer.apple.com/documentation/storekit/appstore/deviceverificationid)
+  specifies the comparison: append the lowercased device UUID string after the lowercased nonce
+  UUID string, compute SHA-384, and compare the digest with `deviceVerification`. The device ID
+  API is optional. This is Apple's current-device check, not by itself a server-authenticated
+  link between that device, the JWS and an App Attest installation.
+
+## Remaining integration gates
+
+Documentation access and the documented local computation are now established. The adapter still
+returns opaque device claims and performs no device check. Before `/commerce/bind`, implement and
+validate a protocol that binds the verified App Store owner to the requesting installation,
+including freshness, replay protection, account changes and missing-device-ID behavior. Never
+substitute a client-supplied device ID, signed JWS possession alone, `appAccountToken`, or App Attest
+installation identity for that proof. Keep the iOS 18 target and local features; unsupported
+ownership verification must close remote commerce rather than invent a fallback.
+
+Official trust roots and signed fixtures, actual supported-OS JWS compatibility and physical-device
+proof remain open. No production roots were installed. Additional live verification endpoints
 must be derived from reviewed Apple material before activation, not guessed or blanket-allowed.
 
 The new commerce store accepts trusted internal owner/grant inputs solely to test durable

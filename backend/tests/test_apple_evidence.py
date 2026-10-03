@@ -75,7 +75,7 @@ def evidence(chain, monkeypatch):
                 "appTransactionId": "app-1", "productId": policy.product_id,
                 "subscriptionGroupIdentifier": policy.subscription_group,
                 "type": "Auto-Renewable Subscription", "inAppOwnershipType": "PURCHASED",
-                "quantity": 1, "isUpgraded": False, "transactionId": "txn-1",
+                "quantity": 1, "transactionId": "txn-1",
                 "originalTransactionId": "original-1", "purchaseDate": now - 1000,
                 "originalPurchaseDate": now - 2000, "expiresDate": now + 86_400_000,
                 "signedDate": now}
@@ -86,8 +86,12 @@ def evidence(chain, monkeypatch):
     return verifier, app, purchase, sign, ocsp, now
 
 
-def test_real_signature_chain_and_volatile_evidence(evidence):
+@pytest.mark.parametrize("explicit_false", [False, True], ids=["omitted-upgrade", "false-upgrade"])
+def test_real_signature_chain_and_volatile_evidence(evidence, explicit_false):
     verifier, app, purchase, sign, ocsp, _ = evidence
+    assert "isUpgraded" not in purchase
+    if explicit_false:
+        purchase["isUpgraded"] = False
     pair = verifier.verify_pair(sign(app), sign(purchase))
     assert pair.app.app_transaction_id == pair.purchase.app_transaction_id == "app-1"
     assert pair.purchase.transaction_id == "txn-1"
@@ -111,7 +115,9 @@ def test_real_signature_chain_and_volatile_evidence(evidence):
     ("purchase", "quantity", True), ("purchase", "quantity", "1"),
     ("purchase", "quantity", 1.0), ("purchase", "quantity", 2),
     ("purchase", "isUpgraded", True), ("purchase", "isUpgraded", 0),
-    ("purchase", "isUpgraded", None), ("purchase", "price", 0),
+    ("purchase", "isUpgraded", None), ("purchase", "isUpgraded", "false"),
+    ("purchase", "isUpgraded", 0.0), ("purchase", "isUpgraded", []),
+    ("purchase", "isUpgraded", {}), ("purchase", "price", 0),
     ("purchase", "price", -1), ("purchase", "signedDate", "123456"),
     ("purchase", "purchaseDate", True), ("purchase", "expiresDate", None),
     ("purchase", "transactionId", ""), ("purchase", "originalTransactionId", "bad\nID"),
