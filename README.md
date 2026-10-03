@@ -199,3 +199,21 @@ This closes the earlier Linux toolchain gap (39 script passes / five missing-Cla
 Apple toolchain). It does not prove signed-device behavior or the future commerce integration.
 The added Swift source requires a new TestFlight build before distribution; no build number,
 upload, production runtime, credentials or spending limits were changed.
+
+### Durable commerce storage — 3 October, inactive
+
+The [commerce store](backend/app/commerce/store.py) adds atomic, metadata-only SQLite accounting,
+opaque expiring operation handles, owner-wide revisions, one pending operation across periods,
+durable dispatch fencing, sticky revocations and idempotent settlement/delivery credits. Restore
+and restart retain balances and history. Explicit fixture provisioning, private file/schema
+checks and allocation caps fail closed; no runtime imports the store or creates a commerce database.
+
+[Apple ownership verification](docs/apple-commerce-verification.md) remains a prerequisite:
+the official library verifies signed data but does not bind it to the submitting installation.
+The precise device-proof/OS rules could not be verified from Apple's inaccessible documentation
+host. Retention/privacy approval, Apple lifecycle reconciliation, installation binding and global
+ledger integration remain open. See the [contract](docs/freemium-contract.md) for scope and bounds.
+Backend PRs now trigger the required macOS iOS regression as well as backend CI. This storage
+slice adds no iOS bundle change; the earlier Swift foundation still needs TestFlight before release.
+Local validation passed 965 backend tests (35 added), locked dependency audit, Bandit, Ruff and
+mypy. The implementation PR records the separate cloud regression and review results.
