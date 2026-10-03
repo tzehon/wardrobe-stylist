@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import sqlite3
+from importlib.util import resolve_name
 from pathlib import Path
 
 from app.auth.store import AuthStore
@@ -379,19 +380,42 @@ def test_inactive_commerce_store_schema_is_only_usage_metadata(tmp_path: Path) -
     assert actual == {
         "owners": ("owner", "active_period", "observed_at", "revision"),
         "periods": ("owner", "period", "plan", "start", "end", "verified_until", "revoked"),
-        "operations": ("id", "owner", "period", "expires_at", "state", "credited"),
+        "operations": ("id", "owner", "period", "expires_at", "state", "credited", "permit_hash"),
     }
     # Adding an import from a live application module must be reviewed before
     # this metadata-only fixture store can become reachable in production.
     for source in _app_sources():
-        tree = ast.parse(source.read_text(encoding="utf-8"))
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                assert all(item.name != "app.commerce.store" for item in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                assert node.module != "app.commerce.store"
-                if node.module in ("app.commerce", "commerce"):
-                    assert all(item.name != "store" for item in node.names)
+        assert not _imports_commerce_store(_relative(source), source.read_text(encoding="utf-8"))
+
+
+def _imports_commerce_store(relative_path: str, source: str) -> bool:
+    package = ".".join(("app", *Path(relative_path).parent.parts))
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            if any(item.name == "app.commerce.store" for item in node.names):
+                return True
+        elif isinstance(node, ast.ImportFrom):
+            module = resolve_name("." * node.level + (node.module or ""), package)
+            if module == "app.commerce.store" or (module == "app.commerce" and any(
+                item.name in ("store", "*") for item in node.names
+            )):
+                return True
+    return False
+
+
+def test_commerce_activation_guard_resolves_absolute_and_relative_imports() -> None:
+    cases = [
+        ("main.py", "import app.commerce.store as durable"),
+        ("main.py", "from .commerce.store import CommerceStore"),
+        ("main.py", "from .commerce import store"),
+        ("routes/recommend.py", "from ..commerce.store import CommerceStore"),
+        ("routes/recommend.py", "from ..commerce import store as durable"),
+        ("commerce/__init__.py", "from . import store"),
+        ("commerce/__init__.py", "from .store import CommerceStore"),
+    ]
+    for path, source in cases:
+        assert _imports_commerce_store(path, source)
+    assert not _imports_commerce_store("auth/service.py", "from .store import AuthStore")
 
 
 def test_retired_extraction_files_remain_absent() -> None:

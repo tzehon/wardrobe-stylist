@@ -44,7 +44,9 @@ commerce integration remain separate release gates. No paid feature is ready for
 [`CommerceStore`](../backend/app/commerce/store.py) now persists the pure policy's metadata in a
 separate SQLite database. `BEGIN IMMEDIATE`, unique constraints and owner-wide revisions protect
 concurrent admissions and credits. Issued opaque handles expire, duplicate reservations retain
-their original outcome, and only one worker can win the durable dispatch fence. Pending work
+their original outcome, and only the first reservation winner receives the private permit needed
+to claim the durable dispatch fence. Only its hash is stored; it is never part of an endpoint
+response, and losing the permit requires reconciliation rather than accepting a replay's body. Pending work
 blocks new admissions across periods and survives restart; late settlement stays in its original
 bucket. Restoring a period does not reset usage or its one-credit cap. Revocation is sticky;
 overlapping/aliased/changed paid periods fail closed pending reconciliation.
@@ -68,7 +70,7 @@ unverified. Purchase UI and live activation are later steps.
 
 This backend-only slice adds no iOS bundle change and requires no additional TestFlight build
 by itself. The earlier unshipped Swift foundation still requires a new build before distribution.
-Local validation passed 965 backend tests plus locked audit/Bandit/Ruff/mypy. Cloud regression
+Local validation passed 968 backend tests plus locked audit/Bandit/Ruff/mypy. Cloud regression
 and review results are recorded on the implementation PR before merging.
 
 ## Scope and invariants

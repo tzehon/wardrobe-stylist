@@ -9,7 +9,12 @@ from threading import Barrier
 import pytest
 
 from app.commerce import store as module
-from app.commerce.store import CommerceStore, CommerceStoreError, initialize_commerce_database
+from app.commerce.store import (
+    CommerceStore,
+    CommerceStoreError,
+    ReservationResult,
+    initialize_commerce_database,
+)
 from app.commerce.usage import AllowancePeriod, Outcome, UsageError
 from app.schemas.commerce import Plan
 
@@ -32,8 +37,8 @@ def store(tmp_path: Path) -> CommerceStore:
 
 def success(store: CommerceStore, owner: str = OWNER) -> str:
     op = store.issue(owner).operation_id
-    store.reserve(owner, op)
-    assert store.fence_dispatch(owner, op)
+    claim = store.reserve(owner, op)
+    assert store.fence_dispatch(owner, op, permit=claim.dispatch_permit)
     store.settle(owner, op, Outcome.SUCCEEDED)
     return op
 
@@ -78,8 +83,8 @@ def test_allowance_and_one_credit_remain_bounded(store: CommerceStore, plan: Pla
     with pytest.raises(UsageError, match="quota_exhausted"):
         store.reserve(OWNER, extra)
     store.credit_delivery(OWNER, ops[0])
-    store.reserve(OWNER, extra)
-    assert store.fence_dispatch(OWNER, extra)
+    claim = store.reserve(OWNER, extra)
+    assert store.fence_dispatch(OWNER, extra, permit=claim.dispatch_permit)
     store.settle(OWNER, extra, Outcome.SUCCEEDED)
     assert store.usage(OWNER).remaining == 0
     assert store.usage(OWNER).successful == plan.allowance + 1
@@ -101,16 +106,45 @@ def test_concurrent_last_unit_reservations_have_one_winner(store: CommerceStore)
 def test_duplicate_submission_dispatch_and_settlement_are_once_only(store: CommerceStore) -> None:
     op = store.issue(OWNER).operation_id
     results = race(store, [lambda s: s.reserve(OWNER, op)] * 6)
-    assert all(result == results[0] for result in results)
+    claims = [r for r in results if isinstance(r, ReservationResult)]
+    permits = [r.dispatch_permit for r in claims if r.dispatch_permit]
+    assert len(claims) == 6 and len(permits) == 1
     before = store.usage(OWNER).revision
-    assert race(store, [lambda s: s.fence_dispatch(OWNER, op)] * 6).count(True) == 1
+    dispatches = race(store, [lambda s: s.fence_dispatch(OWNER, op, permit=permits[0])] * 6)
+    assert dispatches.count(True) == 1
     assert store.usage(OWNER).revision == before + 1
-    assert store.reserve(OWNER, op).state == "dispatched"
+    assert store.reserve(OWNER, op).operation.state == "dispatched"
     race(store, [lambda s: s.settle(OWNER, op, Outcome.SUCCEEDED)] * 6)
     assert store.usage(OWNER).consumed == 1
     assert store.usage(OWNER).revision == before + 2
     with pytest.raises(UsageError, match="outcome_conflict"):
         store.settle(OWNER, op, Outcome.FAILED)
+
+
+def test_replay_cannot_dispatch_its_replacement_body(store: CommerceStore) -> None:
+    op = store.issue(OWNER).operation_id
+    first = store.reserve(OWNER, op)
+    duplicate = store.reserve(OWNER, op)
+    assert first.dispatch_permit is not None and duplicate.dispatch_permit is None
+    assert not store.fence_dispatch(OWNER, op, permit=duplicate.dispatch_permit)
+    assert not store.fence_dispatch(OWNER, op, permit="x" * 43)
+    assert store.fence_dispatch(OWNER, op, permit=first.dispatch_permit)
+    assert first.dispatch_permit not in repr(first)
+    with sqlite3.connect(store.path) as db:
+        digest = db.execute("SELECT permit_hash FROM operations WHERE id=?", (op,)).fetchone()[0]
+    assert digest != first.dispatch_permit
+
+
+def test_lost_reservation_winner_requires_reconciliation_after_restart(
+    store: CommerceStore,
+) -> None:
+    op = store.issue(OWNER).operation_id
+    store.reserve(OWNER, op)  # worker dies before dispatch; permit is lost
+    reopened = CommerceStore(store.path, clock=store.clock)
+    retry = reopened.reserve(OWNER, op)
+    assert retry.operation.state == "reserved" and retry.dispatch_permit is None
+    assert not reopened.fence_dispatch(OWNER, op, permit=retry.dispatch_permit)
+    assert reopened.usage(OWNER).reserved == 1
 
 
 def test_concurrent_credits_different_operations_cannot_double_credit(store: CommerceStore) -> None:
@@ -129,13 +163,13 @@ def test_concurrent_same_credit_is_idempotent(store: CommerceStore) -> None:
 
 def test_pending_operation_survives_restart_and_blocks_new_period(store: CommerceStore) -> None:
     op = store.issue(OWNER).operation_id
-    store.reserve(OWNER, op)
-    assert store.fence_dispatch(OWNER, op)
+    claim = store.reserve(OWNER, op)
+    assert store.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
     next_month = store.usage(OWNER).period.end
     reopened = CommerceStore(store.path, clock=lambda: next_month)
     free = AllowancePeriod.free_at(next_month)
     reopened.activate(OWNER, free, verified_until=free.end)
-    assert not reopened.fence_dispatch(OWNER, op)
+    assert not reopened.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
     new = reopened.issue(OWNER).operation_id
     with pytest.raises(UsageError, match="operation_pending"):
         reopened.reserve(OWNER, new)
@@ -167,8 +201,8 @@ def test_revocation_preserves_settlement_but_denies_admission_and_restore(
     period = AllowancePeriod("paid", Plan.PLUS, NOW, NOW + 86400)
     store.activate(OWNER, period, verified_until=period.end)
     op = store.issue(OWNER).operation_id
-    store.reserve(OWNER, op)
-    assert store.fence_dispatch(OWNER, op)
+    claim = store.reserve(OWNER, op)
+    assert store.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
     store.revoke(OWNER, period.period_id)
     store.settle(OWNER, op, Outcome.SUCCEEDED)
     with pytest.raises(UsageError, match="entitlement_unavailable"):
@@ -220,13 +254,13 @@ def test_freshness_expiry_fails_closed_and_refresh_restores_same_balance(
     paid = AllowancePeriod("paid", Plan.PLUS, NOW, NOW + 1000)
     store.activate(OWNER, paid, verified_until=NOW + 10)
     op = store.issue(OWNER).operation_id
-    store.reserve(OWNER, op)
+    claim = store.reserve(OWNER, op)
     store.clock = lambda: NOW + 10
     with pytest.raises(UsageError, match="entitlement_unavailable"):
-        store.fence_dispatch(OWNER, op)
+        store.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
     store.activate(OWNER, paid, verified_until=NOW + 100)
     assert store.usage(OWNER).reserved == 1
-    assert store.fence_dispatch(OWNER, op)
+    assert store.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
 
 
 @pytest.mark.parametrize("method", ["operation", "reserve", "fence_dispatch", "credit_delivery"])
@@ -238,7 +272,10 @@ def test_cross_owner_and_unknown_handles_are_indistinguishable(
     op = success(store)
     for handle in [op, "unknown"]:
         with pytest.raises(UsageError, match="^operation_not_found$"):
-            getattr(store, method)(OTHER, handle)
+            if method == "fence_dispatch":
+                store.fence_dispatch(OTHER, handle, permit=None)
+            else:
+                getattr(store, method)(OTHER, handle)
     with pytest.raises(UsageError, match="^operation_not_found$"):
         store.settle(OTHER, op, Outcome.SUCCEEDED)
 
@@ -253,10 +290,10 @@ def test_expired_issued_handle_never_reserves(store: CommerceStore) -> None:
 
 def test_failure_releases_quota_without_reopening_dispatch(store: CommerceStore) -> None:
     op = store.issue(OWNER).operation_id
-    store.reserve(OWNER, op)
+    claim = store.reserve(OWNER, op)
     store.settle(OWNER, op, Outcome.FAILED)  # e.g. global admission denied before dispatch
-    assert not store.fence_dispatch(OWNER, op)
-    assert store.reserve(OWNER, op).state == "failed"
+    assert not store.fence_dispatch(OWNER, op, permit=claim.dispatch_permit)
+    assert store.reserve(OWNER, op).operation.state == "failed"
     assert store.usage(OWNER).remaining == 5
     assert store.usage(OWNER).credits == 0
 
