@@ -217,3 +217,15 @@ Backend PRs now trigger the required macOS iOS regression as well as backend CI.
 slice adds no iOS bundle change; the earlier Swift foundation still needs TestFlight before release.
 Local validation passed 968 backend tests (38 added), locked dependency audit, Bandit, Ruff and
 mypy. The implementation PR records the separate cloud regression and review results.
+
+### Signed commerce evidence — 3 October, inactive
+
+The [evidence adapter](backend/app/commerce/apple_evidence.py) pins Apple's Python verification
+library, requires online chain/revocation verification, and checks strict app, product, environment,
+ownership-type, period and freshness claims. Synthetic certificates exercise actual signatures
+and trust-chain rejection. No live route, production trust roots, owner binding or allowance grant
+is installed. Signed evidence alone is not device ownership or current entitlement; those
+[remaining gates and the required cloud network change](docs/apple-commerce-verification.md)
+are explicit. No additional iOS build or production deployment is part of this backend slice.
+Local validation passed 1,042 backend tests (74 added), locked dependency audit, Bandit,
+Ruff and mypy. The implementation PR records cloud regression and review results.

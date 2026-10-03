@@ -388,16 +388,16 @@ def test_inactive_commerce_store_schema_is_only_usage_metadata(tmp_path: Path) -
         assert not _imports_commerce_store(_relative(source), source.read_text(encoding="utf-8"))
 
 
-def _imports_commerce_store(relative_path: str, source: str) -> bool:
+def _imports_commerce_store(relative_path: str, source: str, name: str = "store") -> bool:
     package = ".".join(("app", *Path(relative_path).parent.parts))
     for node in ast.walk(ast.parse(source)):
         if isinstance(node, ast.Import):
-            if any(item.name == "app.commerce.store" for item in node.names):
+            if any(item.name == f"app.commerce.{name}" for item in node.names):
                 return True
         elif isinstance(node, ast.ImportFrom):
             module = resolve_name("." * node.level + (node.module or ""), package)
-            if module == "app.commerce.store" or (module == "app.commerce" and any(
-                item.name in ("store", "*") for item in node.names
+            if module == f"app.commerce.{name}" or (module == "app.commerce" and any(
+                item.name in (name, "*") for item in node.names
             )):
                 return True
     return False
@@ -416,6 +416,19 @@ def test_commerce_activation_guard_resolves_absolute_and_relative_imports() -> N
     for path, source in cases:
         assert _imports_commerce_store(path, source)
     assert not _imports_commerce_store("auth/service.py", "from .store import AuthStore")
+
+
+def test_apple_evidence_has_no_runtime_caller() -> None:
+    for source in _app_sources():
+        assert not _imports_commerce_store(
+            _relative(source), source.read_text(encoding="utf-8"), "apple_evidence",
+        )
+    for path, source in [
+        ("main.py", "import app.commerce.apple_evidence as verifier"),
+        ("routes/recommend.py", "from ..commerce.apple_evidence import AppleEvidenceVerifier"),
+        ("commerce/__init__.py", "from . import apple_evidence"),
+    ]:
+        assert _imports_commerce_store(path, source, "apple_evidence")
 
 
 def test_retired_extraction_files_remain_absent() -> None:
