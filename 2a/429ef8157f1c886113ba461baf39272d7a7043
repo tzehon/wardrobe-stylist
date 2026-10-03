@@ -1,0 +1,38 @@
+backend/pyproject.toml
+  s_6562c4c897b1bd::t_04543f4aca7a78 7
+README.md
+  s_6562c4c897b1bd::t_04543f4aca7a78 220-231
+docs/app-release-backlog.md
+  s_6562c4c897b1bd::t_04543f4aca7a78 1186-1187
+backend/app/commerce/apple_evidence.py
+  s_6562c4c897b1bd::t_04543f4aca7a78 1-241
+backend/tests/test_apple_evidence.py
+  s_6562c4c897b1bd::t_04543f4aca7a78 1-225
+docs/freemium-contract.md
+  s_6562c4c897b1bd::t_04543f4aca7a78 8-9,79-83
+  s_6562c4c897b1bd::t_5d689f856d26ef 84
+backend/tests/test_privacy_boundaries.py
+  s_6562c4c897b1bd::t_04543f4aca7a78 391,395,399-400,421-431
+  s_6562c4c897b1bd::t_abd41e743c56e2 432-433
+docs/apple-commerce-verification.md
+  s_6562c4c897b1bd::t_04543f4aca7a78 3-4,23-49,62-67
+  s_6562c4c897b1bd::t_9481d4c00e282c 68
+docs/release-plan.md
+  s_6562c4c897b1bd::t_04543f4aca7a78 30-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2a429ef8157f1c886113ba461baf39272d7a7043",
+  "prompts": {},
+  "sessions": {
+    "s_6562c4c897b1bd": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "apple-evidence-20261003",
+        "model": "unknown"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
