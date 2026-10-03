@@ -1,0 +1,25 @@
+README.md
+  s_607371b512bd7c::t_5c28852eaf4cff 231
+backend/app/commerce/apple_evidence.py
+  s_607371b512bd7c::t_5c28852eaf4cff 207-209
+backend/tests/test_apple_evidence.py
+  s_607371b512bd7c::t_5c28852eaf4cff 78,90-93,98-100,123-125
+docs/apple-commerce-verification.md
+  s_607371b512bd7c::t_5c28852eaf4cff 62-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": null,
+  "base_commit_sha": "983d09d23e50141b98aaa75dd5cf39b35695caf6",
+  "prompts": {},
+  "sessions": {
+    "s_607371b512bd7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "apple-evidence-continuation-20261003",
+        "model": "gpt-6"
+      },
+      "human_author": "tth . <tzehon.tan@gmail.com>"
+    }
+  }
+}
