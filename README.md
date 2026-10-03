@@ -215,5 +215,5 @@ host. Retention/privacy approval, Apple lifecycle reconciliation, installation b
 ledger integration remain open. See the [contract](docs/freemium-contract.md) for scope and bounds.
 Backend PRs now trigger the required macOS iOS regression as well as backend CI. This storage
 slice adds no iOS bundle change; the earlier Swift foundation still needs TestFlight before release.
-Local validation passed 965 backend tests (35 added), locked dependency audit, Bandit, Ruff and
+Local validation passed 968 backend tests (38 added), locked dependency audit, Bandit, Ruff and
 mypy. The implementation PR records the separate cloud regression and review results.

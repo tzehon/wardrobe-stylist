@@ -25,8 +25,8 @@ commerce/metering. The [commerce contract draft](freemium-contract.md) defines t
 slices and the owner's selected bounded automatic-credit policy. The initial design cap is one
 delivery credit per owner per allowance period; ownership/retention/cutover work remains open.
 Cost verification remains deferred at the owner's request. The inactive quota policy, usage schema,
-Swift/Pydantic mirrors and shared fixtures passed cloud regression in PR #64. The next inactive
-slice adds transactional commerce storage with concurrency/replay coverage; production provisioning
+Swift/Pydantic mirrors and shared fixtures passed cloud regression in PR #64. Inactive
+transactional commerce storage with concurrency/replay coverage is now implemented; production provisioning
 and retention remain gated. [Apple ownership verification](apple-commerce-verification.md), lifecycle
 reconciliation, cross-store admission and API/UI integration remain incomplete. The public app remains Free; daily operating review
 continues below.

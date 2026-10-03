@@ -7,6 +7,8 @@ Provisioning/retention approval and cross-store recovery are activation gates.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import os
 import secrets
 import sqlite3
@@ -14,7 +16,7 @@ import stat
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.commerce.usage import AllowancePeriod, Operation, Outcome, UsageBucket, UsageError
@@ -50,6 +52,7 @@ CREATE TABLE operations (
     expires_at INTEGER NOT NULL,
     state TEXT NOT NULL CHECK(state IN ('issued', 'reserved', 'dispatched', 'succeeded', 'failed')),
     credited INTEGER NOT NULL DEFAULT 0 CHECK(credited IN (0, 1)),
+    permit_hash TEXT,
     FOREIGN KEY(owner, period) REFERENCES periods(owner, period),
     CHECK(credited = 0 OR state = 'succeeded')
 );
@@ -115,6 +118,14 @@ class StoredOperation:
     period_id: str
     state: str
     delivery_credited: bool
+
+
+@dataclass(frozen=True)
+class ReservationResult:
+    operation: StoredOperation
+    # Internal worker capability, never returned by a public endpoint or log.
+    # Only the first accepted submission receives it; it is not recoverable.
+    dispatch_permit: str | None = field(default=None, repr=False)
 
 
 class CommerceStore:
@@ -310,17 +321,17 @@ class CommerceStore:
                           (owner, period["period"])).fetchone()[0] >= MAX_OPERATIONS_PER_PERIOD:
                 raise CommerceStoreError("operation_capacity")
             operation = secrets.token_urlsafe(32)
-            db.execute("INSERT INTO operations VALUES (?, ?, ?, ?, 'issued', 0)",
+            db.execute("INSERT INTO operations VALUES (?, ?, ?, ?, 'issued', 0, NULL)",
                        (operation, owner, period["period"], min(now + HANDLE_TTL, period["end"])))
             self._bump(db, owner)
             return self._result(self._operation(db, owner, operation))
 
-    def reserve(self, owner: str, operation: str) -> StoredOperation:
+    def reserve(self, owner: str, operation: str) -> ReservationResult:
         with self._transaction() as (db, now):
             row = self._owner(db, owner, now)
             op = self._operation(db, owner, operation)
             if op["state"] != "issued":
-                return self._result(op)
+                return ReservationResult(self._result(op))
             period = self._period(db, owner, op["period"])
             self._usable(row, period, now)
             if now >= op["expires_at"]:
@@ -331,12 +342,17 @@ class CommerceStore:
             self._bucket(db, owner, period, now).reserve(
                 owner_key=owner, operation_id=operation, now=now, entitlement_active=True,
             )
-            db.execute("UPDATE operations SET state='reserved' WHERE id=?", (operation,))
+            permit = secrets.token_urlsafe(32)
+            db.execute("UPDATE operations SET state='reserved', permit_hash=? WHERE id=?",
+                       (hashlib.sha256(permit.encode()).hexdigest(), operation))
             self._bump(db, owner)
-            return self._result(self._operation(db, owner, operation))
+            return ReservationResult(self._result(self._operation(db, owner, operation)), permit)
 
-    def fence_dispatch(self, owner: str, operation: str) -> bool:
-        """Exactly one caller wins; a crash consumes the fence permanently.
+    def fence_dispatch(self, owner: str, operation: str, *, permit: str | None) -> bool:
+        """Only the reservation winner can dispatch, at most once.
+
+        Losing that worker's permit requires reconciliation, never redispatch
+        using a duplicate submission's possibly different private request body.
 
         True is NOT global admission. The future coordinator must also reserve
         provider liability and handle every cross-store crash boundary.
@@ -345,6 +361,11 @@ class CommerceStore:
             row = self._owner(db, owner, now)
             op = self._operation(db, owner, operation)
             if op["state"] != "reserved":
+                return False
+            if (type(permit) is not str or len(permit) != 43 or op["permit_hash"] is None
+                    or not hmac.compare_digest(
+                        hashlib.sha256(permit.encode()).hexdigest(), op["permit_hash"],
+                    )):
                 return False
             self._usable(row, self._period(db, owner, op["period"]), now)
             db.execute("UPDATE operations SET state='dispatched' WHERE id=?", (operation,))
