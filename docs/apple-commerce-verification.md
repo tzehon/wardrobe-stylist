@@ -59,6 +59,14 @@ DocC JSON:
   or explicit Boolean false, while rejecting true and all malformed present values, including
   null, numeric zero and strings. Synthetic signed fixtures normally omit the claim; regression
   coverage also accepts explicit false and rejects malformed values.
+- [Transaction payload](https://developer.apple.com/documentation/appstoreserverapi/jwstransactiondecodedpayload)
+  marks `quantity` as optional, consistent with the pinned SDK's `Optional[int]`. The current
+  [quantity documentation](https://developer.apple.com/documentation/appstoreserverapi/quantity)
+  describes products or seats, including multiseat subscriptions; the older SDK description
+  mentions only consumables. Omitted quantity is accepted for this subscription evidence, while
+  any present value must be the integer one. Null, Boolean/numeric coercions, zero, negatives,
+  collections and quantities above one remain rejected. Tests cover both omission and explicit one
+  in combination with omitted/false `isUpgraded`.
 - [receiptCreationDate](https://developer.apple.com/documentation/appstoreserverapi/receiptcreationdate):
   “The date that the App Store signs a JSON Web Signature (JWS) app transaction.” This confirms
   the pinned SDK model: AppTransaction freshness uses `receiptCreationDate`; purchase-transaction
