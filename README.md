@@ -228,5 +228,5 @@ and trust-chain rejection. No live route, production trust roots, owner binding 
 is installed. Signed evidence alone is not device ownership or current entitlement; those
 [official Apple evidence and remaining gates](docs/apple-commerce-verification.md)
 are explicit. No additional iOS build or production deployment is part of this backend slice.
-Local validation passed 1,047 backend tests (79 added), locked dependency audit, Bandit,
+Local validation passed 1,054 backend tests (86 added), locked dependency audit, Bandit,
 Ruff and mypy. The implementation PR records cloud regression and review results.

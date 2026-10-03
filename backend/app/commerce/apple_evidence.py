@@ -204,7 +204,9 @@ class AppleEvidenceVerifier:
                 or purchase.get("type") != "Auto-Renewable Subscription"
                 or purchase.get("inAppOwnershipType") != "PURCHASED"):
             raise AppleEvidenceError("unsupported_purchase")
-        if _integer(purchase.get("quantity"), 1) != 1:
+        # Optional for subscription evidence; a present quantity must describe
+        # exactly one product/seat, with no SDK numeric coercion.
+        if "quantity" in purchase and _integer(purchase["quantity"], 1) != 1:
             raise AppleEvidenceError("unsupported_purchase")
         # Apple omits this claim for ordinary purchases; a present value must
         # still be exactly false, never a coerced false-like value or null.
