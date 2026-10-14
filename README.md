@@ -257,8 +257,8 @@ The [next implementation design](docs/commerce-binding-cutover.md) audits the re
 4–7 signing sources and the earlier retained App Attest lineage. The legacy signers encode
 fixed JSON and cannot emit the commerce transcript. The next slice is a dedicated operation
 that collects StoreKit evidence and signs it internally, coordinated with session renewal and
-deletion. Its trust still depends on authentic-app integrity; it is not an independent Apple
-certificate tying the device UUID to an installation.
+deletion. This remains evidence-only: an instrumented app can sign borrowed evidence. Binding
+stays disabled until an independent server-verifiable ownership mechanism is established.
 
 The design also specifies durable counter/binding recovery across the separate stores and
 closure of every legacy AI generation request at future freemium activation. Implementation,

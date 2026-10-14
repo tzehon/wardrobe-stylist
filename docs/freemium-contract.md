@@ -85,8 +85,9 @@ signature/chain tests do not replace official Apple fixtures or physical-device 
 The [ownership request protocol](apple-ownership-binding.md) adds inactive local collection and
 assertion/transcript inspection. The [14 October cutover design](commerce-binding-cutover.md)
 audits the legacy signing paths and specifies a dedicated collect-and-sign operation plus a
-durable admission coordinator. This relies on explicit app-integrity assumptions, not an
-independent device-origin certificate. Implementation, physical compatibility and activation
+provisional durable admission coordinator. The current composition cannot independently establish
+device origin/ownership against an instrumented app; authorizing coordinator implementation is
+blocked until a server-verifiable ownership mechanism is established. Physical compatibility and activation
 review remain open; no inspected request becomes an owner or grant.
 
 Local wardrobe, photos, history, reminders, cached looks and Demo remain free. A successful fresh

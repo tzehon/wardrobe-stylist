@@ -14,8 +14,9 @@ This is the current work order. The backlog inventories work and the TestFlight 
 procedures and dated evidence; neither is a list to replay from the beginning.
 
 The next implementation step is the inactive collect-and-sign operation specified in the
-[14 October ownership/cutover design](commerce-binding-cutover.md), followed by durable binding
-and recovery. The owner-selected validation candidate in the
+[14 October ownership/cutover design](commerce-binding-cutover.md). Then resolve a server-verifiable
+ownership authority before implementing an authorizing binding coordinator; the current composition
+cannot prevent an instrumented app from signing borrowed evidence. The owner-selected validation candidate in the
 [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)
 for APP-037 is S$4.98/month for 30 paid generations, with 5 Free generations per UTC month.
 The owner requested profitability validation; actual costs remain unavailable in this workspace.
@@ -35,8 +36,9 @@ through Apple's pinned library and strict claims using synthetic tests; it canno
 grant usage. The [ownership protocol slice](apple-ownership-binding.md) now adds inactive local
 StoreKit collection and challenge-bound request inspection. The follow-up source audit finds
 that retained legacy signers cannot emit the commerce transcript; the new signer must collect
-its own StoreKit evidence under explicit app-integrity assumptions. Durable binding, physical
-compatibility and activation review remain open. Its Swift source needs a new build before distribution.
+its own StoreKit evidence. That is still evidence-only: no policy flag may make it an ownership
+authorizer. Independent ownership verification, durable binding, physical compatibility and
+activation review remain open. Its Swift source needs a new build before distribution.
 [Apple ownership verification](apple-commerce-verification.md), lifecycle
 reconciliation, cross-store admission and API/UI integration remain incomplete. The public app remains Free; daily operating review
 continues below.
