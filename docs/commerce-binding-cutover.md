@@ -91,10 +91,12 @@ unknown distributed source before enabling this policy.
 4. Keep raw evidence and proof bytes volatile and redacted. Do not expose them through debug logs,
    analytics, durable retry storage, URL handlers or a general-purpose signing endpoint. A lost
    response uses server status/idempotency and, if necessary, fresh local collection.
-5. The server reconstructs the transcript from its own challenge/installation state, checks the
-   App Attest assertion before online Apple work, and validates the exact JWS and digest. It then
-   rechecks policy, time, installation and binding revision at durable admission. Inspection alone
-   never changes ownership or creates an allowance.
+5. The server reconstructs the transcript from its own challenge/installation state and checks
+   the App Attest assertion locally. Before any online Apple work, it atomically claims the
+   purpose-bound challenge as described below; only that winner validates the exact JWS and
+   digest online. It then rechecks policy, time, installation and binding revision at durable
+   admission. Inspection alone never changes ownership or creates an allowance. The existing
+   monolithic inspector must be split at this boundary before runtime integration.
 
 ## Durable binding and recovery contract
 
@@ -104,14 +106,31 @@ opaque admission ID shared across the two stores; auth stores only security disp
 installation/challenge/counter information, never the commerce owner, JWS or device UUID.
 New schema/provisioning and retention remain a later reviewed implementation.
 
-The proposed coordinator follows this order:
+Before the binding commits below, acquire a **durable verification claim** in auth storage after
+local assertion validation. Atomically transition an issued challenge to `verifying`, recording
+an opaque attempt ID and a lease deadline no later than challenge expiry. Recheck the installation,
+counter snapshot, purpose, policy and binding revision; apply bounded issuance/attempt rate limits
+per installation and globally. Only the transition winner starts online Apple verification, with
+no database lock held. Duplicate submissions return scoped pending/terminal status and do no
+online work. This excludes concurrent replays across processes, not just within one request actor.
 
-1. Verify outside write locks against server snapshots. With a consistent lock order of **auth
+Each challenge permits at most one online attempt. A failure, cancellation or expired lease
+retires that challenge; it is never reset to issued and cannot acquire a replacement lease.
+After a crash before durable admission, recovery marks an abandoned claim failed and requires a
+fresh challenge/proof. An old worker may still finish its bounded network request, but its attempt
+ID/deadline must match at every later commit or it cannot bind. This deliberate lost-attempt
+recovery consumes no customer allowance, advances no counter by itself and stores no raw proof.
+
+The proposed coordinator then follows this order:
+
+1. Finish the claimed verification outside write locks against server snapshots. With a consistent lock order of **auth
    first, commerce second**, revalidate those snapshots and prepare a bounded, inactive commerce
    intent containing only the server-derived owner pseudonym, expected binding revision, policy
-   revision, verification deadline and opaque admission ID. Preparation grants no access.
+   revision, verification deadline and opaque admission ID. Recheck the winning verification
+   attempt and unexpired lease. Preparation grants no access.
 2. Under the same lock order, require that exact unchanged intent and compare-and-swap the live
-   auth counter. In one auth transaction, consume the purpose-bound challenge, advance the shared
+   auth counter and the still-valid verification claim. In one auth transaction, consume the
+   purpose-bound challenge, advance the shared
    counter and persist its accepted admission ID. A session renewal/deletion that won the race
    causes this step to fail; never keep a second commerce counter.
 3. Under the same lock order, require the durable auth acceptance, the still-live installation,
@@ -129,6 +148,7 @@ must fence the binding revision through the same protocol. Preserve admitted pro
 | Interruption point | Required recovery |
 | --- | --- |
 | Before prepared intent | Nothing accepted; a fresh request may start |
+| Verification claim exists, no durable admission | No binding or quota; duplicates do no online work; crash/lease expiry retires the challenge and requires a fresh proof |
 | Prepared intent, no auth acceptance | No binding or quota; bounded reconciliation abandons it or retries only while the original proof/state is still valid |
 | Auth acceptance, binding not finalized | Recover the exact matching intent while all deadlines/revisions still pass; otherwise abandon and require a fresh proof with a higher counter |
 | Binding finalized, response lost | Return the existing scoped outcome; no second binding, owner or allowance |
@@ -185,7 +205,9 @@ Then implement the coordinator with real two-connection concurrency and process-
 for every commit boundary above, cross-installation lookup denial, same-owner restore without
 quota reset, explicit account change, retention cleanup and recovery mismatch. The schema must
 make ownership/period grants unique and bound all pending metadata without deleting unresolved
-liability. Unit tests must not call the provider or create real StoreKit products.
+liability. Race duplicate assertions before online verification and assert exactly one outbound
+verification attempt; exercise crashes before/during/after that attempt and reject late workers
+after lease expiry. Unit tests must not call the provider or create real StoreKit products.
 
 Both code slices require the repository's full backend and iOS regression. Physical verification
 remains limited to real StoreKit signed-field availability/freshness/device matching and the
