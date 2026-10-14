@@ -24,9 +24,10 @@ monthly subscription adds a larger fixed allowance of fresh AI outfit generation
 will show the current plan, remaining allowance, reset date, localized price and restore/manage
 controls. Existing looks and local features do not consume a new AI generation.
 
-**This is planned, not implemented:** the current v1 has no subscription, purchase flow or
-customer-level monthly quota. The earlier **5 Free / 60 Plus** allowances are draft options;
-the actual numbers, reset rules, paid name and price are undecided. Per-customer allowances will
+**This is planned, not active:** the current v1 has no subscription, purchase flow or
+customer-level monthly quota. The owner-selected validation candidate is **S$4.98/month for
+30 Plus generations per subscription period, with 5 Free generations per UTC month**.
+Actual-cost validation is deferred; pricing and paid launch are not approved. Per-customer allowances will
 sit behind the owner's separate global AI spending limit; paying users do not automatically
 raise that limit. See the [freemium model](docs/freemium-model.md) for inclusions, metering and
 the decisions required before the paid release.
@@ -249,3 +250,18 @@ compatibility and the eventual attested collection path remain separate evidence
 
 Local regression passed 1,093 backend tests, the locked dependency audit, Bandit, Ruff and mypy.
 The implementation PR records macOS/iOS regression and review results.
+
+### Ownership trust and cutover design — 14 October
+
+The [next implementation design](docs/commerce-binding-cutover.md) audits the recorded build
+4–7 signing sources and the earlier retained App Attest lineage. The legacy signers encode
+fixed JSON and cannot emit the commerce transcript. The next slice is a dedicated operation
+that collects StoreKit evidence and signs it internally, coordinated with session renewal and
+deletion. Its trust still depends on authentic-app integrity; it is not an independent Apple
+certificate tying the device UUID to an installation.
+
+The design also specifies durable counter/binding recovery across the separate stores and
+closure of every legacy AI generation request at future freemium activation. Implementation,
+privacy/retention review, physical compatibility and paid activation remain open. This design
+checkpoint changes documentation only, adds no TestFlight requirement of its own, and claims
+no new runtime test or device evidence.

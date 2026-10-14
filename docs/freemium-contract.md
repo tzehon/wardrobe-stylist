@@ -83,8 +83,11 @@ are volatile signed evidence only; device proof, owner binding and current entit
 reconciliation remain unimplemented. It has no live caller and does not grant usage. Synthetic
 signature/chain tests do not replace official Apple fixtures or physical-device evidence.
 The [ownership request protocol](apple-ownership-binding.md) adds inactive local collection and
-assertion/transcript inspection. It documents the unresolved device-origin/cutover boundary and
-durable replay/binding requirements; no inspected request becomes an owner or grant.
+assertion/transcript inspection. The [14 October cutover design](commerce-binding-cutover.md)
+audits the legacy signing paths and specifies a dedicated collect-and-sign operation plus a
+durable admission coordinator. This relies on explicit app-integrity assumptions, not an
+independent device-origin certificate. Implementation, physical compatibility and activation
+review remain open; no inspected request becomes an owner or grant.
 
 Local wardrobe, photos, history, reminders, cached looks and Demo remain free. A successful fresh
 generation, including Restyle and its returned alternates, consumes one unit. No rollover, extra
@@ -292,9 +295,13 @@ Additive development must leave build 7's `/recommend` behavior unchanged until 
 cutover. That legacy route cannot stay as an unmetered bypass after quotas launch. Do not trust a
 client version/header to select the free legacy path: App Attest does not enforce signed build
 fields on all supported OS versions. Before paid activation, either route every remote entry point
-through verified ownership/metering or close legacy remote generation with a compatible service-
-unavailable response and clear upgrade/support notice. Choose the notice/cutover policy before
-shipping. Local features and existing data remain available. Never enable paid mode while an
+through verified ownership/metering or close legacy remote generation with a compatible
+update-required response and clear upgrade/support notice. The [cutover design](commerce-binding-cutover.md#legacy-ai-route-cutover)
+selects closure of every legacy request at activation, with a compatible 403 and advance
+release-note/support notice. Build 7 already shows an update instruction on 403 without retrying
+authorization; 503 would show only generic temporary unavailability. Implement
+and review those notices and the durable mode/rollback controls before shipping.
+Local features and existing data remain available. Never enable paid mode while an
 unmetered remote path remains reachable, including rollback configurations.
 
 Deleting installation security data removes the installation binding, not Apple purchases or the
