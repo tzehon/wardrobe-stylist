@@ -177,6 +177,8 @@ or synthetic certificate cannot establish those physical boundaries. Preserve th
 physical QA; do not repeat unrelated catalog, photo, notification or deletion tests.
 
 This adds unshipped Swift source, so a **new TestFlight build is required before distribution**.
-Build 7 remains consumed; no version bump, signing change, upload or device prompt is authorized
-by this implementation slice. Before any future build selection, check App Store Connect for the
-next unused number. Production remains Free and Singapore-only; paid activation is separate.
+Build 7 remains consumed. The owner-provided 14 October App Store Connect Build Uploads
+screenshot confirmed it as the latest upload, so this slice selects `1.0.0 (8)` in source and
+adds build 8 to the source App Attest allowlist. Backend deployment and verification, signing,
+upload and physical-device validation remain separate distribution work. Production remains
+Free and Singapore-only; paid activation is separate.
