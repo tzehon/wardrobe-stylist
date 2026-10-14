@@ -100,6 +100,12 @@ extension AppAttestSessionFlightObserving {
     func willDrainSessionFlightForDeletion() async {}
 }
 
+/// In-process observation only, for deterministic tests of the inactive signer.
+protocol AppAttestCommerceFlightObserving: Sendable {
+    func willWaitForCommerceFlight() async
+    func willDrainCommerceFlightForDeletion() async
+}
+
 /// The key identifier is the only handle Apple gives the app for the private
 /// Secure Enclave key. Pending enrollment data is retained as well so a lost
 /// HTTP response can retry the same single-use challenge instead of creating
@@ -212,11 +218,22 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
     private struct AccessSession: Sendable {
         let token: String
         let expiresAt: Date
+        let installationID: UUID
     }
 
     private struct SessionFlight: Sendable {
         let id: UUID
         let task: Task<AccessSession, Error>
+    }
+
+    private struct CommerceProofFlight: Sendable {
+        let id: UUID
+        let task: Task<PreparedCommerceProof, Error>
+    }
+
+    private struct PreparedCommerceProof: Sendable {
+        let proof: SignedCommerceAppProof
+        let checkedAt: Date
     }
 
     private enum Purpose: String, Encodable {
@@ -319,8 +336,11 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
     private let credentialStore: any AppAttestCredentialStoring
     private let now: @Sendable () -> Date
     private let sessionFlightObserver: (any AppAttestSessionFlightObserving)?
+    private let commerceFlightObserver: (any AppAttestCommerceFlightObserving)?
+    private let collectCommerceEvidence: @MainActor @Sendable () async throws -> CollectedAppEvidence
     private var cachedSession: AccessSession?
     private var sessionFlight: SessionFlight?
+    private var commerceProofFlight: CommerceProofFlight?
     // Keep only one-way digests for historical bearers. They live only for the
     // current process: app termination also ends every in-flight caller that
     // could present one. This fences a pre-deletion request even if iOS
@@ -341,7 +361,11 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         service: any AppAttestServicing = SystemAppAttestService(),
         credentialStore: any AppAttestCredentialStoring = KeychainAppAttestCredentialStore(),
         now: @escaping @Sendable () -> Date = Date.init,
-        sessionFlightObserver: (any AppAttestSessionFlightObserving)? = nil
+        sessionFlightObserver: (any AppAttestSessionFlightObserving)? = nil,
+        commerceFlightObserver: (any AppAttestCommerceFlightObserving)? = nil,
+        collectCommerceEvidence: @escaping @MainActor @Sendable () async throws -> CollectedAppEvidence = {
+            try await CommerceOwnershipCollector.collect()
+        }
     ) {
         configuredBaseURL = baseURL
         self.session = session
@@ -349,6 +373,8 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         self.credentialStore = credentialStore
         self.now = now
         self.sessionFlightObserver = sessionFlightObserver
+        self.commerceFlightObserver = commerceFlightObserver
+        self.collectCommerceEvidence = collectCommerceEvidence
     }
 
     func accessToken(rejecting rejectedToken: String?) async throws -> String {
@@ -372,6 +398,18 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
                cachedSession.token != rejectedToken,
                cachedSession.expiresAt.timeIntervalSince(now()) > 30 {
                 return publish(cachedSession)
+            }
+
+            // A cached bearer does not advance the counter, but a renewal must
+            // wait for local commerce signing to finish. Recheck all fences on
+            // return: deletion may have started while this caller was waiting.
+            if let flight = commerceProofFlight {
+                await commerceFlightObserver?.willWaitForCommerceFlight()
+                _ = await flight.task.result
+                if commerceProofFlight?.id == flight.id {
+                    commerceProofFlight = nil
+                }
+                continue
             }
 
             if cachedSession?.token == rejectedToken
@@ -461,6 +499,111 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         }
     }
 
+    /// Inactive: no product caller or commerce transport. The only per-call input
+    /// is a server challenge; JWS/device UUID/digest never come from the caller.
+    /// Requires an already established session, so it cannot enroll or refresh
+    /// an identity as a side effect of collecting StoreKit evidence.
+    func collectCommerceProof(challenge: CommerceProofChallenge) async throws -> SignedCommerceAppProof {
+        try Task.checkCancellation()
+        let generation = identityGeneration
+        let started = now()
+        let checkedAt = try requireCommerceContext(challenge: challenge, generation: generation, floor: started)
+        guard sessionFlight == nil, commerceProofFlight == nil else {
+            throw AppAttestAuthorizationError.serviceUnavailable
+        }
+        let flight = CommerceProofFlight(id: UUID(), task: Task {
+            try await makeCommerceProof(challenge: challenge, generation: generation, started: checkedAt)
+        })
+        commerceProofFlight = flight
+        defer {
+            if commerceProofFlight?.id == flight.id { commerceProofFlight = nil }
+        }
+        let prepared = try await withTaskCancellationHandler {
+            try await flight.task.value
+        } onCancel: {
+            flight.task.cancel()
+        }
+        try Task.checkCancellation()
+        try requireCommerceContext(challenge: challenge, generation: generation, floor: prepared.checkedAt)
+        return prepared.proof
+    }
+
+    private func makeCommerceProof(
+        challenge: CommerceProofChallenge, generation: UInt64, started: Date
+    ) async throws -> PreparedCommerceProof {
+        try Task.checkCancellation()
+        var clockFloor = started
+        let supported = await service.isSupported
+        clockFloor = try requireCommerceContext(challenge: challenge, generation: generation, floor: clockFloor)
+        guard supported else { throw AppAttestAuthorizationError.unsupportedDevice }
+        let credential: AppAttestCredential
+        do {
+            guard let loaded = try await credentialStore.load(),
+                  Self.isStructurallyValid(loaded), loaded.isRegistered,
+                  !loaded.deletionPendingConfirmation,
+                  Data(base64Encoded: loaded.keyID) == challenge.keyID else {
+                throw AppAttestAuthorizationError.invalidCredentialStorage
+            }
+            credential = loaded
+        } catch {
+            throw AppAttestAuthorizationError.invalidCredentialStorage
+        }
+        clockFloor = try requireCommerceContext(challenge: challenge, generation: generation, floor: clockFloor)
+        try Task.checkCancellation()
+        let evidence: CollectedAppEvidence
+        do {
+            evidence = try await collectCommerceEvidence()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            // StoreKit errors can carry private diagnostic context.
+            throw AppAttestAuthorizationError.serviceUnavailable
+        }
+        try Task.checkCancellation()
+        clockFloor = try requireCommerceContext(challenge: challenge, generation: generation, floor: clockFloor)
+        let transcript = try CommerceProofTranscript.bytes(
+            challenge: challenge, appJWS: evidence.appJWS, deviceID: evidence.deviceID
+        )
+        let assertion: Data
+        do {
+            assertion = try await service.generateAssertion(
+                credential.keyID, clientDataHash: Data(SHA256.hash(data: transcript))
+            )
+        } catch {
+            throw AppAttestAuthorizationError.serviceUnavailable
+        }
+        try Task.checkCancellation()
+        clockFloor = try requireCommerceContext(challenge: challenge, generation: generation, floor: clockFloor)
+        guard (1...8_192).contains(assertion.count) else {
+            throw AppAttestAuthorizationError.invalidResponse
+        }
+        return PreparedCommerceProof(
+            proof: SignedCommerceAppProof(
+                challengeID: challenge.challengeID, appJWS: evidence.appJWS,
+                deviceID: evidence.deviceID, assertionObject: assertion
+            ),
+            checkedAt: clockFloor
+        )
+    }
+
+    @discardableResult
+    private func requireCommerceContext(
+        challenge: CommerceProofChallenge, generation: UInt64, floor: Date
+    ) throws -> Date {
+        guard generation == identityGeneration else { throw AppAttestAuthorizationError.retiredSession }
+        guard !deletionInProgress else { throw AppAttestAuthorizationError.deletionInProgress }
+        guard !deletionPendingConfirmation else {
+            throw AppAttestAuthorizationError.deletionConfirmationPending
+        }
+        let referenceDate = now()
+        try challenge.requireFresh(at: referenceDate, notBefore: floor)
+        guard let cachedSession, cachedSession.installationID == challenge.installationID,
+              cachedSession.expiresAt > referenceDate else {
+            throw AppAttestAuthorizationError.invalidResponse
+        }
+        return referenceDate
+    }
+
     func deleteServerIdentity() async throws -> ServerIdentityDeletionResult {
         guard !deletionInProgress else {
             throw AppAttestAuthorizationError.deletionInProgress
@@ -468,6 +611,12 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         deletionInProgress = true
         defer { deletionInProgress = false }
 
+        if let flight = commerceProofFlight {
+            await commerceFlightObserver?.willDrainCommerceFlightForDeletion()
+            flight.task.cancel()
+            _ = await flight.task.result
+            if commerceProofFlight?.id == flight.id { commerceProofFlight = nil }
+        }
         await drainSessionFlightBeforeDeletion()
 
         guard await service.isSupported else {
@@ -803,7 +952,7 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
               response.tokenType.caseInsensitiveCompare("Bearer") == .orderedSame,
               (60...900).contains(response.expiresIn),
               let absoluteExpiration = Self.parseUTCDate(response.expiresAt),
-              UUID(uuidString: response.installationID) != nil else {
+              let installationID = UUID(uuidString: response.installationID) else {
             throw AppAttestAuthorizationError.invalidResponse
         }
 
@@ -814,7 +963,9 @@ actor AppAttestAuthorization: BackendAuthorizing, ServerIdentityDeleting {
         guard effectiveExpiration.timeIntervalSince(referenceDate) > 30 else {
             throw AppAttestAuthorizationError.invalidResponse
         }
-        return AccessSession(token: response.accessToken, expiresAt: effectiveExpiration)
+        return AccessSession(
+            token: response.accessToken, expiresAt: effectiveExpiration, installationID: installationID
+        )
     }
 
     private func baseURL() throws -> URL {

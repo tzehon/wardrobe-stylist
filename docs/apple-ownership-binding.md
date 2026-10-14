@@ -1,6 +1,7 @@
 # Apple ownership binding: protocol and inactive evidence collection
 
-3 October 2026. This slice implements local evidence collection and request inspection only.
+3 October 2026 foundation; 14 October inactive signing update below. The initial slice implemented
+local evidence collection and request inspection only.
 It does **not** establish a commerce owner, consume a challenge, update an assertion counter,
 create a binding, grant usage, expose a route, or change production behavior.
 
@@ -10,6 +11,34 @@ and defines provisional durable admission/recovery and legacy-route closure. It 
 inactive evidence preparation: an instrumented app can still sign borrowed evidence. Binding
 remains blocked pending an independent server-verifiable ownership mechanism; no policy flag
 may promote this composition alone into ownership authorization.
+
+## Inactive collect-and-sign operation — 14 October
+
+`AppAttestAuthorization.collectCommerceProof(challenge:)` now collects evidence itself and signs
+the resulting transcript. It accepts only a typed server challenge, requires an existing live
+session for that installation and a matching registered key, and does not enroll or renew a
+session as a side effect. Its constructor's collector injection is an in-process test seam;
+the production default calls the system StoreKit collector. No product flow invokes the method.
+
+The actor excludes concurrent commerce proofs, delays session renewal while local signing is
+in progress, and lets deletion cancel/drain that work before producing a deletion assertion.
+It checks expiry, clock regression, the identity generation and deletion fences after suspended
+work and again before returning. Cancellation discards the result; upstream StoreKit/signing
+errors become fixed errors. Returned evidence is volatile and redacted, with bounded assertion
+size; there is no commerce network request, persistence, challenge consumption or server grant.
+
+This serializes **local** signing only. Once the proof is returned, a later session assertion
+can advance the server counter before a future commerce submission. The eventual transport and
+coordinator must handle that conflict with server compare-and-swap and fresh collection; this
+slice does not claim an end-to-end admission lock or durable replay protection. Dependency
+cancellation is cooperative: deletion drains a started signing operation instead of assuming
+that cancelling a task proves DeviceCheck has stopped. Physical compatibility remains unproved.
+
+Tests cover local transcript inputs, legacy JSON escaping, challenge/key/installation mismatches,
+expiry and clock rollback during collection/signing, concurrent renewal/proofs, deletion at both
+boundaries, cancellation, error redaction and assertion size. Structural guards prohibit product
+callers while retaining the backend borrowed-evidence counterexample. New TestFlight distribution
+requires a new unused build number; this source slice performs no upload or production activation.
 
 ## What the evidence actually proves
 
@@ -53,7 +82,8 @@ Physical evidence is necessary for compatibility but cannot prove away this cryp
   `AppStore.deviceVerificationID` locally before and after collection. Missing/changed IDs,
   unverified results, unsupported environments and mismatching device hashes fail closed.
   Its injectable source is an in-process test seam; no file, URL or server payload feeds it.
-  It never buys, stores, transmits or signs anything. No product flow calls it.
+  It never buys, stores or transmits anything. The inactive actor operation above signs its result;
+  no product flow calls that operation.
 - Swift and Python produce an identical, domain-separated transcript. The shared golden vector
   is synthetic. It proves byte agreement, not an Apple signature or device relationship.
 - `inspect_app_request` accepts trusted server challenge/installation snapshots, verifies the
@@ -62,8 +92,9 @@ Physical evidence is necessary for compatibility but cannot prove away this cryp
   **inspected evidence**, never an owner or entitlement. Inspector errors and the inspected/collected
   result representations exclude evidence. Passing the same unchanged state twice can pass inspection twice; it is not a durable
   replay gate. A monotonic counter from the server rejects replay only once the caller commits it.
-- Structural guards prevent production code from importing the inspector or calling the iOS
-  collector/transcript. The auth database, commerce database and live routes are unchanged.
+- Structural guards prevent runtime code from importing the inspector or product flows from
+  calling the inactive iOS signing entry point. The auth database, commerce database and live
+  routes are unchanged.
 
 ## Proposed request protocol
 

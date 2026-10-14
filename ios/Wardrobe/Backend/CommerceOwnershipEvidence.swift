@@ -9,10 +9,11 @@ enum CommerceEvidenceError: Error, Equatable {
     case deviceChanged
     case deviceMismatch
     case unsupportedEnvironment
+    case expiredChallenge
 }
 
-/// Inactive protocol draft. No route issues this challenge and no caller signs
-/// or transmits it. Server persistence must consume it with the App Attest counter.
+/// Inactive protocol draft. No route issues or consumes this challenge.
+/// Server persistence must consume it with the App Attest counter.
 struct CommerceProofChallenge: Sendable {
     let challengeID: UUID
     let nonce: Data
@@ -21,6 +22,28 @@ struct CommerceProofChallenge: Sendable {
     let bindingRevision: Int64
     let issuedAtMS: Int64
     let expiresAtMS: Int64
+
+    func validate() throws {
+        let zero = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+        guard challengeID != zero, installationID != zero,
+              nonce.count == 32, keyID.count == 32,
+              (0...9_007_199_254_740_991).contains(bindingRevision),
+              (0...253_402_300_799_999).contains(issuedAtMS),
+              expiresAtMS > issuedAtMS, expiresAtMS <= 253_402_300_799_999,
+              expiresAtMS - issuedAtMS <= 300_000 else {
+            throw CommerceEvidenceError.invalidInput
+        }
+    }
+
+    func requireFresh(at date: Date, notBefore floor: Date) throws {
+        try validate()
+        let milliseconds = date.timeIntervalSince1970 * 1_000
+        guard milliseconds.isFinite, floor.timeIntervalSince1970.isFinite,
+              date >= floor, milliseconds >= Double(issuedAtMS),
+              milliseconds < Double(expiresAtMS) else {
+            throw CommerceEvidenceError.expiredChallenge
+        }
+    }
 }
 
 enum CommerceProofTranscript {
@@ -38,13 +61,8 @@ enum CommerceProofTranscript {
     static func bytes(
         challenge: CommerceProofChallenge, appJWS: String, deviceID: UUID
     ) throws -> Data {
-        guard challenge.challengeID != zeroUUID, challenge.installationID != zeroUUID,
-              deviceID != zeroUUID, challenge.nonce.count == 32, challenge.keyID.count == 32,
-              (0...9_007_199_254_740_991).contains(challenge.bindingRevision),
-              (0...253_402_300_799_999).contains(challenge.issuedAtMS),
-              challenge.expiresAtMS > challenge.issuedAtMS,
-              challenge.expiresAtMS <= 253_402_300_799_999,
-              challenge.expiresAtMS - challenge.issuedAtMS <= 300_000,
+        try challenge.validate()
+        guard deviceID != zeroUUID,
               (1...32_768).contains(appJWS.utf8.count),
               appJWS.utf8.allSatisfy({ $0 < 128 }) else {
             throw CommerceEvidenceError.invalidInput
@@ -117,7 +135,19 @@ struct CollectedAppEvidence: Sendable, CustomStringConvertible, CustomDebugStrin
     }
 }
 
-/// No production caller, storage, HTTP request or App Attest signing is installed.
+/// Volatile, unsubmitted proof. It grants no ownership and must never be logged
+/// or persisted. The future transport must recheck identity and server admission.
+struct SignedCommerceAppProof: Sendable, CustomStringConvertible, CustomDebugStringConvertible {
+    let challengeID: UUID
+    let appJWS: String
+    let deviceID: UUID
+    let assertionObject: Data
+    var description: String { "SignedCommerceAppProof(redacted)" }
+    var debugDescription: String { description }
+}
+
+/// Called only by the inactive collect-and-sign operation and tests. No product
+/// caller, storage or commerce HTTP request is installed.
 /// A local comparison is not an independently authenticated server device identity.
 @MainActor
 enum CommerceOwnershipCollector {
