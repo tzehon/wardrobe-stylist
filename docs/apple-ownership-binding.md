@@ -4,6 +4,12 @@
 It does **not** establish a commerce owner, consume a challenge, update an assertion counter,
 create a binding, grant usage, expose a route, or change production behavior.
 
+**14 October design follow-up:** the [collection trust and cutover design](commerce-binding-cutover.md)
+audits the retained legacy signing paths, specifies the dedicated collect-and-sign operation,
+and defines durable admission/recovery and legacy-route closure. It selects an implementation
+approach under explicit app-integrity assumptions; it does not activate ownership authorization
+or establish an independent Apple-certified same-device relationship.
+
 ## What the evidence actually proves
 
 Apple's [AppTransaction JWS documentation](https://developer.apple.com/documentation/storekit/verificationresult/jwsrepresentation-6ma59)
@@ -29,7 +35,11 @@ and the App Attest integrity assumptions; it is not an independent same-device c
 The current shipping build has no such collection/signing path. On iOS 18–26 App Attest's signed
 build/category fields may be absent, so a server cannot simply require the new build number to
 prove this path ran. An old/general-purpose signing path must not become an assertion oracle.
-There is no ownership authorization implementation until that trust/cutover boundary is resolved.
+The [follow-up source audit](commerce-binding-cutover.md#historical-signing-path-audit) finds that
+the retained legacy paths sign fixed JSON and cannot emit the commerce transcript. The next
+implementation must preserve that separation and collect its own evidence inside the signer.
+There is still no ownership authorization implementation; review/validation of that composition
+and its cutover remain activation prerequisites.
 Physical evidence is necessary for compatibility but cannot prove away this cryptographic limit.
 
 ## Implemented, inactive components
@@ -89,7 +99,8 @@ must fail closed with a future explicit recovery flow. No refresh call is instal
 
 ## Durable binding and lifecycle requirements (not implemented)
 
-Before adding `/commerce/bind`, the service must resolve the origin/cutover issue above and then:
+Before adding `/commerce/bind`, the service must implement and validate the
+[collection/coordinator design](commerce-binding-cutover.md), including these requirements:
 
 - Serialize proof admission with existing session/deletion assertions against the **same**
   installation counter. Atomically claim a purpose-bound, expiring challenge; confirm the active
