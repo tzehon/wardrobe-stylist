@@ -117,7 +117,22 @@ defines bounded automatic delivery credits; Apple proof verification, retention 
 The inactive quota policy and usage snapshot mirrors are implemented locally; full validation,
 Apple verification, transactional persistence, endpoint integration and paid launch remain open.
 
-Once those decisions are approved, deliver APP-037 in this order:
+### Inactive implementation authorization — 14 October
+
+The owner instructed continuation of Wardrobe Stylist work on 14 October and then explicitly
+said to proceed and open PRs where appropriate after reviewing the ownership/cutover design
+checkpoint. This authorizes the next inactive collect-and-sign implementation, its tests and
+reviewable binding/recovery preparation while the previously deferred cost validation remains
+open. See the [scoped design](commerce-binding-cutover.md) and [current work order](release-plan.md).
+
+This is not approval of final pricing, billing interruptions, Family Sharing, account-change
+product behavior, retention/provisioning or paid activation. Keep those decisions open; any
+inactive lifecycle/schema work is provisional and must be reconciled with the final approved
+terms before integration. Do not expose purchase UI, persist new customer metadata in production,
+or activate quotas from this implementation authorization. The existing Free pilot stays in place.
+
+Once the product decisions are approved, integrate and deliver APP-037 in this order; the
+scoped inactive preparation above may precede that approval:
 
 1. Specify the commerce/usage contract, ownership, idempotency and interrupted-request behavior.
    Keep commerce records separate from installation security metadata and the global AI ledger;
@@ -340,8 +355,9 @@ account-specific amounts or limits.
    ceilings, existing liability, per-call reservation and concurrency limit. Aggregate quotas must
    fit supported service capacity; revenue and customer quota never override admission guards.
    A positive contribution calculation does not prove the global budget can serve the offer.
-4. Select the final name, price, quotas and lifecycle/support policies, then follow the APP-037
-   implementation order above. S$4.98/30 is conditional on these economics and service checks;
+4. Select the final name, price, quotas and lifecycle/support policies before integrating and
+   activating the prepared APP-037 components in the order above. Scoped inactive work may
+   continue under the 14 October authorization. S$4.98/30 is conditional on these economics and service checks;
    it is not ready for paid distribution. Country expansion remains after proven Singapore operation.
 
 The proposal is now accompanied by inactive policy/contract source. No live subscription, customer
