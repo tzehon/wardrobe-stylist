@@ -275,8 +275,13 @@ discards cancelled/retired results. Proofs remain volatile and redacted. Product
 commerce transport remain absent; ownership authorization, durable admission and physical
 compatibility are still future work. See the [protocol update](docs/apple-ownership-binding.md#inactive-collect-and-sign-operation--14-october).
 
-Backend regression passed 1,093 tests plus locked audit/Bandit/Ruff/mypy. Final iOS regression
-and release-script results are tracked on the implementation PR; this Linux workspace has no
-Xcode, and five artifact-script checks require its missing clang toolchain. This is unshipped
-Swift source and needs a new TestFlight build before distribution. No build number, upload,
-paid feature or production configuration was changed.
+Backend regression passed 1,095 tests plus locked audit/Bandit/Ruff/mypy. Both macOS reruns
+passed the full iOS suite, Release build/artifact checks and 44 release-script tests after the
+initial runs failed different UI cases; final build-metadata regression is tracked on PR #69.
+
+The owner's 14 October 22:22 SGT App Store Connect screenshot shows build 7 as the latest upload
+under Build Uploads / All Statuses. Source now prepares `1.0.0 (8)` and adds build 8 to the backend
+App Attest allowlist while retaining builds 4–7. This is an unshipped candidate: live Fly v16 still
+uses the deployed build-4–7 configuration. Before distribution, deploy and verify the reviewed
+backend configuration, then complete the signed archive, TestFlight and physical-device gates.
+No upload, paid activation or production deployment occurred in this source change.

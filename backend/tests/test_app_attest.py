@@ -281,7 +281,9 @@ def test_assertion_accepts_documented_and_apple_vector_uint32_forms(
         (1, "7", "Disallowed validation category"),
         (3, "7", "Disallowed validation category"),
         (4, "3", "Disallowed bundle version"),
-        (4, "8", "Disallowed bundle version"),
+        (2, "8", None),
+        (4, "8", None),
+        (4, "9", "Disallowed bundle version"),
     ],
 )
 def test_fly_allowlists_accept_only_reviewed_distribution_categories_and_builds(
@@ -289,7 +291,7 @@ def test_fly_allowlists_accept_only_reviewed_distribution_categories_and_builds(
     bundle_version: str,
     error: str | None,
 ) -> None:
-    """Exercise the deployed configuration shape with cryptographically signed fields."""
+    """Exercise the source configuration with cryptographically signed fields."""
     env = tomllib.loads(
         (Path(__file__).parents[1] / "fly.toml").read_text(encoding="utf-8")
     )["env"]
