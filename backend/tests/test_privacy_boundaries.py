@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 import sqlite3
 from importlib.util import resolve_name
 from pathlib import Path
@@ -443,8 +444,17 @@ def test_ownership_evidence_stays_disconnected_from_runtime_and_ios_flows() -> N
         if source.name == "CommerceOwnershipEvidence.swift":
             continue
         contents = source.read_text(encoding="utf-8")
+        if source.name == "AppAttestAuthorization.swift":
+            # The inactive signer can collect evidence, but nothing in the app
+            # calls it (including another method on the authorization actor).
+            assert len(re.findall(r"\bcollectCommerceProof\s*\(", contents)) == 1
+            assert "func collectCommerceProof(challenge:" in contents
+            assert "AppTransaction.shared" not in contents
+            assert "SystemStoreKitAppEvidenceSource" not in contents
+            continue
         for symbol in ("CommerceOwnershipCollector", "SystemStoreKitAppEvidenceSource",
-                       "CommerceProofTranscript", "AppTransaction.shared"):
+                       "CommerceProofTranscript", "AppTransaction.shared",
+                       "collectCommerceProof", "collectCommerceEvidence"):
             assert symbol not in contents
 
 

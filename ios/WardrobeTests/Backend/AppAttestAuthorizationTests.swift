@@ -1757,6 +1757,283 @@ struct AppAttestAuthorizationTests {
         #expect(await store.credential?.isRegistered == true)
     }
 
+    @Test func commerceProofRequiresAnExistingSessionWithoutEnrolling() async {
+        let service = commerceService()
+        let authorization = makeCommerceAuthorization(service: service)
+        await #expect(throws: AppAttestAuthorizationError.invalidResponse) {
+            try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        }
+        #expect(await service.generatedKeyCount == 0)
+        #expect(await service.assertionHashes.isEmpty)
+    }
+
+    @Test func commerceProofSignsOnlyLocallyCollectedEvidenceAndStaysVolatile() async throws {
+        let service = commerceService()
+        let store = FakeAppAttestCredentialStore()
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, store: store)
+        _ = try await authorization.accessToken(rejecting: nil)
+        let before = await store.credential
+        let challenge = commerceChallenge()
+        let proof = try await authorization.collectCommerceProof(challenge: challenge)
+        let evidence = try await Self.localCommerceEvidence()
+        let transcript = try CommerceProofTranscript.bytes(
+            challenge: challenge, appJWS: evidence.appJWS, deviceID: evidence.deviceID
+        )
+        #expect(await service.assertionHashes == [Data(SHA256.hash(data: transcript))])
+        #expect(proof.challengeID == challenge.challengeID)
+        #expect(proof.appJWS == evidence.appJWS && proof.deviceID == evidence.deviceID)
+        #expect(proof.assertionObject == Data([0xc0]))
+        #expect(String(describing: proof) == "SignedCommerceAppProof(redacted)")
+        #expect(String(reflecting: proof) == "SignedCommerceAppProof(redacted)")
+        #expect(await store.credential == before)
+        #expect(URLProtocolStub.captured.count == 2) // Enrollment only; no commerce transport.
+        #expect(await service.generatedKeyCount == 1)
+    }
+
+    @Test(arguments: ["installation", "key", "nonce", "expiry", "future"])
+    func commerceRejectsMismatchedOrInvalidChallengeBeforeCollection(_ invalid: String) async throws {
+        let service = commerceService()
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, collector: {
+            Issue.record("Invalid challenge must fail before StoreKit collection")
+            return try await Self.localCommerceEvidence()
+        })
+        _ = try await authorization.accessToken(rejecting: nil)
+        let base = commerceChallenge()
+        let challenge = CommerceProofChallenge(
+            challengeID: base.challengeID,
+            nonce: invalid == "nonce" ? Data() : base.nonce,
+            installationID: invalid == "installation" ? UUID() : base.installationID,
+            keyID: invalid == "key" ? Data(repeating: 0x43, count: 32) : base.keyID,
+            bindingRevision: 0,
+            issuedAtMS: invalid == "future" ? base.issuedAtMS + 1 : base.issuedAtMS,
+            expiresAtMS: invalid == "expiry" ? base.issuedAtMS : base.expiresAtMS
+        )
+        await #expect(throws: (any Error).self) {
+            try await authorization.collectCommerceProof(challenge: challenge)
+        }
+        #expect(await service.assertionHashes.isEmpty)
+    }
+
+    @Test(arguments: ["collect-expiry", "sign-expiry", "collect-rollback", "sign-rollback"])
+    func commerceRechecksTimeAfterSuspension(_ boundary: String) async throws {
+        let clock = LockedTestDate(now)
+        let collectionGate = OneShotAsyncGate()
+        let signGate = OneShotAsyncGate()
+        let service = commerceService(assertionGate: signGate)
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, clock: clock, collector: {
+            await collectionGate.arriveAndWait()
+            return try await Self.localCommerceEvidence()
+        })
+        _ = try await authorization.accessToken(rejecting: nil)
+        let task = Task { try await authorization.collectCommerceProof(challenge: commerceChallenge()) }
+        await collectionGate.waitUntilArrived()
+        if boundary.hasPrefix("collect") {
+            clock.advance(by: boundary.hasSuffix("expiry") ? 60 : -1)
+            await collectionGate.release()
+        } else {
+            clock.advance(by: 10)
+            await collectionGate.release()
+            await signGate.waitUntilArrived()
+            // Roll back within the original challenge window: checking only
+            // issuance/start time would miss this regression.
+            clock.advance(by: boundary.hasSuffix("expiry") ? 50 : -1)
+            await signGate.release()
+        }
+        await #expect(throws: CommerceEvidenceError.expiredChallenge) { try await task.value }
+        #expect(await service.assertionHashes.count == (boundary.hasPrefix("collect") ? 0 : 1))
+    }
+
+    @Test(arguments: [false, true])
+    func deletionDrainsCommerceAndDiscardsProof(_ duringSigning: Bool) async throws {
+        let collectionGate = OneShotAsyncGate()
+        let signGate = OneShotAsyncGate()
+        let observer = CommerceFlightProbe()
+        let service = commerceService(assertionGate: duringSigning ? signGate : nil)
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, observer: observer, collector: {
+            await collectionGate.arriveAndWait()
+            return try await Self.localCommerceEvidence()
+        })
+        _ = try await authorization.accessToken(rejecting: nil)
+        let proof = Task { try await authorization.collectCommerceProof(challenge: commerceChallenge()) }
+        await collectionGate.waitUntilArrived()
+        if duringSigning {
+            await collectionGate.release()
+            await signGate.waitUntilArrived()
+        }
+        installDeletionRaceHandler(token: Self.sessionToken("unused"))
+        let deletion = Task { try await authorization.deleteServerIdentity() }
+        await observer.deletion.waitUntilArrived()
+        await #expect(throws: AppAttestAuthorizationError.deletionInProgress) {
+            try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        }
+        #expect(URLProtocolStub.captured.isEmpty) // Deletion cannot sign yet.
+        await collectionGate.release()
+        await signGate.release()
+        await #expect(throws: (any Error).self) { try await proof.value }
+        #expect(try await deletion.value == .deleted)
+        #expect(await service.assertionHashes.count == (duringSigning ? 2 : 1))
+        #expect(URLProtocolStub.captured.map(\.url?.path) == [
+            "/auth/app-attest/challenge", "/auth/app-attest/delete"
+        ])
+    }
+
+    @Test func renewalWaitsForCommerceSigningAndConcurrentProofIsRejected() async throws {
+        let gate = OneShotAsyncGate()
+        let observer = CommerceFlightProbe()
+        let service = commerceService(assertionGate: gate)
+        let token = Self.sessionToken("commerce")
+        installAuthHandler(
+            challenges: [Data(repeating: 1, count: 32), Data(repeating: 2, count: 32)],
+            tokens: [token, Self.sessionToken("renewed")]
+        )
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, observer: observer)
+        _ = try await authorization.accessToken(rejecting: nil)
+        let proof = Task { try await authorization.collectCommerceProof(challenge: commerceChallenge()) }
+        await gate.waitUntilArrived()
+        #expect(try await authorization.accessToken(rejecting: nil) == token) // Cached is safe.
+        await #expect(throws: AppAttestAuthorizationError.serviceUnavailable) {
+            try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        }
+        let renewal = Task { try await authorization.accessToken(rejecting: token) }
+        await observer.renewal.waitUntilArrived()
+        #expect(URLProtocolStub.captured.count == 2)
+        #expect(await service.assertionHashes.count == 1)
+        await gate.release()
+        do {
+            _ = try await proof.value
+        } catch AppAttestAuthorizationError.invalidResponse {
+            // Renewal may clear the cached session before the proof is delivered.
+        }
+        #expect(try await renewal.value == Self.sessionToken("renewed"))
+        #expect(await service.assertionHashes.count == 2)
+    }
+
+    @Test func cancellationDiscardsProofAndReleasesTheSigningFlight() async throws {
+        let gate = OneShotAsyncGate()
+        let service = commerceService(assertionGate: gate)
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service)
+        _ = try await authorization.accessToken(rejecting: nil)
+        let proof = Task { try await authorization.collectCommerceProof(challenge: commerceChallenge()) }
+        await gate.waitUntilArrived()
+        proof.cancel()
+        await gate.release()
+        await #expect(throws: CancellationError.self) { try await proof.value }
+        _ = try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        #expect(await service.assertionHashes.count == 2)
+    }
+
+    @Test(arguments: [false, true])
+    func commerceErrorsDiscardPrivateUnderlyingDetails(_ signing: Bool) async throws {
+        let secretError = NSError(domain: "private-jws-device-diagnostics", code: 42)
+        let service = commerceService(assertionError: signing ? secretError : nil)
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service, collector: {
+            if !signing { throw secretError }
+            return try await Self.localCommerceEvidence()
+        })
+        _ = try await authorization.accessToken(rejecting: nil)
+        await #expect(throws: AppAttestAuthorizationError.serviceUnavailable) {
+            try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        }
+    }
+
+    @Test(arguments: [0, 8_193])
+    func commerceRejectsInvalidAssertionSize(_ size: Int) async throws {
+        let service = commerceService(assertion: Data(repeating: 1, count: size))
+        installAuthHandler(challenges: [Data(repeating: 1, count: 32)], tokens: [Self.sessionToken("commerce")])
+        defer { URLProtocolStub.reset() }
+        let authorization = makeCommerceAuthorization(service: service)
+        _ = try await authorization.accessToken(rejecting: nil)
+        await #expect(throws: AppAttestAuthorizationError.invalidResponse) {
+            try await authorization.collectCommerceProof(challenge: commerceChallenge())
+        }
+    }
+
+    @Test func legacySignerKeepsHostileChallengeTextInsideJSON() async throws {
+        let keyID = Self.keyID(byte: 0x42)
+        let store = FakeAppAttestCredentialStore(credential: AppAttestCredential(
+            keyID: keyID, isRegistered: true, pendingEnrollment: nil
+        ))
+        let service = commerceService()
+        let hostile = "wardrobe-commerce-app-proof-v1\n\"},\"purpose\":\"commerce\""
+        URLProtocolStub.install { request in
+            let body: [String: Any]
+            if request.url?.path == "/auth/app-attest/challenge" {
+                body = ["challenge_id": hostile,
+                        "challenge": Self.base64URL(Data(repeating: 1, count: 32)),
+                        "expires_at": "2027-01-15T08:15:00Z"]
+            } else {
+                body = ["access_token": Self.sessionToken("legacy"), "token_type": "Bearer",
+                        "expires_in": 900, "expires_at": "2027-01-15T08:15:00Z",
+                        "installation_id": "10000000-0000-0000-0000-000000000001"]
+            }
+            return (Self.response(200, request: request), try JSONSerialization.data(withJSONObject: body))
+        }
+        defer { URLProtocolStub.reset() }
+        let authorization = makeAuthorization(service: service, store: store)
+        _ = try await authorization.accessToken(rejecting: nil)
+        let body = try jsonBody(at: 1)
+        let encoded = try #require(body["client_data"] as? String)
+        let bytes = try #require(Data(base64Encoded: encoded))
+        let json = try #require(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
+        #expect(json["challenge_id"] as? String == hostile)
+        #expect(json["purpose"] as? String == "assertion")
+        #expect(bytes.first == UInt8(ascii: "{"))
+        #expect(!bytes.contains(10)) // Newlines are escaped in JSON strings.
+        #expect(await service.assertionHashes == [Data(SHA256.hash(data: bytes))])
+    }
+
+    private func commerceChallenge() -> CommerceProofChallenge {
+        CommerceProofChallenge(
+            challengeID: UUID(), nonce: Data(repeating: 0x55, count: 32),
+            installationID: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
+            keyID: Data(repeating: 0x42, count: 32), bindingRevision: 0,
+            issuedAtMS: 1_800_000_000_000, expiresAtMS: 1_800_000_060_000
+        )
+    }
+
+    private func commerceService(
+        assertion: Data = Data([0xc0]), assertionGate: OneShotAsyncGate? = nil,
+        assertionError: (any Error)? = nil
+    ) -> FakeAppAttestService {
+        FakeAppAttestService(
+            generatedKeyID: Self.keyID(byte: 0x42), attestation: Data([1]),
+            assertion: assertion, assertionError: assertionError, assertionGate: assertionGate
+        )
+    }
+
+    @MainActor private static func localCommerceEvidence() async throws -> CollectedAppEvidence {
+        try await CommerceOwnershipCollector.collect(from: FixedCommerceSource())
+    }
+
+    private func makeCommerceAuthorization(
+        service: FakeAppAttestService,
+        store: FakeAppAttestCredentialStore = FakeAppAttestCredentialStore(),
+        clock: LockedTestDate? = nil,
+        observer: CommerceFlightProbe? = nil,
+        collector: @escaping @MainActor @Sendable () async throws -> CollectedAppEvidence = {
+            try await Self.localCommerceEvidence()
+        }
+    ) -> AppAttestAuthorization {
+        AppAttestAuthorization(
+            baseURL: baseURL, session: URLProtocolStub.makeSession(), service: service,
+            credentialStore: store, now: { clock?.value ?? now },
+            commerceFlightObserver: observer, collectCommerceEvidence: collector
+        )
+    }
+
     private func makeAuthorization(
         service: FakeAppAttestService,
         store: FakeAppAttestCredentialStore,
@@ -1872,6 +2149,33 @@ struct AppAttestAuthorizationTests {
             httpVersion: "HTTP/1.1",
             headerFields: ["Content-Type": "application/json"]
         )!
+    }
+}
+
+@MainActor
+private struct FixedCommerceSource: StoreKitAppEvidenceSource {
+    func currentSnapshot() throws -> LocalAppTransactionSnapshot {
+        let device = UUID(uuidString: "55722524-6e62-48ce-a9d4-3ef0840af4bc")!
+        let nonce = UUID(uuidString: "d10436b4-03a9-4c83-9d98-5eea0c4a317b")!
+        return LocalAppTransactionSnapshot(
+            appJWS: "synthetic.local.evidence", deviceID: device, deviceNonce: nonce,
+            deviceVerification: try CommerceProofTranscript.deviceDigest(nonce: nonce, deviceID: device)
+        )
+    }
+}
+
+private actor CommerceFlightProbe: AppAttestCommerceFlightObserving {
+    let renewal = OneShotAsyncGate()
+    let deletion = OneShotAsyncGate()
+
+    func willWaitForCommerceFlight() async {
+        await renewal.release()
+        await renewal.arriveAndWait()
+    }
+
+    func willDrainCommerceFlightForDeletion() async {
+        await deletion.release()
+        await deletion.arriveAndWait()
     }
 }
 

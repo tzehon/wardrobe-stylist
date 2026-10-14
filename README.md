@@ -265,3 +265,18 @@ closure of every legacy AI generation request at future freemium activation. Imp
 privacy/retention review, physical compatibility and paid activation remain open. This design
 checkpoint changes documentation only, adds no TestFlight requirement of its own, and claims
 no new runtime test or device evidence.
+
+### Inactive commerce collection and signing — 14 October
+
+The App Attest actor now has a dedicated operation that collects its own StoreKit evidence and
+signs the commerce transcript for an existing session and matching installation key. It
+coordinates local signing with renewal/deletion, rejects stale or mismatched challenges, and
+discards cancelled/retired results. Proofs remain volatile and redacted. Product callers and
+commerce transport remain absent; ownership authorization, durable admission and physical
+compatibility are still future work. See the [protocol update](docs/apple-ownership-binding.md#inactive-collect-and-sign-operation--14-october).
+
+Backend regression passed 1,093 tests plus locked audit/Bandit/Ruff/mypy. Final iOS regression
+and release-script results are tracked on the implementation PR; this Linux workspace has no
+Xcode, and five artifact-script checks require its missing clang toolchain. This is unshipped
+Swift source and needs a new TestFlight build before distribution. No build number, upload,
+paid feature or production configuration was changed.
