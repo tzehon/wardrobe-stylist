@@ -38,7 +38,10 @@ Tests cover local transcript inputs, legacy JSON escaping, challenge/key/install
 expiry and clock rollback during collection/signing, concurrent renewal/proofs, deletion at both
 boundaries, cancellation, error redaction and assertion size. Structural guards prohibit product
 callers while retaining the backend borrowed-evidence counterexample. New TestFlight distribution
-requires a new unused build number; this source slice performs no upload or production activation.
+uses the next unused build 8, selected from the owner-provided 14 October App Store Connect
+Build Uploads screenshot showing build 7 latest. The source allowlist includes 8; production
+configuration deployment and physical-device proof remain open. This source slice performs no
+upload or production activation.
 
 ## What the evidence actually proves
 

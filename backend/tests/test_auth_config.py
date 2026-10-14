@@ -192,7 +192,7 @@ def test_fly_auth_database_uses_dedicated_volume_directory() -> None:
     assert fly_config["env"]["APP_ATTEST_APP_ID_PREFIX"] == "29NT767Y9P"
     assert fly_config["env"]["APP_ATTEST_BUNDLE_ID"] == "com.tth.Wardrobe"
     assert fly_config["env"]["APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES"] == "2,4"
-    assert accepted_builds == {"4", "5", "6", "7"}
+    assert accepted_builds == {"4", "5", "6", "7", "8"}
     assert current_build in accepted_builds
     assert fly_config["http_service"]["min_machines_running"] == 1
 

@@ -13,8 +13,11 @@ Updated 14 October 2026; retains the owner-requested 10 September simplification
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
-The next implementation step is the inactive collect-and-sign operation specified in the
-[14 October ownership/cutover design](commerce-binding-cutover.md). Then resolve a server-verifiable
+PR #69 implements the inactive collect-and-sign operation specified in the
+[14 October ownership/cutover design](commerce-binding-cutover.md), with source build 8 selected
+after the owner-provided 14 October Build Uploads screenshot confirmed build 7 latest. The source
+App Attest allowlist now includes build 8; live backend deployment, signed distribution and physical
+compatibility remain open. Next resolve a server-verifiable
 ownership authority before implementing an authorizing binding coordinator; the current composition
 cannot prevent an instrumented app from signing borrowed evidence. The owner-selected validation candidate in the
 [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)
@@ -35,7 +38,7 @@ and retention remain gated. A separate inactive signed-evidence adapter now chec
 through Apple's pinned library and strict claims using synthetic tests; it cannot bind owners or
 grant usage. The [ownership protocol slice](apple-ownership-binding.md) now adds inactive local
 StoreKit collection and challenge-bound request inspection. The follow-up source audit finds
-that retained legacy signers cannot emit the commerce transcript; the new signer must collect
+that retained legacy signers cannot emit the commerce transcript; the new signer collects
 its own StoreKit evidence. That is still evidence-only: no policy flag may make it an ownership
 authorizer. Independent ownership verification, durable binding, physical compatibility and
 activation review remain open. Its Swift source needs a new build before distribution.
