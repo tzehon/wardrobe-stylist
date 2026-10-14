@@ -7,27 +7,31 @@ ownership verifier, new Apple guarantee, retention approval or paid-launch appro
 
 ## Decision and security boundary
 
-Use a dedicated **collect-and-sign** operation in the authentic app. It must obtain its own
+Implement a dedicated, inactive **collect-and-sign** evidence operation in the authentic app. It must obtain its own
 verified `AppTransaction.shared` result and `AppStore.deviceVerificationID`, check the local
 device digest, construct the existing commerce transcript and sign it with the installation's
 registered App Attest key. Its production entry point accepts a validated server challenge;
 it must not accept a JWS, device UUID, precomputed digest, transcript or collected-evidence
 object from its caller. Test-source injection remains an in-process seam only.
 
-This composition relies on App Attest's app-integrity assumptions and the absence of another
-reachable path that signs arbitrary commerce bytes. It does **not** independently certify
-the StoreKit device UUID to the server. A compromised authentic process able to choose the
-signed bytes remains outside that guarantee. Keep
+This composition authenticates the bytes presented by an installation but does **not**
+independently certify the StoreKit device UUID or commerce ownership to the server. An
+instrumented authentic process can choose arbitrary bytes for its valid App Attest key even
+when ordinary UI/network paths cannot. That attack is not solved by a private Swift method,
+constructor-only injection or an allowlisted build. Keep
 `test_signature_is_not_a_certificate_of_device_uuid_origin`: a borrowed matching JWS/UUID
 pair signed by another synthetic key still passes the low-level inspector.
 
-The implementation must therefore keep `inspect_app_request` as an evidence inspector.
-A separate binding coordinator may authorize only under an explicit, versioned server policy
-for the audited collect-and-sign composition, after durable counter/challenge admission.
-Absent or unknown policy fails closed. This design selects the composition for implementation;
-activation still requires review of its integrity assumptions, privacy changes and actual
-Apple/device compatibility. If an independent Apple-certified same-device relationship is
-required instead, the current evidence cannot supply it and binding must remain disabled.
+The implementation must therefore keep both the signer and `inspect_app_request` as evidence
+helpers. **Binding must stay disabled:** no server policy flag or acceptance of an app-integrity
+assumption may promote this composition alone into an ownership authorizer. Before implementing
+an authorizing coordinator, establish an Apple-verifiable ownership/device proof or a separately
+designed abuse-resistant ownership mechanism whose access cannot be transferred by copying the
+JWS/device UUID pair. Specify its reinstall, restore, multi-device and account-change behavior
+without resetting quota, and test denial of the existing borrowed-evidence attack. The current
+API evidence has not established such a mechanism; do not invent one from `appAccountToken`,
+receipt possession, build numbers or a client verified flag. Privacy and physical compatibility
+review are additional prerequisites, not substitutes for this missing ownership authority.
 
 ## Historical signing-path audit
 
@@ -69,12 +73,13 @@ not an assertion. `AppAttestVerifier.verify_assertion` requires exactly `signatu
 `authenticatorData`, verifies a positive increasing counter and the assertion signature over
 the reconstructed commerce transcript. It must never accept an enrollment object as a substitute.
 
-Consequently, the audited legacy paths are not commerce signing oracles under the existing
-cryptographic assumptions. A client-reported build number, new key enrollment date or forced
+Consequently, the audited unmodified legacy paths are not commerce signing oracles under the
+existing cryptographic assumptions. This closes only the ordinary legacy-path question, not
+instrumentation or ownership authorization. A client-reported build number, new key enrollment date or forced
 re-enrollment would add no proof of collection. Signed runtime fields, when present, must still
 pass the existing strict allowlist; their absence on supported older OS versions must not be
 reinterpreted as a verified new build. Review every future signing call site and any previously
-unknown distributed source before enabling this policy.
+unknown distributed source before any future integration; that audit alone cannot enable binding.
 
 ## Collect-and-sign implementation contract
 
@@ -104,7 +109,10 @@ Use the existing auth database as the sole App Attest counter authority and the 
 database for owner/binding metadata. Do not change the provider budget database. Introduce an
 opaque admission ID shared across the two stores; auth stores only security disposition and
 installation/challenge/counter information, never the commerce owner, JWS or device UUID.
-New schema/provisioning and retention remain a later reviewed implementation.
+New schema/provisioning and retention remain a later reviewed implementation. The sequence below
+is a recovery specification for a **future independent ownership authority**, not permission to
+derive an authorized owner from the current inspector. It cannot be connected to routes or
+grants until the ownership requirement above is resolved and the complete protocol is reviewed.
 
 Before the binding commits below, acquire a **durable verification claim** in auth storage after
 local assertion validation. Atomically transition an issued challenge to `verifying`, recording
@@ -123,7 +131,9 @@ recovery consumes no customer allowance, advances no counter by itself and store
 
 The proposed coordinator then follows this order:
 
-1. Finish the claimed verification outside write locks against server snapshots. With a consistent lock order of **auth
+1. Finish the claimed verification and the independent ownership authorization outside write
+   locks against server snapshots. Signed AppTransaction identity alone cannot supply that
+   authorization. With a consistent lock order of **auth
    first, commerce second**, revalidate those snapshots and prepare a bounded, inactive commerce
    intent containing only the server-derived owner pseudonym, expected binding revision, policy
    revision, verification deadline and opaque admission ID. Recheck the winning verification
@@ -201,7 +211,9 @@ collected bytes, no external payload substitution, device change, deletion durin
 or signing, concurrent session renewal, expiry and redacted failures. Preserve the borrowed-
 evidence counterexample and the production-route inactivity guards.
 
-Then implement the coordinator with real two-connection concurrency and process-restart tests
+Next resolve the missing server-verifiable ownership authority, including the borrowed-evidence
+attack. Keep coordinator implementation that could grant access blocked until that mechanism is
+specified and reviewed. Its eventual tests must use real two-connection concurrency and process restarts
 for every commit boundary above, cross-installation lookup denial, same-owner restore without
 quota reset, explicit account change, retention cleanup and recovery mismatch. The schema must
 make ownership/period grants unique and bound all pending metadata without deleting unresolved

@@ -6,9 +6,10 @@ create a binding, grant usage, expose a route, or change production behavior.
 
 **14 October design follow-up:** the [collection trust and cutover design](commerce-binding-cutover.md)
 audits the retained legacy signing paths, specifies the dedicated collect-and-sign operation,
-and defines durable admission/recovery and legacy-route closure. It selects an implementation
-approach under explicit app-integrity assumptions; it does not activate ownership authorization
-or establish an independent Apple-certified same-device relationship.
+and defines provisional durable admission/recovery and legacy-route closure. It authorizes only
+inactive evidence preparation: an instrumented app can still sign borrowed evidence. Binding
+remains blocked pending an independent server-verifiable ownership mechanism; no policy flag
+may promote this composition alone into ownership authorization.
 
 ## What the evidence actually proves
 
@@ -38,8 +39,9 @@ prove this path ran. An old/general-purpose signing path must not become an asse
 The [follow-up source audit](commerce-binding-cutover.md#historical-signing-path-audit) finds that
 the retained legacy paths sign fixed JSON and cannot emit the commerce transcript. The next
 implementation must preserve that separation and collect its own evidence inside the signer.
-There is still no ownership authorization implementation; review/validation of that composition
-and its cutover remain activation prerequisites.
+There is still no ownership authorization implementation. The historical audit does not stop
+an instrumented app from signing borrowed evidence; an independent ownership authority remains
+a prerequisite for implementing an authorizing coordinator.
 Physical evidence is necessary for compatibility but cannot prove away this cryptographic limit.
 
 ## Implemented, inactive components
