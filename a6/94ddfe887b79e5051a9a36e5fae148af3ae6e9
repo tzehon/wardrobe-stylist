@@ -1,0 +1,40 @@
+README.md
+  s_db369c268bb0b7::t_3f36f851305d5c 284-285,289-300
+docs/release-plan.md
+  s_db369c268bb0b7::t_3f36f851305d5c 12,19-21
+docs/app-store/build8-release-20261016.md
+  s_db369c268bb0b7::t_3f36f851305d5c 1-71
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_3f36f851305d5c 3-9
+backend/production-operations.toml
+  s_db369c268bb0b7::t_8f7e5898054342 6,9,23
+AGENTS.md
+  s_db369c268bb0b7::t_3f36f851305d5c 48-58,509-510
+  s_4e8cdbb2a30473::t_7253a6acad981a 392-399,442
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_3f36f851305d5c 3-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a694ddfe887b79e5051a9a36e5fae148af3ae6e9",
+  "prompts": {},
+  "sessions": {
+    "s_4e8cdbb2a30473": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    },
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
