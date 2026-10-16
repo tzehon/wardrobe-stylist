@@ -1,7 +1,7 @@
 # Fictional Wardrobe model acceptance
 
-The selected runtime is deployed as the enabled bounded Fly v16 pilot, on the unchanged runtime
-image after the [29 September key rotation](app-store/key-rotation-20260929.md). It pins `claude-sonnet-5`, synchronous
+The selected runtime is deployed as the enabled bounded Fly v17 pilot; the
+[16 October zlib remediation](app-store/build8-release-20261016.md) preserves the selected model and budget. It pins `claude-sonnet-5`, synchronous
 Messages, thinking disabled, explicit standard service tier, forced strict `propose_outfit`, and
 1,024 output tokens.
 The evaluation

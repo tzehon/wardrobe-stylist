@@ -14,7 +14,7 @@ This document is the canonical product-model reference; the
 
 The `1.0.0 (7)` candidate includes the local wardrobe, manual/photo entry, catalog browsing and
 editing, wear history, local reminders and Demo Mode without payment or a Wardrobe account.
-Optional AI styling is implemented and enabled as the owner-approved bounded Fly v16 pilot (unchanged runtime image after key rotation).
+Optional AI styling is implemented and enabled as the owner-approved bounded Fly v17 pilot (zlib remediation and build-8 allowlist; unchanged budget).
 The 12 September v13 activation review passed with the scoped Cowork-only exception. The v14
 configuration postcheck passed, followed by its full operations review at `2026-09-12T07:09:37Z`
 with the approved Cowork-only status exception. The first protected

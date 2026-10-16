@@ -873,7 +873,7 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   `2026-08-22T02:37:08Z` and `2026-08-22T03:30:33Z`. The late v9 review passed at
   `2026-08-23T02:13:12Z`; the historical v10 post-change review passed at
   `2026-08-29T02:21:41Z`, and the fresh build-7 pre-archive repeat passed at
-  `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current v16 bounded pilot is enabled; see the [rotation record](key-rotation-20260929.md).
+  `2026-08-29T11:02:18Z`. That historical review recorded a 2026-09-28 outer deadline. The current v17 bounded pilot is enabled; see the [build-8 deployment record](build8-release-20261016.md).
   Historically, the v14 configuration postcheck passed and the full review at
   `2026-09-12T07:09:37Z` completed with the approved Cowork-only status exception. The [10 September beta-only review and distribution](#build-7-distribution--2026-09-10)
   completed the build-7 upload path. Refresh the applicable operations review before any later
@@ -1012,7 +1012,7 @@ deletion snapshot's later disappearance and deletion-specific recovery/non-retur
 and were owner-waived only for the Free Singapore v1. The visual-control assessment is complete and
 failed, and PR #31 has merged the replacement implementation. Build `1.0.0 (7)` is selected and its
 source configuration is prepared; the archive-era Fly v10 deployment and post-change review passed.
-The current Fly v16 runtime has the same private policy applied with the bounded pilot enabled;
+The current Fly v17 runtime has the same private policy applied with the bounded pilot enabled;
 see the 12 September activation checkpoint.
 The build-7 exact-source regression, strict signed-archive verification and 10 September internal
 distribution have passed. The 11 September handoff, clean first launch and scoped local-beta QA
@@ -1717,8 +1717,9 @@ and Notes remain intact. Manual public release remains unapproved. This correspo
    to App-Attest-only mode, unset/rotate `DEVICE_TOKEN`, and prove an old build is rejected while
    the candidate still succeeds. Recovery must use the exact current
    validated Gmail-free App-Attest-only, budget-aware image while preserving the auth store and
-   the initialized budget ledger, limits, and charges. The validated image shared by v15 and v16 is the current
+   the initialized budget ledger, limits, and charges. The verified v17 image is the current
    recovery baseline, subject to fresh identity/security and ledger-compatibility checks before use.
+   The v15/v16 image has a High zlib finding and is ineligible for recovery.
    The old v11–v14 image has a Critical AnyIO finding and is ineligible for recovery. No recovery
    or AI switch change is authorized by this record. Pre-budget v10 is
    not a normal rollback target. The former v6 reference's

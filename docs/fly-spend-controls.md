@@ -18,8 +18,9 @@ regions, paid IPs, builders, support packages or managed services. Do not delete
 snapshots to make a cost estimate look smaller. Keep current recovery data and approved limits.
 
 The separate AI ledger bounds the reviewed app's provider calls; it does not pay for or meter Fly.
-Fly v16 retains AI enabled under the separately approved bounded pilot, with the exact existing
-private policy and intact ledger; only the provider key changed on 29 September. The production workspace limit/email settings,
+Fly v17 retains AI enabled under the separately approved bounded pilot, with the exact existing
+private policy and intact ledger. The 16 October deployment preserves the resource envelope and
+adds build 8 after zlib remediation; only the provider key changed in the earlier 29 September rotation. The production workspace limit/email settings,
 sufficient existing credits and auto-reload off were freshly verified. Do not repeat provisioning, key staging or credit purchases to
 reproduce those earlier setup steps. The [29 September key rotation](app-store/key-rotation-20260929.md) is complete; rotate the
 replacement before its 30 November 2026 expiry. See [AI spend controls](ai-spend-controls.md).
