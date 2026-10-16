@@ -1,6 +1,11 @@
 # Singapore launch AI spend controls
 
-Status: **Fly v16 retains AI enabled under the approved bounded pilot**. The
+Current deployment evidence: [16 October build-8 preparation](app-store/build8-release-20261016.md). Fly v17 accepts
+builds 4–8 with the original resources, secrets and budget accounting preserved. Commerce binding
+and paid features remain inactive; build 8 is still unuploaded. The v15/v16 image is no longer
+eligible for recovery after the High zlib finding.
+
+Status: **Fly v17 retains AI enabled under the approved bounded pilot**. The
 [29 September rotation](app-store/key-rotation-20260929.md) preserved the runtime image,
 other secrets and accounting; the old key is disabled and the replacement expires on
 30 November 2026. The 23 September
@@ -209,8 +214,9 @@ separate approved change and verify enabled operation afterward; there is no cir
 The bounded launch policy and activation were separately approved; the v13 enabled review passed
 with the scoped Cowork-only exception. Physical protected-call proof passed on 12 September.
 
-The validated image shared by v15 and v16 is the current **budget-aware recovery reference**, subject to fresh
+The verified v17 image is the current **budget-aware recovery reference**, subject to fresh
 source/architecture matching, zero-High/Critical scanning and ledger-compatibility checks.
+The v15/v16 image is ineligible after the High zlib finding.
 The old v11–v14 image is historical and ineligible after its Critical AnyIO finding. Pre-budget v10 ignores the
 new switch and accounting, so it is not a normal rollback target after this disabled cutover.
 The v12 restart and independent configured probe verified that image reads the existing ledger

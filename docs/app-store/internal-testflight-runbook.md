@@ -560,7 +560,7 @@ those bounds were not yet approved. The later v11 disabled rollout still had an 
 budget and OPEN preflight. The [8 September setup](#approved-disabled-budget-setup--2026-09-08)
 supersedes those provisioning, credit and capacity-decision states; it records the historical disabled v12
 configuration; the 12 September v14 compatibility checkpoint records historical pilot state.
-The [29 September rotation record](key-rotation-20260929.md) records current v16 state and evidence limitations. Snapshot expiry/deletion-specific recovery is separate.
+The [29 September rotation record](key-rotation-20260929.md) records the dated v16 state and evidence limitations; the 16 October build-8 checkpoint records current v17. Snapshot expiry/deletion-specific recovery is separate.
 Use the verified budget-aware recovery reference recorded above; pre-budget v10 is not a normal
 rollback target after the disabled cutover.
 
