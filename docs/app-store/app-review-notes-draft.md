@@ -236,7 +236,7 @@ backend/configuration change.
 - [ ] Confirm durable auth storage, logging/retention claims, rate
   limits, and a retained Gmail-free App-Attest-only recovery image against the deployed backend.
   The current [enabled Fly v17 runtime](build8-release-20261016.md)
-  retains the verified targeted logger and `4,5,6,7` allowlist. The
+  retains the verified targeted logger and `4,5,6,7,8` allowlist. The
   [10 September checkpoint](internal-testflight-runbook.md#build-7-distribution--2026-09-10)
   records the completed AI-disabled beta distribution. The monitored 25/28 August snapshots were
   observed absent; the 10 September Build-7 pre-deletion snapshot's later disappearance and
