@@ -69,3 +69,30 @@ Do not repeat unchanged catalog or deletion QA merely because this is a new buil
 
 Release impact: the backend repair and operations evidence alone need no new iOS build; the
 already-prepared Swift candidate and explicit distribution request require `1.0.0 (8)`.
+
+## Signed archive and Apple version rejection — 03:05Z
+
+PR #71 rebase-merged the verified operations lock and deployment evidence to clean main
+`a5e5cd4b087abc71f343bfe763c623c318e11f09`. Its full local regression passed 1,095 backend tests,
+locked audit/Bandit/Ruff/mypy, 247 Swift unit tests, 10 UI tests and 44 release-script tests.
+The first final-head CI attempt timed out in the unchanged system Photos-picker UI test;
+the other 256 tests passed. Three focused local iOS 26.5 repetitions passed, then the full
+same-head CI rerun passed all 257 tests, the Release build and artifact checks. The failed
+attempt remains retained evidence; no test or product source was changed to obtain the rerun.
+
+The full clean-main pre-archive operations/recovery review passed at `03:02:44Z`, including
+fresh signed-in provider/Build Uploads evidence, official Fly metrics and a zero-High/Critical
+scan of the exact v17 recovery image. A distinct `1.0.0 (8)` archive started at `03:03:03Z`:
+`Wardrobe-1.0.0-8-a5e5cd4-appstore-20261016T030303Z.xcarchive`.
+Xcode 27.0 / iOS 27 SDK, the existing Apple Distribution certificate and App Store profile
+produced scalar production App Attest. Strict artifact, public configuration, Gmail-free,
+non-emitting credential guards and matching arm64 app/dSYM checks passed at `03:03:42Z`.
+Minimum deployment OS remains iOS 18.0.
+
+Apple validation completed unsuccessfully at `03:05:51Z`: **Invalid Pre-Release Train** —
+version `1.0.0` is closed for new submissions, and `CFBundleShortVersionString` must be higher
+than the previously approved `1.0.0`. This archive is not uploadable and must not be reused.
+A fresh post-rejection signed-in Build Uploads / All Statuses refresh still showed build 7
+Complete latest and build 8 absent. No upload, processing or new internal distribution completed. The public build-7 release,
+commerce-disabled scope and backend v17 remain unchanged. A higher marketing version requires
+the owner's decision under AGENTS.md; the proposed next candidate is `1.0.1 (8)`.
