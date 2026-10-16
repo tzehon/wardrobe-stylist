@@ -1,0 +1,39 @@
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_3235ae97724ffb 120,125,206-208,1110
+docs/app-store/app-attest-data-lifecycle-policy.md
+  s_db369c268bb0b7::t_a9c0c379522e09 7-10
+docs/app-store/app-privacy-data-inventory.md
+  s_db369c268bb0b7::t_e4f56628f7621a 25,43,214
+docs/app-store/app-review-notes-draft.md
+  s_db369c268bb0b7::t_a8209365a198b4 60,238,287
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_ef3f9a18f92878 876,1015,1720,1722
+docs/app-store/submission-checklist.md
+  s_db369c268bb0b7::t_5a5af934d2151e 298,439
+docs/fly-spend-controls.md
+  s_db369c268bb0b7::t_c9900fc0e0d6e5 21-23
+docs/freemium-model.md
+  s_db369c268bb0b7::t_bc7f1544d5dc7e 17
+docs/model-evaluation.md
+  s_db369c268bb0b7::t_767b20e47328ac 3-4
+docs/privacy.md
+  s_db369c268bb0b7::t_4511eafc53e441 261
+docs/setup.md
+  s_db369c268bb0b7::t_b092edfd64e8fd 502
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "267286b3c81d53612b374e5e358d55afc57db3ae",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
