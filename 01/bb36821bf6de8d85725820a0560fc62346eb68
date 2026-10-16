@@ -1,0 +1,31 @@
+README.md
+  s_db369c268bb0b7::t_8c489e46a40312 206-208,253-256
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_512434fa0177e7 1205-1206
+docs/apple-ownership-binding.md
+  s_db369c268bb0b7::t_3ae94a05beaca5 40-44,179-184
+docs/commerce-binding-cutover.md
+  s_db369c268bb0b7::t_437466e40ac045 231-234
+docs/freemium-contract.md
+  s_db369c268bb0b7::t_a00669f48856ec 74-76,343-346
+docs/freemium-model.md
+  s_db369c268bb0b7::t_4f2b1413fe4c13 364-367,421-423
+docs/release-plan.md
+  s_db369c268bb0b7::t_fdb29f57702c7d 53-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "01bb36821bf6de8d85725820a0560fc62346eb68",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
