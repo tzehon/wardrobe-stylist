@@ -1,0 +1,31 @@
+docs/release-plan.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 21-24
+AGENTS.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 401-403
+README.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 300-304
+backend/production-operations.toml
+  s_db369c268bb0b7::t_77b77bb2e659b0 12-16
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 7-11
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 7-11
+docs/app-store/build8-release-20261016.md
+  s_db369c268bb0b7::t_77b77bb2e659b0 108-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1926c9eb36cd92d478adfab078167da5bbae71e6",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
