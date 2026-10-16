@@ -9,15 +9,16 @@
 > [launch evidence](app-store/launch-check-20260923.md). Earlier rejection and hold records are historical.
 > No new TestFlight build was needed; approved build 7 was released.
 
-Updated 14 October 2026; retains the owner-requested 10 September simplification.
+Updated 16 October 2026; retains the owner-requested 10 September simplification.
 This is the current work order. The backlog inventories work and the TestFlight runbook retains
 procedures and dated evidence; neither is a list to replay from the beginning.
 
 PR #69 implements the inactive collect-and-sign operation specified in the
 [14 October ownership/cutover design](commerce-binding-cutover.md), with source build 8 selected
 after the owner-provided 14 October Build Uploads screenshot confirmed build 7 latest. The source
-App Attest allowlist now includes build 8; live backend deployment, signed distribution and physical
-compatibility remain open. Next resolve a server-verifiable
+App Attest allowlist now includes build 8. The exact security-remediated source deployed as Fly v17
+and passed independent verification on 16 October; see the [build-8 evidence](app-store/build8-release-20261016.md).
+Fresh clean-main review, signed distribution and physical compatibility remain open. Next resolve a server-verifiable
 ownership authority before implementing an authorizing binding coordinator; the current composition
 cannot prevent an instrumented app from signing borrowed evidence. The owner-selected validation candidate in the
 [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)

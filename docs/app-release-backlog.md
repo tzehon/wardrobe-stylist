@@ -1,5 +1,12 @@
 # App distribution, polish, and feature backlog
 
+## Build-8 checkpoint — 16 October 2026
+
+The reviewed security repair deployed as Fly v17 with accepted builds 4–8. Independent live
+checks passed while preserving the existing resources, secrets and budget accounting. Build 8
+is still unuploaded; archive, internal TestFlight distribution and candidate compatibility remain
+open. Commerce binding and paid features remain inactive. See the [ordered release evidence](app-store/build8-release-20261016.md).
+
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
 > `14:33Z` (22:33 SGT). App Store Connect shows **Ready for Distribution**. Free,

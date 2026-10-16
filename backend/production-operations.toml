@@ -3,10 +3,10 @@ schema_version = 1
 # This is the reviewed deployment context, not the current repository HEAD. Documentation and
 # tests may advance after a deploy, but any production runtime input change must be deployed and
 # this lock updated before an archive or upload can pass the operational preflight.
-expected_deployed_revision = "cb81d7c0e35fd36917bde0a4ab78c8bd456c257b"
+expected_deployed_revision = "bd40450286d8703e4805cc554bf8e0100b6ba04a"
 expected_source_repository = "https://github.com/tzehon/wardrobe-stylist"
 expected_fly_app = "wardrobe-backend-faithful-silence-9494"
-expected_fly_release_version = 16
+expected_fly_release_version = 17
 expected_region = "sin"
 
 expected_archive_basename = "Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive"
@@ -20,7 +20,7 @@ expected_auth_schema_version = 4
 expected_app_attest_app_id_prefix = "29NT767Y9P"
 expected_app_attest_bundle_id = "com.tth.Wardrobe"
 expected_validation_categories = ["2", "4"]
-expected_bundle_versions = ["4", "5", "6", "7"]
+expected_bundle_versions = ["4", "5", "6", "7", "8"]
 required_secret_names = [
   "ANTHROPIC_API_KEY",
   "APP_ATTEST_SESSION_SECRET",
