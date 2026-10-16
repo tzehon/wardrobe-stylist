@@ -1,4 +1,4 @@
-# Build 8 release preparation — 16 October 2026
+# Build 8 TestFlight delivery — 16 October 2026
 
 The owner requested continuation after PR #69 through backend verification and internal
 TestFlight distribution, keeping commerce binding and paid features disabled. Public
@@ -52,7 +52,7 @@ Fresh signed-in App Store Connect **Build Uploads / All Statuses**, sorted newes
 `1.0.0 (7)` Complete as the latest upload and no build 8. Build 8 remains unused at this checkpoint.
 Exact provider identifiers, costs, image digests and raw operational output remain private.
 
-## Validation and remaining distribution gates
+## Deployment-stage validation and remaining distribution gates
 
 The security repair passed 1,095 backend tests and locked audit/Bandit/Ruff/mypy, 247 Swift unit
 and 10 UI tests, 44 release-script tests, and the Release simulator/artifact checks. PR #70's
@@ -60,8 +60,8 @@ current-head Codex review had no findings and both CI suites passed before rebas
 The first local iOS 26.5 run stalled before executing tests and was interrupted; the complete
 sequential iOS 26.4 rerun passed. The interrupted attempt is not passing evidence.
 
-The operations lock now records observed v17/source/build allowlists. Its archive identity still
-references preserved build 7 for the pre-archive operational baseline. Build 8 still needs a fresh
+At this deployment checkpoint, the operations lock recorded observed v17/source/build allowlists. Its archive identity then
+referenced preserved build 7 for the pre-archive operational baseline. Build 8 still needed a fresh
 full clean-main pre-archive review, a distinct production-signed archive and exact artifact checks,
 Apple validation/upload, processing, internal Family assignment and truthful tester notes.
 Physical App Attest and candidate compatibility evidence remain separate from upload completion.
@@ -100,7 +100,8 @@ the owner's decision under AGENTS.md; the proposed next candidate is `1.0.1 (8)`
 ## Approved replacement candidate
 
 After the concrete Apple rejection, the owner explicitly authorized **Use 1.0.1 (8) and continue**.
-`MARKETING_VERSION` is now `1.0.1`; `CURRENT_PROJECT_VERSION` remains unused build `8`.
+At this approval checkpoint, `MARKETING_VERSION` became `1.0.1`; `CURRENT_PROJECT_VERSION`
+remained the then-unused build `8`.
 This authorizes the replacement tests, signed archive, Apple validation and internal TestFlight
 upload. It does not submit a public version or enable commerce/paid features. The rejected
 `1.0.0 (8)` archive remains historical and unusable. Full regression and the replacement
@@ -116,5 +117,48 @@ at `2026-10-16T03:29:38.122393+00:00`. The archive uses Apple Distribution signi
 App Attest, minimum iOS 18, matching arm64 app/dSYM, and the unchanged public configuration.
 App CDHash: `b63f9b2904beb8f4a2e0211015797dad59b34f54`; dSYM UUID: `081b03eb-3e91-3001-8bc5-83dd29a0c5b2`.
 The operations lock now binds that exact candidate for the fresh clean-main pre-upload review.
-Upload, Apple processing, internal Family assignment and saved tester notes remain open.
+Upload, Apple processing, internal Family assignment and saved tester notes remained open at this
+archive-validation checkpoint; the completed delivery follows below.
 The rejected `1.0.0 (8)` archive remains unusable. Commerce binding and paid features remain off.
+
+## Completed upload and processing
+
+PR #73 locked the exact validated archive and rebase-merged to clean synchronized main
+`325458ebac3fabf2a0154f99d4b1d7b84029943d`. The full regression passed again: 1,095 backend tests,
+locked audit/Bandit/Ruff/mypy, 247 Swift unit tests, 10 UI tests and 44 release-script tests.
+Final iOS CI run `38846438845` passed; superseded cancelled runs are not passing evidence.
+Subsequent documentation-only commits left all tested code/configuration inputs unchanged.
+
+The full clean-main pre-upload review passed at **03:51:12Z**, including exact archive/runtime/
+configuration, auth integrity/capacity, below-warning bounded AI budget, disk and snapshots,
+bounded logs, public pages/status, fresh recovery identity with zero High/Critical findings,
+and fresh signed-in provider and App Store Connect evidence plus official Fly HTTP aggregates.
+
+Upload began at `03:51:50Z` and succeeded at **03:53:27Z**, using the exact locked archive through
+the normal **TestFlight & App Store**-eligible route, with symbols and automatic version/build
+management disabled. The upload was not internal-only. Apple processing subsequently reached
+**Complete / Ready to Submit**. Build Metadata confirms binary **Validated**, version **1.0.1**,
+build **8**, bundle `com.tth.Wardrobe`, included symbols, no non-exempt encryption, iPhone/arm64,
+minimum iOS 18.0 and scalar **production** App Attest with `get-task-allow: false`.
+
+The existing automatic distribution setting assigned build 8 only to **Family** Internal Testing.
+The group currently has **zero testers** and build 8 has **zero individual testers**. The owner
+explicitly chose **Leave membership unchanged**; no tester was added and no invitation was sent.
+This verifies upload, processing and group assignment, not receipt or installation by a tester.
+
+Truthful **What to Test** notes were saved and reload-verified. They describe the Free, local-first
+scope, optional consented AI and offline Demo; require the agreed installation handoff; identify
+version 1.0.1 (8) and targeted authorization/session compatibility reporting; retain automated
+regression ownership and separate deliberate live-AI testing under the existing budget; and state
+that commerce binding and paid features are disabled.
+
+**Build 8 is consumed and must never be reused.** The rejected `1.0.0 (8)` archive remains unusable.
+The owner-controlled installation handoff and candidate-specific physical production App Attest/
+protected-call/session-renewal and signed-runtime-field evidence remain open before promotion.
+Record tester OS and field presence; iOS 18–26 cannot provide the iOS 27 runtime fields. Do not
+repeat unchanged catalog, deletion or other automated QA as a routine build-installation step.
+No public submission/release, country expansion, paid-feature activation, paid AI call, resource
+expansion or budget reset occurred. Public `1.0.0 (7)` remains Free and Singapore-only.
+
+Release impact: the requested replacement TestFlight build is delivered. This final evidence
+update changes documentation only and requires no additional build or repeated local regression.

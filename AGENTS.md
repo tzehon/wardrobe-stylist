@@ -45,16 +45,19 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
-**16 October build-8 preparation:** PR #70 merged the zlib security repair. Fly v17 now serves
+**16 October build-8 TestFlight delivery:** PR #70 merged the zlib security repair. Fly v17 now serves
 exact source `bd40450286d8703e4805cc554bf8e0100b6ba04a`, accepting builds `4,5,6,7,8`
 in categories `2,4`. Independent post-change checks passed at `02:16:48Z`; original resources,
 secrets and budget accounting are intact. Commerce binding and paid features remain inactive.
 The v15/v16 image now has a High zlib finding and is ineligible for recovery. Use the verified
 v17 image subject to fresh identity/security/ledger checks. The owner-approved replacement
 `1.0.1 (8)` archive passed full regression, the fresh clean-main pre-archive review, strict signing/
-artifact checks and Apple validation. Its exact identity is in the operations lock. Build 8 remains
-unuploaded; fresh clean-main pre-upload review, upload/processing, Family assignment and physical
-compatibility remain. Do not recreate the validated archive or use the rejected `1.0.0 (8)` archive.
+artifact checks and Apple validation. The full clean-main pre-upload review passed at `03:51:12Z`;
+upload succeeded at `03:53:27Z`. Apple processing is Complete / Ready to Submit, assigned only to
+Family, with saved/reload-verified tester notes. Family has zero testers; the owner explicitly left
+membership unchanged. Build 8 is consumed and must never be reused. Owner-controlled installation
+handoff and candidate-specific production App Attest/compatibility evidence remain open. Do not
+recreate the uploaded archive or use the rejected `1.0.0 (8)` archive.
 See `docs/app-store/build8-release-20261016.md`. Later current evidence supersedes older
 v15/v16 recovery eligibility statements below; do not repeat completed public release or QA.
 
@@ -402,7 +405,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   release train at 03:05:51Z. That archive is not uploadable. The owner then explicitly approved
   replacement `1.0.1 (8)`, including required regression, signing and internal TestFlight upload.
   The replacement `1.0.1 (8)` archive from clean main `031911a` passed strict local checks and
-  Apple validation; the operations lock now binds it for pre-upload review. Build 8 is not uploaded.
+  Apple validation; the operations lock binds the exact uploaded archive. The fresh pre-upload review
+  passed, upload completed at `03:53:27Z`, and Apple processing is Complete / Ready to Submit.
+  Family assignment and saved/reloaded tester notes are verified; its zero-testers membership stays
+  unchanged by owner decision. Build 8 is consumed; physical compatibility remains open.
   Public submission and commerce/paid activation remain outside scope. The verified v17 image is the current recovery
   candidate, subject to fresh checks; v15/v16 now have a High zlib finding, and v11–v14 have
   the Critical AnyIO finding. None of those older images may be restored as normal recovery.

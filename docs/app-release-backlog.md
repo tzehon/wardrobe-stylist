@@ -3,12 +3,15 @@
 ## Build-8 checkpoint — 16 October 2026
 
 The reviewed security repair deployed as Fly v17 with accepted builds 4–8. Independent live
-checks passed while preserving the existing resources, secrets and budget accounting. Build 8
-is still unuploaded. The owner-approved replacement `1.0.1 (8)` archive passed strict signing/
-artifact checks and Apple validation. Its exact identity is now in the operations lock; the fresh
-clean-main pre-upload review, upload/processing, Family assignment and candidate compatibility
-remain open. The rejected `1.0.0 (8)` archive is unusable. Commerce binding and paid features remain
-inactive. See the [ordered release evidence](app-store/build8-release-20261016.md).
+checks passed while preserving the existing resources, secrets and budget accounting. The exact
+owner-approved `1.0.1 (8)` archive passed full regression, strict signing/artifact checks, Apple
+validation and the fresh clean-main pre-upload review at `03:51:12Z`. Upload succeeded at
+`03:53:27Z`; Apple processing is **Complete / Ready to Submit**, assigned only to **Family**,
+with saved/reload-verified tester notes. Family has zero testers and no individual testers were
+added; the owner explicitly left membership unchanged. Build 8 is consumed and must never be
+reused. Owner-controlled installation handoff and candidate-specific production App Attest/
+compatibility remain open. The rejected `1.0.0 (8)` archive is unusable. Commerce binding and paid
+features remain inactive; the public build-7 release is unchanged. See the [ordered release evidence](app-store/build8-release-20261016.md).
 
 > **Public release — 23 September:** After the complete production preflight passed at
 > `14:31:20Z`, the owner-authorized release of `1.0.0 (7)` was confirmed at approximately
