@@ -642,7 +642,7 @@ remaining deterministic checks belong to the suite.
   said "all are ok, proceed" and accepted all proposals qualitatively. Preserve the partial
   scorecard and record this owner exception separately; the numeric rubric is not claimed to
   have passed. No missing score was inferred and no automatic threshold changed.
-  The deployed, bounded v16 pilot selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
+  The deployed, bounded v17 pilot selects pinned Sonnet 5, preserving all 28 evaluated request hashes.
   Runtime admission, spend bands, and preflight use Sonnet's full 1M context at 2 input / 10
   output micro-USD per token; the default reservation is $2.010240. The v2 ledger binds model,
   units, prices, and token bounds and rejects old/mismatched storage without upgrade or reset.
