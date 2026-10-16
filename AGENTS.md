@@ -394,7 +394,10 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   AI styling enabled under the unchanged approved bounded pilot. Categories `2,4`, builds
   `4,5,6,7,8`, original Machine/volume, secrets, private policy and ledger are verified.
   The exact image passed zero-High/Critical scans and independent live verification. See
-  `docs/app-store/build8-release-20261016.md`. The verified v17 image is the current recovery
+  `docs/app-store/build8-release-20261016.md`. The clean-main review and signed `1.0.0 (8)` archive
+  checks passed at 03:02–03:03Z on 16 October, but Apple validation rejected the closed `1.0.0`
+  release train at 03:05:51Z. The archive is not uploadable; a higher marketing version requires
+  the owner’s decision. Build 8 is not uploaded. The verified v17 image is the current recovery
   candidate, subject to fresh checks; v15/v16 now have a High zlib finding, and v11–v14 have
   the Critical AnyIO finding. None of those older images may be restored as normal recovery.
   Historical v13 activation and v14 compatibility reviews passed on 12 September with the
