@@ -96,3 +96,12 @@ A fresh post-rejection signed-in Build Uploads / All Statuses refresh still show
 Complete latest and build 8 absent. No upload, processing or new internal distribution completed. The public build-7 release,
 commerce-disabled scope and backend v17 remain unchanged. A higher marketing version requires
 the owner's decision under AGENTS.md; the proposed next candidate is `1.0.1 (8)`.
+
+## Approved replacement candidate
+
+After the concrete Apple rejection, the owner explicitly authorized **Use 1.0.1 (8) and continue**.
+`MARKETING_VERSION` is now `1.0.1`; `CURRENT_PROJECT_VERSION` remains unused build `8`.
+This authorizes the replacement tests, signed archive, Apple validation and internal TestFlight
+upload. It does not submit a public version or enable commerce/paid features. The rejected
+`1.0.0 (8)` archive remains historical and unusable. Full regression and the replacement
+archive/distribution checks must pass before this candidate is delivered.
