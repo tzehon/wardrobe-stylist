@@ -47,7 +47,9 @@ security repair and accepts builds 4–8. Exact local/registry scans found zero 
 issues, and independent runtime, auth/storage, budget, snapshot, logging and public-route checks
 passed on 16 October. Original resources, secrets, private limits and accounting were preserved.
 The v15/v16 image is now ineligible after a High zlib finding; v11–v14 remain ineligible after
-Critical AnyIO findings. Build 8 is still unuploaded; the public release remains build 7.
+Critical AnyIO findings. `1.0.1 (8)` is uploaded, processed and assigned to Family with saved
+tester notes. Family remains at zero testers by owner decision. Build 8 is consumed; the public
+release remains build 7. Commerce binding and paid features remain disabled.
 See the [build-8 release evidence](docs/app-store/build8-release-20261016.md).
 
 
@@ -283,11 +285,11 @@ passed the full iOS suite, Release build/artifact checks and 44 release-script t
 initial runs failed different UI cases; final build-metadata regression is tracked on PR #69.
 
 The owner's 14 October 22:22 SGT App Store Connect screenshot shows build 7 as the latest upload
-under Build Uploads / All Statuses. Source now prepares `1.0.0 (8)` and adds build 8 to the backend
+under Build Uploads / All Statuses. At that checkpoint, source prepared `1.0.0 (8)` and added build 8 to the backend
 App Attest allowlist while retaining builds 4–7. At the PR #69 source checkpoint, live Fly v16 still used builds 4–7. The 16 October
-deployment below closes that backend gate; signed distribution and physical compatibility remain open.
+deployment and upload below close those gates; candidate-specific physical compatibility remains open.
 
-### Build-8 release preparation — 16 October
+### Build-8 TestFlight delivery — 16 October
 
 PR #70 repaired High-severity CVE-2026-85091 with Alpine `zlib>=1.3.2-r1`.
 The exact merged image passed local and registry zero-High/Critical scans and runtime smoke
@@ -297,10 +299,14 @@ resources/secrets/budget accounting, auth integrity/capacity, snapshots, logs an
 The old v15/v16 image is no longer eligible for recovery; use the verified v17 image subject to
 fresh checks. See the [ordered build-8 evidence](docs/app-store/build8-release-20261016.md).
 
-Build `1.0.1 (8)` now has a production-signed archive that passed strict artifact checks and
-Apple validation. The earlier `1.0.0 (8)` archive was rejected because that version train is closed
-and must never be uploaded. The operations lock binds the validated replacement; fresh clean-main
-pre-upload review, upload/processing, Family assignment and candidate-specific physical evidence
-remain. Commerce binding and paid features stay inactive.
-This backend repair alone needs no iOS build; the prepared Swift changes and requested distribution
-still require the owner-approved replacement `1.0.1 (8)`.
+Build `1.0.1 (8)` passed full regression, production signing, strict artifact checks and Apple
+validation. The full clean-main pre-upload review passed at `03:51:12Z`; upload completed at
+`03:53:27Z`. Apple shows **Complete / Ready to Submit**, assigned to **Family**, with saved and
+reload-verified tester notes. Family has **zero testers** and no individual testers were added;
+the owner chose to leave membership unchanged. Build 8 is consumed and must never be reused.
+The earlier `1.0.0 (8)` archive was rejected because its version train is closed and is unusable.
+
+Owner-controlled installation handoff and candidate-specific production App Attest/compatibility
+checks remain before promotion. Commerce binding and paid features stay inactive; public
+`1.0.0 (7)` remains unchanged. The requested new TestFlight build is delivered; this final
+release-evidence update is documentation-only and needs no further build.

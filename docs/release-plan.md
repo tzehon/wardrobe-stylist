@@ -20,8 +20,13 @@ App Attest allowlist now includes build 8. The exact security-remediated source 
 and passed independent verification on 16 October; see the [build-8 evidence](app-store/build8-release-20261016.md).
 The owner-approved replacement `1.0.1 (8)` archive passed the fresh clean-main review, strict
 signed-artifact checks and Apple validation. The earlier `1.0.0 (8)` archive is unusable because
-Apple closed that published version train. The operations lock now binds the replacement; complete
-the fresh pre-upload review, upload/processing, Family assignment and physical compatibility. Next resolve a server-verifiable
+Apple closed that published version train. The operations lock binds the exact replacement. The fresh pre-upload review passed at
+`03:51:12Z`, upload completed at `03:53:27Z`, and Apple processing is Complete / Ready to Submit.
+Family assignment and saved/reloaded tester notes are verified. Family remains at zero testers by
+owner decision, with no individual testers added. Build 8 is consumed and must never be reused.
+Retain the owner-controlled installation handoff and candidate-specific production App Attest/
+compatibility checks before promotion; do not replay unchanged automated QA. Public build 7,
+commerce-disabled scope and paid-feature status remain unchanged. Next resolve a server-verifiable
 ownership authority before implementing an authorizing binding coordinator; the current composition
 cannot prevent an instrumented app from signing borrowed evidence. The owner-selected validation candidate in the
 [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)
