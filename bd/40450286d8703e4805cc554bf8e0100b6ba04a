@@ -1,0 +1,23 @@
+README.md
+  s_4e8cdbb2a30473::t_516a5b04439a1c 288-297
+backend/tests/test_container_entrypoint.py
+  s_4e8cdbb2a30473::t_d71fcbde835182 58
+backend/Dockerfile
+  s_4e8cdbb2a30473::t_d71fcbde835182 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bd40450286d8703e4805cc554bf8e0100b6ba04a",
+  "prompts": {},
+  "sessions": {
+    "s_4e8cdbb2a30473": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
