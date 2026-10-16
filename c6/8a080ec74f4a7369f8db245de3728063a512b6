@@ -1,0 +1,23 @@
+docs/app-store/app-attest-data-lifecycle-policy.md
+  s_db369c268bb0b7::t_4241017e3aaac6 299-304,308-309
+docs/app-store/app-review-notes-draft.md
+  s_db369c268bb0b7::t_bad4896808f253 239
+docs/privacy.md
+  s_db369c268bb0b7::t_a9ea09f137fda8 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c68a080ec74f4a7369f8db245de3728063a512b6",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
