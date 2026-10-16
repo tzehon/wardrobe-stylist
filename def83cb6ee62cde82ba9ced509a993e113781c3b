@@ -1,0 +1,19 @@
+backend/README.md
+  s_8ab55b0c10402c::t_a8233dd507ba93 234-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "def83cb6ee62cde82ba9ced509a993e113781c3b",
+  "prompts": {},
+  "sessions": {
+    "s_8ab55b0c10402c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1429d-a318-7303-8bb1-e30fbb0b6e23",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
