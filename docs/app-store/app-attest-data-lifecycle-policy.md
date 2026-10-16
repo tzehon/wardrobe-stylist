@@ -4,8 +4,10 @@
 - **Provider-risk revision approved:** 2026-08-19
 - **Manual-operations revision approved:** 2026-08-20
 - **Snapshot/recovery evidence exception approved:** 2026-09-11
-- **Current deployment:** Fly v16 retains the enabled bounded pilot, categories `2,4`, original
-  Machine/volume, App Attest signing, private policy and intact ledger. The
+- **Current deployment:** Fly v17 retains the enabled bounded pilot, categories `2,4`, original
+  Machine/volume, App Attest signing, private policy and intact ledger. Builds 4–8 and the
+  zlib repair passed [16 October verification](build8-release-20261016.md); the v15/v16 image
+  is now ineligible after the High zlib finding. The
   [29 September rotation](key-rotation-20260929.md) replaced only the provider key and disabled
   the old key; rotate the replacement before 30 November 2026. The 23 September AnyIO/diagnostic repair
   passed exact-image scans and independent live auth/integrity/capacity/disk/budget verification.

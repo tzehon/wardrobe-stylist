@@ -499,7 +499,7 @@ deletion successes because none had yet been exercised; later clean build-5 Styl
 registration/assertion markers, and the build-4 handoff observed exactly one deletion marker plus
 `0/0/0` live aggregates. The later archive-era Fly v10 deployment used exact merged build-7 backend
 source with accepted builds `4,5,6,7`, matching release/running image references, and one healthy
-Singapore Machine. Current production is the enabled bounded v16 pilot recorded above. Protected
+Singapore Machine. Current production is the enabled bounded v17 pilot recorded above. Protected
 `/recommend` intentionally has no developer success marker and
 remains aggregate/client-evidenced. Eligible snapshots enabled the build-4 and build-5 handoffs.
 The eligible `2026-08-25T07:35:53Z` snapshot then enabled Build 6's completed final handoff: the
