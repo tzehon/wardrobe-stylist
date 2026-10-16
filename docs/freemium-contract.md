@@ -71,7 +71,9 @@ iOS API availability; installation binding and supported-OS JWS compatibility re
 Purchase UI and live activation are later steps.
 
 This backend-only slice adds no iOS bundle change and requires no additional TestFlight build
-by itself. The earlier unshipped Swift foundation still requires a new build before distribution.
+by itself. The subsequent [16 October delivery](app-store/build8-release-20261016.md) of
+`1.0.1 (8)` satisfies the inactive Swift foundation build requirement; physical compatibility
+and promotion remain open.
 Local validation passed 968 backend tests plus locked audit/Bandit/Ruff/mypy. Cloud regression
 and review results are recorded on the implementation PR before merging.
 
@@ -338,5 +340,7 @@ local wardrobe data. Do not use physical uninstall/deletion as routine developme
 
 APP-037 implementation and release readiness remain incomplete. Source-bound Apple ownership/API
 verification, retention and cutover decisions remain prerequisites for the remaining work.
-The new Swift source requires a new TestFlight build before distribution under repository policy;
-verify the next unused build number first. No version metadata, upload or deployment was changed.
+The implemented inactive Swift source is included in uploaded and processed `1.0.1 (8)`; its
+build requirement is complete. Physical compatibility and promotion remain open. Future iOS
+integration changes require a new TestFlight build under repository policy, after verifying the
+next unused number. Build 8 is consumed; commerce binding and paid features remain disabled.

@@ -37,11 +37,11 @@ that cancelling a task proves DeviceCheck has stopped. Physical compatibility re
 Tests cover local transcript inputs, legacy JSON escaping, challenge/key/installation mismatches,
 expiry and clock rollback during collection/signing, concurrent renewal/proofs, deletion at both
 boundaries, cancellation, error redaction and assertion size. Structural guards prohibit product
-callers while retaining the backend borrowed-evidence counterexample. New TestFlight distribution
-uses the next unused build 8, selected from the owner-provided 14 October App Store Connect
-Build Uploads screenshot showing build 7 latest. The source allowlist includes 8; production
-configuration deployment and physical-device proof remain open. This source slice performs no
-upload or production activation.
+callers while retaining the backend borrowed-evidence counterexample. Build 8 was selected from
+the owner-provided 14 October App Store Connect screenshot showing build 7 latest. The
+[16 October release](app-store/build8-release-20261016.md) deployed and verified the build-8
+allowlist on Fly v17, then uploaded `1.0.1 (8)` and completed processing/Family assignment.
+Build 8 is consumed. Physical-device proof remains open; commerce binding remains inactive.
 
 ## What the evidence actually proves
 
@@ -176,9 +176,9 @@ account switch and reinstall/restore behavior of the eventual attested collectio
 or synthetic certificate cannot establish those physical boundaries. Preserve the existing v1
 physical QA; do not repeat unrelated catalog, photo, notification or deletion tests.
 
-This adds unshipped Swift source, so a **new TestFlight build is required before distribution**.
-Build 7 remains consumed. The owner-provided 14 October App Store Connect Build Uploads
-screenshot confirmed it as the latest upload, so this slice selects `1.0.0 (8)` in source and
-adds build 8 to the source App Attest allowlist. Backend deployment and verification, signing,
-upload and physical-device validation remain separate distribution work. Production remains
-Free and Singapore-only; paid activation is separate.
+The added Swift source required a new TestFlight build. **Uploaded `1.0.1 (8)` now satisfies
+that requirement** after backend deployment/verification, signing, validation and Apple processing.
+The initial `1.0.0 (8)` archive was rejected because its train was closed; the owner approved the
+replacement version. Builds 7 and 8 are consumed. Candidate-specific physical compatibility and
+promotion remain open. Public production remains Free and Singapore-only; paid activation and
+commerce ownership authorization remain separate, uncompleted work.

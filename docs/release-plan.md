@@ -50,7 +50,8 @@ StoreKit collection and challenge-bound request inspection. The follow-up source
 that retained legacy signers cannot emit the commerce transcript; the new signer collects
 its own StoreKit evidence. That is still evidence-only: no policy flag may make it an ownership
 authorizer. Independent ownership verification, durable binding, physical compatibility and
-activation review remain open. Its Swift source needs a new build before distribution.
+activation review remain open. Uploaded `1.0.1 (8)` satisfies the current inactive Swift source
+build requirement; candidate-specific physical compatibility remains open.
 [Apple ownership verification](apple-commerce-verification.md), lifecycle
 reconciliation, cross-store admission and API/UI integration remain incomplete. The public app remains Free; daily operating review
 continues below.
