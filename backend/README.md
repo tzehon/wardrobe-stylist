@@ -231,9 +231,9 @@ The existing ledger and private policy remain applied; the enabled budget check 
 below warning and idle at the 12 September activation checkpoint. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
-Both purposes currently use the locked final build-7 archive as a verification baseline; this is
-not permission to upload that consumed build again. Before a future iOS candidate, confirm the next
-unused build number and review its archive/deployment lock. The command captures Fly/Docker/HTTP/SQLite output
+Both purposes now use the locked, Apple-validated `1.0.1 (8)` archive for the next upload review.
+The consumed public build-7 archive remains historical; the rejected `1.0.0 (8)` archive is unusable.
+Before a future iOS candidate, confirm the next unused build number and review its archive/deployment lock. The command captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the
 fresh private-registry resolution, and never probes the write-affecting unauthenticated
 `/recommend` path. It deliberately returns nonzero until the official Fly response-class metric,
