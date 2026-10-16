@@ -1,9 +1,11 @@
 # Wardrobe backend (FastAPI)
 
-Current deployment evidence: [16 October build-8 preparation](../docs/app-store/build8-release-20261016.md). Fly v17 accepts
+Current deployment evidence: [16 October build-8 TestFlight delivery](../docs/app-store/build8-release-20261016.md). Fly v17 accepts
 builds 4–8 with the original resources, secrets and budget accounting preserved. Commerce binding
-and paid features remain inactive; build 8 is still unuploaded. The v15/v16 image is no longer
-eligible for recovery after the High zlib finding.
+and paid features remain inactive. `1.0.1 (8)` is uploaded, Complete / Ready to Submit and assigned
+to Family with saved/reloaded tester notes. Build 8 is consumed and must never be reused. Family
+remains at zero testers by owner decision; candidate-specific physical compatibility remains open.
+The v15/v16 image is no longer eligible for recovery after the High zlib finding.
 
 Thin proxy that holds the Anthropic API key and calls Claude. It never persists wardrobe
 payloads. It persists separate aggregate AI-budget/reservation metadata and narrowly scoped App Attest authentication
@@ -231,7 +233,8 @@ The existing ledger and private policy remain applied; the enabled budget check 
 below warning and idle at the 12 September activation checkpoint. The repaired diagnostic runs as `wardrobe`, verifies real/effective
 UID/GID 10001, suppresses bytecode writes and calls the existing read-only inspector.
 Never reinitialize storage or bypass ownership guards to make the checker green.
-Both purposes now use the locked, Apple-validated `1.0.1 (8)` archive for the next upload review.
+Both purposes use the locked, Apple-validated and uploaded `1.0.1 (8)` archive as the current
+verification baseline. Build 8 is consumed; do not upload it again.
 The consumed public build-7 archive remains historical; the rejected `1.0.0 (8)` archive is unusable.
 Before a future iOS candidate, confirm the next unused build number and review its archive/deployment lock. The command captures Fly/Docker/HTTP/SQLite output
 only in memory, emits a fixed redacted report, uses a temporary Docker credential directory for the

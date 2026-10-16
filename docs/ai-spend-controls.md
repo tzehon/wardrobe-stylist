@@ -1,9 +1,11 @@
 # Singapore launch AI spend controls
 
-Current deployment evidence: [16 October build-8 preparation](app-store/build8-release-20261016.md). Fly v17 accepts
+Current deployment evidence: [16 October build-8 TestFlight delivery](app-store/build8-release-20261016.md). Fly v17 accepts
 builds 4–8 with the original resources, secrets and budget accounting preserved. Commerce binding
-and paid features remain inactive; build 8 is still unuploaded. The v15/v16 image is no longer
-eligible for recovery after the High zlib finding.
+and paid features remain inactive. `1.0.1 (8)` is uploaded, Complete / Ready to Submit and assigned
+to Family with saved/reloaded tester notes. Build 8 is consumed and must never be reused. Family
+remains at zero testers by owner decision; candidate-specific physical compatibility remains open.
+The v15/v16 image is no longer eligible for recovery after the High zlib finding.
 
 Status: **Fly v17 retains AI enabled under the approved bounded pilot**. The
 [29 September rotation](app-store/key-rotation-20260929.md) preserved the runtime image,
