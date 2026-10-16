@@ -50,8 +50,11 @@ exact source `bd40450286d8703e4805cc554bf8e0100b6ba04a`, accepting builds `4,5,6
 in categories `2,4`. Independent post-change checks passed at `02:16:48Z`; original resources,
 secrets and budget accounting are intact. Commerce binding and paid features remain inactive.
 The v15/v16 image now has a High zlib finding and is ineligible for recovery. Use the verified
-v17 image subject to fresh identity/security/ledger checks. Build 8 remains unuploaded;
-clean-main pre-archive review, signing, upload/processing and physical compatibility remain.
+v17 image subject to fresh identity/security/ledger checks. The owner-approved replacement
+`1.0.1 (8)` archive passed full regression, the fresh clean-main pre-archive review, strict signing/
+artifact checks and Apple validation. Its exact identity is in the operations lock. Build 8 remains
+unuploaded; fresh clean-main pre-upload review, upload/processing, Family assignment and physical
+compatibility remain. Do not recreate the validated archive or use the rejected `1.0.0 (8)` archive.
 See `docs/app-store/build8-release-20261016.md`. Later current evidence supersedes older
 v15/v16 recovery eligibility statements below; do not repeat completed public release or QA.
 
