@@ -1,0 +1,25 @@
+backend/README.md
+  s_db369c268bb0b7::t_989c2a13e2f935 3,5-8,236-237
+docs/ai-spend-controls.md
+  s_db369c268bb0b7::t_c77af63161fcca 3,5-8
+docs/architecture.md
+  s_db369c268bb0b7::t_2a456bb3953192 3,5-8
+docs/setup.md
+  s_db369c268bb0b7::t_13ef3486d3372e 3,5-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "967670e01e8c8e25eb282935b5fe519538c746df",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
