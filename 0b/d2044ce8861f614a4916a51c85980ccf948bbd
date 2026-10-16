@@ -1,0 +1,29 @@
+backend/README.md
+  s_db369c268bb0b7::t_58cfb888e26bfa 3-7,13,124,154-155,177,219-225
+docs/ai-spend-controls.md
+  s_db369c268bb0b7::t_e1d783d35187a0 3-8,217,219
+docs/app-store/app-attest-data-lifecycle-policy.md
+  s_db369c268bb0b7::t_64a13bbab82932 304
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_7042db4449d682 563
+docs/architecture.md
+  s_db369c268bb0b7::t_95e0a70373ecbc 3-7,13,66,213,314,370-371
+docs/setup.md
+  s_db369c268bb0b7::t_985b12e90f2834 3-7,22,231,290-291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0bd2044ce8861f614a4916a51c85980ccf948bbd",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
