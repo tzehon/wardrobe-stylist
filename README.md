@@ -281,17 +281,20 @@ initial runs failed different UI cases; final build-metadata regression is track
 
 The owner's 14 October 22:22 SGT App Store Connect screenshot shows build 7 as the latest upload
 under Build Uploads / All Statuses. Source now prepares `1.0.0 (8)` and adds build 8 to the backend
-App Attest allowlist while retaining builds 4–7. This is an unshipped candidate: live Fly v16 still
-uses the deployed build-4–7 configuration. Before distribution, deploy and verify the reviewed
-backend configuration, then complete the signed archive, TestFlight and physical-device gates.
-No upload, paid activation or production deployment occurred in this source change.
+App Attest allowlist while retaining builds 4–7. At the PR #69 source checkpoint, live Fly v16 still used builds 4–7. The 16 October
+deployment below closes that backend gate; signed distribution and physical compatibility remain open.
 
 ### Build-8 release preparation — 16 October
 
-Fresh Docker Scout checks found High-severity CVE-2026-85091 in `zlib 1.3.2-r0`
-in both the retained v16 recovery image and the merged-source candidate. The Dockerfile now
-requires Alpine `zlib>=1.3.2-r1`, with a regression guard. The replacement image must pass the
-zero-High/Critical scan and runtime checks before publication or deployment; the old image's
-historical clean scan is no longer current recovery evidence. Build 8 remains unuploaded.
-Commerce binding and paid features remain inactive. This backend repair alone requires no new
-iOS build; the pending Swift changes still require build 8 and its distribution checks.
+PR #70 repaired High-severity CVE-2026-85091 with Alpine `zlib>=1.3.2-r1`.
+The exact merged image passed local and registry zero-High/Critical scans and runtime smoke
+checks, then deployed as Fly v17 from `bd40450286d8703e4805cc554bf8e0100b6ba04a`.
+Independent live verification passed at `02:16:48Z`, including builds 4–8, unchanged original
+resources/secrets/budget accounting, auth integrity/capacity, snapshots, logs and public routes.
+The old v15/v16 image is no longer eligible for recovery; use the verified v17 image subject to
+fresh checks. See the [ordered build-8 evidence](docs/app-store/build8-release-20261016.md).
+
+Build 8 remains unuploaded. Full clean-main review, archive/signing, validation/upload, processing
+and candidate-specific physical evidence remain. Commerce binding and paid features stay inactive.
+This backend repair alone needs no iOS build; the prepared Swift changes and requested distribution
+still require `1.0.0 (8)`.

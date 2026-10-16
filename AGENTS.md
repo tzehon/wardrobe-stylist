@@ -45,6 +45,17 @@ copy, configuration, screenshots, review notes, network routes, or the signed ar
 
 ## Current work order
 
+**16 October build-8 preparation:** PR #70 merged the zlib security repair. Fly v17 now serves
+exact source `bd40450286d8703e4805cc554bf8e0100b6ba04a`, accepting builds `4,5,6,7,8`
+in categories `2,4`. Independent post-change checks passed at `02:16:48Z`; original resources,
+secrets and budget accounting are intact. Commerce binding and paid features remain inactive.
+The v15/v16 image now has a High zlib finding and is ineligible for recovery. Use the verified
+v17 image subject to fresh identity/security/ledger checks. Build 8 remains unuploaded;
+clean-main pre-archive review, signing, upload/processing and physical compatibility remain.
+See `docs/app-store/build8-release-20261016.md`. Later current evidence supersedes older
+v15/v16 recovery eligibility statements below; do not repeat completed public release or QA.
+
+
 **23 September public release:** The owner authorized remediation, deployment and public release.
 PR #59 merged the AnyIO 4.14.2 fix and short read-only diagnostic; Fly v15 served exact runtime
 source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`. PR #60 synchronized the observed operations
@@ -378,14 +389,14 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
 
 ## Conventions
 
-- **Models in use:** Fly v16 (29 September credential rotation on the unchanged v15 image), source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`,
-  selects pinned `claude-sonnet-5` with AI styling enabled under the approved bounded pilot.
-  The 23 September AnyIO repair preserves categories `2,4`, builds `4,5,6,7`, the original
-  Machine, volume, keys, private policy and intact ledger. Exact-image identity and zero-High/Critical
-  scans passed; independent live verification passed health, auth integrity/capacity/disk and
-  ready, below-warning, idle budget checks. See `docs/app-store/launch-check-20260923.md` for the
-  final full-review and release state. Only the validated image shared by v15 and v16 is eligible for recovery;
-  the v11–v14 image has a Critical AnyIO finding and must not be restored.
+- **Models in use:** Fly v17 (16 October build-8 allowlist and zlib remediation), source
+  `bd40450286d8703e4805cc554bf8e0100b6ba04a`, selects pinned `claude-sonnet-5` with
+  AI styling enabled under the unchanged approved bounded pilot. Categories `2,4`, builds
+  `4,5,6,7,8`, original Machine/volume, secrets, private policy and ledger are verified.
+  The exact image passed zero-High/Critical scans and independent live verification. See
+  `docs/app-store/build8-release-20261016.md`. The verified v17 image is the current recovery
+  candidate, subject to fresh checks; v15/v16 now have a High zlib finding, and v11–v14 have
+  the Critical AnyIO finding. None of those older images may be restored as normal recovery.
   Historical v13 activation and v14 compatibility reviews passed on 12 September with the
   approved Cowork-only status exception. Physical protected-device styling passed that day.
   Disable AI under the approved response if protected-call or enabled verification fails;
@@ -428,7 +439,7 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   The owner approved the private launch spend/admission limits and owner-operated daily
   monitoring policy on 2026-09-06, based on up to 10 initial AI users. Preserve the exact limits
   in ignored private release records; do not publish them or ask for the same policy approval
-  again. The policy was applied to the disabled v12 runtime and is retained by enabled v16; its original approval did not authorize source publication, provisioning,
+  again. The policy was applied to the disabled v12 runtime and is retained by enabled v17; its original approval did not authorize source publication, provisioning,
   provider-console changes, deployment, or distribution by itself. The separate 2026-09-07
   approval covered private image publication, disabled deployment and its evidence PR only.
   The later 2026-09-07 preparation review supports first-ever storage and zero prior liability
@@ -495,8 +506,8 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   A previous invoice waiver is not a future allowance. Preserve the frozen preparation records;
   the later ignored approval record authorizes only the bound finite setup, not AI enablement.
   The old v11–v14 image is historical and ineligible for recovery after the Critical AnyIO
-  finding. Only the validated image shared by v15 and v16 is eligible, subject to fresh identity/security and
-  ledger-compatibility verification before recovery.
+  finding. The 16 October v17 checkpoint supersedes the v15/v16 recovery candidate; fresh identity/security
+  and ledger-compatibility verification is required before recovery.
   Preserve that ledger, approved policy and liability across recovery. Pre-budget v10 ignores
   these controls and is not a normal rollback target after
   this cutover; its retained recovery evidence describes the earlier baseline.
