@@ -285,3 +285,13 @@ App Attest allowlist while retaining builds 4–7. This is an unshipped candidat
 uses the deployed build-4–7 configuration. Before distribution, deploy and verify the reviewed
 backend configuration, then complete the signed archive, TestFlight and physical-device gates.
 No upload, paid activation or production deployment occurred in this source change.
+
+### Build-8 release preparation — 16 October
+
+Fresh Docker Scout checks found High-severity CVE-2026-85091 in `zlib 1.3.2-r0`
+in both the retained v16 recovery image and the merged-source candidate. The Dockerfile now
+requires Alpine `zlib>=1.3.2-r1`, with a regression guard. The replacement image must pass the
+zero-High/Critical scan and runtime checks before publication or deployment; the old image's
+historical clean scan is no longer current recovery evidence. Build 8 remains unuploaded.
+Commerce binding and paid features remain inactive. This backend repair alone requires no new
+iOS build; the pending Swift changes still require build 8 and its distribution checks.
