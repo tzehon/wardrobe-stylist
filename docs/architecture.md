@@ -1,11 +1,16 @@
 # Architecture
 
+Current deployment evidence: [16 October build-8 preparation](app-store/build8-release-20261016.md). Fly v17 accepts
+builds 4–8 with the original resources, secrets and budget accounting preserved. Commerce binding
+and paid features remain inactive; build 8 is still unuploaded. The v15/v16 image is no longer
+eligible for recovery after the High zlib finding.
+
 Wardrobe Stylist is a **local-first, privacy-first** personal app. Public v1 builds a wardrobe from
 manual entries and user-selected photos, keeps the catalog on the iPhone, and offers optional AI
 outfit styling. A thin, content-stateless backend holds the Anthropic API key and persists only the
 minimum App Attest authentication/security metadata and anonymous aggregate AI-budget accounting.
 
-Current runtime: **Fly v16 retains the enabled bounded AI pilot**, with categories `2,4`,
+Current runtime: **Fly v17 retains the enabled bounded AI pilot**, with categories `2,4`,
 original resources, App Attest signing, private policy and intact ledger preserved. The
 [29 September rotation](app-store/key-rotation-20260929.md) changed only the provider key;
 the old key is disabled and the replacement expires on 30 November 2026. The 23 September
@@ -58,7 +63,7 @@ explicitly historical setup documents; it is not part of the active v1 architect
 The **iPhone** owns the wardrobe and user experience. **Apple App Attest** certifies one genuine
 installation for optional connected styling. When enabled, the developer backend proxies a
 minimized request to the **Anthropic API** and keeps no wardrobe or model payload after request
-processing. Fly v16 retains the enabled provider-call path under the existing approved budget policy.
+processing. Fly v17 retains the enabled provider-call path under the existing approved budget policy.
 The first protected TestFlight styling result passed on 12 September.
 
 ```mermaid
@@ -205,7 +210,7 @@ owner qualitative acceptance with the numeric rubric explicitly left incomplete.
 caching is off until production cadence supports reuse; evaluation can opt into a five-minute marker
 on the static rubric and tool definition only. The app sends compact text attributes, recent-worn
 IDs, bounded rating summaries, and an optional occasion. None of this payload enters either database.
-The sequence below describes the enabled v16 pilot. Admission still fails closed if styling is
+The sequence below describes the enabled v17 pilot. Admission still fails closed if styling is
 disabled or the existing budget cannot safely admit the request.
 
 ```mermaid
@@ -306,7 +311,7 @@ and does not perform an in-place migration from the older Gmail-capable builds.
 | Capture | UIKit camera bridge + PhotosPicker |
 | On-device image work | UIKit/Vision where supported; device-bound paths are gated in tests |
 | Backend | FastAPI + locked Anthropic SDK 1.4.0/httpx2; uv, Ruff, mypy, pytest |
-| AI runtime | Enabled bounded pilot on v16; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
+| AI runtime | Enabled bounded pilot on v17; pinned Sonnet 5 “Aria”, strict forced tool, no thinking, cache off |
 | Budget controls | Provisioned and configured; separate durable SQLite ledger with verified private policy and atomic global month/token/admission/concurrency limits |
 | Tests | Swift Testing, UI tests, pytest, request-capture and release-artifact guards |
 | CI | GitHub Actions |
@@ -362,8 +367,8 @@ flowchart LR
   Saved provider limits/notifications and sufficient credit do not prove alert delivery. The
   current daily owner-review path does not rely on that unproven delivery or require the deferred
   Fly monitor; variable hosting charges and detection delay remain explicit operating risks.
-- The validated image shared by v15 and v16 is the current recovery reference, subject to fresh identity/security
-  and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
+- The verified v17 image is the current recovery reference, subject to fresh identity/security
+  and ledger-compatibility checks. The v15/v16 image is ineligible after the High zlib finding. The old v11–v14 image is historical and ineligible after its
   Critical AnyIO finding. Preserve the existing ledger and limits without initialization or reset. Pre-budget v10 must not become a normal rollback target after cutover. Recovery must
   preserve and reverify the same ledger, policy and liability.
   See [AI spend controls](ai-spend-controls.md) for the remaining operational gates.

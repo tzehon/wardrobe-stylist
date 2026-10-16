@@ -1,5 +1,10 @@
 # Setup guide
 
+Current deployment evidence: [16 October build-8 preparation](app-store/build8-release-20261016.md). Fly v17 accepts
+builds 4–8 with the original resources, secrets and budget accounting preserved. Commerce binding
+and paid features remain inactive; build 8 is still unuploaded. The v15/v16 image is no longer
+eligible for recovery after the High zlib finding.
+
 > **23 September status:** Apple approved build 7 and the owner-authorized manual release
 > completed after the full preflight passed. The public Singapore listing is live and availability was verified. Fly v15 was deployed at that checkpoint. See the [launch record](app-store/launch-check-20260923.md) for that dated evidence;
 > earlier rejection, wait-for-reply and unapproved-release statements below are historical.
@@ -14,7 +19,7 @@ The active checkout removes the earlier read-only Gmail/receipt-import subsystem
 [`gcp-oauth-production-sequence.md`](gcp-oauth-production-sequence.md) are historical/deferred
 references, not v1 setup steps.
 
-Current runtime: **Fly v16 retains the enabled bounded AI pilot**, with categories `2,4`,
+Current runtime: **Fly v17 retains the enabled bounded AI pilot**, with categories `2,4`,
 original resources, App Attest signing, private policy and intact ledger preserved. The
 [29 September rotation](app-store/key-rotation-20260929.md) changed only the provider key;
 the old key is disabled and the replacement expires on 30 November 2026. The 23 September
@@ -223,7 +228,7 @@ and verify them on a real device. App Attest is also a physical-device boundary.
 The key lives only on the backend—never in the app. Put it in `backend/.env` locally and a Fly
 secret in production. The owner approved the private launch budget and daily monitoring policy
 on 2026-09-06 after measured Sonnet costs; those values remain private and are applied to the
-enabled v16 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
+enabled v17 pilot. The verified existing ledger supplies the admission ceiling for styling calls. The production workspace, monthly cap and email settings are saved and verified;
 one approved credit purchase is paid with sufficient usable balance and auto-reload off. Its
 workspace-scoped key was transferred through hidden owner input and deployed without local secret
 persistence. The [29 September rotation](app-store/key-rotation-20260929.md) deployed a replacement
@@ -282,8 +287,8 @@ writes. Its 9 September live read-only check passed without changing the runtime
 The earlier `styling-budget-evidence-open` result is retained as historical evidence of the
 ownership-context defect. That 9 September diagnostic check was not a full pre-upload pass;
 the later 10 September combined beta-only review is recorded in the runbook.
-The validated image shared by v15 and v16 is the current recovery reference, subject to fresh identity/security
-and ledger-compatibility checks. The old v11–v14 image is historical and ineligible after its
+The verified v17 image is the current recovery reference, subject to fresh identity/security
+and ledger-compatibility checks. The v15/v16 image is ineligible after the High zlib finding. The old v11–v14 image is historical and ineligible after its
 Critical AnyIO finding; its past v12 restart proof does not override that security failure. Pre-budget v10 lacks these
 controls and must not become a normal rollback target after cutover. Preserve the same ledger,
 policy and liability through future recovery. Updating the production source/configuration lock must follow an actual
