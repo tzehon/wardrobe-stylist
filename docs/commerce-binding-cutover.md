@@ -228,5 +228,7 @@ and the source audit do not close those gates. Do not raise the iOS deployment t
 
 This checkpoint changes documentation only: source/path/hash consistency and Markdown links
 were checked; no new runtime regression or device run is claimed. No additional TestFlight build
-is required for these documents. The earlier unshipped Swift helpers and future signer require
-a new build before distribution, with the next unused number verified in App Store Connect.
+was required for these documents. The subsequent [16 October release](app-store/build8-release-20261016.md)
+uploaded and processed `1.0.1 (8)`, satisfying the implemented inactive helpers/signer build
+requirement. Build 8 is consumed; physical compatibility and promotion remain open. Future
+implementation changes still require a new build with its unused number verified first.

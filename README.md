@@ -203,8 +203,9 @@ passed **239 iOS tests** (229 Swift unit, including both shared-corpus tests, pl
 **44 release-script tests**, and the Release simulator build/artifact/privacy-manifest checks.
 This closes the earlier Linux toolchain gap (39 script passes / five missing-Clang errors and no
 Apple toolchain). It does not prove signed-device behavior or the future commerce integration.
-The added Swift source requires a new TestFlight build before distribution; no build number,
-upload, production runtime, credentials or spending limits were changed.
+At this source checkpoint, the added Swift source required a new TestFlight build; no build
+number, upload, production runtime, credentials or spending limits were changed. The 16 October
+`1.0.1 (8)` delivery below now satisfies that build requirement.
 
 ### Durable commerce storage — 3 October, inactive
 
@@ -249,9 +250,10 @@ UUID signed by another key is not ownership proof. Durable binding and the colle
 trust boundary remain open. Official Apple roots are test fixtures only; upstream mock evidence
 is correctly rejected by them. No product flow calls these helpers.
 
-This adds unshipped Swift source and requires a new TestFlight build **before distribution**.
-No build number, upload, production deployment or paid activation is included. Physical StoreKit
-compatibility and the eventual attested collection path remain separate evidence gates.
+At this source checkpoint, the added Swift source required a new TestFlight build; no build
+number, upload, production deployment or paid activation was included. The subsequent
+`1.0.1 (8)` delivery satisfies that build requirement. Physical StoreKit compatibility and the
+eventual attested collection path remain separate evidence gates.
 
 Local regression passed 1,093 backend tests, the locked dependency audit, Bandit, Ruff and mypy.
 The implementation PR records macOS/iOS regression and review results.

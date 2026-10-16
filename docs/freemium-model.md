@@ -361,9 +361,10 @@ account-specific amounts or limits.
    it is not ready for paid distribution. Country expansion remains after proven Singapore operation.
 
 The proposal is now accompanied by inactive policy/contract source. No live subscription, customer
-quota, paid call, production change or new spend envelope was created. A new TestFlight build is
-required before distributing the changed iOS source; select the next unused build only after
-checking App Store Connect. The current build number remains unchanged.
+quota, paid call or new spend envelope was created by that source slice. The subsequent
+[16 October release](app-store/build8-release-20261016.md) deployed verified Fly v17 and uploaded
+`1.0.1 (8)`, satisfying the inactive Swift source build requirement. Build 8 is consumed; physical
+compatibility and promotion remain open, and commerce/paid features remain disabled.
 
 ## Ownership, verification and privacy
 
@@ -417,5 +418,6 @@ The approved sequence is Free Singapore v1, then freemium in Singapore, then car
 country expansion. This documentation does not add a paywall, enable AI, configure an Apple product
 or authorize purchases. A later freemium implementation requires the customer UI, verified commerce
 and metering, lifecycle/restore tests, privacy review and a new iOS build through the full release
-process. The inactive foundation has not been distributed; its new Swift source requires a new
-TestFlight build before distribution.
+process. The current inactive foundation is included in uploaded, processed `1.0.1 (8)`, assigned
+to Family with zero testers by owner decision. That satisfies its build requirement, not physical
+compatibility, installation evidence, ownership authorization or paid activation.
