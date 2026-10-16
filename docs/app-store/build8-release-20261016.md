@@ -105,3 +105,16 @@ This authorizes the replacement tests, signed archive, Apple validation and inte
 upload. It does not submit a public version or enable commerce/paid features. The rejected
 `1.0.0 (8)` archive remains historical and unusable. Full regression and the replacement
 archive/distribution checks must pass before this candidate is delivered.
+
+## Validated replacement archive
+
+The owner-approved `1.0.1 (8)` archive was built from clean synchronized main
+`031911aa7a2da76d10fc33ea47dbe914b186eed1` after the repeated full regression and fresh pre-archive review.
+Exact archive: `Wardrobe-1.0.1-8-031911a-appstore-20261016T032606Z.xcarchive`.
+Strict archive verification passed at `2026-10-16T03:26:54.559883+00:00`; Apple validation passed
+at `2026-10-16T03:29:38.122393+00:00`. The archive uses Apple Distribution signing, production
+App Attest, minimum iOS 18, matching arm64 app/dSYM, and the unchanged public configuration.
+App CDHash: `b63f9b2904beb8f4a2e0211015797dad59b34f54`; dSYM UUID: `081b03eb-3e91-3001-8bc5-83dd29a0c5b2`.
+The operations lock now binds that exact candidate for the fresh clean-main pre-upload review.
+Upload, Apple processing, internal Family assignment and saved tester notes remain open.
+The rejected `1.0.0 (8)` archive remains unusable. Commerce binding and paid features remain off.
