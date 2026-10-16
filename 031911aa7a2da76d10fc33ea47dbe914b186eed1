@@ -1,0 +1,31 @@
+ios/project.yml
+  s_db369c268bb0b7::t_d84ba7296ac184 14
+AGENTS.md
+  s_db369c268bb0b7::t_d84ba7296ac184 399-401
+docs/app-store/build8-release-20261016.md
+  s_db369c268bb0b7::t_d84ba7296ac184 99-107
+README.md
+  s_db369c268bb0b7::t_d84ba7296ac184 301-303,305
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_d84ba7296ac184 8
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_d84ba7296ac184 8
+docs/release-plan.md
+  s_db369c268bb0b7::t_d84ba7296ac184 22-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "031911aa7a2da76d10fc33ea47dbe914b186eed1",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
