@@ -107,9 +107,9 @@ choice, not a reason to grant account roles casually.
 
 ## Current: operate the verified small AI pilot
 
-The [29 September provider-key rotation](app-store/key-rotation-20260929.md) is complete on
-Fly v16, with the unchanged runtime image/source and preserved storage, other secrets and budget
-accounting. The old key is disabled; rotate the replacement before **30 November 2026**.
+The [29 September provider-key rotation](app-store/key-rotation-20260929.md) completed on
+Fly v16. The [16 October v17 deployment](app-store/build8-release-20261016.md) preserves that key,
+other secrets, storage and budget accounting while repairing zlib and accepting build 8. The old key is disabled; rotate the replacement before **30 November 2026**.
 
 Keep the existing backend, anonymous App Attest access, server-held provider key and durable global
 AI budget. Do not redesign authentication, migrate storage, reset the ledger or evaluate another
@@ -157,7 +157,7 @@ has saved the listing, Lifestyle category, age rating 9+, owner-confirmed conten
 reviewer instructions, no-sign-in/manual-release settings and existing build 7. Five fictional
 screenshots are uploaded, ordered and reload-verified. Free pricing and disabled Mac/Vision
 availability are also saved and reload-verified. Agreements and bank/tax/DSA status are active; only Singapore is
-selected. Fly v16 retains categories `2,4`; the historical v14 independent configuration verification passed at
+selected. Fly v17 retains categories `2,4`; the historical v14 independent configuration verification passed at
 `2026-09-12T06:36:24Z` with the exact original image/resources, secrets, policy and intact ledger.
 No paid call was made. The full post-change review at `2026-09-12T07:09:37Z` completed with the
 approved Cowork-only status exception; all other operational checks passed, including the recovery-image scan.

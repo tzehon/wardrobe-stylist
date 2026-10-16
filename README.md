@@ -42,12 +42,14 @@ with the correct app name, developer, Free price and iPhone-only availability.
 The release is Free, with no in-app purchases or subscriptions and no Mac/Vision distribution.
 [App Store destination](https://apps.apple.com/sg/app/wardrobe-stylist/id6789053566).
 
-Fly **v16** (provider key rotated on 29 September), runtime source `cb81d7c0e35fd36917bde0a4ab78c8bd456c257b`, contains the AnyIO
-security fix and repaired read-only diagnostic. Exact image scans have zero High/Critical
-findings. Auth integrity/capacity, disk, enabled AI budget, snapshot policy, bounded logs,
-public routes/pages and fresh console checks pass. Original resources, App Attest signing, private
-limits, auth storage and aggregate budget liability were preserved; only the provider key changed. The old v11–v14 image is not an
-eligible recovery target. No new iOS build or upload was needed; approved build 7 was released.
+Fly **v17**, runtime source `bd40450286d8703e4805cc554bf8e0100b6ba04a`, includes the zlib
+security repair and accepts builds 4–8. Exact local/registry scans found zero High/Critical
+issues, and independent runtime, auth/storage, budget, snapshot, logging and public-route checks
+passed on 16 October. Original resources, secrets, private limits and accounting were preserved.
+The v15/v16 image is now ineligible after a High zlib finding; v11–v14 remain ineligible after
+Critical AnyIO findings. Build 8 is still unuploaded; the public release remains build 7.
+See the [build-8 release evidence](docs/app-store/build8-release-20261016.md).
+
 
 The owner confirmed successful App Store download and launch by **23:02 SGT**. The public
 support link and existing operating routine were handed off in the same task. This is owner-
@@ -146,8 +148,9 @@ Existing history without recorded attribution remains untracked.
 
 The [29 September key rotation](docs/app-store/key-rotation-20260929.md) passed 879 backend
 tests plus the locked security/type/lint gates, 237 iOS tests and 44 release-script tests.
-The replacement is verified on Fly v16 and the old key is disabled. Fly aggregate HTTP metrics
-returned no data; direct health/authentication and bounded-event checks passed separately.
+At that rotation checkpoint, the replacement was verified on Fly v16 and the old key disabled.
+Fly aggregate HTTP metrics returned no data then; the 16 October official API refresh now supplies
+aggregate status evidence. Direct health/authentication and bounded-event checks passed separately.
 
 The September 23 remediation passed **879 backend tests** plus locked pip-audit, Bandit, Ruff
 and mypy, **237 iOS tests** (227 Swift and 10 UI), and **44 release-script tests**.

@@ -847,7 +847,7 @@ upload were separate pending gates at that checkpoint; no paid call, production 
   session with the expected completed-challenge and registration-success evidence recorded above.
 - APP-009's lifecycle/logging policy is approved in
   [`app-attest-data-lifecycle-policy.md`](app-attest-data-lifecycle-policy.md). The current enabled
-  Fly v16 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
+  Fly v17 bounded pilot retains its verified repository-owned enforcement; v10 is historical evidence.
   On 2026-08-19 the owner accepted Fly's fixed seven-day
   customer-visible logs, undisclosed provider-internal in-service retention, and 14-day
   snapshot-listing boundary with undisclosed all-copy purge timing. An isolated, secret-free,
@@ -1910,7 +1910,7 @@ identity or notification evidence.
   passed; the device screenshot covers normal-state centering/legibility and automated tests own
   enabled/pressed/disabled contrast. The new disk-persistence regression and full suite passed.
   Reuse unchanged media/notification evidence and the brief local/Demo observations; no routine
-  catalog or button-state phone checklist remains. The separately approved bounded v16 pilot
+  catalog or button-state phone checklist remains. The separately approved bounded v17 pilot
   is enabled; its one protected-device verification call passed on 12 September.
 - [x] **Legacy Google project shutdowns:** the owner explicitly requested deletion on 19 September.
   Both inventoried Wardrobe projects were shut down; see the
