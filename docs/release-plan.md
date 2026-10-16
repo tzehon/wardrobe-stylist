@@ -19,8 +19,8 @@ after the owner-provided 14 October Build Uploads screenshot confirmed build 7 l
 App Attest allowlist now includes build 8. The exact security-remediated source deployed as Fly v17
 and passed independent verification on 16 October; see the [build-8 evidence](app-store/build8-release-20261016.md).
 The fresh clean-main review and signed archive checks passed, but Apple rejected `1.0.0 (8)`
-because the published version train is closed. Await the owner’s higher-version decision before
-rebuilding and completing signed distribution; physical compatibility remains open. Next resolve a server-verifiable
+because the published version train is closed. The owner approved replacement `1.0.1 (8)`; rerun full regression, rebuild
+and complete signed distribution; physical compatibility remains open. Next resolve a server-verifiable
 ownership authority before implementing an authorizing binding coordinator; the current composition
 cannot prevent an instrumented app from signing borrowed evidence. The owner-selected validation candidate in the
 [1 October pricing and allowance proposal](freemium-model.md#pricing-and-allowance-proposal--1-october-2026)

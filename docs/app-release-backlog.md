@@ -5,7 +5,7 @@
 The reviewed security repair deployed as Fly v17 with accepted builds 4–8. Independent live
 checks passed while preserving the existing resources, secrets and budget accounting. Build 8
 is still unuploaded. The signed `1.0.0 (8)` archive passed local checks, but Apple rejected its
-closed `1.0.0` version train. An owner-approved higher marketing version and replacement archive
+closed `1.0.0` version train. The owner approved replacement `1.0.1 (8)`; full regression and a new signed archive
 are required before internal TestFlight distribution; candidate compatibility remains open. Commerce binding and paid features remain inactive. See the [ordered release evidence](app-store/build8-release-20261016.md).
 
 > **Public release — 23 September:** After the complete production preflight passed at
