@@ -9,11 +9,11 @@ expected_fly_app = "wardrobe-backend-faithful-silence-9494"
 expected_fly_release_version = 17
 expected_region = "sin"
 
-expected_archive_basename = "Wardrobe-1.0.0-7-0cc0fa7-appstore-final-20260829T110218Z.xcarchive"
-expected_marketing_version = "1.0.0"
-expected_build_number = "7"
-expected_app_cdhash = "8d8b6dbc61e2d517fc8e2f9bd4b4ad0206089e64"
-expected_dsym_uuid = "81849d80-b84a-379d-b84f-7b13d580c385"
+expected_archive_basename = "Wardrobe-1.0.1-8-031911a-appstore-20261016T032606Z.xcarchive"
+expected_marketing_version = "1.0.1"
+expected_build_number = "8"
+expected_app_cdhash = "b63f9b2904beb8f4a2e0211015797dad59b34f54"
+expected_dsym_uuid = "081b03eb-3e91-3001-8bc5-83dd29a0c5b2"
 expected_backend_url = "https://wardrobe-backend-faithful-silence-9494.fly.dev"
 
 expected_auth_schema_version = 4

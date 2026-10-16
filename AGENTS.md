@@ -398,7 +398,9 @@ App Attest is also a physical-device boundary. Simulator tests use an injected f
   checks passed at 03:02–03:03Z on 16 October, but Apple validation rejected the closed `1.0.0`
   release train at 03:05:51Z. That archive is not uploadable. The owner then explicitly approved
   replacement `1.0.1 (8)`, including required regression, signing and internal TestFlight upload.
-  Build 8 is not uploaded; public submission and commerce/paid activation remain outside scope. The verified v17 image is the current recovery
+  The replacement `1.0.1 (8)` archive from clean main `031911a` passed strict local checks and
+  Apple validation; the operations lock now binds it for pre-upload review. Build 8 is not uploaded.
+  Public submission and commerce/paid activation remain outside scope. The verified v17 image is the current recovery
   candidate, subject to fresh checks; v15/v16 now have a High zlib finding, and v11–v14 have
   the Critical AnyIO finding. None of those older images may be restored as normal recovery.
   Historical v13 activation and v14 compatibility reviews passed on 12 September with the

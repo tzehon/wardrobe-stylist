@@ -297,9 +297,10 @@ resources/secrets/budget accounting, auth integrity/capacity, snapshots, logs an
 The old v15/v16 image is no longer eligible for recovery; use the verified v17 image subject to
 fresh checks. See the [ordered build-8 evidence](docs/app-store/build8-release-20261016.md).
 
-Build 8 remains unuploaded. The full clean-main review and signed `1.0.0 (8)` archive checks
-passed, but Apple rejected validation because the published `1.0.0` train is closed. The owner approved
-`1.0.1 (8)` as the replacement candidate. Full regression, a replacement archive, validation/upload,
-processing and candidate-specific physical evidence remain. The rejected archive must not be uploaded. Commerce binding and paid features stay inactive.
+Build `1.0.1 (8)` now has a production-signed archive that passed strict artifact checks and
+Apple validation. The earlier `1.0.0 (8)` archive was rejected because that version train is closed
+and must never be uploaded. The operations lock binds the validated replacement; fresh clean-main
+pre-upload review, upload/processing, Family assignment and candidate-specific physical evidence
+remain. Commerce binding and paid features stay inactive.
 This backend repair alone needs no iOS build; the prepared Swift changes and requested distribution
 still require the owner-approved replacement `1.0.1 (8)`.
