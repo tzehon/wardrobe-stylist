@@ -1,0 +1,38 @@
+docs/release-plan.md
+  s_4e8cdbb2a30473::t_cb0814d115dc48 21-23
+docs/app-store/internal-testflight-runbook.md
+  s_4e8cdbb2a30473::t_cb0814d115dc48 7-9
+AGENTS.md
+  s_4e8cdbb2a30473::t_cb0814d115dc48 397-400
+docs/app-release-backlog.md
+  s_4e8cdbb2a30473::t_cb0814d115dc48 7-9
+README.md
+  s_4e8cdbb2a30473::t_cb0814d115dc48 300-303
+docs/app-store/build8-release-20261016.md
+  s_db369c268bb0b7::t_b916589749e4a0 72-94,97-98
+  s_4e8cdbb2a30473::t_8f2066f1ed440f 95-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f031c4c07c2c16a39efedafaecaa1855c777e54d",
+  "prompts": {},
+  "sessions": {
+    "s_4e8cdbb2a30473": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    },
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
