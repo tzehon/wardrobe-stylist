@@ -1,0 +1,27 @@
+README.md
+  s_db369c268bb0b7::t_f681d3b439e022 45-52,151-153
+docs/app-release-backlog.md
+  s_db369c268bb0b7::t_9370bb7d6d3847 645
+docs/app-store/internal-testflight-runbook.md
+  s_db369c268bb0b7::t_2c860914cd00d7 850,1913
+docs/fly-spend-controls.md
+  s_db369c268bb0b7::t_3feb24a652bd54 74
+docs/release-plan.md
+  s_db369c268bb0b7::t_cdb1d69c3445bc 110-112,160
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "41c65238d6dd2275410818218340932ca439c44f",
+  "prompts": {},
+  "sessions": {
+    "s_db369c268bb0b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a1425e-03d9-78f1-9f7b-14e5ea2a975c",
+        "model": "unknown"
+      },
+      "human_author": "tth <tzehon.tan@gmail.com>"
+    }
+  }
+}
